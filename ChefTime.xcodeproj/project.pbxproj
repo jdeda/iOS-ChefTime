@@ -7,18 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		97AD13B82A2E7392002FCE30 /* ChefTimeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B72A2E7392002FCE30 /* ChefTimeApp.swift */; };
-		97AD13BA2A2E7392002FCE30 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B92A2E7392002FCE30 /* ContentView.swift */; };
+		97AD13B82A2E7392002FCE30 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B72A2E7392002FCE30 /* Main.swift */; };
 		97AD13BC2A2E7394002FCE30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BB2A2E7394002FCE30 /* Assets.xcassets */; };
 		97AD13BF2A2E7394002FCE30 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BE2A2E7394002FCE30 /* Preview Assets.xcassets */; };
+		97AD13C62A2E73C8002FCE30 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13C52A2E73C8002FCE30 /* AppView.swift */; };
+		97AD13C92A2E7431002FCE30 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 97AD13C82A2E7431002FCE30 /* ComposableArchitecture */; };
+		97AD13CC2A2E7447002FCE30 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = 97AD13CB2A2E7447002FCE30 /* Tagged */; };
+		97AD13CF2A2E74C2002FCE30 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13CE2A2E74C2002FCE30 /* RecipeView.swift */; };
+		97AD13D12A2E74D9002FCE30 /* IngredientsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13D02A2E74D9002FCE30 /* IngredientsView.swift */; };
+		97AD13D32A2E74E9002FCE30 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13D22A2E74E9002FCE30 /* Model.swift */; };
+		97AD13D52A2E7511002FCE30 /* CollapsibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13D42A2E7511002FCE30 /* CollapsibleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		97AD13B42A2E7392002FCE30 /* ChefTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChefTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		97AD13B72A2E7392002FCE30 /* ChefTimeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChefTimeApp.swift; sourceTree = "<group>"; };
-		97AD13B92A2E7392002FCE30 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		97AD13B72A2E7392002FCE30 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		97AD13BB2A2E7394002FCE30 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97AD13BE2A2E7394002FCE30 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		97AD13C52A2E73C8002FCE30 /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
+		97AD13CE2A2E74C2002FCE30 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RecipeView.swift; path = ../RecipeView.swift; sourceTree = "<group>"; };
+		97AD13D02A2E74D9002FCE30 /* IngredientsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientsView.swift; sourceTree = "<group>"; };
+		97AD13D22A2E74E9002FCE30 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		97AD13D42A2E7511002FCE30 /* CollapsibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +36,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97AD13CC2A2E7447002FCE30 /* Tagged in Frameworks */,
+				97AD13C92A2E7431002FCE30 /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -51,8 +63,12 @@
 		97AD13B62A2E7392002FCE30 /* ChefTime */ = {
 			isa = PBXGroup;
 			children = (
-				97AD13B72A2E7392002FCE30 /* ChefTimeApp.swift */,
-				97AD13B92A2E7392002FCE30 /* ContentView.swift */,
+				97AD13B72A2E7392002FCE30 /* Main.swift */,
+				97AD13C52A2E73C8002FCE30 /* AppView.swift */,
+				97AD13CE2A2E74C2002FCE30 /* RecipeView.swift */,
+				97AD13D42A2E7511002FCE30 /* CollapsibleView.swift */,
+				97AD13D22A2E74E9002FCE30 /* Model.swift */,
+				97AD13D02A2E74D9002FCE30 /* IngredientsView.swift */,
 				97AD13BB2A2E7394002FCE30 /* Assets.xcassets */,
 				97AD13BD2A2E7394002FCE30 /* Preview Content */,
 			);
@@ -83,6 +99,10 @@
 			dependencies = (
 			);
 			name = ChefTime;
+			packageProductDependencies = (
+				97AD13C82A2E7431002FCE30 /* ComposableArchitecture */,
+				97AD13CB2A2E7447002FCE30 /* Tagged */,
+			);
 			productName = ChefTime;
 			productReference = 97AD13B42A2E7392002FCE30 /* ChefTime.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +131,10 @@
 				Base,
 			);
 			mainGroup = 97AD13AB2A2E7392002FCE30;
+			packageReferences = (
+				97AD13C72A2E7431002FCE30 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				97AD13CA2A2E7447002FCE30 /* XCRemoteSwiftPackageReference "swift-tagged" */,
+			);
 			productRefGroup = 97AD13B52A2E7392002FCE30 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -137,8 +161,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				97AD13BA2A2E7392002FCE30 /* ContentView.swift in Sources */,
-				97AD13B82A2E7392002FCE30 /* ChefTimeApp.swift in Sources */,
+				97AD13D32A2E74E9002FCE30 /* Model.swift in Sources */,
+				97AD13CF2A2E74C2002FCE30 /* RecipeView.swift in Sources */,
+				97AD13C62A2E73C8002FCE30 /* AppView.swift in Sources */,
+				97AD13D52A2E7511002FCE30 /* CollapsibleView.swift in Sources */,
+				97AD13B82A2E7392002FCE30 /* Main.swift in Sources */,
+				97AD13D12A2E74D9002FCE30 /* IngredientsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,6 +367,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		97AD13C72A2E7431002FCE30 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.54.0;
+			};
+		};
+		97AD13CA2A2E7447002FCE30 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-tagged.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		97AD13C82A2E7431002FCE30 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 97AD13C72A2E7431002FCE30 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		97AD13CB2A2E7447002FCE30 /* Tagged */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 97AD13CA2A2E7447002FCE30 /* XCRemoteSwiftPackageReference "swift-tagged" */;
+			productName = Tagged;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 97AD13AC2A2E7392002FCE30 /* Project object */;
 }
