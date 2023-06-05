@@ -17,16 +17,16 @@ struct Recipe: Identifiable, Equatable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    let name: String
-    let ingredients: IdentifiedArrayOf<Ingredient>
+    var name: String
+    var ingredients: IdentifiedArrayOf<Ingredient>
     
     struct Ingredient: Identifiable, Equatable {
       typealias ID = Tagged<Self, UUID>
 
       let id: ID
-      let name: String
-      let amount: Double
-      let measure: String
+      var name: String
+      var amount: Double
+      var measure: String
     }
   }
   
@@ -34,8 +34,8 @@ struct Recipe: Identifiable, Equatable {
     typealias ID = Tagged<Self, UUID>
 
     let id: ID
-    let name: String
-    let steps: [String]
+    var name: String
+    var steps: [String]
   }
 }
 
