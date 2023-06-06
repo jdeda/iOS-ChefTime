@@ -1,131 +1,100 @@
 import SwiftUI
 import ComposableArchitecture
-import Combine
 
-struct IngredientView: View {
-  let store: StoreOf<IngredientReducer>
-  
+struct IngredientSectionView: View {
+  let store: StoreOf<IngredientSectionReducer>
   var body: some View {
     WithViewStore(store, observe: \.viewState) { viewStore in
-      HStack {
-        VStack(alignment: .leading) {
-          TextField("Untitled Ingredient", text: viewStore.binding(
-            get: { "\($0.ingredient.name)" },
-            send: { .ingredientNameEdited($0) }
-          ))
-          HStack(spacing: 0) {
-            TextField("00", text: viewStore.binding(
-              get: { $0.ingredientAmountString },
-              send: { .ingredientAmountEdited($0) }
-            ))
-            .keyboardType(.numberPad)
-            .numbersOnly(
-              viewStore.binding(
-                get: { $0.ingredientAmountString },
-                send: { .ingredientAmountEdited($0) }
-              ),
-              includeDecimal: true
-            )
-            .frame(width: CGFloat(viewStore.ingredientAmountString.count * 9) + 2)
-            
-            TextField("\(viewStore.ingredient.measure)", text: viewStore.binding(
-              get: { "\($0.ingredient.measure)" },
-              send: { .ingredientMeasureEdited($0) }
-            ))
-            Spacer()
+      DisclosureGroup(isExpanded: viewStore.binding(
+        get: { $0.isExpanded },
+        send: { _ in .isExpandedButtonToggled }
+      )) {
+        ForEachStore(store.scope(
+          state: \.viewState.ingredients,
+          action: IngredientSectionReducer.Action.ingredient
+        )) { childStore in
+          VStack {
+            IngredientView(store: childStore)
+            Divider()
           }
         }
-        Spacer()
+      } label: {
+        Text(viewStore.ingredientSection.name)
+          .font(.title3)
+          .fontWeight(.bold)
+          .foregroundColor(.primary)
       }
+      .accentColor(.primary)
     }
   }
 }
 
-struct IngredientReducer: ReducerProtocol {
+struct IngredientSectionReducer: ReducerProtocol  {
   struct State: Equatable {
     var viewState: ViewState
   }
   
   enum Action: Equatable {
-    case ingredientNameEdited(String)
-    case ingredientAmountEdited(String)
-    case ingredientMeasureEdited(String)
+    case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
+    case isExpandedButtonToggled
   }
   
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
-        
-      case let .ingredientNameEdited(newName):
-        state.viewState.ingredient.name = newName
+      case let .ingredient(id, action):
         return .none
         
-      case let .ingredientAmountEdited(newAmount):
-        state.viewState.ingredientAmountString = newAmount
-        return .none
-        
-      case let .ingredientMeasureEdited(newMeasure):
-        state.viewState.ingredient.measure = newMeasure
+      case .isExpandedButtonToggled:
+        state.viewState.isExpanded.toggle()
         return .none
       }
+    }
+    .forEach(\.viewState.ingredients, action: /Action.ingredient) {
+      IngredientReducer()
     }
   }
 }
 
-extension IngredientReducer {
+extension IngredientSectionReducer {
   struct ViewState: Equatable {
-    var ingredient: Recipe.Ingredients.Ingredient
-    var ingredientAmountString: String = ""
+    var ingredientSection: Recipe.Ingredients
+    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
+    var isExpanded: Bool
     
-    init(ingredient: Recipe.Ingredients.Ingredient) {
-      self.ingredient = ingredient
-      self.ingredientAmountString = String(ingredient.amount)
+    init(ingredientSection: Recipe.Ingredients, isExpanded: Bool) {
+      self.ingredientSection = ingredientSection
+      self.ingredients = .init(uniqueElements: ingredientSection.ingredients.map({
+        .init(
+          id: .init(),
+          viewState: .init(
+            ingredient: $0
+          )
+        )
+      }))
+      self.isExpanded = isExpanded
     }
   }
 }
 
-
-struct IngredientView_Previews: PreviewProvider {
+struct IngredientSectionView_Previews: PreviewProvider {
   static var previews: some View {
-    IngredientView(store: .init(
-      initialState: .init(viewState: .init(ingredient: Recipe.mock.ingredients.first!.ingredients.first!)),
-      reducer: IngredientReducer.init,
-      withDependencies: { _ in
-        // TODO:
-      }
-    ))
-  }
-}
-
-private struct NumbersOnlyViewModifier: ViewModifier {
-  @Binding var text: String
-  var includeDecimal: Bool
-  
-  func body(content: Content) -> some View {
-    content
-      .keyboardType(includeDecimal ? .decimalPad : .numberPad)
-      .onReceive(Just(text)) { newValue in
-        var numbers = "0123456789"
-        let decimalSeparator = Locale.current.decimalSeparator ?? "."
-        if includeDecimal {
-          numbers += decimalSeparator
-        }
-        if newValue.components(separatedBy: decimalSeparator).count-1 > 1 {
-          let filtered = newValue
-          self.text = String(filtered.dropLast())
-        }
-        else {
-          let filtered = newValue.filter { numbers.contains($0) }
-          if filtered != newValue {
-            self.text = filtered
+    NavigationStack {
+      ScrollView {
+        IngredientSectionView(store: .init(
+          initialState: .init(
+            viewState: .init(
+              ingredientSection: Recipe.mock.ingredients.first!,
+              isExpanded: true
+            )
+          ),
+          reducer: IngredientSectionReducer.init,
+          withDependencies: { _ in
+            // TODO:
           }
-        }
+        ))
       }
-  }
-}
-
-private extension View {
-  func numbersOnly(_ text: Binding<String>, includeDecimal: Bool = false) -> some View {
-    self.modifier(NumbersOnlyViewModifier(text: text, includeDecimal: includeDecimal))
+      .padding()
+    }
   }
 }
