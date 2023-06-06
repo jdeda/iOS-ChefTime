@@ -105,6 +105,22 @@ struct IngredientsListView_Previews: PreviewProvider {
       .listStyle(.plain)
       .padding()
     }
+    NavigationStack {
+      ScrollView {
+        IngredientsListView(store: .init(
+          initialState: .init(
+            viewState: .init(
+              recipe: Recipe.mock
+            )
+          ),
+          reducer: IngredientsListReducer.init,
+          withDependencies: { _ in
+            // TODO:
+          }
+        ))
+      }
+      .padding()
+    }
   }
 }
 
