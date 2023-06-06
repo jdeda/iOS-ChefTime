@@ -1,5 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
+import Tagged
 
 // MARK: - View
 struct IngredientSectionView: View {
@@ -33,7 +34,10 @@ struct IngredientSectionView: View {
 
 // MARK: - Reducer
 struct IngredientSectionReducer: ReducerProtocol  {
-  struct State: Equatable {
+  struct State: Equatable, Identifiable {
+    typealias ID = Tagged<Self, UUID>
+    
+    let id: ID
     var viewState: ViewState
   }
   
@@ -101,6 +105,7 @@ struct IngredientSectionView_Previews: PreviewProvider {
       List {
         IngredientSectionView(store: .init(
           initialState: .init(
+            id: .init(),
             viewState: .init(
               ingredientSection: Recipe.mock.ingredients[1],
               isExpanded: true
