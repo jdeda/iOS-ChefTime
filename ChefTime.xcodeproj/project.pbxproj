@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		977D15552A2F7C4A00701A9F /* IngredientsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977D15542A2F7C4A00701A9F /* IngredientsListView.swift */; };
+		977D15572A2F834D00701A9F /* IngredientSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977D15562A2F834D00701A9F /* IngredientSectionView.swift */; };
 		97AD13B82A2E7392002FCE30 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B72A2E7392002FCE30 /* Main.swift */; };
 		97AD13BC2A2E7394002FCE30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BB2A2E7394002FCE30 /* Assets.xcassets */; };
 		97AD13BF2A2E7394002FCE30 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BE2A2E7394002FCE30 /* Preview Assets.xcassets */; };
@@ -22,6 +23,7 @@
 
 /* Begin PBXFileReference section */
 		977D15542A2F7C4A00701A9F /* IngredientsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientsListView.swift; sourceTree = "<group>"; };
+		977D15562A2F834D00701A9F /* IngredientSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSectionView.swift; sourceTree = "<group>"; };
 		97AD13B42A2E7392002FCE30 /* ChefTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChefTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AD13B72A2E7392002FCE30 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		97AD13BB2A2E7394002FCE30 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -70,6 +72,7 @@
 				97AD13CE2A2E74C2002FCE30 /* RecipeView.swift */,
 				97AD13D02A2E74D9002FCE30 /* IngredientsListView2.swift */,
 				977D15542A2F7C4A00701A9F /* IngredientsListView.swift */,
+				977D15562A2F834D00701A9F /* IngredientSectionView.swift */,
 				97AD13D42A2E7511002FCE30 /* CollapsibleView.swift */,
 				97AD13D22A2E74E9002FCE30 /* Model.swift */,
 				97AD13BB2A2E7394002FCE30 /* Assets.xcassets */,
@@ -171,6 +174,7 @@
 				97AD13D52A2E7511002FCE30 /* CollapsibleView.swift in Sources */,
 				97AD13B82A2E7392002FCE30 /* Main.swift in Sources */,
 				97AD13D12A2E74D9002FCE30 /* IngredientsListView2.swift in Sources */,
+				977D15572A2F834D00701A9F /* IngredientSectionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,0 +1,131 @@
+import SwiftUI
+import ComposableArchitecture
+import Combine
+
+struct IngredientView: View {
+  let store: StoreOf<IngredientReducer>
+  
+  var body: some View {
+    WithViewStore(store, observe: \.viewState) { viewStore in
+      HStack {
+        VStack(alignment: .leading) {
+          TextField("Untitled Ingredient", text: viewStore.binding(
+            get: { "\($0.ingredient.name)" },
+            send: { .ingredientNameEdited($0) }
+          ))
+          HStack(spacing: 0) {
+            TextField("00", text: viewStore.binding(
+              get: { $0.ingredientAmountString },
+              send: { .ingredientAmountEdited($0) }
+            ))
+            .keyboardType(.numberPad)
+            .numbersOnly(
+              viewStore.binding(
+                get: { $0.ingredientAmountString },
+                send: { .ingredientAmountEdited($0) }
+              ),
+              includeDecimal: true
+            )
+            .frame(width: CGFloat(viewStore.ingredientAmountString.count * 9) + 2)
+            
+            TextField("\(viewStore.ingredient.measure)", text: viewStore.binding(
+              get: { "\($0.ingredient.measure)" },
+              send: { .ingredientMeasureEdited($0) }
+            ))
+            Spacer()
+          }
+        }
+        Spacer()
+      }
+    }
+  }
+}
+
+struct IngredientReducer: ReducerProtocol {
+  struct State: Equatable {
+    var viewState: ViewState
+  }
+  
+  enum Action: Equatable {
+    case ingredientNameEdited(String)
+    case ingredientAmountEdited(String)
+    case ingredientMeasureEdited(String)
+  }
+  
+  var body: some ReducerProtocolOf<Self> {
+    Reduce { state, action in
+      switch action {
+        
+      case let .ingredientNameEdited(newName):
+        state.viewState.ingredient.name = newName
+        return .none
+        
+      case let .ingredientAmountEdited(newAmount):
+        state.viewState.ingredientAmountString = newAmount
+        return .none
+        
+      case let .ingredientMeasureEdited(newMeasure):
+        state.viewState.ingredient.measure = newMeasure
+        return .none
+      }
+    }
+  }
+}
+
+extension IngredientReducer {
+  struct ViewState: Equatable {
+    var ingredient: Recipe.Ingredients.Ingredient
+    var ingredientAmountString: String = ""
+    
+    init(ingredient: Recipe.Ingredients.Ingredient) {
+      self.ingredient = ingredient
+      self.ingredientAmountString = String(ingredient.amount)
+    }
+  }
+}
+
+
+struct IngredientView_Previews: PreviewProvider {
+  static var previews: some View {
+    IngredientView(store: .init(
+      initialState: .init(viewState: .init(ingredient: Recipe.mock.ingredients.first!.ingredients.first!)),
+      reducer: IngredientReducer.init,
+      withDependencies: { _ in
+        // TODO:
+      }
+    ))
+  }
+}
+
+private struct NumbersOnlyViewModifier: ViewModifier {
+  @Binding var text: String
+  var includeDecimal: Bool
+  
+  func body(content: Content) -> some View {
+    content
+      .keyboardType(includeDecimal ? .decimalPad : .numberPad)
+      .onReceive(Just(text)) { newValue in
+        var numbers = "0123456789"
+        let decimalSeparator = Locale.current.decimalSeparator ?? "."
+        if includeDecimal {
+          numbers += decimalSeparator
+        }
+        if newValue.components(separatedBy: decimalSeparator).count-1 > 1 {
+          let filtered = newValue
+          self.text = String(filtered.dropLast())
+        }
+        else {
+          let filtered = newValue.filter { numbers.contains($0) }
+          if filtered != newValue {
+            self.text = filtered
+          }
+        }
+      }
+  }
+}
+
+private extension View {
+  func numbersOnly(_ text: Binding<String>, includeDecimal: Bool = false) -> some View {
+    self.modifier(NumbersOnlyViewModifier(text: text, includeDecimal: includeDecimal))
+  }
+}
