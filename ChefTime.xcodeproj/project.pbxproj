@@ -18,7 +18,6 @@
 		97AD13CC2A2E7447002FCE30 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = 97AD13CB2A2E7447002FCE30 /* Tagged */; };
 		97AD13CF2A2E74C2002FCE30 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13CE2A2E74C2002FCE30 /* RecipeView.swift */; };
 		97AD13D32A2E74E9002FCE30 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13D22A2E74E9002FCE30 /* Model.swift */; };
-		97AD13D52A2E7511002FCE30 /* CollapsibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13D42A2E7511002FCE30 /* CollapsibleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,7 +31,6 @@
 		97AD13C52A2E73C8002FCE30 /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		97AD13CE2A2E74C2002FCE30 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RecipeView.swift; path = ../RecipeView.swift; sourceTree = "<group>"; };
 		97AD13D22A2E74E9002FCE30 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
-		97AD13D42A2E7511002FCE30 /* CollapsibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,7 +71,6 @@
 				977D15542A2F7C4A00701A9F /* IngredientsListView.swift */,
 				977D15582A2FB47300701A9F /* IngredientSectionView.swift */,
 				977D15562A2F834D00701A9F /* IngredientView.swift */,
-				97AD13D42A2E7511002FCE30 /* CollapsibleView.swift */,
 				97AD13D22A2E74E9002FCE30 /* Model.swift */,
 				97AD13BB2A2E7394002FCE30 /* Assets.xcassets */,
 				97AD13BD2A2E7394002FCE30 /* Preview Content */,
@@ -172,7 +169,6 @@
 				97AD13CF2A2E74C2002FCE30 /* RecipeView.swift in Sources */,
 				977D15592A2FB47300701A9F /* IngredientSectionView.swift in Sources */,
 				97AD13C62A2E73C8002FCE30 /* AppView.swift in Sources */,
-				97AD13D52A2E7511002FCE30 /* CollapsibleView.swift in Sources */,
 				97AD13B82A2E7392002FCE30 /* Main.swift in Sources */,
 				977D15572A2F834D00701A9F /* IngredientView.swift in Sources */,
 			);

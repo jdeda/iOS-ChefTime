@@ -16,16 +16,19 @@ struct IngredientSectionView: View {
           action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
           IngredientView(store: childStore)
+          Divider()
         }
       } label: {
-        TextField("Untitled Ingredient Section", text: viewStore.binding(
-          get: { $0.name},
-          send: { .ingredientSectionNameEdited($0) }
-        ))
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
+          TextField("Untitled Ingredient Section", text: viewStore.binding(
+            get: { $0.name},
+            send: { .ingredientSectionNameEdited($0) }
+          ))
+          .font(.title3)
+          .fontWeight(.bold)
+          .foregroundColor(.primary)
+          .accentColor(.accentColor)
+          .frame(alignment: .leading)
+          .multilineTextAlignment(.leading)
       }
       .accentColor(.primary)
     }
@@ -102,7 +105,7 @@ extension IngredientSectionReducer {
 struct IngredientSectionView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      List {
+      ScrollView {
         IngredientSectionView(store: .init(
           initialState: .init(
             id: .init(),
@@ -117,7 +120,6 @@ struct IngredientSectionView_Previews: PreviewProvider {
           }
         ))
       }
-      .listStyle(.plain)
       .padding()
     }
   }

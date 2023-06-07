@@ -87,24 +87,7 @@ extension IngredientsListReducer {
 
 // MARK: - Previews
 struct IngredientsListView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      List {
-        IngredientsListView(store: .init(
-          initialState: .init(
-            viewState: .init(
-              recipe: Recipe.mock
-            )
-          ),
-          reducer: IngredientsListReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
-        ))
-      }
-      .listStyle(.plain)
-      .padding()
-    }
+  static var previews: some View {  
     NavigationStack {
       ScrollView {
         IngredientsListView(store: .init(
