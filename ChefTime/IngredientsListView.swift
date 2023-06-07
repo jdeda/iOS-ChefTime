@@ -22,7 +22,7 @@ struct IngredientsListView: View {
       }
       label : {
         Text("Ingredients")
-          .font(.title3)
+          .font(.title)
           .fontWeight(.bold)
           .foregroundColor(.primary)
       }
@@ -46,7 +46,13 @@ struct IngredientsListReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case let .ingredient(id, action):
-        return .none
+        switch action {
+        case let .delegate(delegateAction):
+          state.viewState.ingredients.remove(id: id)
+          return .none
+        default:
+          return .none
+        }
         
       case .isExpandedButtonToggled:
         state.viewState.isExpanded.toggle()

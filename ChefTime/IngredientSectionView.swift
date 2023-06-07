@@ -30,7 +30,19 @@ struct IngredientSectionView: View {
           .frame(alignment: .leading)
           .multilineTextAlignment(.leading)
       }
+      .contextMenu(menuItems: {
+        Button(role: .destructive) {
+          // TODO: - Lots of lag. The context menu is laggy...
+          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+        } label: {
+          Text("Delete")
+        }
+      }, preview: {
+        IngredientSectionView(store: store)
+          .padding()
+      })
       .accentColor(.primary)
+
     }
   }
 }
@@ -48,6 +60,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
     case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
     case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
+    case delegate(DelegateAction)
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -71,6 +84,9 @@ struct IngredientSectionReducer: ReducerProtocol  {
         
       case let .ingredientSectionNameEdited(newName):
         state.viewState.name = newName
+        return .none
+        
+      case .delegate:
         return .none
       }
     }
@@ -98,6 +114,12 @@ extension IngredientSectionReducer {
       }))
       self.isExpanded = isExpanded
     }
+  }
+}
+
+extension IngredientSectionReducer {
+  enum DelegateAction: Equatable {
+    case deleteSectionButtonTapped
   }
 }
 

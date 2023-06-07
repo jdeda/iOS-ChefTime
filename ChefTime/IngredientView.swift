@@ -11,6 +11,7 @@ import Combine
 struct IngredientView: View {
   let store: StoreOf<IngredientReducer>
   @State var textSize: CGSize = .zero
+  @State private var offsets = [CGSize](repeating: CGSize.zero, count: 1)
   
   var body: some View {
     WithViewStore(store, observe: \.viewState) { viewStore in
@@ -30,10 +31,9 @@ struct IngredientView: View {
           text: viewStore.binding(
             get: { "\($0.ingredient.name)" },
             send: { .ingredientNameEdited($0) }
-          ),
-          axis: viewStore.ingredient.name.isEmpty ? .horizontal : .vertical
+          )
         )
-        .border(.red)
+        .scaledToFit()
         .autocapitalization(.none)
         .autocorrectionDisabled()
         
@@ -45,8 +45,7 @@ struct IngredientView: View {
           text: viewStore.binding(
             get: { $0.ingredientAmountString },
             send: { .ingredientAmountEdited($0) }
-          ),
-          axis: viewStore.ingredient.name.isEmpty ? .horizontal : .vertical
+          )
         )
         .keyboardType(.numberPad)
         .numbersOnly(
@@ -56,9 +55,9 @@ struct IngredientView: View {
           ),
           includeDecimal: true
         )
+        .scaledToFit()
         .autocapitalization(.none)
         .autocorrectionDisabled()
-        .border(.orange)
         
         /// The vertical axis screws everything up.
         /// I want a textfield that:
@@ -71,24 +70,22 @@ struct IngredientView: View {
           text: viewStore.binding(
             get: { "\($0.ingredient.measure)" },
             send: { .ingredientMeasureEdited($0) }
-          ),
-          axis: viewStore.ingredient.name.isEmpty ? .horizontal : .vertical
+          )
         )
+        .scaledToFit()
         .autocapitalization(.none)
         .autocorrectionDisabled()
-        .border(.yellow)
       }
       .foregroundColor(viewStore.isComplete ? .secondary : .primary)
       .accentColor(.accentColor)
-      .swipeActions {
-        Button(role: .destructive) {
-          viewStore.send(.delegate(.swipedToDelete))
-        } label: {
-          Image(systemName: "trash")
-        }
-      }
+//      .swipeActions {
+//        Button(role: .destructive) {
+//          viewStore.send(.delegate(.swipedToDelete))
+//        } label: {
+//          Image(systemName: "trash")
+//        }
+//      }
     }
-    .border(.blue)
   }
 }
 
