@@ -11,19 +11,23 @@ import SwiftUI
 struct ChefTimeApp: App {
     var body: some Scene {
         WindowGroup {
-            AppView()
-//          NavigationStack {
-//            ScrollView {
-//              IngredientsListView(store: .init(
-//                initialState: .init(viewState: .init(ingredients: Recipe.mock.ingredients)),
-//                reducer: IngredientsListReducer.init,
-//                withDependencies: { _ in
-//                  // TODO:
-//                }
-//              ))
-//            }
-//            .padding()
-//          }
+//            AppView()
+          NavigationStack {
+            ScrollView {
+              IngredientsListView(store: .init(
+                initialState: .init(
+                  viewState: .init(
+                    recipe: Recipe.mock
+                  )
+                ),
+                reducer: IngredientsListReducer.init,
+                withDependencies: { _ in
+                  // TODO:
+                }
+              ))
+            }
+            .padding()
+          }
         }
     }
 }

@@ -2,10 +2,9 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 import Combine
-import SwiftUI
-import ComposableArchitecture
-import Tagged
-import Combine
+
+// TODO: 1. Vertical Text Fields
+// TODO: 1. Swipe Gestures
 
 // MARK: - View
 struct IngredientView: View {
@@ -15,7 +14,7 @@ struct IngredientView: View {
   
   var body: some View {
     WithViewStore(store, observe: \.viewState) { viewStore in
-      HStack(alignment: .firstTextBaseline) {
+      HStack(alignment: .top) {
         
         // Checkbox
         Image(systemName: viewStore.isComplete ? "checkmark.square" : "square")
@@ -31,14 +30,12 @@ struct IngredientView: View {
           text: viewStore.binding(
             get: { "\($0.ingredient.name)" },
             send: { .ingredientNameEdited($0) }
-          )
+          ),
+          axis: .vertical
         )
-        .scaledToFit()
         .autocapitalization(.none)
         .autocorrectionDisabled()
-        
-        Spacer()
-        
+
         // Amount
         TextField(
           "...",
@@ -55,15 +52,10 @@ struct IngredientView: View {
           ),
           includeDecimal: true
         )
-        .scaledToFit()
+        .fixedSize()
         .autocapitalization(.none)
         .autocorrectionDisabled()
-        
-        /// The vertical axis screws everything up.
-        /// I want a textfield that:
-        /// 1. expands vertically
-        /// 2. takes up only its needed size
-        
+       
         // Measurement
         TextField(
           "...",
@@ -72,19 +64,19 @@ struct IngredientView: View {
             send: { .ingredientMeasureEdited($0) }
           )
         )
-        .scaledToFit()
+        .fixedSize()
         .autocapitalization(.none)
         .autocorrectionDisabled()
       }
       .foregroundColor(viewStore.isComplete ? .secondary : .primary)
       .accentColor(.accentColor)
-//      .swipeActions {
-//        Button(role: .destructive) {
-//          viewStore.send(.delegate(.swipedToDelete))
-//        } label: {
-//          Image(systemName: "trash")
-//        }
-//      }
+      .swipeActions {
+        Button(role: .destructive) {
+          viewStore.send(.delegate(.swipedToDelete))
+        } label: {
+          Image(systemName: "trash")
+        }
+      }
     }
   }
 }
@@ -235,7 +227,7 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case let .ingredientAmountEdited(newAmount):
-        state.viewState.ingredientAmountString = newAmount
+        state.viewState.ingredient.amount = Double(newAmount) ?? 0.0
         return .none
         
       case let .ingredientMeasureEdited(newMeasure):
@@ -255,12 +247,13 @@ struct IngredientReducer: ReducerProtocol {
 extension IngredientReducer {
   struct ViewState: Equatable {
     var ingredient: Recipe.Ingredients.Ingredient
-    var ingredientAmountString: String = ""
+    var ingredientAmountString: String {
+      String(ingredient.amount)
+    }
     var isComplete: Bool = false
     
     init(ingredient: Recipe.Ingredients.Ingredient) {
       self.ingredient = ingredient
-      self.ingredientAmountString = String(ingredient.amount)
     }
   }
 }

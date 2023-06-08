@@ -5,6 +5,7 @@ import Tagged
 // MARK: - View
 struct IngredientSectionView: View {
   let store: StoreOf<IngredientSectionReducer>
+  
   var body: some View {
     WithViewStore(store, observe: \.viewState) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
