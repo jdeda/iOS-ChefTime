@@ -12,16 +12,14 @@ struct IngredientsListView: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-        Stepper(
-          value: viewStore.binding(
-            get: { $0.scale },
-            send: { .scaleStepperButtonTapped($0) }
-        ),
-          in: 1...100
-        ) {
+        Stepper {
           Text("Servings \(viewStore.scale)")
             .font(.title3)
             .fontWeight(.bold)
+        } onIncrement: {
+          viewStore.send(.scaleStepperIncrementButtonTapped)
+        } onDecrement: {
+          viewStore.send(.scaleStepperDecrementButtonTapped)
         }
         ForEachStore(store.scope(
           state: \.viewState.ingredients,
@@ -50,7 +48,8 @@ struct IngredientsListReducer: ReducerProtocol {
   enum Action: Equatable {
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
-    case scaleStepperButtonTapped(Int)
+    case scaleStepperIncrementButtonTapped
+    case scaleStepperDecrementButtonTapped
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -72,15 +71,50 @@ struct IngredientsListReducer: ReducerProtocol {
         state.viewState.isExpanded.toggle()
         return .none
         
-      case let .scaleStepperButtonTapped(newScale):
-        let oldScale = Double(state.viewState.scale)
+      case .scaleStepperIncrementButtonTapped:
+        let oldScale = state.viewState.scale
+        let newScale: Double = {
+          if oldScale == (1/4) {
+            return 1/2
+          }
+          else if oldScale == (1/2) {
+            return 1
+          }
+          else if oldScale > 100 {
+            return oldScale
+          }
+          else {
+            return Double(oldScale + 1)
+          }
+        }()
         state.viewState.scale = newScale
-        let newScale = Double(state.viewState.scale)
         
         state.viewState.ingredients.indices.forEach { i in
           state.viewState.ingredients[i].viewState.ingredients.indices.forEach { j in
-            let a = (state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount / oldScale) * newScale
-            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount = a
+            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount /= oldScale
+            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount *= newScale
+          }
+        }
+        return .none
+        
+      case .scaleStepperDecrementButtonTapped:
+        let oldScale = state.viewState.scale
+        let newScale: Double = {
+          if oldScale == (1/4) {
+            return 1/4
+          }
+          else if oldScale == (1/2) {
+            return 1/4
+          }
+          else {
+            return oldScale - 1
+          }
+        }()
+        state.viewState.scale = newScale
+        state.viewState.ingredients.indices.forEach { i in
+          state.viewState.ingredients[i].viewState.ingredients.indices.forEach { j in
+            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount /= oldScale
+            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount *= newScale
           }
         }
         return .none
@@ -97,7 +131,7 @@ extension IngredientsListReducer {
   struct ViewState: Equatable {
     var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
     var isExpanded: Bool
-    var scale: Int = 1
+    var scale: Double = 1.0
     
     init(recipe: Recipe) {
       self.ingredients = .init(uniqueElements: recipe.ingredients.map({
@@ -113,7 +147,7 @@ extension IngredientsListReducer {
           )
         )
       }))
-      self.scale = 1
+      self.scale = 1.0
       self.isExpanded = true
     }
   }
@@ -140,24 +174,3 @@ struct IngredientsListView_Previews: PreviewProvider {
     }
   }
 }
-
-//        state.viewState.ingredients = .init(uniqueElements: ingredients.map { child in
-//            .init(
-//              id: .init(),
-//              viewState: .init(
-//                ingredientSection: .init(
-//                  id: .init(),
-//                  name: child.viewState.name,
-//                  ingredients: .init(uniqueElements: child.viewState.ingredients.map { child in
-//                      .init(
-//                        id: .init(),
-//                        name: child.viewState.ingredient.name,
-//                        amount: (child.viewState.ingredient.amount / oldScale) * newScale,
-//                        measure: child.viewState.ingredient.measure
-//                      )
-//                  })
-//                ),
-//                isExpanded: true
-//              )
-//            )
-//        })

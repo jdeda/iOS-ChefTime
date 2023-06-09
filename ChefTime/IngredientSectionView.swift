@@ -2,6 +2,8 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
+// TODO: ingredient textfield name moves when expansions change, this happens almost every time with multi-line text
+
 // MARK: - View
 struct IngredientSectionView: View {
   let store: StoreOf<IngredientSectionReducer>
@@ -20,17 +22,22 @@ struct IngredientSectionView: View {
           Divider()
         }
       } label: {
-          TextField("Untitled Ingredient Section", text: viewStore.binding(
+        TextField(
+          "Untitled Ingredient Section",
+          text: viewStore.binding(
             get: { $0.name},
             send: { .ingredientSectionNameEdited($0) }
-          ))
-          .font(.title3)
-          .fontWeight(.bold)
-          .foregroundColor(.primary)
-          .accentColor(.accentColor)
-          .frame(alignment: .leading)
-          .multilineTextAlignment(.leading)
+          ),
+          axis: .vertical
+        )
+        .font(.title3)
+        .fontWeight(.bold)
+        .foregroundColor(.primary)
+        .accentColor(.accentColor)
+        .frame(alignment: .leading)
+        .multilineTextAlignment(.leading)
       }
+      .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .contextMenu(menuItems: {
         Button(role: .destructive) {
           // TODO: - Lots of lag. The context menu is laggy...
@@ -43,7 +50,7 @@ struct IngredientSectionView: View {
           .padding()
       })
       .accentColor(.primary)
-
+      
     }
   }
 }
@@ -144,6 +151,33 @@ struct IngredientSectionView_Previews: PreviewProvider {
         ))
       }
       .padding()
+    }
+  }
+}
+
+
+struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    HStack {
+      configuration.label
+      Spacer()
+      Button {
+        withAnimation {
+          configuration.isExpanded.toggle()
+        }
+      } label: {
+        Image(systemName: "chevron.right")
+          .rotationEffect(configuration.isExpanded ? .degrees(90) : .degrees(0))
+          .animation(.linear(duration: 0.3), value: configuration.isExpanded)
+          .font(.caption)
+          .fontWeight(.bold)
+      }
+      .frame(maxWidth: 50, maxHeight: .infinity, alignment: .trailing)
+    }
+    .contentShape(Rectangle())
+    if configuration.isExpanded {
+      configuration.content
+        .disclosureGroupStyle(self)
     }
   }
 }

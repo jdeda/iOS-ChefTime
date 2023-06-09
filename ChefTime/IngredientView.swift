@@ -9,8 +9,6 @@ import Combine
 // MARK: - View
 struct IngredientView: View {
   let store: StoreOf<IngredientReducer>
-  @State var textSize: CGSize = .zero
-  @State private var offsets = [CGSize](repeating: CGSize.zero, count: 1)
   
   var body: some View {
     WithViewStore(store, observe: \.viewState) { viewStore in
@@ -81,7 +79,7 @@ struct IngredientView: View {
   }
 }
 
-//// MARK: - View
+//// MARK: - View 
 //struct IngredientView2: View {
 //  let store: StoreOf<IngredientReducer>
 //
@@ -226,8 +224,15 @@ struct IngredientReducer: ReducerProtocol {
         state.viewState.ingredient.name = newName
         return .none
         
-      case let .ingredientAmountEdited(newAmount):
-        state.viewState.ingredient.amount = Double(newAmount) ?? 0.0
+      case let .ingredientAmountEdited(newAmountString):
+        // TODO: Fix...
+        state.viewState.ingredientAmountString = newAmountString
+        state.viewState.ingredient.amount = Double(newAmountString) ?? 0
+//        let newAmount = Double(newAmountString) ?? -1
+//        let newAmountString = String(newAmount)
+//        state.viewState.ingredientAmountString = newAmountString
+//        state.viewState.ingredient.amount = newAmount
+//        if newAmount == -1 { fatalError() }
         return .none
         
       case let .ingredientMeasureEdited(newMeasure):
@@ -247,13 +252,12 @@ struct IngredientReducer: ReducerProtocol {
 extension IngredientReducer {
   struct ViewState: Equatable {
     var ingredient: Recipe.Ingredients.Ingredient
-    var ingredientAmountString: String {
-      String(ingredient.amount)
-    }
+    var ingredientAmountString: String
     var isComplete: Bool = false
     
     init(ingredient: Recipe.Ingredients.Ingredient) {
       self.ingredient = ingredient
+      self.ingredientAmountString = String(ingredient.amount)
     }
   }
 }
@@ -341,4 +345,3 @@ private extension View {
     self.modifier(NumbersOnlyViewModifier(text: text, includeDecimal: includeDecimal))
   }
 }
-
