@@ -13,13 +13,13 @@ struct IngredientsListView: View {
         send: { _ in .isExpandedButtonToggled }
       )) {
         Stepper {
-          Text("Servings \(viewStore.scale)")
+          Text("Servings \(viewStore.scaleString)")
             .font(.title3)
             .fontWeight(.bold)
         } onIncrement: {
-          viewStore.send(.scaleStepperIncrementButtonTapped)
+          viewStore.send(.scaleStepperButtonTapped(incremented: true))
         } onDecrement: {
-          viewStore.send(.scaleStepperDecrementButtonTapped)
+          viewStore.send(.scaleStepperButtonTapped(incremented: false))
         }
         ForEachStore(store.scope(
           state: \.viewState.ingredients,
@@ -48,8 +48,7 @@ struct IngredientsListReducer: ReducerProtocol {
   enum Action: Equatable {
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
-    case scaleStepperIncrementButtonTapped
-    case scaleStepperDecrementButtonTapped
+    case scaleStepperButtonTapped(incremented: Bool)
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -71,50 +70,36 @@ struct IngredientsListReducer: ReducerProtocol {
         state.viewState.isExpanded.toggle()
         return .none
         
-      case .scaleStepperIncrementButtonTapped:
+      case let .scaleStepperButtonTapped(incremented):
         let oldScale = state.viewState.scale
         let newScale: Double = {
-          if oldScale == (1/4) {
-            return 1/2
-          }
-          else if oldScale == (1/2) {
-            return 1
-          }
-          else if oldScale > 100 {
-            return oldScale
-          }
-          else {
-            return Double(oldScale + 1)
-          }
-        }()
-        state.viewState.scale = newScale
-        
-        state.viewState.ingredients.indices.forEach { i in
-          state.viewState.ingredients[i].viewState.ingredients.indices.forEach { j in
-            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount /= oldScale
-            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount *= newScale
-          }
-        }
-        return .none
-        
-      case .scaleStepperDecrementButtonTapped:
-        let oldScale = state.viewState.scale
-        let newScale: Double = {
-          if oldScale == (1/4) {
-            return 1/4
-          }
-          else if oldScale == (1/2) {
-            return 1/4
+          if incremented {
+            switch oldScale {
+            case 0.25: return 0.5
+            case 0.5: return 1.0
+            case 1.0..<10.0: return oldScale + 1
+            default: return oldScale
+            }
           }
           else {
-            return oldScale - 1
+            switch oldScale {
+            case 0.25: return 0.25
+            case 0.5: return 0.25
+            case 1.0: return 0.5
+            default: return oldScale - 1
+            }
           }
         }()
+        
+        // TODO: Scaling causes text to move in ugly way.
         state.viewState.scale = newScale
         state.viewState.ingredients.indices.forEach { i in
           state.viewState.ingredients[i].viewState.ingredients.indices.forEach { j in
-            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount /= oldScale
-            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount *= newScale
+            var a = state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount
+            a = (a / oldScale) * newScale
+            let s = String(a)
+            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount = a
+            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredientAmountString = s
           }
         }
         return .none
@@ -123,7 +108,7 @@ struct IngredientsListReducer: ReducerProtocol {
     .forEach(\.viewState.ingredients, action: /Action.ingredient) {
       IngredientSectionReducer()
     }
-    .debug()
+    ._printChanges()
   }
 }
 
@@ -132,6 +117,18 @@ extension IngredientsListReducer {
     var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
     var isExpanded: Bool
     var scale: Double = 1.0
+    
+    var scaleString: String {
+      if scale == 0.25 {
+        return "1/4"
+      }
+      else if scale == 0.5 {
+        return "1/2"
+      }
+      else {
+        return String(Int(scale))
+      }
+    }
     
     init(recipe: Recipe) {
       self.ingredients = .init(uniqueElements: recipe.ingredients.map({

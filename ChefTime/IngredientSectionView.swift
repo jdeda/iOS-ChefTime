@@ -3,6 +3,8 @@ import ComposableArchitecture
 import Tagged
 
 // TODO: ingredient textfield name moves when expansions change, this happens almost every time with multi-line text
+// TODO: ContextMenu acts weird
+// TODO: Scale causes ugly refresh
 
 // MARK: - View
 struct IngredientSectionView: View {
@@ -50,10 +52,12 @@ struct IngredientSectionView: View {
           .padding()
       })
       .accentColor(.primary)
-      
     }
   }
 }
+// TODO: context menu f'd up...
+// selection should just highlight whole view not a row
+// vertical textfield looks like shit
 
 // MARK: - Reducer
 struct IngredientSectionReducer: ReducerProtocol  {
@@ -173,6 +177,7 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
           .fontWeight(.bold)
       }
       .frame(maxWidth: 50, maxHeight: .infinity, alignment: .trailing)
+      .buttonStyle(.plain)
     }
     .contentShape(Rectangle())
     if configuration.isExpanded {
