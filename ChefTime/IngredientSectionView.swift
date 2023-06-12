@@ -43,7 +43,7 @@ struct IngredientSectionView: View {
       .contextMenu(menuItems: {
         Button(role: .destructive) {
           // TODO: - Lots of lag. The context menu is laggy...
-          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+          viewStore.send(.deleteSectionButtonTapped, animation: .default)
         } label: {
           Text("Delete")
         }
@@ -52,9 +52,22 @@ struct IngredientSectionView: View {
           .padding()
       })
       .accentColor(.primary)
+//      .confirmationDialog(
+//        store: store.scope(state: \.viewState.$destination, action: { .destination($0) }),
+//        state: /IngredientSectionReducer.Destination.State.confirmation,
+//        action: IngredientSectionReducer.Destination.Action.confirmation
+//      )
+      
+      .alert(
+        store: store.scope(state: \.viewState.$destination, action: { .destination($0) }),
+        state: /IngredientSectionReducer.Destination.State.alert,
+        action: IngredientSectionReducer.Destination.Action.alert
+      )
+
     }
   }
 }
+
 // TODO: context menu f'd up...
 // selection should just highlight whole view not a row
 // vertical textfield looks like shit
@@ -72,7 +85,9 @@ struct IngredientSectionReducer: ReducerProtocol  {
     case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
     case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
+    case deleteSectionButtonTapped
     case delegate(DelegateAction)
+    case destination(PresentationAction<Destination.Action>)
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -98,13 +113,74 @@ struct IngredientSectionReducer: ReducerProtocol  {
         state.viewState.name = newName
         return .none
         
+      case .deleteSectionButtonTapped:
+//        state.viewState.destination = .confirmation(.init(
+//          title: { TextState("Confirm Deletion")},
+//          actions: {
+//            .init(role: .destructive, action: .confirmSectionDeletion) {
+//              TextState("Confirm")
+//            }
+//          },
+//          message: {
+//            TextState("Are you sure you want to delete this section?")
+//          }
+//        ))
+        
+        state.viewState.destination = .alert(.init(
+          title: { TextState("Confirm Deletion")},
+          actions: {
+            .init(role: .destructive, action: .confirmSectionDeletion) {
+              TextState("Confirm")
+            }
+          },
+          message: {
+            TextState("Are you sure you want to delete this section?")
+          }
+        ))
+        return .none
+        
       case .delegate:
+        return .none
+      
+      case let .destination(action):
+        switch action {
+        case .presented(.alert(.confirmSectionDeletion)):
+          return .send(.delegate(.deleteSectionButtonTapped), animation: .default)
+
+        case .dismiss:
+          return .none
+          
+        case .presented(.confirmation(.confirmSectionDeletion)):
+          return .send(.delegate(.deleteSectionButtonTapped), animation: .default)
+        }
         return .none
       }
     }
     .forEach(\.viewState.ingredients, action: /Action.ingredient) {
       IngredientReducer()
     }
+    .ifLet(\.viewState.$destination, action: CasePath(Action.destination)) {
+      Destination()
+    }
+  }
+  
+  struct Destination: ReducerProtocol {
+    enum State: Equatable {
+      case alert(AlertState<AlertAction>)
+      case confirmation(ConfirmationDialogState<AlertAction>)
+
+    }
+    enum Action: Equatable {
+      case alert(AlertAction)
+      case confirmation(AlertAction)
+    }
+    var body: some ReducerProtocolOf<Self> {
+      EmptyReducer()
+    }
+  }
+  
+  enum AlertAction: Equatable {
+    case confirmSectionDeletion
   }
 }
 
@@ -113,6 +189,7 @@ extension IngredientSectionReducer {
     var name: String
     var ingredients: IdentifiedArrayOf<IngredientReducer.State>
     var isExpanded: Bool
+    @PresentationState var destination: Destination.State?
     
     init(ingredientSection: Recipe.Ingredients, isExpanded: Bool) {
       self.name = ingredientSection.name

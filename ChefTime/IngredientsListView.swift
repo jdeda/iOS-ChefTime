@@ -1,6 +1,8 @@
 import SwiftUI
 import ComposableArchitecture
 
+// TODO: deleting a section should prompt an alert
+
 // MARK: - IngredientsListView
 struct IngredientsListView: View {
   let store: StoreOf<IngredientsListReducer>
@@ -12,15 +14,20 @@ struct IngredientsListView: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-        Stepper {
+        Stepper(
+          value: viewStore.binding(
+            get: { $0.scale },
+            send: { .scaleStepperButtonTapped($0) }
+          ),
+          in: 0.25...10.0,
+          step: 1.0
+        ) {
           Text("Servings \(viewStore.scaleString)")
             .font(.title3)
             .fontWeight(.bold)
-        } onIncrement: {
-          viewStore.send(.scaleStepperButtonTapped(incremented: true))
-        } onDecrement: {
-          viewStore.send(.scaleStepperButtonTapped(incremented: false))
         }
+        
+        
         ForEachStore(store.scope(
           state: \.viewState.ingredients,
           action: IngredientsListReducer.Action.ingredient
@@ -48,7 +55,7 @@ struct IngredientsListReducer: ReducerProtocol {
   enum Action: Equatable {
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
-    case scaleStepperButtonTapped(incremented: Bool)
+    case scaleStepperButtonTapped(Double)
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -70,7 +77,8 @@ struct IngredientsListReducer: ReducerProtocol {
         state.viewState.isExpanded.toggle()
         return .none
         
-      case let .scaleStepperButtonTapped(incremented):
+      case let .scaleStepperButtonTapped(newValue):
+        let incremented = newValue > state.viewState.scale
         let oldScale = state.viewState.scale
         let newScale: Double = {
           if incremented {

@@ -3,8 +3,13 @@ import ComposableArchitecture
 import Tagged
 import Combine
 
-// TODO: 1. Vertical Text Fields
-// TODO: 1. Swipe Gestures
+// TODO: Vertical Text Fields
+// TODO: Swipe Gestures
+// TODO: Number TextField still has bugs
+//        1. fixed size means the row refreshes in a ugly way
+//        2. typing invalid text still refreshes in a ugly way
+//        3. sometimes editing another textfield moves text that
+//           shouldn't move whatsoever
 
 // MARK: - View
 struct IngredientView: View {
