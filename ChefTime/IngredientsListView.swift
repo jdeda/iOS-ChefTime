@@ -88,14 +88,6 @@ struct IngredientsListReducer: ReducerProtocol {
     var isExpanded: Bool
     var scale: Double = 1.0
     
-    var scaleString: String {
-      switch scale {
-      case 0.25: return "1/4"
-      case 0.50: return "1/2"
-      default:   return String(Int(scale))
-      }
-    }
-    
     init(recipe: Recipe) {
       self.ingredients = .init(uniqueElements: recipe.ingredients.map({
         .init(

@@ -39,48 +39,10 @@ struct RecipeView: View {
           action: RecipeReducer.Action.ingredientListAction
         ))
         
-//        IngredientsListView(store: store.scope(
+//        StepsListView(store: store.scope(
 //          state: \.stepsList,
 //          action: RecipeReducer.Action.stepsListAction
 //        ))
-        
-        
-        //      // Steps.
-        //      Collapsible(collapsed: false) {
-        //        Text("Steps")
-        //          .font(.title)
-        //          .fontWeight(.bold)
-        //      } content: {
-        //        ForEach(mockSteps, id: \.name) { stepsL in
-        //          Collapsible(collapsed: false) {
-        //            Text(stepsL.name)
-        //              .font(.title3)
-        //              .fontWeight(.bold)
-        //          } content: {
-        //            LazyVStack(alignment: .leading) {
-        //              Rectangle()
-        //                .fill(.clear)
-        //              ForEach(Array(stepsL.steps.enumerated()), id: \.offset) { pair in
-        //                VStack(alignment: .leading) {
-        //                  Text("Step \(pair.offset + 1)")
-        //                    .fontWeight(.bold)
-        //                  Text("\(pair.element.1)")
-        //                  Image(pair.element.0)
-        //                    .resizable()
-        //                    .scaledToFill()
-        //                    .frame(width: maxW, height: 200)
-        //                    .clipShape(RoundedRectangle(cornerRadius: 15))
-        //                  Spacer()
-        //                }
-        //                Rectangle()
-        //                  .fill(.clear)
-        //              }
-        //            }
-        //            //            .frame(width: .infinity)
-        //          }
-        //          Divider()
-        //        }
-        //      }
       }
       .padding()
       .navigationTitle(viewStore.recipe.name)
