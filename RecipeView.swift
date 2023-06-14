@@ -19,32 +19,34 @@ struct RecipeView: View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
       ScrollView {
         Group {
-          Image("recipe_09")
-            .resizable()
-            .scaledToFill()
-            .frame(width: viewStore.maxW, height: viewStore.maxW)
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .padding([.bottom])
+          Group {
+            Image("recipe_09")
+              .resizable()
+              .scaledToFill()
+              .frame(width: viewStore.maxW, height: viewStore.maxW)
+              .clipShape(RoundedRectangle(cornerRadius: 15))
+              .padding([.bottom])
+          }
+          
+          AboutView(store: store.scope(
+            state: \.about,
+            action: RecipeReducer.Action.about
+          ))
+          
+          Divider()
+          
+          IngredientsListView(store: store.scope(
+            state: \.ingredientsList,
+            action: RecipeReducer.Action.ingredientList
+          ))
+          
+          StepsListView(store: store.scope(
+            state: \.stepsList,
+            action: RecipeReducer.Action.stepsList
+          ))
         }
-        
-        AboutView(store: store.scope(
-          state: \.about,
-          action: RecipeReducer.Action.about
-        ))
-        
-        Divider()
-        
-        IngredientsListView(store: store.scope(
-          state: \.ingredientsList,
-          action: RecipeReducer.Action.ingredientList
-        ))
-        
-        StepsListView(store: store.scope(
-          state: \.stepsList,
-          action: RecipeReducer.Action.stepsList
-        ))
+        .padding()
       }
-      .padding()
       .navigationTitle(viewStore.recipe.name)
     }
   }

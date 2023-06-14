@@ -70,8 +70,8 @@ struct StepView_Previews: PreviewProvider {
           ),
           reducer: StepReducer.init
         ))
+        .padding()
       }
-      .padding()
     }
   }
 }

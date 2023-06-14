@@ -173,9 +173,8 @@ struct IngredientView_Previews: PreviewProvider {
             // TODO:
           }
         ))
+        .padding()
       }
-      .listStyle(.plain)
-      .padding()
     }
   }
 }

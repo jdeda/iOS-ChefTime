@@ -187,8 +187,8 @@ struct StepSectionView_Previews: PreviewProvider {
             // TODO:
           }
         ))
+        .padding()
       }
-      .padding()
     }
   }
 }

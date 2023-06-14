@@ -38,6 +38,7 @@ struct StepsListView: View {
           .fontWeight(.bold)
           .foregroundColor(.primary)
       }
+      .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
     }
   }
@@ -82,6 +83,9 @@ struct StepsListReducer: ReducerProtocol {
         }
       }
     }
+    .forEach(\.sections, action: /Action.section) {
+      StepSectionReducer()
+    }
   }
 }
 
@@ -96,8 +100,8 @@ struct StepsListView_Previews: PreviewProvider {
             // TODO:
           }
         ))
+        .padding()
       }
-      .padding()
     }
   }
 }

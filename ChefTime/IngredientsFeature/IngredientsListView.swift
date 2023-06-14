@@ -76,6 +76,7 @@ struct IngredientsListView: View {
           .fontWeight(.bold)
           .foregroundColor(.primary)
       }
+      .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
     }
   }
@@ -200,8 +201,8 @@ struct IngredientsListView_Previews: PreviewProvider {
             // TODO:
           }
         ))
+        .padding()
       }
-      .padding()
     }
   }
 }

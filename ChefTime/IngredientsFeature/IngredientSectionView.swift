@@ -236,8 +236,8 @@ struct IngredientSectionView_Previews: PreviewProvider {
             // TODO:
           }
         ))
+        .padding()
       }
-      .padding()
     }
   }
 }
