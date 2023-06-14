@@ -17,15 +17,18 @@ struct RecipeView: View {
       }
       
       // About.
-      DisclosureGroup.init {
+      DisclosureGroup {
         Text(recipe.notes)
       } label: {
         Text("About")
           .font(.title)
           .fontWeight(.bold)
       }
+      .accentColor(.primary)
+      
       
       Divider()
+      
       
 //      // Ingredients.
 //      Collapsible(collapsed: false) {
@@ -36,8 +39,8 @@ struct RecipeView: View {
 //        IngredientsListView2(ingredients: recipe.ingredients.elements)
 //          Divider()
 //      }
-      
-      Divider()
+//      
+//      Divider()
       
 //      // Steps.
 //      Collapsible(collapsed: false) {
@@ -80,8 +83,6 @@ struct RecipeView: View {
     .navigationTitle(recipe.name)
   }
 }
-
-
 
 struct RecipeView_Previews: PreviewProvider {
   static var previews: some View {

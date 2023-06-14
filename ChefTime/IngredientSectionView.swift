@@ -12,14 +12,27 @@ import Tagged
 struct IngredientSectionView: View {
   let store: StoreOf<IngredientSectionReducer>
   
+  struct ViewState: Equatable {
+    var name: String
+    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
+    var isExpanded: Bool
+    @PresentationState var destination: IngredientSectionReducer.Destination.State?
+    
+    init(_ state: IngredientSectionReducer.State) {
+      self.name = state.name
+      self.ingredients = state.ingredients
+      self.isExpanded = state.isExpanded
+    }
+  }
+  
   var body: some View {
-    WithViewStore(store, observe: \.viewState) { viewStore in
+    WithViewStore(store, observe: ViewState.init) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
         ForEachStore(store.scope(
-          state: \.viewState.ingredients,
+          state: \.ingredients,
           action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
           IngredientView(store: childStore)
@@ -62,7 +75,7 @@ struct IngredientSectionView: View {
       })
       .accentColor(.primary)
       .alert(
-        store: store.scope(state: \.viewState.$destination, action: { .destination($0) }),
+        store: store.scope(state: \.$destination, action: { .destination($0) }),
         state: /IngredientSectionReducer.Destination.State.alert,
         action: IngredientSectionReducer.Destination.Action.alert
       )
@@ -81,7 +94,22 @@ struct IngredientSectionReducer: ReducerProtocol  {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var viewState: ViewState
+    var name: String
+    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
+    var isExpanded: Bool
+    @PresentationState var destination: Destination.State?
+    
+    init(id: ID, ingredientSection: Recipe.Ingredients, isExpanded: Bool) {
+      self.id = id
+      self.name = ingredientSection.name
+      self.ingredients = .init(uniqueElements: ingredientSection.ingredients.map({
+        .init(
+          id: .init(),
+          ingredient: $0
+        )
+      }))
+      self.isExpanded = isExpanded
+    }
   }
   
   enum Action: Equatable {
@@ -102,7 +130,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
         case let .delegate(delegateAction):
           switch delegateAction {
           case .swipedToDelete:
-            state.viewState.ingredients.remove(id: id)
+            state.ingredients.remove(id: id)
             return .none
           }
         default:
@@ -110,16 +138,16 @@ struct IngredientSectionReducer: ReducerProtocol  {
         }
         
       case .isExpandedButtonToggled:
-        state.viewState.isExpanded.toggle()
+        state.isExpanded.toggle()
         return .none
         
       case let .ingredientSectionNameEdited(newName):
-        state.viewState.name = newName
+        state.name = newName
         return .none
         
       case .deleteSectionButtonTapped:
         // TODO: Move this state elsewhere
-        state.viewState.destination = .alert(.init(
+        state.destination = .alert(.init(
           title: { TextState("Confirm Deletion")},
           actions: {
             .init(role: .destructive, action: .confirmSectionDeletion) {
@@ -143,30 +171,27 @@ struct IngredientSectionReducer: ReducerProtocol  {
         case .dismiss:
           return .none
         }
-        return .none
         
       case .addIngredientButtonTapped:
         // TODO: make this cleaner
         var s = IngredientReducer.State(
           id: .init(), // TODO: Make dependency
-          viewState: .init(
-            ingredient: .init(
-              id: .init(),
-              name: "",
-              amount: 0,
-              measure: ""
-            )
+          ingredient: .init(
+            id: .init(),
+            name: "",
+            amount: 0,
+            measure: ""
           )
         )
-        s.viewState.ingredientAmountString = ""
-        state.viewState.ingredients.append(s)
+        s.ingredientAmountString = ""
+        state.ingredients.append(s)
         return .none
       }
     }
-    .forEach(\.viewState.ingredients, action: /Action.ingredient) {
+    .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientReducer()
     }
-    .ifLet(\.viewState.$destination, action: CasePath(Action.destination)) {
+    .ifLet(\.$destination, action: CasePath(Action.destination)) {
       Destination()
     }
   }
@@ -190,28 +215,6 @@ struct IngredientSectionReducer: ReducerProtocol  {
 }
 
 extension IngredientSectionReducer {
-  struct ViewState: Equatable {
-    var name: String
-    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
-    var isExpanded: Bool
-    @PresentationState var destination: Destination.State?
-    
-    init(ingredientSection: Recipe.Ingredients, isExpanded: Bool) {
-      self.name = ingredientSection.name
-      self.ingredients = .init(uniqueElements: ingredientSection.ingredients.map({
-        .init(
-          id: .init(),
-          viewState: .init(
-            ingredient: $0
-          )
-        )
-      }))
-      self.isExpanded = isExpanded
-    }
-  }
-}
-
-extension IngredientSectionReducer {
   enum DelegateAction: Equatable {
     case deleteSectionButtonTapped
   }
@@ -225,10 +228,8 @@ struct IngredientSectionView_Previews: PreviewProvider {
         IngredientSectionView(store: .init(
           initialState: .init(
             id: .init(),
-            viewState: .init(
-              ingredientSection: Recipe.mock.ingredients[1],
-              isExpanded: true
-            )
+            ingredientSection: Recipe.mock.ingredients[1],
+            isExpanded: true
           ),
           reducer: IngredientSectionReducer.init,
           withDependencies: { _ in

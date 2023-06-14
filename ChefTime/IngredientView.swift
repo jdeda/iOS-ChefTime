@@ -15,8 +15,19 @@ import Combine
 struct IngredientView: View {
   let store: StoreOf<IngredientReducer>
   
+  struct ViewState: Equatable {
+    var ingredient: Recipe.Ingredients.Ingredient
+    var ingredientAmountString: String
+    var isComplete: Bool = false
+    
+    init(_ state: IngredientReducer.State) {
+      self.ingredient = state.ingredient
+      self.ingredientAmountString = state.ingredientAmountString
+    }
+  }
+  
   var body: some View {
-    WithViewStore(store, observe: \.viewState) { viewStore in
+    WithViewStore(store, observe: ViewState.init) { viewStore in
       HStack(alignment: .top) {
         
         // Checkbox
@@ -85,133 +96,21 @@ struct IngredientView: View {
   }
 }
 
-//// MARK: - View 
-//struct IngredientView2: View {
-//  let store: StoreOf<IngredientReducer>
-//
-//  var body: some View {
-//    WithViewStore(store, observe: \.viewState) { viewStore in
-//      HStack(alignment: .top) {
-//        Image(systemName: viewStore.isComplete ? "checkmark.square" : "square")
-//          .fontWeight(.medium)
-//          .onTapGesture {
-//            viewStore.send(.isCompleteButtonToggled)
-//          }
-//          .padding([.top], 2)
-//        VStack(alignment: .leading) {
-//          TextField("Untitled Ingredient", text: viewStore.binding(
-//            get: { "\($0.ingredient.name)" },
-//            send: { .ingredientNameEdited($0) }
-//          ))
-//          .autocapitalization(.none)
-//          .autocorrectionDisabled()
-////          .fontWeight(.medium)
-//          HStack(spacing: 5) {
-//            TextField("0  ", text: viewStore.binding(
-//              get: { $0.ingredientAmountString },
-//              send: { .ingredientAmountEdited($0) }
-//            ))
-//            .keyboardType(.numberPad)
-//            .numbersOnly(
-//              viewStore.binding(
-//                get: { $0.ingredientAmountString },
-//                send: { .ingredientAmountEdited($0) }
-//              ),
-//              includeDecimal: true
-//            )
-//            .scaledToFit()
-//
-//            TextField("Untitled Measurement", text: viewStore.binding(
-//              get: { "\($0.ingredient.measure)" },
-//              send: { .ingredientMeasureEdited($0) }
-//            ))
-//            .autocapitalization(.none)
-//            .autocorrectionDisabled()
-//            Spacer()
-//          }
-//        }
-//      }
-//      .foregroundColor(viewStore.isComplete ? .secondary : .primary)
-//      .accentColor(.accentColor)
-//      .swipeActions {
-//        Button(role: .destructive) {
-//          viewStore.send(.delegate(.swipedToDelete))
-//        } label: {
-//          Image(systemName: "trash")
-//        }
-//      }
-//    }
-//  }
-//}
-
-//// MARK: - View
-//struct IngredientView: View {
-//  let store: StoreOf<IngredientReducer>
-//
-//  var body: some View {
-//    WithViewStore(store, observe: \.viewState) { viewStore in
-//      HStack(alignment: .top) {
-//        VStack(alignment: .leading) {
-//          TextField("Untitled Ingredient", text: viewStore.binding(
-//            get: { "\($0.ingredient.name)" },
-//            send: { .ingredientNameEdited($0) }
-//          ))
-//          .autocapitalization(.none)
-//          .autocorrectionDisabled()
-////          .fontWeight(.medium)
-//          HStack(spacing: 5) {
-//            TextField("0  ", text: viewStore.binding(
-//              get: { $0.ingredientAmountString },
-//              send: { .ingredientAmountEdited($0) }
-//            ))
-//            .keyboardType(.numberPad)
-//            .numbersOnly(
-//              viewStore.binding(
-//                get: { $0.ingredientAmountString },
-//                send: { .ingredientAmountEdited($0) }
-//              ),
-//              includeDecimal: true
-//            )
-//            .scaledToFit()
-//
-//            TextField("Untitled Measurement", text: viewStore.binding(
-//              get: { "\($0.ingredient.measure)" },
-//              send: { .ingredientMeasureEdited($0) }
-//            ))
-//            .autocapitalization(.none)
-//            .autocorrectionDisabled()
-//            Spacer()
-//          }
-//        }
-//
-//        Image(systemName: viewStore.isComplete ? "checkmark.square" : "square")
-//          .fontWeight(.medium)
-//          .onTapGesture {
-//            viewStore.send(.isCompleteButtonToggled)
-//          }
-//          .padding([.top], 2)
-//        Spacer()
-//      }
-//      .foregroundColor(viewStore.isComplete ? .secondary : .primary)
-//      .accentColor(.accentColor)
-//      .swipeActions {
-//        Button(role: .destructive) {
-//          viewStore.send(.delegate(.swipedToDelete))
-//        } label: {
-//          Image(systemName: "trash")
-//        }
-//      }
-//    }
-//  }
-//}
-
 // MARK: - Reducer
 struct IngredientReducer: ReducerProtocol {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var viewState: ViewState
+    var ingredient: Recipe.Ingredients.Ingredient
+    var ingredientAmountString: String
+    var isComplete: Bool = false
+    
+    init(id: ID, ingredient: Recipe.Ingredients.Ingredient) {
+      self.id = id
+      self.ingredient = ingredient
+      self.ingredientAmountString = String(ingredient.amount)
+    }
   }
   
   enum Action: Equatable {
@@ -227,43 +126,26 @@ struct IngredientReducer: ReducerProtocol {
       switch action {
         
       case let .ingredientNameEdited(newName):
-        state.viewState.ingredient.name = newName
+        state.ingredient.name = newName
         return .none
         
       case let .ingredientAmountEdited(newAmountString):
         // TODO: Fix...
-        state.viewState.ingredientAmountString = newAmountString
-        state.viewState.ingredient.amount = Double(newAmountString) ?? 0
-        //        let newAmount = Double(newAmountString) ?? -1
-        //        let newAmountString = String(newAmount)
-        //        state.viewState.ingredientAmountString = newAmountString
-        //        state.viewState.ingredient.amount = newAmount
-        //        if newAmount == -1 { fatalError() }
+        state.ingredientAmountString = newAmountString
+        state.ingredient.amount = Double(newAmountString) ?? 0
         return .none
         
       case let .ingredientMeasureEdited(newMeasure):
-        state.viewState.ingredient.measure = newMeasure
+        state.ingredient.measure = newMeasure
         return .none
         
       case .isCompleteButtonToggled:
-        state.viewState.isComplete.toggle()
+        state.isComplete.toggle()
         return .none
         
       case .delegate:
         return .none
       }
-    }
-  }
-}
-extension IngredientReducer {
-  struct ViewState: Equatable {
-    var ingredient: Recipe.Ingredients.Ingredient
-    var ingredientAmountString: String
-    var isComplete: Bool = false
-    
-    init(ingredient: Recipe.Ingredients.Ingredient) {
-      self.ingredient = ingredient
-      self.ingredientAmountString = String(ingredient.amount)
     }
   }
 }
@@ -283,9 +165,7 @@ struct IngredientView_Previews: PreviewProvider {
         IngredientView(store: .init(
           initialState: .init(
             id: .init(),
-            viewState: .init(
-              ingredient: Recipe.mock.ingredients.first!.ingredients.first!
-            )
+            ingredient: Recipe.mock.ingredients.first!.ingredients.first!
           ),
           reducer: IngredientReducer.init,
           withDependencies: { _ in
@@ -296,25 +176,6 @@ struct IngredientView_Previews: PreviewProvider {
       .listStyle(.plain)
       .padding()
     }
-    //    NavigationStack {
-    //      ScrollView
-    //      {
-    //        IngredientView2(store: .init(
-    //          initialState: .init(
-    //            id: .init(),
-    //            viewState: .init(
-    //              ingredient: Recipe.mock.ingredients.first!.ingredients.first!
-    //            )
-    //          ),
-    //          reducer: IngredientReducer.init,
-    //          withDependencies: { _ in
-    //            // TODO:
-    //          }
-    //        ))
-    //      }
-    //      .listStyle(.plain)
-    //      .padding()
-    //    }
   }
 }
 
@@ -352,33 +213,7 @@ private extension View {
   }
 }
 
-//struct IngredientViewX: View {
-//  var body: some View {
-//      HStack(alignment: .top) {
-//
-//        // Checkbox
-//        Image(systemName: "square")
-//          .fontWeight(.medium)
-//          .padding([.top], 2)
-//
-//        // Name
-//        TextField("...", text: .constant(""))
-//        .autocapitalization(.none)
-//        .autocorrectionDisabled()
-//
-//        // Amount
-//        TextField("...", text: .constant(""))
-//        .fixedSize()
-//
-//        // Measurement
-//        TextField("...", text: .constant(""))
-//        .fixedSize()
-//      }
-//      .foregroundColor(.secondary)
-//      .accentColor(.accentColor)
-//  }
-//}
-
+// TODO: RENAME THS
 struct IngredientViewX: View {
   var body: some View {
     HStack(alignment: .top) {

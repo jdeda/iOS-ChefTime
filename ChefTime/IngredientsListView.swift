@@ -9,8 +9,29 @@ struct IngredientsListView: View {
   let store: StoreOf<IngredientsListReducer>
   @State var string: String = ""
   
+  struct ViewState: Equatable {
+    var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
+    var isExpanded: Bool
+    var scale: Double = 1.0
+    
+    var scaleString: String {
+      switch scale {
+      case 0.25: return "1/4"
+      case 0.50: return "1/2"
+      default:   return String(Int(scale))
+      }
+    }
+    
+    init(_ state: IngredientsListReducer.State) {
+      self.ingredients = state.ingredients
+      self.scale = 1.0
+      self.isExpanded = true
+    }
+  }
+  
+  
   var body: some View {
-    WithViewStore(store, observe: \.viewState) { viewStore in
+    WithViewStore(store, observe: ViewState.init) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
@@ -29,7 +50,7 @@ struct IngredientsListView: View {
         }
         
         ForEachStore(store.scope(
-          state: \.viewState.ingredients,
+          state: \.ingredients,
           action: IngredientsListReducer.Action.ingredient
         )) { childStore in
           IngredientSectionView(store: childStore)
@@ -63,9 +84,34 @@ struct IngredientsListView: View {
 // MARK: - IngredientsListReducer
 struct IngredientsListReducer: ReducerProtocol {
   struct State: Equatable {
-    var viewState: ViewState
+    var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
+    var isExpanded: Bool
+    var scale: Double = 1.0
+    
+    var scaleString: String {
+      switch scale {
+      case 0.25: return "1/4"
+      case 0.50: return "1/2"
+      default:   return String(Int(scale))
+      }
+    }
+    
+    init(recipe: Recipe) {
+      self.ingredients = .init(uniqueElements: recipe.ingredients.map({
+        .init(
+          id: .init(),
+          ingredientSection: .init(
+            id: .init(),
+            name: $0.name,
+            ingredients: $0.ingredients
+          ),
+          isExpanded: true
+        )
+      }))
+      self.scale = 1.0
+      self.isExpanded = true
+    }
   }
-  
   enum Action: Equatable {
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
@@ -82,7 +128,7 @@ struct IngredientsListReducer: ReducerProtocol {
           switch delegateAction {
           case .deleteSectionButtonTapped:
             // TODO: Delete animation broken
-            state.viewState.ingredients.remove(id: id)
+            state.ingredients.remove(id: id)
             return .none
           }
         default:
@@ -90,12 +136,12 @@ struct IngredientsListReducer: ReducerProtocol {
         }
         
       case .isExpandedButtonToggled:
-        state.viewState.isExpanded.toggle()
+        state.isExpanded.toggle()
         return .none
         
       case let .scaleStepperButtonTapped(newValue):
-        let incremented = newValue > state.viewState.scale
-        let oldScale = state.viewState.scale
+        let incremented = newValue > state.scale
+        let oldScale = state.scale
         let newScale: Double = {
           if incremented {
             switch oldScale {
@@ -116,69 +162,34 @@ struct IngredientsListReducer: ReducerProtocol {
         }()
         
         // TODO: Scaling causes text to move in ugly way.
-        state.viewState.scale = newScale
-        for i in state.viewState.ingredients.indices {
-          for j in state.viewState.ingredients[i].viewState.ingredients.indices {
-            let vs = state.viewState.ingredients[i].viewState.ingredients[j].viewState
+        state.scale = newScale
+        for i in state.ingredients.indices {
+          for j in state.ingredients[i].ingredients.indices {
+            let vs = state.ingredients[i].ingredients[j]
             guard !vs.ingredientAmountString.isEmpty else { continue }
             let a = (vs.ingredient.amount / oldScale) * newScale
             let s = String(a)
-            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount = a
-            state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredientAmountString = s
+            state.ingredients[i].ingredients[j].ingredient.amount = a
+            state.ingredients[i].ingredients[j].ingredientAmountString = s
           }
         }
         return .none
         
       case .addIngredientSectionButtonTapped:
-        state.viewState.ingredients.append(
+        state.ingredients.append(
           .init(
             id: .init(),
-            viewState: .init(
-              ingredientSection: .init(id: .init(), name: "New Ingredient Section", ingredients: []),
-              isExpanded: true
-            )
-          ))
-        return .none
-      }
-    }
-    .forEach(\.viewState.ingredients, action: /Action.ingredient) {
-      IngredientSectionReducer()
-    }
-    ._printChanges()
-  }
-}
-
-extension IngredientsListReducer {
-  struct ViewState: Equatable {
-    var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
-    var isExpanded: Bool
-    var scale: Double = 1.0
-    
-    var scaleString: String {
-      switch scale {
-      case 0.25: return "1/4"
-      case 0.50: return "1/2"
-      default:   return String(Int(scale))
-      }
-    }
-    
-    init(recipe: Recipe) {
-      self.ingredients = .init(uniqueElements: recipe.ingredients.map({
-        .init(
-          id: .init(),
-          viewState: .init(
-            ingredientSection: .init(
-              id: .init(),
-              name: $0.name,
-              ingredients: $0.ingredients
-            ),
+            ingredientSection: .init(id: .init(), name: "New Ingredient Section", ingredients: []),
             isExpanded: true
           )
         )
-      }))
-      self.scale = 1.0
-      self.isExpanded = true
+        return .none
+      }
     }
+    .forEach(\.ingredients, action: /Action.ingredient) {
+      IngredientSectionReducer()
+    }
+    ._printChanges()
   }
 }
 
@@ -189,9 +200,7 @@ struct IngredientsListView_Previews: PreviewProvider {
       ScrollView {
         IngredientsListView(store: .init(
           initialState: .init(
-            viewState: .init(
-              recipe: Recipe.mock
-            )
+            recipe: Recipe.mock
           ),
           reducer: IngredientsListReducer.init,
           withDependencies: { _ in
