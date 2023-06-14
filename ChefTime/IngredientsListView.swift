@@ -24,8 +24,8 @@ struct IngredientsListView: View {
     
     init(_ state: IngredientsListReducer.State) {
       self.ingredients = state.ingredients
-      self.scale = 1.0
-      self.isExpanded = true
+      self.scale = state.scale
+      self.isExpanded = state.isExpanded
     }
   }
   

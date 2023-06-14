@@ -22,6 +22,7 @@ struct IngredientSectionView: View {
       self.name = state.name
       self.ingredients = state.ingredients
       self.isExpanded = state.isExpanded
+      self.destination = state.destination
     }
   }
   

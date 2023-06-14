@@ -18,11 +18,12 @@ struct IngredientView: View {
   struct ViewState: Equatable {
     var ingredient: Recipe.Ingredients.Ingredient
     var ingredientAmountString: String
-    var isComplete: Bool = false
+    var isComplete: Bool
     
     init(_ state: IngredientReducer.State) {
       self.ingredient = state.ingredient
       self.ingredientAmountString = state.ingredientAmountString
+      self.isComplete = state.isComplete
     }
   }
   
