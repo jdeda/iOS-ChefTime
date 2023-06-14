@@ -1,7 +1,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-// TODO: deleting a section should prompt an alert
+// TODO: Section deletion has no animation
+// TODO: Add a section
 
 // MARK: - IngredientsListView
 struct IngredientsListView: View {
@@ -27,13 +28,26 @@ struct IngredientsListView: View {
             .fontWeight(.bold)
         }
         
-        
         ForEachStore(store.scope(
           state: \.viewState.ingredients,
           action: IngredientsListReducer.Action.ingredient
         )) { childStore in
           IngredientSectionView(store: childStore)
         }
+        
+        HStack {
+          Text(" ")
+          Spacer()
+          Image(systemName: "plus")
+            .font(.caption)
+            .fontWeight(.bold)
+            .onTapGesture {
+              viewStore.send(.addIngredientSectionButtonTapped, animation: .default)
+            }
+        }
+        .foregroundColor(.secondary)
+        
+        Divider()
       }
       label : {
         Text("Ingredients")
@@ -56,6 +70,7 @@ struct IngredientsListReducer: ReducerProtocol {
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
     case scaleStepperButtonTapped(Double)
+    case addIngredientSectionButtonTapped
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -66,6 +81,7 @@ struct IngredientsListReducer: ReducerProtocol {
         case let .delegate(delegateAction):
           switch delegateAction {
           case .deleteSectionButtonTapped:
+            // TODO: Delete animation broken
             state.viewState.ingredients.remove(id: id)
             return .none
           }
@@ -101,15 +117,27 @@ struct IngredientsListReducer: ReducerProtocol {
         
         // TODO: Scaling causes text to move in ugly way.
         state.viewState.scale = newScale
-        state.viewState.ingredients.indices.forEach { i in
-          state.viewState.ingredients[i].viewState.ingredients.indices.forEach { j in
-            var a = state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount
-            a = (a / oldScale) * newScale
+        for i in state.viewState.ingredients.indices {
+          for j in state.viewState.ingredients[i].viewState.ingredients.indices {
+            let vs = state.viewState.ingredients[i].viewState.ingredients[j].viewState
+            guard !vs.ingredientAmountString.isEmpty else { continue }
+            let a = (vs.ingredient.amount / oldScale) * newScale
             let s = String(a)
             state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredient.amount = a
             state.viewState.ingredients[i].viewState.ingredients[j].viewState.ingredientAmountString = s
           }
         }
+        return .none
+        
+      case .addIngredientSectionButtonTapped:
+        state.viewState.ingredients.append(
+          .init(
+            id: .init(),
+            viewState: .init(
+              ingredientSection: .init(id: .init(), name: "New Ingredient Section", ingredients: []),
+              isExpanded: true
+            )
+          ))
         return .none
       }
     }
@@ -127,14 +155,10 @@ extension IngredientsListReducer {
     var scale: Double = 1.0
     
     var scaleString: String {
-      if scale == 0.25 {
-        return "1/4"
-      }
-      else if scale == 0.5 {
-        return "1/2"
-      }
-      else {
-        return String(Int(scale))
+      switch scale {
+      case 0.25: return "1/4"
+      case 0.50: return "1/2"
+      default:   return String(Int(scale))
       }
     }
     

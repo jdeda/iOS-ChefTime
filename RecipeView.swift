@@ -1,44 +1,44 @@
-//import SwiftUI
-//import Tagged
-//
-//struct RecipeView: View {
-//  let maxW = UIScreen.main.bounds.width * 0.85
-//  let recipe: Recipe = .mock
-//  
-//  var body: some View {
-//    ScrollView {
-//      Group {
-//        Image("recipe_09")
-//          .resizable()
-//          .scaledToFill()
-//          .frame(width: maxW, height: maxW)
-//          .clipShape(RoundedRectangle(cornerRadius: 15))
-//          .padding([.bottom])
-//      }
-//      
-//      // About.
+import SwiftUI
+import Tagged
+
+struct RecipeView: View {
+  let maxW = UIScreen.main.bounds.width * 0.85
+  let recipe: Recipe = .mock
+  
+  var body: some View {
+    ScrollView {
+      Group {
+        Image("recipe_09")
+          .resizable()
+          .scaledToFill()
+          .frame(width: maxW, height: maxW)
+          .clipShape(RoundedRectangle(cornerRadius: 15))
+          .padding([.bottom])
+      }
+      
+      // About.
+      DisclosureGroup.init {
+        Text(recipe.notes)
+      } label: {
+        Text("About")
+          .font(.title)
+          .fontWeight(.bold)
+      }
+      
+      Divider()
+      
+//      // Ingredients.
 //      Collapsible(collapsed: false) {
-//        Text("About")
+//        Text("Ingredients")
 //          .font(.title)
 //          .fontWeight(.bold)
 //      } content: {
-//        Text(recipe.notes)
+//        IngredientsListView2(ingredients: recipe.ingredients.elements)
+//          Divider()
 //      }
-//      
-//      Divider()
-//      
-////      // Ingredients.
-////      Collapsible(collapsed: false) {
-////        Text("Ingredients")
-////          .font(.title)
-////          .fontWeight(.bold)
-////      } content: {
-////        IngredientsListView2(ingredients: recipe.ingredients.elements)
-////          Divider()
-////      }
-//      
-//      Divider()
-//      
+      
+      Divider()
+      
 //      // Steps.
 //      Collapsible(collapsed: false) {
 //        Text("Steps")
@@ -75,27 +75,26 @@
 //          Divider()
 //        }
 //      }
-//    }
-//    //    .frame(width: .infinity)
-//    .padding()
-//    .navigationTitle(recipe.name)
-//  }
-//}
-//
-//
-//
-//struct RecipeView_Previews: PreviewProvider {
-//  static var previews: some View {
-//    NavigationStack {
-//      RecipeView()
-//        .scrollContentBackground(.hidden)
-//        .background {
-//          Image(systemName: "recipe_05")
-//            .resizable()
-//            .scaledToFill()
-//            .blur(radius: 10)
-//            .ignoresSafeArea()
-//        }
-//    }
-//  }
-//}
+    }
+    .padding()
+    .navigationTitle(recipe.name)
+  }
+}
+
+
+
+struct RecipeView_Previews: PreviewProvider {
+  static var previews: some View {
+    NavigationStack {
+      RecipeView()
+        .scrollContentBackground(.hidden)
+        .background {
+          Image(systemName: "recipe_05")
+            .resizable()
+            .scaledToFill()
+            .blur(radius: 10)
+            .ignoresSafeArea()
+        }
+    }
+  }
+}

@@ -38,7 +38,7 @@ struct IngredientView: View {
         )
         .autocapitalization(.none)
         .autocorrectionDisabled()
-
+        
         // Amount
         TextField(
           "...",
@@ -58,7 +58,7 @@ struct IngredientView: View {
         .fixedSize()
         .autocapitalization(.none)
         .autocorrectionDisabled()
-       
+        
         // Measurement
         TextField(
           "...",
@@ -73,11 +73,12 @@ struct IngredientView: View {
       }
       .foregroundColor(viewStore.isComplete ? .secondary : .primary)
       .accentColor(.accentColor)
-      .swipeActions {
-        Button(role: .destructive) {
-          viewStore.send(.delegate(.swipedToDelete))
+      .contextMenu {
+        // TODO: This would be nice as a swipe action.
+        Button(role: .destructive){
+          viewStore.send(.delegate(.swipedToDelete), animation: .default)
         } label: {
-          Image(systemName: "trash")
+          Text("Delete")
         }
       }
     }
@@ -233,11 +234,11 @@ struct IngredientReducer: ReducerProtocol {
         // TODO: Fix...
         state.viewState.ingredientAmountString = newAmountString
         state.viewState.ingredient.amount = Double(newAmountString) ?? 0
-//        let newAmount = Double(newAmountString) ?? -1
-//        let newAmountString = String(newAmount)
-//        state.viewState.ingredientAmountString = newAmountString
-//        state.viewState.ingredient.amount = newAmount
-//        if newAmount == -1 { fatalError() }
+        //        let newAmount = Double(newAmountString) ?? -1
+        //        let newAmountString = String(newAmount)
+        //        state.viewState.ingredientAmountString = newAmountString
+        //        state.viewState.ingredient.amount = newAmount
+        //        if newAmount == -1 { fatalError() }
         return .none
         
       case let .ingredientMeasureEdited(newMeasure):
@@ -348,5 +349,64 @@ private struct NumbersOnlyViewModifier: ViewModifier {
 private extension View {
   func numbersOnly(_ text: Binding<String>, includeDecimal: Bool = false) -> some View {
     self.modifier(NumbersOnlyViewModifier(text: text, includeDecimal: includeDecimal))
+  }
+}
+
+//struct IngredientViewX: View {
+//  var body: some View {
+//      HStack(alignment: .top) {
+//
+//        // Checkbox
+//        Image(systemName: "square")
+//          .fontWeight(.medium)
+//          .padding([.top], 2)
+//
+//        // Name
+//        TextField("...", text: .constant(""))
+//        .autocapitalization(.none)
+//        .autocorrectionDisabled()
+//
+//        // Amount
+//        TextField("...", text: .constant(""))
+//        .fixedSize()
+//
+//        // Measurement
+//        TextField("...", text: .constant(""))
+//        .fixedSize()
+//      }
+//      .foregroundColor(.secondary)
+//      .accentColor(.accentColor)
+//  }
+//}
+
+struct IngredientViewX: View {
+  var body: some View {
+    HStack(alignment: .top) {
+      
+      // Checkbox
+      Image(systemName: "square")
+        .fontWeight(.medium)
+        .padding([.top], 2)
+      
+      // Name
+      TextField("...", text: .constant(""))
+        .disabled(true)
+      
+      // Amount
+      TextField("...", text: .constant(""))
+        .disabled(true)
+        .fixedSize()
+      
+      // Measurement
+      TextField("...", text: .constant(""))
+        .disabled(true)
+        .fixedSize()
+      
+      Image(systemName: "plus")
+        .fontWeight(.medium)
+        .padding([.top], 2)
+    }
+    .foregroundColor(.secondary)
+    .accentColor(.accentColor)
   }
 }

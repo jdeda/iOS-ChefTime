@@ -5,6 +5,8 @@ import Tagged
 // TODO: ingredient textfield name moves when expansions change, this happens almost every time with multi-line text
 // TODO: ContextMenu acts weird
 // TODO: Scale causes ugly refresh
+// TODO: Multiplier will format a sttring, but maybe we shold put a check in place
+// if it is empty, keep the string...
 
 // MARK: - View
 struct IngredientSectionView: View {
@@ -23,6 +25,13 @@ struct IngredientSectionView: View {
           IngredientView(store: childStore)
           Divider()
         }
+        
+        IngredientViewX()
+          .onTapGesture {
+            viewStore.send(.addIngredientButtonTapped, animation: .default)
+          }
+        Divider()
+        
       } label: {
         TextField(
           "Untitled Ingredient Section",
@@ -52,18 +61,12 @@ struct IngredientSectionView: View {
           .padding()
       })
       .accentColor(.primary)
-//      .confirmationDialog(
-//        store: store.scope(state: \.viewState.$destination, action: { .destination($0) }),
-//        state: /IngredientSectionReducer.Destination.State.confirmation,
-//        action: IngredientSectionReducer.Destination.Action.confirmation
-//      )
-      
       .alert(
         store: store.scope(state: \.viewState.$destination, action: { .destination($0) }),
         state: /IngredientSectionReducer.Destination.State.alert,
         action: IngredientSectionReducer.Destination.Action.alert
       )
-
+      
     }
   }
 }
@@ -88,6 +91,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
     case deleteSectionButtonTapped
     case delegate(DelegateAction)
     case destination(PresentationAction<Destination.Action>)
+    case addIngredientButtonTapped
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -114,18 +118,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
         return .none
         
       case .deleteSectionButtonTapped:
-//        state.viewState.destination = .confirmation(.init(
-//          title: { TextState("Confirm Deletion")},
-//          actions: {
-//            .init(role: .destructive, action: .confirmSectionDeletion) {
-//              TextState("Confirm")
-//            }
-//          },
-//          message: {
-//            TextState("Are you sure you want to delete this section?")
-//          }
-//        ))
-        
+        // TODO: Move this state elsewhere
         state.viewState.destination = .alert(.init(
           title: { TextState("Confirm Deletion")},
           actions: {
@@ -141,18 +134,32 @@ struct IngredientSectionReducer: ReducerProtocol  {
         
       case .delegate:
         return .none
-      
+        
       case let .destination(action):
         switch action {
         case .presented(.alert(.confirmSectionDeletion)):
           return .send(.delegate(.deleteSectionButtonTapped), animation: .default)
-
+          
         case .dismiss:
           return .none
-          
-        case .presented(.confirmation(.confirmSectionDeletion)):
-          return .send(.delegate(.deleteSectionButtonTapped), animation: .default)
         }
+        return .none
+        
+      case .addIngredientButtonTapped:
+        // TODO: make this cleaner
+        var s = IngredientReducer.State(
+          id: .init(), // TODO: Make dependency
+          viewState: .init(
+            ingredient: .init(
+              id: .init(),
+              name: "",
+              amount: 0,
+              measure: ""
+            )
+          )
+        )
+        s.viewState.ingredientAmountString = ""
+        state.viewState.ingredients.append(s)
         return .none
       }
     }
@@ -167,12 +174,10 @@ struct IngredientSectionReducer: ReducerProtocol  {
   struct Destination: ReducerProtocol {
     enum State: Equatable {
       case alert(AlertState<AlertAction>)
-      case confirmation(ConfirmationDialogState<AlertAction>)
-
+      
     }
     enum Action: Equatable {
       case alert(AlertAction)
-      case confirmation(AlertAction)
     }
     var body: some ReducerProtocolOf<Self> {
       EmptyReducer()
@@ -253,7 +258,7 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
           .font(.caption)
           .fontWeight(.bold)
       }
-      .frame(maxWidth: 50, maxHeight: .infinity, alignment: .trailing)
+      .frame(maxWidth : 50, maxHeight: .infinity, alignment: .trailing)
       .buttonStyle(.plain)
     }
     .contentShape(Rectangle())
