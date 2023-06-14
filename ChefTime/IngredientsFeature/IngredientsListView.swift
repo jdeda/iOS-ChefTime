@@ -88,8 +88,8 @@ struct IngredientsListReducer: ReducerProtocol {
     var isExpanded: Bool
     var scale: Double = 1.0
     
-    init(recipe: Recipe) {
-      self.ingredients = .init(uniqueElements: recipe.ingredients.map({
+    init(recipe: Recipe, isExpanded: Bool) {
+      self.ingredients = .init(uniqueElements: recipe.ingredientSections.map({
         .init(
           id: .init(),
           ingredientSection: .init(
@@ -101,7 +101,7 @@ struct IngredientsListReducer: ReducerProtocol {
         )
       }))
       self.scale = 1.0
-      self.isExpanded = true
+      self.isExpanded = isExpanded
     }
   }
   enum Action: Equatable {
@@ -192,7 +192,8 @@ struct IngredientsListView_Previews: PreviewProvider {
       ScrollView {
         IngredientsListView(store: .init(
           initialState: .init(
-            recipe: Recipe.mock
+            recipe: Recipe.mock,
+            isExpanded: true
           ),
           reducer: IngredientsListReducer.init,
           withDependencies: { _ in

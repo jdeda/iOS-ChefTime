@@ -44,7 +44,7 @@ struct AboutView_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         AboutView(store: .init(
-          initialState: .init(isExpanded: true, description: Recipe.mock.notes),
+          initialState: .init(isExpanded: true, description: Recipe.mock.about),
           reducer: AboutReducer.init
         ))
       }

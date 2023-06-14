@@ -36,13 +36,13 @@ struct RecipeView: View {
         
         IngredientsListView(store: store.scope(
           state: \.ingredientsList,
-          action: RecipeReducer.Action.ingredientListAction
+          action: RecipeReducer.Action.ingredientList
         ))
         
-//        StepsListView(store: store.scope(
-//          state: \.stepsList,
-//          action: RecipeReducer.Action.stepsListAction
-//        ))
+        StepsListView(store: store.scope(
+          state: \.stepsList,
+          action: RecipeReducer.Action.stepsList
+        ))
       }
       .padding()
       .navigationTitle(viewStore.recipe.name)
@@ -53,11 +53,13 @@ struct RecipeView: View {
 struct RecipeReducer: ReducerProtocol {
   struct State: Equatable {
     var ingredientsList: IngredientsListReducer.State
+    var stepsList: StepsListReducer.State
     var about: AboutReducer.State
   }
   
   enum Action: Equatable {
-    case ingredientListAction(IngredientsListReducer.Action)
+    case ingredientList(IngredientsListReducer.Action)
+    case stepsList(StepsListReducer.Action)
     case about(AboutReducer.Action)
     
   }
@@ -65,15 +67,21 @@ struct RecipeReducer: ReducerProtocol {
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
-      case let .ingredientListAction(action):
+      case let .ingredientList(action):
+        return .none
+        
+      case let .stepsList(action):
         return .none
         
       case let .about(action):
         return .none
       }
     }
-    Scope(state: \.ingredientsList, action: /Action.ingredientListAction) {
+    Scope(state: \.ingredientsList, action: /Action.ingredientList) {
       IngredientsListReducer()
+    }
+    Scope(state: \.stepsList, action: /Action.stepsList) {
+      StepsListReducer()
     }
     Scope(state: \.about, action: /Action.about) {
       AboutReducer()
@@ -86,8 +94,9 @@ struct RecipeView_Previews: PreviewProvider {
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          ingredientsList: .init(recipe: .mock),
-          about: .init(isExpanded: true, description: Recipe.mock.notes)
+          ingredientsList: .init(recipe: .mock, isExpanded: true),
+          stepsList: .init(recipe: .mock, isExpanded: true),
+          about: .init(isExpanded: true, description: Recipe.mock.about)
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in

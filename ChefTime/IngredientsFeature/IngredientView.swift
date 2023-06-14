@@ -16,7 +16,7 @@ struct IngredientView: View {
   let store: StoreOf<IngredientReducer>
   
   struct ViewState: Equatable {
-    var ingredient: Recipe.Ingredients.Ingredient
+    var ingredient: Recipe.IngredientSection.Ingredient
     var ingredientAmountString: String
     var isComplete: Bool
     
@@ -103,11 +103,11 @@ struct IngredientReducer: ReducerProtocol {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var ingredient: Recipe.Ingredients.Ingredient
+    var ingredient: Recipe.IngredientSection.Ingredient
     var ingredientAmountString: String
     var isComplete: Bool = false
     
-    init(id: ID, ingredient: Recipe.Ingredients.Ingredient) {
+    init(id: ID, ingredient: Recipe.IngredientSection.Ingredient) {
       self.id = id
       self.ingredient = ingredient
       self.ingredientAmountString = String(ingredient.amount)
@@ -166,7 +166,7 @@ struct IngredientView_Previews: PreviewProvider {
         IngredientView(store: .init(
           initialState: .init(
             id: .init(),
-            ingredient: Recipe.mock.ingredients.first!.ingredients.first!
+            ingredient: Recipe.mock.ingredientSections.first!.ingredients.first!
           ),
           reducer: IngredientReducer.init,
           withDependencies: { _ in

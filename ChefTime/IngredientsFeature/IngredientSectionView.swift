@@ -80,7 +80,6 @@ struct IngredientSectionView: View {
         state: /IngredientSectionReducer.Destination.State.alert,
         action: IngredientSectionReducer.Destination.Action.alert
       )
-      
     }
   }
 }
@@ -100,7 +99,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
     var isExpanded: Bool
     @PresentationState var destination: Destination.State?
     
-    init(id: ID, ingredientSection: Recipe.Ingredients, isExpanded: Bool) {
+    init(id: ID, ingredientSection: Recipe.IngredientSection, isExpanded: Bool) {
       self.id = id
       self.name = ingredientSection.name
       self.ingredients = .init(uniqueElements: ingredientSection.ingredients.map({
@@ -229,7 +228,7 @@ struct IngredientSectionView_Previews: PreviewProvider {
         IngredientSectionView(store: .init(
           initialState: .init(
             id: .init(),
-            ingredientSection: Recipe.mock.ingredients[1],
+            ingredientSection: Recipe.mock.ingredientSections[1],
             isExpanded: true
           ),
           reducer: IngredientSectionReducer.init,
@@ -244,6 +243,10 @@ struct IngredientSectionView_Previews: PreviewProvider {
 }
 
 
+// TODO: Make DiscloureGroupModifier
+// 1. format label to have specific text styling
+// 2. make entire group have primary accent color
+// 3. make content have accent color accent color
 struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
   func makeBody(configuration: Configuration) -> some View {
     HStack {

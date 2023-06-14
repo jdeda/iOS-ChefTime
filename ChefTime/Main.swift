@@ -11,20 +11,26 @@ import SwiftUI
 struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
-      //            AppView()
       NavigationStack {
-        ScrollView {
-          IngredientsListView(store: .init(
-            initialState: .init(
-              recipe: Recipe.mock
-            ),
-            reducer: IngredientsListReducer.init,
-            withDependencies: { _ in
-              // TODO:
-            }
-          ))
+        RecipeView(store: .init(
+          initialState: RecipeReducer.State(
+            ingredientsList: .init(recipe: .mock, isExpanded: true),
+            stepsList: .init(recipe: .mock, isExpanded: true),
+            about: .init(isExpanded: true, description: Recipe.mock.about)
+          ),
+          reducer: RecipeReducer.init,
+          withDependencies: { _ in
+            // TODO:
+          }
+        ))
+        .scrollContentBackground(.hidden)
+        .background {
+          Image(systemName: "recipe_05")
+            .resizable()
+            .scaledToFill()
+            .blur(radius: 10)
+            .ignoresSafeArea()
         }
-        .padding()
       }
     }
   }
