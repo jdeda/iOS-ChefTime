@@ -19,30 +19,30 @@ struct StepView: View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
       VStack(alignment: .leading) {
         Text("Step \(viewStore.stepNumber)")
-//          .foregroundColor(.secondary)
-          TextField(
-            "...",
-            text: viewStore.binding(
-              get: \.step.description,
-              send: { .stepDescriptionEdited($0) }
-            ),
-            axis: .vertical
-          )
-          .autocapitalization(.none)
-          .autocorrectionDisabled()
-          
-          Image("burger_bun_01")
-            .resizable()
-            .scaledToFill()
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+          .fontWeight(.medium)
+        TextField(
+          "...",
+          text: viewStore.binding(
+            get: \.step.description,
+            send: { .stepDescriptionEdited($0) }
+          ),
+          axis: .vertical
+        )
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+        
+        //        Image("burger_bun_01")
+        //          .resizable()
+        //          .scaledToFill()
+        //          .clipShape(RoundedRectangle(cornerRadius: 10))
       }
       .contextMenu {
         Button(role: .destructive) {
           viewStore.send(.delegate(.deleteButtonTapped), animation: .default)
-          } label: {
-            Text("Delete")
-          }
-
+        } label: {
+          Text("Delete")
+        }
+        
       }
     }
   }
@@ -72,7 +72,7 @@ struct StepReducer: ReducerProtocol {
       case let .stepDescriptionEdited(newDescription):
         state.step.description = newDescription
         return .none
-      
+        
       case .delegate:
         return .none
       }

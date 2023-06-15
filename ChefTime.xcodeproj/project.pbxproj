@@ -24,6 +24,7 @@
 		97CC0C0D2A3A1A6A00E311C9 /* StepsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CC0C0C2A3A1A6A00E311C9 /* StepsListView.swift */; };
 		97CC0C112A3A1F6800E311C9 /* StepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CC0C102A3A1F6800E311C9 /* StepView.swift */; };
 		97CC0C132A3A210B00E311C9 /* StepSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CC0C122A3A210B00E311C9 /* StepSectionView.swift */; };
+		97E08CD22A3B81EA003A6232 /* StepListPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E08CD12A3B81EA003A6232 /* StepListPreview.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 		97CC0C0C2A3A1A6A00E311C9 /* StepsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsListView.swift; sourceTree = "<group>"; };
 		97CC0C102A3A1F6800E311C9 /* StepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepView.swift; sourceTree = "<group>"; };
 		97CC0C122A3A210B00E311C9 /* StepSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSectionView.swift; sourceTree = "<group>"; };
+		97E08CD12A3B81EA003A6232 /* StepListPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepListPreview.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 		97CC0C0F2A3A1F5400E311C9 /* StepsFeature */ = {
 			isa = PBXGroup;
 			children = (
+				97E08CD12A3B81EA003A6232 /* StepListPreview.swift */,
 				97CC0C0C2A3A1A6A00E311C9 /* StepsListView.swift */,
 				97CC0C122A3A210B00E311C9 /* StepSectionView.swift */,
 				97CC0C102A3A1F6800E311C9 /* StepView.swift */,
@@ -206,6 +209,7 @@
 				97AD13CF2A2E74C2002FCE30 /* RecipeView.swift in Sources */,
 				97CC0C132A3A210B00E311C9 /* StepSectionView.swift in Sources */,
 				977D15592A2FB47300701A9F /* IngredientSectionView.swift in Sources */,
+				97E08CD22A3B81EA003A6232 /* StepListPreview.swift in Sources */,
 				97CC0C0D2A3A1A6A00E311C9 /* StepsListView.swift in Sources */,
 				97AD13C62A2E73C8002FCE30 /* AppView.swift in Sources */,
 				97AD13B82A2E7392002FCE30 /* Main.swift in Sources */,

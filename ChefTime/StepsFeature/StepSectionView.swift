@@ -25,6 +25,7 @@ struct StepSectionView: View {
         get: \.isExpanded,
         send: { _ in .isExpandedButtonToggled }
       )) {
+        Divider()
         ForEachStore(store.scope(
           state: \.steps,
           action: StepSectionReducer.Action.step
@@ -33,6 +34,11 @@ struct StepSectionView: View {
           Divider()
         }
         .accentColor(.accentColor)
+        
+        AddStepView()
+        //          .onTapGesture {
+        //            viewStore.send(.addIngredientButtonTapped, animation: .default)
+        //          }
       } label: {
         TextField(
           "Untitled Step Section",
@@ -206,5 +212,18 @@ struct StepSectionView_Previews: PreviewProvider {
         .padding()
       }
     }
+  }
+}
+
+struct AddStepView: View {
+  var body: some View {
+    HStack(alignment: .top) {
+      Spacer()
+      Image(systemName: "plus")
+        .fontWeight(.medium)
+        .padding([.top], 2)
+    }
+    .foregroundColor(.secondary)
+    .accentColor(.accentColor)
   }
 }
