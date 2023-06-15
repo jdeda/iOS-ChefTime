@@ -1,10 +1,3 @@
-//
-//  ChefTimeApp.swift
-//  ChefTime
-//
-//  Created by Jesse Deda on 6/5/23.
-//
-
 import SwiftUI
 
 @main
@@ -14,6 +7,7 @@ struct ChefTimeApp: App {
       NavigationStack {
         RecipeView(store: .init(
           initialState: RecipeReducer.State(
+            recipe: .mock,
             ingredientsList: .init(recipe: .mock, isExpanded: true),
             stepsList: .init(recipe: .mock, isExpanded: true),
             about: .init(isExpanded: true, description: Recipe.mock.about)

@@ -40,6 +40,8 @@ struct RecipeView: View {
             action: RecipeReducer.Action.ingredientList
           ))
           
+          Divider()
+          
           StepsListView(store: store.scope(
             state: \.stepsList,
             action: RecipeReducer.Action.stepsList
@@ -47,13 +49,17 @@ struct RecipeView: View {
         }
         .padding()
       }
-      .navigationTitle(viewStore.recipe.name)
+      .navigationTitle(viewStore.binding(
+        get:  \.recipe.name,
+        send: { .recipeNameEdited($0) }
+      ))
     }
   }
 }
 
 struct RecipeReducer: ReducerProtocol {
   struct State: Equatable {
+    var recipe: Recipe
     var ingredientsList: IngredientsListReducer.State
     var stepsList: StepsListReducer.State
     var about: AboutReducer.State
@@ -63,7 +69,7 @@ struct RecipeReducer: ReducerProtocol {
     case ingredientList(IngredientsListReducer.Action)
     case stepsList(StepsListReducer.Action)
     case about(AboutReducer.Action)
-    
+    case recipeNameEdited(String)
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -76,6 +82,9 @@ struct RecipeReducer: ReducerProtocol {
         return .none
         
       case let .about(action):
+        return .none
+      case let .recipeNameEdited(newName):
+        state.recipe.name = newName
         return .none
       }
     }
@@ -96,6 +105,7 @@ struct RecipeView_Previews: PreviewProvider {
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
+          recipe: .mock,
           ingredientsList: .init(recipe: .mock, isExpanded: true),
           stepsList: .init(recipe: .mock, isExpanded: true),
           about: .init(isExpanded: true, description: Recipe.mock.about)
@@ -105,14 +115,6 @@ struct RecipeView_Previews: PreviewProvider {
           // TODO:
         }
       ))
-        .scrollContentBackground(.hidden)
-        .background {
-          Image(systemName: "recipe_05")
-            .resizable()
-            .scaledToFill()
-            .blur(radius: 10)
-            .ignoresSafeArea()
-        }
     }
   }
 }
