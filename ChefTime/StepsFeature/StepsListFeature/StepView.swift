@@ -18,8 +18,13 @@ struct StepView: View {
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
       VStack(alignment: .leading) {
-        Text("Step \(viewStore.stepNumber)")
-          .fontWeight(.medium)
+        HStack {
+          Text("Step \(viewStore.stepNumber)")
+            .fontWeight(.medium)
+          Spacer()
+          Image(systemName: "camera.fill")
+            .font(.caption)
+        }
         TextField(
           "...",
           text: viewStore.binding(

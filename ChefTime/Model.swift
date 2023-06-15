@@ -94,6 +94,12 @@ extension Recipe {
         .init(id: .init(), description: "Bake at 450F for 45 minutes or until internal temp of 190F"),
         .init(id: .init(), description: "After baking, immediately remove from loaf pan and place on cooling rack to prevent dough steaming into itself and getting soggy. Allow to rest for 30 minutes befor)e slicing")
       ]),
+      .init(id: .init(), name: "Patties", steps: [
+        .init(id: .init(), description: "Roughly chop all meat into bite size pieces and pass through a meat grinder. It usually helps if the meat is very cold. Frozen meat is better than warm meat, but neither will give you the best result")
+      ]),
+      .init(id: .init(), name: "Toppings", steps: [
+        .init(id: .init(), description: "Prepare the toppings as you like")
+      ])
     ]
   )
 }

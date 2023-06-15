@@ -2,7 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
-struct StepsListPreview: View {
+struct StepsListView: View {
   let store: StoreOf<StepsListReducer>
   @State var isOn: Bool = false
   
@@ -49,7 +49,7 @@ struct StepsListPreview: View {
   }
 }
 
-struct StepsListPreviewReducer: ReducerProtocol {
+struct StepsListReducer: ReducerProtocol {
   struct State: Equatable {
     var isExpanded: Bool
     var sections: IdentifiedArrayOf<StepSectionReducer.State>
@@ -93,11 +93,11 @@ struct StepsListPreviewReducer: ReducerProtocol {
   }
 }
 
-struct StepsListPreview_Previews: PreviewProvider {
+struct StepsList_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
       ScrollView {
-        StepsListPreview(store: .init(
+        StepsListView(store: .init(
           initialState: .init(recipe: Recipe.mock, isExpanded: true),
           reducer: StepsListReducer.init,
           withDependencies: { _ in
