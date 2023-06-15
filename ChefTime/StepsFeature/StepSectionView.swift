@@ -35,7 +35,7 @@ struct StepSectionView: View {
         .accentColor(.accentColor)
       } label: {
         TextField(
-          "Untitled Ingredient Section",
+          "Untitled Step Section",
           text: viewStore.binding(
             get: \.name,
             send: { .nameEdited($0) }
@@ -90,8 +90,12 @@ struct StepSectionReducer: ReducerProtocol {
     )  {
       self.id = id
       self.name = stepSection.name
-      self.steps = .init(uniqueElements: stepSection.steps.map { step in
-          .init(id: .init(), step: step)
+      self.steps = .init(uniqueElements: stepSection.steps.enumerated().map { (index, step) in
+          .init(
+            id: .init(),
+            stepNumber: index + 1,
+            step: step
+          )
       })
       self.isExpanded = isExpanded
       self.destination = destination
@@ -119,7 +123,19 @@ struct StepSectionReducer: ReducerProtocol {
         return .none
         
       case let .step(id, action):
-        return .none
+        switch action {
+        case let .delegate(action):
+          switch action {
+          case .deleteButtonTapped:
+            state.steps.remove(id: id)
+            state.steps.ids.enumerated().forEach { (i, id) in
+              state.steps[id: id]?.stepNumber = i + 1
+            }
+            return .none
+          }
+        default:
+          return .none
+        }
         
       case let .nameEdited(newName):
         state.name = newName

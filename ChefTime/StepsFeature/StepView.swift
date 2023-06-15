@@ -7,15 +7,19 @@ struct StepView: View {
   
   struct ViewState: Equatable {
     var step: Recipe.StepSection.Step
+    var stepNumber: Int
     
     init(_ state: StepReducer.State) {
       self.step = state.step
+      self.stepNumber = state.stepNumber
     }
   }
   
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
-      VStack(alignment: .center) {
+      VStack(alignment: .leading) {
+        Text("Step \(viewStore.stepNumber)")
+//          .foregroundColor(.secondary)
           TextField(
             "...",
             text: viewStore.binding(
@@ -32,6 +36,14 @@ struct StepView: View {
             .scaledToFill()
             .clipShape(RoundedRectangle(cornerRadius: 10))
       }
+      .contextMenu {
+        Button(role: .destructive) {
+          viewStore.send(.delegate(.deleteButtonTapped), animation: .default)
+          } label: {
+            Text("Delete")
+          }
+
+      }
     }
   }
 }
@@ -41,11 +53,17 @@ struct StepReducer: ReducerProtocol {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
+    var stepNumber: Int
     var step: Recipe.StepSection.Step
   }
   
   enum Action: Equatable {
     case stepDescriptionEdited(String)
+    case delegate(DelegateAction)
+  }
+  
+  enum DelegateAction: Equatable {
+    case deleteButtonTapped
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -53,6 +71,9 @@ struct StepReducer: ReducerProtocol {
       switch action {
       case let .stepDescriptionEdited(newDescription):
         state.step.description = newDescription
+        return .none
+      
+      case .delegate:
         return .none
       }
     }
@@ -66,6 +87,7 @@ struct StepView_Previews: PreviewProvider {
         StepView(store: .init(
           initialState: .init(
             id: .init(),
+            stepNumber: 1,
             step: Recipe.mock.steps.first!.steps.first!
           ),
           reducer: StepReducer.init

@@ -213,8 +213,7 @@ private extension View {
   }
 }
 
-// TODO: RENAME THS
-struct IngredientViewX: View {
+struct AddIngredientView: View {
   var body: some View {
     HStack(alignment: .top) {
       

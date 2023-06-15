@@ -40,7 +40,7 @@ struct IngredientSectionView: View {
           Divider()
         }
         
-        IngredientViewX()
+        AddIngredientView()
           .onTapGesture {
             viewStore.send(.addIngredientButtonTapped, animation: .default)
           }

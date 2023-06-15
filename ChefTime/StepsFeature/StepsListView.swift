@@ -61,7 +61,6 @@ struct StepsListReducer: ReducerProtocol {
     }
   }
   
-  
   enum Action: Equatable {
     case isExpandedButtonToggled
     case section(StepSectionReducer.State.ID, StepSectionReducer.Action)
