@@ -20,32 +20,43 @@ struct RecipeView: View {
       ScrollView {
         Group {
           Group {
-            Image("recipe_09")
-              .resizable()
-              .scaledToFill()
-              .frame(width: viewStore.maxW, height: viewStore.maxW)
-              .clipShape(RoundedRectangle(cornerRadius: 15))
-              .padding([.bottom])
+//            Image("recipe_09")
+//              .resizable()
+//              .scaledToFill()
+//              .frame(width: viewStore.maxW, height: viewStore.maxW)
+//              .clipShape(RoundedRectangle(cornerRadius: 15))
+//              .padding([.bottom])
+            
+            if let imageData = viewStore.recipe.imageData, let image = dataToImage(imageData) {
+              image
+                .resizable()
+                .scaledToFill()
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            else {
+              Image(systemName: "square")
+              EmptyView()
+            }
           }
           
-          AboutView(store: store.scope(
-            state: \.about,
-            action: RecipeReducer.Action.about
-          ))
-          
-          Divider()
-          
-          IngredientsListView(store: store.scope(
-            state: \.ingredientsList,
-            action: RecipeReducer.Action.ingredientList
-          ))
-          
-          Divider()
-          
-          StepsListView(store: store.scope(
-            state: \.stepsList,
-            action: RecipeReducer.Action.stepsList
-          ))
+//          AboutView(store: store.scope(
+//            state: \.about,
+//            action: RecipeReducer.Action.about
+//          ))
+//
+//          Divider()
+//
+//          IngredientsListView(store: store.scope(
+//            state: \.ingredientsList,
+//            action: RecipeReducer.Action.ingredientList
+//          ))
+//
+//          Divider()
+//
+//          StepsListView(store: store.scope(
+//            state: \.stepsList,
+//            action: RecipeReducer.Action.stepsList
+//          ))
         }
         .padding()
       }

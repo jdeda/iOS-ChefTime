@@ -45,8 +45,8 @@ struct StepView: View {
         .autocapitalization(.none)
         .autocorrectionDisabled()
         
-        if let name = viewStore.step.imageURL?.relativeString {
-          Image(name)
+        if let imageData = viewStore.step.imageData, let image = dataToImage(imageData) {
+          image
             .resizable()
             .scaledToFill()
             .clipShape(RoundedRectangle(cornerRadius: 10))
