@@ -1,6 +1,20 @@
 import Tagged
 import Foundation
 import ComposableArchitecture
+import SwiftUI
+
+struct CustomImageView: View {
+  let imageData: Data?
+  var body: some View {
+    if let imageData, let uiImage = UIImage(data: imageData) {
+      Image(uiImage: uiImage)
+    }
+    else {
+      EmptyView()
+    }
+  }
+}
+
 
 struct Recipe: Identifiable, Equatable {
   typealias ID = Tagged<Self, UUID>
@@ -88,11 +102,36 @@ extension Recipe {
     ],
     steps: [
       .init(id: .init(), name: "Buns", steps: [
-        .init(id: .init(), description: "Combine ingredients into stand-mixer bowl and mix until incorporated, than allow mixer to knead for 10 minutes until taught and shiny."),
-        .init(id: .init(), description: "Once the dough is properly kneaded, place in bowl with a cover in a moderately warm area (70F-80F) and allow to rise for 2 hours or until at least doubled in size"),
-        .init(id: .init(), description: "After dough has rised, pound the gas out and re-knead into a large ball, than roll out little dough balls by pressing and pinching. Cover your balls and let them rise for another hour or until they have at least doubled in size"),
-        .init(id: .init(), description: "Bake at 450F for 45 minutes or until internal temp of 190F"),
-        .init(id: .init(), description: "After baking, immediately remove from loaf pan and place on cooling rack to prevent dough steaming into itself and getting soggy. Allow to rest for 30 minutes befor)e slicing")
+        .init(
+          id: .init(),
+          description: "Combine ingredients into stand-mixer bowl and mix until incorporated, than allow mixer to knead for 10 minutes until taught and shiny.",
+          imageURL: .init(string: "burger_bun_01")
+        ),
+        .init(
+          id: .init(),
+          description: "Once the dough is properly kneaded, place in bowl with a cover in a moderately warm area (70F-80F) and allow to rise for 2 hours or until at least doubled in size",
+          imageURL: .init(string: "burger_bun_02")
+        ),
+        .init(
+          id: .init(),
+          description: "After dough has rised, pound the gas out and re-knead into a large ball, than roll out little dough balls by pressing and pinching. Cover your balls and let them rise for another hour or until they have at least doubled in size",
+          imageURL: .init(string: "burger_bun_03")
+        ),
+        .init(
+          id: .init(),
+          description: "Once your balls have risen accordingly, uncover them and season with salt and semame seeds then bake at 450F for 45 minutes or until internal temp of 190F",
+          imageURL: .init(string: "burger_bun_04")
+        ),
+        .init(
+          id: .init(),
+          description: "After baking, immediately remove from loaf pan and place on cooling rack to prevent dough steaming into itself and getting soggy. Baste your buns generously with butter and allow to them rest for 30 minutes before slicing",
+          imageURL: .init(string: "burger_bun_05")
+        ),
+        .init(
+          id: .init(),
+          description: "Enjoy your beautiful creation!",
+          imageURL: .init(string: "burger_bun_06")
+        )
       ]),
       .init(id: .init(), name: "Patties", steps: [
         .init(id: .init(), description: "Roughly chop all meat into bite size pieces and pass through a meat grinder. It usually helps if the meat is very cold. Frozen meat is better than warm meat, but neither will give you the best result")

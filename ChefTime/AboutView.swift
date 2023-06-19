@@ -18,7 +18,6 @@ struct AboutView: View {
           .font(.title)
           .fontWeight(.bold)
           .foregroundColor(.primary)
-        
       }
       .accentColor(.primary)
     }

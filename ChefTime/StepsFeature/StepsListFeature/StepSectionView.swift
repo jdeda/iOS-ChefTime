@@ -1,6 +1,8 @@
 import SwiftUI
 import ComposableArchitecture
 import Tagged
+import IdentifiedCollections
+import OrderedCollections
 
 struct StepSectionView: View {
   let store: StoreOf<StepSectionReducer>
@@ -136,6 +138,20 @@ struct StepSectionReducer: ReducerProtocol {
             state.steps.remove(id: id)
             state.steps.ids.enumerated().forEach { (i, id) in
               state.steps[id: id]?.stepNumber = i + 1
+            }
+            return .none
+          case let .addStepButtonTapped(above):
+            let i = above ? state.steps.index(id: id)! : state.steps.index(after: state.steps.index(id: id)!)
+            state.steps.insert(
+              .init(
+                id: .init(),
+                stepNumber: i,
+                step: .init(id: .init(), description: "...")
+              ),
+              at: i
+            )
+            state.steps.indices.map {
+              state.steps[$0].stepNumber = $0 + 1
             }
             return .none
           }

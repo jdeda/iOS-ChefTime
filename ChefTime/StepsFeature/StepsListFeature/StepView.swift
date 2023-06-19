@@ -1,13 +1,16 @@
 import SwiftUI
 import ComposableArchitecture
 import Tagged
+import PhotosUI
 
+// TODO: WHAT. Incredible. Make the steps moveable. Incredible.
 struct StepView: View {
   let store: StoreOf<StepReducer>
   
   struct ViewState: Equatable {
     var step: Recipe.StepSection.Step
     var stepNumber: Int
+    var photoPickerItem: PhotosPickerItem?
     
     init(_ state: StepReducer.State) {
       self.step = state.step
@@ -22,8 +25,14 @@ struct StepView: View {
           Text("Step \(viewStore.stepNumber)")
             .fontWeight(.medium)
           Spacer()
-          Image(systemName: "camera.fill")
-            .font(.caption)
+          PhotosPicker.init(selection: viewStore.binding(
+            get: \.photoPickerItem,
+            send: { .photoPickerItemSelected($0) }
+          )) {
+            Image(systemName: "camera.fill")
+              .font(.caption)
+              .foregroundColor(.secondary)
+          }
         }
         TextField(
           "...",
@@ -36,19 +45,38 @@ struct StepView: View {
         .autocapitalization(.none)
         .autocorrectionDisabled()
         
-        //        Image("burger_bun_01")
-        //          .resizable()
-        //          .scaledToFill()
-        //          .clipShape(RoundedRectangle(cornerRadius: 10))
+        if let name = viewStore.step.imageURL?.relativeString {
+          Image(name)
+            .resizable()
+            .scaledToFill()
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        else {
+          EmptyView()
+        }
       }
-      .contextMenu {
+      .contextMenu(menuItems: {
         Button(role: .destructive) {
           viewStore.send(.delegate(.deleteButtonTapped), animation: .default)
         } label: {
           Text("Delete")
         }
-        
-      }
+        Button(role: .none) {
+          viewStore.send(.delegate(.addStepButtonTapped(above: true)), animation: .default)
+        } label: {
+          Text("Add step above")
+        }
+        Button(role: .none) {
+          viewStore.send(.delegate(.addStepButtonTapped(above: false)), animation: .default)
+        } label: {
+          Text("Add step below")
+        }
+      }, preview: {
+        StepContextMenuPreview(state: viewStore.state)
+//          .frame(minWidth: 400)
+          .padding()
+//          .padding([.vertical])
+      })
     }
   }
 }
@@ -65,10 +93,12 @@ struct StepReducer: ReducerProtocol {
   enum Action: Equatable {
     case stepDescriptionEdited(String)
     case delegate(DelegateAction)
+    case photoPickerItemSelected(PhotosPickerItem?)
   }
   
   enum DelegateAction: Equatable {
     case deleteButtonTapped
+    case addStepButtonTapped(above: Bool)
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -79,6 +109,9 @@ struct StepReducer: ReducerProtocol {
         return .none
         
       case .delegate:
+        return .none
+        
+      case let .photoPickerItemSelected(item):
         return .none
       }
     }
@@ -99,6 +132,41 @@ struct StepView_Previews: PreviewProvider {
         ))
         .padding()
       }
+    }
+  }
+}
+
+struct StepContextMenuPreview: View {
+  let state: StepView.ViewState
+  
+  var body: some View {
+    VStack(alignment: .leading) {
+      HStack {
+        Text("Step \(state.stepNumber)")
+          .fontWeight(.medium)
+        Spacer()
+        Image(systemName: "camera.fill")
+          .font(.caption)
+          .foregroundColor(.secondary)
+      }
+      Text(state.step.description)
+        .lineLimit(2)
+    }
+}
+
+  struct StepContextMenuPreview_Previews: PreviewProvider {
+    static var previews: some View {
+      NavigationStack {
+        ScrollView {
+          StepContextMenuPreview.init(state: .init(.init(
+            id: .init(),
+            stepNumber: 1,
+            step: Recipe.mock.steps.first!.steps.first!
+          )))
+          .padding()
+        }
+      }
+      
     }
   }
 }
