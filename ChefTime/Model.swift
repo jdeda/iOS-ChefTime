@@ -85,7 +85,8 @@ extension Recipe {
     id: .init(),
     name: "Double Cheese Burger",
     imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_00", withExtension: "jpg")!),
-    about: "A proper meat feast, this classical burger is just too good! Homemade buns and ground meat, served with your side of classic toppings, it makes a fantastic Friday night treat or cookout favorite.", ingredientSections: [
+    about: "A proper meat feast, this classical burger is just too good! Homemade buns and ground meat, served with your side of classic toppings, it makes a fantastic Friday night treat or cookout favorite.",
+    ingredientSections: [
       .init(
         id: .init(),
         name: "Buns",
@@ -126,37 +127,37 @@ extension Recipe {
           description: "Combine ingredients into stand-mixer bowl and mix until incorporated, than allow mixer to knead for 10 minutes until taught and shiny.",
           imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_01", withExtension: "jpg")!)
         ),
-//        .init(
-//          id: .init(),
-//          description: "Once the dough is properly kneaded, place in bowl with a cover in a moderately warm area (70F-80F) and allow to rise for 2 hours or until at least doubled in size",
-//          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_02", withExtension: "jpg")!)
-//        ),
-//        .init(
-//          id: .init(),
-//          description: "After dough has rised, pound the gas out and re-knead into a large ball, than roll out little dough balls by pressing and pinching. Cover your balls and let them rise for another hour or until they have at least doubled in size",
-//          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_03", withExtension: "jpg")!)
-//        ),
-//        .init(
-//          id: .init(),
-//          description: "Once your balls have risen accordingly, uncover them and season with salt and semame seeds then bake at 450F for 45 minutes or until internal temp of 190F",
-//          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_04", withExtension: "jpg")!)
-//        ),
-//        .init(
-//          id: .init(),
-//          description: "After baking, immediately remove from loaf pan and place on cooling rack to prevent dough steaming into itself and getting soggy. Baste your buns generously with butter and allow to them rest for 30 minutes before slicing",
-//          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_05", withExtension: "jpg")!)
-//        ),
-//        .init(
-//          id: .init(),
-//          description: "Enjoy your beautiful creation!",
-//          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_06", withExtension: "jpg")!)
-//        )
-//      ]),
-//      .init(id: .init(), name: "Patties", steps: [
-//        .init(id: .init(), description: "Roughly chop all meat into bite size pieces and pass through a meat grinder. It usually helps if the meat is very cold. Frozen meat is better than warm meat, but neither will give you the best result")
-//      ]),
-//      .init(id: .init(), name: "Toppings", steps: [
-//        .init(id: .init(), description: "Prepare the toppings as you like")
+        .init(
+          id: .init(),
+          description: "Once the dough is properly kneaded, place in bowl with a cover in a moderately warm area (70F-80F) and allow to rise for 2 hours or until at least doubled in size",
+          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_02", withExtension: "jpg")!)
+        ),
+        .init(
+          id: .init(),
+          description: "After dough has rised, pound the gas out and re-knead into a large ball, than roll out little dough balls by pressing and pinching. Cover your balls and let them rise for another hour or until they have at least doubled in size",
+          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_03", withExtension: "jpg")!)
+        ),
+        .init(
+          id: .init(),
+          description: "Once your balls have risen accordingly, uncover them and season with salt and semame seeds then bake at 450F for 45 minutes or until internal temp of 190F",
+          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_04", withExtension: "jpg")!)
+        ),
+        .init(
+          id: .init(),
+          description: "After baking, immediately remove from loaf pan and place on cooling rack to prevent dough steaming into itself and getting soggy. Baste your buns generously with butter and allow to them rest for 30 minutes before slicing",
+          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_05", withExtension: "jpg")!)
+        ),
+        .init(
+          id: .init(),
+          description: "Enjoy your beautiful creation!",
+          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_06", withExtension: "jpg")!)
+        )
+      ]),
+      .init(id: .init(), name: "Patties", steps: [
+        .init(id: .init(), description: "Roughly chop all meat into bite size pieces and pass through a meat grinder. It usually helps if the meat is very cold. Frozen meat is better than warm meat, but neither will give you the best result")
+      ]),
+      .init(id: .init(), name: "Toppings", steps: [
+        .init(id: .init(), description: "Prepare the toppings as you like")
       ])
     ])
 }
