@@ -4,14 +4,33 @@ import Tagged
 import PhotosUI
 
 /// Moveable Steps
+/// moves to new view
 ///
-///
+extension PHAuthorizationStatus {
+  var shouldRequestForAuth: Bool {
+    switch self {
+    case .notDetermined:
+      return true
+    case .restricted:
+      return false
+    case .denied:
+      return true
+    case .authorized:
+      return false
+    case .limited:
+      return false
+    @unknown default:
+      return true
+    }
+  }
+}
 
-// TODO: O - Make the steps moveable <-- probably requires a new view
-// TODO: O - Ask for permissions
-// TODO: X - Fit Images
-// TODO: O - Handle Image Types (Logic + Alert)
-// TODO: O - Handle Image Position <-- This would make it legit.
+// TODO: Make permissions a dependency
+// TODO: Ask for permissions navigation to settings
+// TODO: Handle Image Position <-- This would make it legit.
+// TODO: Make the steps moveable <-- probably requires a new view
+
+// MARK: - Authorization does not work in previews.
 struct StepView: View {
   let store: StoreOf<StepReducer>
   
@@ -20,11 +39,13 @@ struct StepView: View {
     var stepNumber: Int
     var photoPickerItem: PhotosPickerItem?
     @PresentationState var destination: StepReducer.Destination.State?
+    var photoAuthStatus: PHAuthorizationStatus
     
     init(_ state: StepReducer.State) {
       self.step = state.step
       self.stepNumber = state.stepNumber
       self.destination = state.destination
+      self.photoAuthStatus = state.photoAuthStatus
     }
   }
   
@@ -35,18 +56,40 @@ struct StepView: View {
           Text("Step \(viewStore.stepNumber)")
             .fontWeight(.medium)
           Spacer()
-          PhotosPicker(
-            selection: viewStore.binding(
-              get: \.photoPickerItem,
-              send: { .photoPickerItemSelected($0) }
-            ),
-            matching: .images,
-            preferredItemEncoding: .automatic,
-            photoLibrary: .shared()
-          ) {
-            Image(systemName: "camera.fill")
-              .font(.caption)
-              .foregroundColor(.secondary)
+          // MARK: - Maybe collapse these three options somehow into something simpler
+          // is this a static value? or at least i need to observe changes for this value
+          if viewStore.photoAuthStatus == .notDetermined {
+            Button {
+              viewStore.send(.requestAuthPHPhotoLibrary)
+            } label: {
+              Image(systemName: "camera.fill")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+          }
+          else if viewStore.photoAuthStatus.shouldRequestForAuth {
+            Button {
+              viewStore.send(.requestAuthViaSettings)
+            } label: {
+              Image(systemName: "camera.fill")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+          }
+          else {
+            PhotosPicker(
+              selection: viewStore.binding(
+                get: \.photoPickerItem,
+                send: { .photoPickerItemSelected($0) }
+              ),
+              matching: .images,
+              preferredItemEncoding: .automatic,
+              photoLibrary: .shared() // MARK: - Which one to use
+            ) {
+              Image(systemName: "camera.fill")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
           }
         }
         TextField(
@@ -64,35 +107,33 @@ struct StepView: View {
           image
             .resizable()
             .scaledToFill()
-            .frame(width: .infinity, height: 200)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-          
+            .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 10)) // TODO: - Standardize image corner radii in app
         }
         else {
           EmptyView()
         }
       }
       .contextMenu(menuItems: {
+        Button {
+          viewStore.send(.delegate(.addStepButtonTapped(above: true)), animation: .default)
+        } label: {
+          Text("Add step above")
+        }
+        Button {
+          viewStore.send(.delegate(.addStepButtonTapped(above: false)), animation: .default)
+        } label: {
+          Text("Add step below")
+        }
         Button(role: .destructive) {
           viewStore.send(.delegate(.deleteButtonTapped), animation: .default)
         } label: {
           Text("Delete")
         }
-        Button(role: .none) {
-          viewStore.send(.delegate(.addStepButtonTapped(above: true)), animation: .default)
-        } label: {
-          Text("Add step above")
-        }
-        Button(role: .none) {
-          viewStore.send(.delegate(.addStepButtonTapped(above: false)), animation: .default)
-        } label: {
-          Text("Add step below")
-        }
       }, preview: {
-        StepContextMenuPreview(state: viewStore.state)
-        //          .frame(minWidth: 400)
+        StepContextMenuPreview(state: viewStore.state) // TODO: Get menu preview working
+          .frame(minHeight: 200) // TODO: Make dynamic...
           .padding()
-        //          .padding([.vertical])
       })
       .alert(
         store: store.scope(state: \.$destination, action: { .destination($0) }),
@@ -111,6 +152,7 @@ struct StepReducer: ReducerProtocol {
     var stepNumber: Int
     var step: Recipe.StepSection.Step
     @PresentationState var destination: Destination.State?
+    var photoAuthStatus: PHAuthorizationStatus = .notDetermined
   }
   
   enum Action: Equatable {
@@ -120,6 +162,9 @@ struct StepReducer: ReducerProtocol {
     case photoPickerItemResult(Data)
     case destination(PresentationAction<Destination.Action>)
     case photoPickerFailure
+    case requestAuthPHPhotoLibrary
+    case requestAuthViaSettings
+    case updateAuthStatus(PHAuthorizationStatus)
   }
   
   enum DelegateAction: Equatable {
@@ -155,9 +200,13 @@ struct StepReducer: ReducerProtocol {
         
       case .photoPickerFailure:
         state.destination = .alert(.init(
-          title: { TextState("Photo Error")},
+          title: {
+            TextState("Photo Error")
+          },
           actions: {
-            .init { TextState("Dismiss") }
+            ButtonState {
+              TextState("Dismiss")
+            }
           },
           message: {
             TextState("Something went wrong when loading that photo. Please try again or use another photo.")
@@ -166,6 +215,43 @@ struct StepReducer: ReducerProtocol {
         return .none
         
       case let .destination(action):
+        return .none
+        
+      case .requestAuthPHPhotoLibrary:
+        return .run { send in
+          let a = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+          dump(a.rawValue)
+          let v = await withUnsafeContinuation { continuation in
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+              continuation.resume(with: .success(status))
+            }
+          }
+          await send(.updateAuthStatus(v))
+        }
+        
+      case .requestAuthViaSettings:
+        state.destination = .alert(.init(
+          title: {
+            TextState("\"ChefTime\" Would Like to Access You Photos")
+            // MARK: - Make sure this name matches up to actual app name
+          },
+          actions: {
+            ButtonState {
+              TextState("Dismiss")
+            }
+            ButtonState(action: .confirmNavigateToSettings) {
+              TextState("Settings")
+            }
+          },
+          message: {
+            TextState("Enable access to upload photos")
+            // MARK: - Make sure this name matches up to app privacy photo access string
+          }
+        ))
+        return .none
+        
+      case let .updateAuthStatus(newStatus):
+        state.photoAuthStatus = newStatus
         return .none
       }
     }
@@ -194,6 +280,7 @@ extension StepReducer {
   
   enum AlertAction: Equatable {
     case accept
+    case confirmNavigateToSettings
   }
 }
 
@@ -232,20 +319,21 @@ struct StepContextMenuPreview: View {
         .lineLimit(2)
     }
   }
-  
-  struct StepContextMenuPreview_Previews: PreviewProvider {
-    static var previews: some View {
-      NavigationStack {
-        ScrollView {
-          StepContextMenuPreview.init(state: .init(.init(
-            id: .init(),
-            stepNumber: 1,
-            step: Recipe.mock.steps.first!.steps.first!
-          )))
-          .padding()
-        }
+}
+
+
+// TODO: Improve the StepNumber architecture
+struct StepContextMenuPreview_Previews: PreviewProvider {
+  static var previews: some View {
+    NavigationStack {
+      ScrollView {
+        StepContextMenuPreview.init(state: .init(.init(
+          id: .init(),
+          stepNumber: 1,
+          step: Recipe.mock.steps.first!.steps.first!
+        )))
+        .padding()
       }
-      
     }
   }
 }

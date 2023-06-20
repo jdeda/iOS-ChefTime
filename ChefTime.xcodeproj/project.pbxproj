@@ -35,6 +35,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		971A3B5B2A40FD71009F8002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		977D15542A2F7C4A00701A9F /* IngredientsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientsListView.swift; sourceTree = "<group>"; };
 		977D15562A2F834D00701A9F /* IngredientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientView.swift; sourceTree = "<group>"; };
 		977D15582A2FB47300701A9F /* IngredientSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSectionView.swift; sourceTree = "<group>"; };
@@ -93,6 +94,7 @@
 		97AD13B62A2E7392002FCE30 /* ChefTime */ = {
 			isa = PBXGroup;
 			children = (
+				971A3B5B2A40FD71009F8002 /* Info.plist */,
 				97AD13B72A2E7392002FCE30 /* Main.swift */,
 				97AD13C52A2E73C8002FCE30 /* AppView.swift */,
 				97AD13CE2A2E74C2002FCE30 /* RecipeView.swift */,
@@ -398,7 +400,8 @@
 				DEVELOPMENT_TEAM = ME637H7ZM9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "";
+				INFOPLIST_FILE = ChefTime/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Enable access to upload photos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -428,7 +431,8 @@
 				DEVELOPMENT_TEAM = ME637H7ZM9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "";
+				INFOPLIST_FILE = ChefTime/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Enable access to upload photos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
