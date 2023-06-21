@@ -98,7 +98,7 @@ struct StepsList_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         StepsListView(store: .init(
-          initialState: .init(recipe: Recipe.mock, isExpanded: true),
+          initialState: .init(recipe: Recipe.longMock, isExpanded: true),
           reducer: StepsListReducer.init,
           withDependencies: { _ in
             // TODO:

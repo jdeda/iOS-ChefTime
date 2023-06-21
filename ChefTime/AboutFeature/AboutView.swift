@@ -58,7 +58,7 @@ struct AboutView_Previews: PreviewProvider {
         AboutView(store: .init(
           initialState: .init(
             id: .init(),
-            section: Recipe.mock.aboutSections.first!,
+            section: Recipe.longMock.aboutSections.first!,
             isExpanded: true
           ),
           reducer: AboutReducer.init

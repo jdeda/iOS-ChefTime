@@ -292,7 +292,7 @@ struct StepView_Previews: PreviewProvider {
           initialState: .init(
             id: .init(),
             stepNumber: 1,
-            step: Recipe.mock.steps.first!.steps.first!
+            step: Recipe.longMock.steps.first!.steps.first!
           ),
           reducer: StepReducer.init
         ))
@@ -330,7 +330,7 @@ struct StepContextMenuPreview_Previews: PreviewProvider {
         StepContextMenuPreview.init(state: .init(.init(
           id: .init(),
           stepNumber: 1,
-          step: Recipe.mock.steps.first!.steps.first!
+          step: Recipe.longMock.steps.first!.steps.first!
         )))
         .padding()
       }

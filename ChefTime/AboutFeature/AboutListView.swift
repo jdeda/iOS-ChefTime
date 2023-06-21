@@ -82,7 +82,7 @@ struct AboutListView_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         AboutListView(store: .init(
-          initialState: .init(recipe: .mock, isExpanded: true),
+          initialState: .init(recipe: .longMock, isExpanded: true),
           reducer: AboutListReducer.init
         ))
       }

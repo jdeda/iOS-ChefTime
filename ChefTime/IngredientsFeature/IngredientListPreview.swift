@@ -160,7 +160,7 @@ struct IngredientListPreview_Previews: PreviewProvider {
       ScrollView {
         IngredientListPreview(store: .init(
           initialState: .init(
-            recipe: Recipe.mock,
+            recipe: Recipe.longMock,
             isExpanded: true
           ),
           reducer: IngredientsListPreviewReducer.init,
@@ -297,7 +297,7 @@ struct IngredientSectionPreview_Previews: PreviewProvider {
         IngredientSectionPreview(store: .init(
           initialState: .init(
             id: .init(),
-            ingredientSection: Recipe.mock.ingredientSections[1],
+            ingredientSection: Recipe.longMock.ingredientSections[1],
             isExpanded: true
           ),
           reducer: IngredientSectionPreviewReducer.init,
@@ -452,7 +452,7 @@ struct IngredientPreviewView_Previews: PreviewProvider {
         IngredientPreview(store: .init(
           initialState: .init(
             id: .init(),
-            ingredient: Recipe.mock.ingredientSections.first!.ingredients.first!
+            ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!
           ),
           reducer: IngredientPreviewReducer.init,
           withDependencies: { _ in

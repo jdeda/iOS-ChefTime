@@ -98,7 +98,7 @@ struct StepsListPreview_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         StepsListPreview(store: .init(
-          initialState: .init(recipe: Recipe.mock, isExpanded: true),
+          initialState: .init(recipe: Recipe.longMock, isExpanded: true),
           reducer: StepsListPreviewReducer.init,
           withDependencies: { _ in
             // TODO:
@@ -309,7 +309,7 @@ struct StepSectionPreview_Previews: PreviewProvider {
         StepSectionPreview(store: .init(
           initialState: .init(
             id: .init(),
-            stepSection: Recipe.mock.steps.first!,
+            stepSection: Recipe.longMock.steps.first!,
             isExpanded: true
           ),
           reducer: StepSectionPreviewReducer.init,
@@ -422,7 +422,7 @@ struct StepPreview_Previews: PreviewProvider {
           initialState: .init(
             id: .init(),
             stepNumber: 1,
-            step: Recipe.mock.steps.first!.steps.first!
+            step: Recipe.longMock.steps.first!.steps.first!
           ),
           reducer: StepPreviewReducer.init
         ))

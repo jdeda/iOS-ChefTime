@@ -35,6 +35,6 @@ struct ImageSliderView: View {
 
 struct ImageSliderView_Previews: PreviewProvider {
   static var previews: some View {
-    ImageSliderView(imageDatas: Recipe.mock.imageData)
+    ImageSliderView(imageDatas: Recipe.longMock.imageData)
   }
 }

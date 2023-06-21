@@ -228,7 +228,7 @@ struct IngredientSectionView_Previews: PreviewProvider {
         IngredientSectionView(store: .init(
           initialState: .init(
             id: .init(),
-            ingredientSection: Recipe.mock.ingredientSections[1],
+            ingredientSection: Recipe.longMock.ingredientSections[1],
             isExpanded: true
           ),
           reducer: IngredientSectionReducer.init,

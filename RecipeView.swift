@@ -33,7 +33,7 @@ struct RecipeView: View {
   struct ViewState: Equatable {
     var ingredientsList: IngredientsListReducer.State
     let maxW = UIScreen.main.bounds.width * 0.85
-    let recipe: Recipe = .mock
+    let recipe: Recipe = .longMock
     
     init(_ state: RecipeReducer.State) {
       self.ingredientsList = state.ingredientsList
@@ -139,10 +139,11 @@ struct RecipeReducer: ReducerProtocol {
 
 struct RecipeView_Previews: PreviewProvider {
   static var previews: some View {
+    // Long
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          recipe: .mock
+          recipe: .longMock
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in
@@ -150,6 +151,19 @@ struct RecipeView_Previews: PreviewProvider {
         }
       ))
     }
+    // Short
+    NavigationStack {
+      RecipeView(store: .init(
+        initialState: RecipeReducer.State(
+          recipe: .shortMock
+        ),
+        reducer: RecipeReducer.init,
+        withDependencies: { _ in
+          // TODO:
+        }
+      ))
+    }
+    // Empty
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(

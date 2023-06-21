@@ -41,7 +41,7 @@ struct ChefTimeApp: App {
           initialState: .init(
             id: .init(),
             stepNumber: 1,
-            step: Recipe.mock.steps.first!.steps.first!
+            step: Recipe.longMock.steps.first!.steps.first!
           ),
           reducer: StepReducer.init,
           withDependencies: { _ in

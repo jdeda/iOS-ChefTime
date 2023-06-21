@@ -193,7 +193,7 @@ struct IngredientsListView_Previews: PreviewProvider {
       ScrollView {
         IngredientsListView(store: .init(
           initialState: .init(
-            recipe: Recipe.mock,
+            recipe: Recipe.longMock,
             isExpanded: true
           ),
           reducer: IngredientsListReducer.init,

@@ -49,7 +49,7 @@ struct PhotosView_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         PhotosView(store: .init(
-          initialState: .init(recipe: .mock),
+          initialState: .init(recipe: .longMock),
           reducer: PhotosReducer.init
         ))
       }

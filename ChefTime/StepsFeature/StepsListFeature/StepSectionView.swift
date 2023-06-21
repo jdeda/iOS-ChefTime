@@ -217,7 +217,7 @@ struct StepSectionView_Previews: PreviewProvider {
         StepSectionView(store: .init(
           initialState: .init(
             id: .init(),
-            stepSection: Recipe.mock.steps.first!,
+            stepSection: Recipe.longMock.steps.first!,
             isExpanded: true
           ),
           reducer: StepSectionReducer.init,

@@ -166,7 +166,7 @@ struct IngredientView_Previews: PreviewProvider {
         IngredientView(store: .init(
           initialState: .init(
             id: .init(),
-            ingredient: Recipe.mock.ingredientSections.first!.ingredients.first!
+            ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!
           ),
           reducer: IngredientReducer.init,
           withDependencies: { _ in
