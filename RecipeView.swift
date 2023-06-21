@@ -84,6 +84,14 @@ struct RecipeReducer: ReducerProtocol {
     var stepsList: StepsListReducer.State
     var aboutList: AboutListReducer.State
     var photos: PhotosReducer.State
+    
+    init(recipe: Recipe) {
+      self.recipe = recipe
+      self.ingredientsList = .init(recipe: recipe, isExpanded: false)
+      self.stepsList = .init(recipe: recipe, isExpanded: false)
+      self.aboutList = .init(recipe: recipe, isExpanded: false)
+      self.photos = .init(recipe: recipe)
+    }
   }
   
   enum Action: Equatable {
@@ -134,11 +142,7 @@ struct RecipeView_Previews: PreviewProvider {
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          recipe: .mock,
-          ingredientsList: .init(recipe: .mock, isExpanded: true),
-          stepsList: .init(recipe: .mock, isExpanded: true),
-          aboutList: .init(recipe: .mock, isExpanded: true),
-          photos: .init(recipe: .mock)
+          recipe: .mock
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in
@@ -149,11 +153,7 @@ struct RecipeView_Previews: PreviewProvider {
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          recipe: .empty,
-          ingredientsList: .init(recipe: .empty, isExpanded: true),
-          stepsList: .init(recipe: .empty, isExpanded: true),
-          aboutList: .init(recipe: .empty, isExpanded: true),
-          photos: .init(recipe: .mock)
+          recipe: .empty
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in
