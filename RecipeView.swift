@@ -2,6 +2,31 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
+struct DataImage2View: View {
+  let imageData: Data?
+  let maxW = UIScreen.main.bounds.width * 0.85
+
+  var body: some View {
+    if let imageData = imageData,
+       let image = dataToImage(imageData) {
+      image
+        .resizable()
+        .scaledToFill()
+        .frame(width: maxW, height: maxW)
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .padding([.bottom])
+    }
+    else {
+      Image(systemName: "photo")
+        .resizable()
+        .scaledToFill()
+        .frame(width: maxW, height: maxW)
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .padding([.bottom])
+    }
+  }
+}
+
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
   
@@ -18,26 +43,7 @@ struct RecipeView: View {
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
       ScrollView {
-        Group {
-          Group {
-            if let imageData = viewStore.recipe.imageData,
-               let image = dataToImage(imageData) {
-              image
-                .resizable()
-                .scaledToFill()
-                .frame(width: viewStore.maxW, height: viewStore.maxW)
-                .clipShape(RoundedRectangle(cornerRadius: 15))
-                .padding([.bottom])
-            }
-            else {
-              Image(systemName: "photo")
-                .resizable()
-                .scaledToFill()
-                .frame(width: viewStore.maxW, height: viewStore.maxW)
-                .clipShape(RoundedRectangle(cornerRadius: 15))
-                .padding([.bottom])
-            }
-          }
+          DataImage2View(imageData: viewStore.recipe.imageData)
           
           AboutView(store: store.scope(
             state: \.about,
@@ -59,7 +65,6 @@ struct RecipeView: View {
           ))
         }
         .padding()
-      }
       .navigationTitle(viewStore.binding(
         get:  \.recipe.name,
         send: { .recipeNameEdited($0) }
@@ -120,6 +125,20 @@ struct RecipeView_Previews: PreviewProvider {
           ingredientsList: .init(recipe: .mock, isExpanded: true),
           stepsList: .init(recipe: .mock, isExpanded: true),
           about: .init(isExpanded: true, description: Recipe.mock.about)
+        ),
+        reducer: RecipeReducer.init,
+        withDependencies: { _ in
+          // TODO:
+        }
+      ))
+    }
+    NavigationStack {
+      RecipeView(store: .init(
+        initialState: RecipeReducer.State(
+          recipe: .empty,
+          ingredientsList: .init(recipe: .empty, isExpanded: true),
+          stepsList: .init(recipe: .empty, isExpanded: true),
+          about: .init(isExpanded: true, description: Recipe.empty.about)
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in

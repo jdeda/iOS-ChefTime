@@ -161,3 +161,16 @@ extension Recipe {
       ])
     ])
 }
+
+
+extension Recipe {
+  static let empty = Self.init(
+    id: .init(),
+    name: "",
+    imageData: nil,
+    about: "",
+    ingredientSections: [],
+    steps: []
+  )
+  
+}
