@@ -3,7 +3,6 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-
 /// Modeling our Images
 /// 1. URLs
 /// 2. Data
@@ -40,10 +39,26 @@ struct Recipe: Identifiable, Equatable {
   
   let id: ID
   var name: String
-  var imageData: Data?
-  var about: String
+  var imageData: IdentifiedArrayOf<ImageData>
+  var aboutSections: IdentifiedArrayOf<AboutSection>
   var ingredientSections: IdentifiedArrayOf<IngredientSection>
   var steps: IdentifiedArrayOf<StepSection>
+  
+  
+  struct ImageData: Identifiable, Equatable {
+    typealias ID = Tagged<Self, UUID>
+    
+    let id: ID
+    var imageData: Data?
+  }
+  
+  struct AboutSection: Identifiable, Equatable {
+    typealias ID = Tagged<Self, UUID>
+    
+    let id: ID
+    var name: String
+    var description: String
+  }
   
   
   struct IngredientSection: Identifiable, Equatable {
@@ -84,8 +99,37 @@ extension Recipe {
   static let mock = Self.init(
     id: .init(),
     name: "Double Cheese Burger",
-    imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_00", withExtension: "jpg")!),
-    about: "A proper meat feast, this classical burger is just too good! Homemade buns and ground meat, served with your side of classic toppings, it makes a fantastic Friday night treat or cookout favorite.",
+    imageData: [
+      .init(
+        id: .init(),
+        imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_00", withExtension: "jpeg")!)
+      ),
+      .init(
+        id: .init(),
+        imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_01", withExtension: "jpeg")!)
+      ),
+      .init(
+        id: .init(),
+        imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_02", withExtension: "jpeg")!)
+      ),
+    ],
+    aboutSections: [
+      .init(
+        id: .init(),
+        name: "Description",
+        description: "A proper meat feast, this classical burger is just too good! Homemade buns and ground meat, served with your side of classic toppings, it makes a fantastic Friday night treat or cookout favorite."
+      ),
+      .init(
+        id: .init(),
+        name: "Do I Really Need To Make Homemade Bread?",
+        description: "Of course not, there are great products in the store. But what's the fun in that?"
+      ),
+      .init(
+        id: .init(),
+        name: "Possible Improvements",
+        description: "I think burgers need sweet toppings. I think some bacon onion jam, bbq sauce, and even fried onions would make this burger over the top good. Chargrilling these burgers will also make a world of difference. If you can't do that, than a smash patty is the best alternative. Make sure the pan is super ultra mega hot first!"
+      ),
+    ],
     ingredientSections: [
       .init(
         id: .init(),
@@ -167,8 +211,8 @@ extension Recipe {
   static let empty = Self.init(
     id: .init(),
     name: "",
-    imageData: nil,
-    about: "",
+    imageData: [],
+    aboutSections: [],
     ingredientSections: [],
     steps: []
   )

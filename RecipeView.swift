@@ -43,28 +43,32 @@ struct RecipeView: View {
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
       ScrollView {
-          DataImage2View(imageData: viewStore.recipe.imageData)
-          
-          AboutView(store: store.scope(
-            state: \.about,
-            action: RecipeReducer.Action.about
-          ))
-          
-          Divider()
-          
-          IngredientsListView(store: store.scope(
-            state: \.ingredientsList,
-            action: RecipeReducer.Action.ingredientList
-          ))
-          
-          Divider()
-          
-          StepsListView(store: store.scope(
-            state: \.stepsList,
-            action: RecipeReducer.Action.stepsList
-          ))
-        }
-        .padding()
+        
+        PhotosView(store: store.scope(
+          state: \.photos,
+          action: RecipeReducer.Action.photos
+        ))
+        
+        AboutListView(store: store.scope(
+          state: \.aboutList,
+          action: RecipeReducer.Action.aboutList
+        ))
+        
+        Divider()
+        
+        IngredientsListView(store: store.scope(
+          state: \.ingredientsList,
+          action: RecipeReducer.Action.ingredientList
+        ))
+        
+        Divider()
+        
+        StepsListView(store: store.scope(
+          state: \.stepsList,
+          action: RecipeReducer.Action.stepsList
+        ))
+      }
+      .padding()
       .navigationTitle(viewStore.binding(
         get:  \.recipe.name,
         send: { .recipeNameEdited($0) }
@@ -78,13 +82,15 @@ struct RecipeReducer: ReducerProtocol {
     var recipe: Recipe
     var ingredientsList: IngredientsListReducer.State
     var stepsList: StepsListReducer.State
-    var about: AboutReducer.State
+    var aboutList: AboutListReducer.State
+    var photos: PhotosReducer.State
   }
   
   enum Action: Equatable {
     case ingredientList(IngredientsListReducer.Action)
     case stepsList(StepsListReducer.Action)
-    case about(AboutReducer.Action)
+    case aboutList(AboutListReducer.Action)
+    case photos(PhotosReducer.Action)
     case recipeNameEdited(String)
   }
   
@@ -97,8 +103,12 @@ struct RecipeReducer: ReducerProtocol {
       case let .stepsList(action):
         return .none
         
-      case let .about(action):
+      case let .aboutList(action):
         return .none
+        
+      case let .photos(action):
+        return .none
+        
       case let .recipeNameEdited(newName):
         state.recipe.name = newName
         return .none
@@ -110,8 +120,11 @@ struct RecipeReducer: ReducerProtocol {
     Scope(state: \.stepsList, action: /Action.stepsList) {
       StepsListReducer()
     }
-    Scope(state: \.about, action: /Action.about) {
-      AboutReducer()
+    Scope(state: \.aboutList, action: /Action.aboutList) {
+      AboutListReducer()
+    }
+    Scope(state: \.photos, action: /Action.photos) {
+      PhotosReducer()
     }
   }
 }
@@ -124,7 +137,8 @@ struct RecipeView_Previews: PreviewProvider {
           recipe: .mock,
           ingredientsList: .init(recipe: .mock, isExpanded: true),
           stepsList: .init(recipe: .mock, isExpanded: true),
-          about: .init(isExpanded: true, description: Recipe.mock.about)
+          aboutList: .init(recipe: .mock, isExpanded: true),
+          photos: .init(recipe: .mock)
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in
@@ -138,7 +152,8 @@ struct RecipeView_Previews: PreviewProvider {
           recipe: .empty,
           ingredientsList: .init(recipe: .empty, isExpanded: true),
           stepsList: .init(recipe: .empty, isExpanded: true),
-          about: .init(isExpanded: true, description: Recipe.empty.about)
+          aboutList: .init(recipe: .empty, isExpanded: true),
+          photos: .init(recipe: .mock)
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in
