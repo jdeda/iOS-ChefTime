@@ -5,7 +5,7 @@ import Tagged
 struct DataImage2View: View {
   let imageData: Data?
   let maxW = UIScreen.main.bounds.width * 0.85
-
+  
   var body: some View {
     if let imageData = imageData,
        let image = dataToImage(imageData) {

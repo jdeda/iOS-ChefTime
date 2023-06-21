@@ -13,11 +13,15 @@ struct ImageSliderView: View {
             image
               .resizable()
               .scaledToFill()
+              .frame(width: maxW, height: maxW)
+              .clipShape(RoundedRectangle(cornerRadius: 15))
           }
           else {
             Image(systemName: "photo")
               .resizable()
               .scaledToFill()
+              .frame(width: maxW, height: maxW)
+              .clipShape(RoundedRectangle(cornerRadius: 15))
           }
         }
       }
