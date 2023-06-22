@@ -1,15 +1,16 @@
 import SwiftUI
 import ComposableArchitecture
+import Tagged
 
 // MARK: - View
-struct AboutListView: View {
-  let store: StoreOf<AboutListReducer>
+struct AboutPreviewListView: View {
+  let store: StoreOf<AboutPreviewListReducer>
   
   struct ViewState: Equatable {
-    var sections: IdentifiedArrayOf<AboutReducer.State>
+    var sections: IdentifiedArrayOf<AboutPreviewReducer.State>
     var isExpanded: Bool
     
-    init(_ state: AboutListReducer.State) {
+    init(_ state: AboutPreviewListReducer.State) {
       self.sections = state.sections
       self.isExpanded = state.isExpanded
     }
@@ -23,27 +24,26 @@ struct AboutListView: View {
       )) {
         ForEachStore(store.scope(
           state: \.sections,
-          action: AboutListReducer.Action.section
+          action: AboutPreviewListReducer.Action.section
         )) { childStore in
-          AboutView(store: childStore)
+          AboutPreview(store: childStore)
           Divider()
         }
       } label: {
-          Text("About")
-            .font(.title)
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
+        Text("About")
+          .font(.title)
+          .fontWeight(.bold)
+          .foregroundColor(.primary)
       }
-      .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
     }
   }
 }
 
 // MARK: - Reducer
-struct AboutListReducer: ReducerProtocol {
+struct AboutPreviewListReducer: ReducerProtocol {
   struct State: Equatable {
-    var sections: IdentifiedArrayOf<AboutReducer.State>
+    var sections: IdentifiedArrayOf<AboutPreviewReducer.State>
     var isExpanded: Bool
     
     init(recipe: Recipe, isExpanded: Bool, childrenIsExpanded: Bool) {
@@ -56,7 +56,7 @@ struct AboutListReducer: ReducerProtocol {
   
   enum Action: Equatable {
     case isExpandedButtonToggled
-    case section(AboutReducer.State.ID, AboutReducer.Action)
+    case section(AboutPreviewReducer.State.ID, AboutPreviewReducer.Action)
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -71,19 +71,19 @@ struct AboutListReducer: ReducerProtocol {
       }
     }
     .forEach(\.sections, action: /Action.section) {
-      AboutReducer()
+      AboutPreviewReducer()
     }
   }
 }
 
 // MARK: - Preview
-struct AboutListView_Previews: PreviewProvider {
+struct AboutPreviewListView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
       ScrollView {
-        AboutListView(store: .init(
+        AboutPreviewListView(store: .init(
           initialState: .init(recipe: .longMock, isExpanded: true, childrenIsExpanded: true),
-          reducer: AboutListReducer.init
+          reducer: AboutPreviewListReducer.init
         ))
       }
       .padding()
@@ -91,3 +91,34 @@ struct AboutListView_Previews: PreviewProvider {
   }
 }
 
+struct AboutPreview: View {
+  let store: StoreOf<AboutPreviewReducer>
+  
+  var body: some View {
+    WithViewStore(store, observe: { $0 }) { viewStore in
+      DisclosureGroup(isExpanded: viewStore.binding(\.$isExpanded)) {
+        TextField(
+          "...",
+          text: .constant(viewStore.section.description),
+          axis: .vertical
+        )
+        .disabled(true)
+        .accentColor(.accentColor)
+      } label: {
+        TextField(
+          "Untitled Section",
+          text: .constant(viewStore.section.name),
+          axis: .vertical
+        )
+        .font(.title3)
+        .fontWeight(.bold)
+        .foregroundColor(.primary)
+        .accentColor(.accentColor)
+        .frame(alignment: .leading)
+        .multilineTextAlignment(.leading)
+        .disabled(true)
+      }
+      .accentColor(.primary)
+    }
+  }
+}
