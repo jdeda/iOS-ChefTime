@@ -46,9 +46,9 @@ struct AboutListReducer: ReducerProtocol {
     var sections: IdentifiedArrayOf<AboutReducer.State>
     var isExpanded: Bool
     
-    init(recipe: Recipe, isExpanded: Bool) {
+    init(recipe: Recipe, isExpanded: Bool, childrenIsExpanded: Bool) {
       self.sections = .init(uniqueElements: recipe.aboutSections.map { section in
-          .init(id: .init(), section: section, isExpanded: true)
+          .init(id: .init(), section: section, isExpanded: childrenIsExpanded)
       })
       self.isExpanded = isExpanded
     }
@@ -82,7 +82,7 @@ struct AboutListView_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         AboutListView(store: .init(
-          initialState: .init(recipe: .longMock, isExpanded: true),
+          initialState: .init(recipe: .longMock, isExpanded: true, childrenIsExpanded: true),
           reducer: AboutListReducer.init
         ))
       }

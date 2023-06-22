@@ -4,6 +4,7 @@ import ComposableArchitecture
 struct ImageSliderView: View {
   let imageDatas: IdentifiedArrayOf<Recipe.ImageData>
   let maxW = UIScreen.main.bounds.width * 0.85
+  @State var isHovering: Bool = false
 
   var body: some View {
     VStack {
@@ -25,16 +26,19 @@ struct ImageSliderView: View {
           }
         }
       }
-      .tabViewStyle(PageTabViewStyle())
-      .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
       .frame(width: maxW, height: maxW)
       .clipShape(RoundedRectangle(cornerRadius: 15))
+      .tabViewStyle(PageTabViewStyle())
+      .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: isHovering ? .always : .never))
+      .onHover { isHovering = $0 }
     }
   }
 }
 
 struct ImageSliderView_Previews: PreviewProvider {
   static var previews: some View {
-    ImageSliderView(imageDatas: Recipe.longMock.imageData)
+    ScrollView {
+      ImageSliderView(imageDatas: Recipe.longMock.imageData)
+    }
   }
 }

@@ -89,7 +89,7 @@ struct IngredientsListReducer: ReducerProtocol {
     var isExpanded: Bool
     var scale: Double = 1.0
     
-    init(recipe: Recipe, isExpanded: Bool) {
+    init(recipe: Recipe, isExpanded: Bool, childrenIsExpanded: Bool) {
       self.ingredients = .init(uniqueElements: recipe.ingredientSections.map({
         .init(
           id: .init(),
@@ -98,7 +98,7 @@ struct IngredientsListReducer: ReducerProtocol {
             name: $0.name,
             ingredients: $0.ingredients
           ),
-          isExpanded: true
+          isExpanded: childrenIsExpanded
         )
       }))
       self.scale = 1.0
@@ -194,7 +194,8 @@ struct IngredientsListView_Previews: PreviewProvider {
         IngredientsListView(store: .init(
           initialState: .init(
             recipe: Recipe.longMock,
-            isExpanded: true
+            isExpanded: true,
+            childrenIsExpanded: true
           ),
           reducer: IngredientsListReducer.init,
           withDependencies: { _ in

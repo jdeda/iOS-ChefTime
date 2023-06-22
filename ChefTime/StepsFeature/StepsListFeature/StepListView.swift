@@ -54,12 +54,12 @@ struct StepsListReducer: ReducerProtocol {
     var isExpanded: Bool
     var sections: IdentifiedArrayOf<StepSectionReducer.State>
     
-    init(recipe: Recipe, isExpanded: Bool) {
+    init(recipe: Recipe, isExpanded: Bool, childrenIsExpanded: Bool) {
       self.sections = .init(uniqueElements: recipe.steps.map { section in
           .init(
             id: .init(),
             stepSection: section,
-            isExpanded: true
+            isExpanded: childrenIsExpanded
           )
       })
       self.isExpanded = isExpanded
@@ -98,7 +98,7 @@ struct StepsList_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         StepsListView(store: .init(
-          initialState: .init(recipe: Recipe.longMock, isExpanded: true),
+          initialState: .init(recipe: Recipe.longMock, isExpanded: true, childrenIsExpanded: true),
           reducer: StepsListReducer.init,
           withDependencies: { _ in
             // TODO:

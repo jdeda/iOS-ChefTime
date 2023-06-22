@@ -48,6 +48,7 @@ struct RecipeView: View {
           state: \.photos,
           action: RecipeReducer.Action.photos
         ))
+        .padding([.bottom])
         
         AboutListView(store: store.scope(
           state: \.aboutList,
@@ -87,9 +88,9 @@ struct RecipeReducer: ReducerProtocol {
     
     init(recipe: Recipe) {
       self.recipe = recipe
-      self.ingredientsList = .init(recipe: recipe, isExpanded: false)
-      self.stepsList = .init(recipe: recipe, isExpanded: false)
-      self.aboutList = .init(recipe: recipe, isExpanded: false)
+      self.ingredientsList = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
+      self.stepsList = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
+      self.aboutList = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
       self.photos = .init(recipe: recipe)
     }
   }
