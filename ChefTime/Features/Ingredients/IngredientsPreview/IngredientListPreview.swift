@@ -60,7 +60,6 @@ struct IngredientListPreview: View {
           .fontWeight(.bold)
           .foregroundColor(.primary)
       }
-      .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
     }
   }
@@ -73,7 +72,7 @@ struct IngredientsListPreviewReducer: ReducerProtocol {
     var isExpanded: Bool
     var scale: Double = 1.0
     
-    init(recipe: Recipe, isExpanded: Bool) {
+    init(recipe: Recipe, isExpanded: Bool, childrenIsExpanded: Bool) {
       self.ingredients = .init(uniqueElements: recipe.ingredientSections.map({
         .init(
           id: .init(),
@@ -82,7 +81,7 @@ struct IngredientsListPreviewReducer: ReducerProtocol {
             name: $0.name,
             ingredients: $0.ingredients
           ),
-          isExpanded: true
+          isExpanded: childrenIsExpanded
         )
       }))
       self.scale = 1.0
@@ -127,7 +126,6 @@ struct IngredientsListPreviewReducer: ReducerProtocol {
           }
         }()
         
-        // TODO: Scaling causes text to move in ugly way.
         state.scale = newScale
         for i in state.ingredients.indices {
           for j in state.ingredients[i].ingredients.indices {
@@ -157,7 +155,8 @@ struct IngredientListPreview_Previews: PreviewProvider {
         IngredientListPreview(store: .init(
           initialState: .init(
             recipe: Recipe.longMock,
-            isExpanded: true
+            isExpanded: true,
+            childrenIsExpanded: true
           ),
           reducer: IngredientsListPreviewReducer.init,
           withDependencies: { _ in
