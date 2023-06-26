@@ -28,25 +28,18 @@ struct IngredientSectionView: View {
   
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
+//      DisclosureGroup(isExpanded: viewStore.binding(
+//        get: { $0.isExpanded },
+//        send: { _ in .isExpandedButtonToggled }
+//      )) {
+      Section {
         ForEachStore(store.scope(
           state: \.ingredients,
           action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
           IngredientView(store: childStore)
-          Divider()
         }
-        
-        AddIngredientView()
-          .onTapGesture {
-            viewStore.send(.addIngredientButtonTapped, animation: .default)
-          }
-        Divider()
-        
-      } label: {
+      } header: {
         TextField(
           "Untitled Ingredient Section",
           text: viewStore.binding(
@@ -62,7 +55,7 @@ struct IngredientSectionView: View {
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
       }
-      .disclosureGroupStyle(CustomDisclosureGroupStyle())
+//      .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .contextMenu(menuItems: {
         Button(role: .destructive) {
           // TODO: - Lots of lag. The context menu is laggy...
@@ -224,7 +217,7 @@ extension IngredientSectionReducer {
 struct IngredientSectionView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      ScrollView {
+      List {
         IngredientSectionView(store: .init(
           initialState: .init(
             id: .init(),
@@ -236,17 +229,16 @@ struct IngredientSectionView_Previews: PreviewProvider {
             // TODO:
           }
         ))
-        .padding()
       }
+      .listStyle(.plain)
     }
   }
 }
 
-
-// TODO: Make DiscloureGroupModifier
-// 1. format label to have specific text styling
-// 2. make entire group have primary accent color
-// 3. make content have accent color accent color
+//// TODO: Make DiscloureGroupModifier
+//// 1. format label to have specific text styling
+//// 2. make entire group have primary accent color
+//// 3. make content have accent color accent color
 struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
   func makeBody(configuration: Configuration) -> some View {
     HStack {

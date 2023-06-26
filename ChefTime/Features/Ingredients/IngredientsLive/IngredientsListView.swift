@@ -2,12 +2,10 @@ import SwiftUI
 import ComposableArchitecture
 
 // TODO: Section deletion has no animation
-// TODO: Add a section
 
 // MARK: - IngredientsListView
-struct IngredientsListView: View {
+struct IngredientListView: View {
   let store: StoreOf<IngredientsListReducer>
-  @State var string: String = ""
   
   struct ViewState: Equatable {
     var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
@@ -32,10 +30,10 @@ struct IngredientsListView: View {
   
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
+//      DisclosureGroup(isExpanded: viewStore.binding(
+//        get: { $0.isExpanded },
+//        send: { _ in .isExpandedButtonToggled }
+//      )) {
         Stepper(
           value: viewStore.binding(
             get: { $0.scale },
@@ -55,29 +53,14 @@ struct IngredientsListView: View {
         )) { childStore in
           IngredientSectionView(store: childStore)
         }
-        
-        HStack {
-          Text(" ")
-          Spacer()
-          Image(systemName: "plus")
-            .font(.caption)
-            .fontWeight(.bold)
-            .onTapGesture {
-              viewStore.send(.addIngredientSectionButtonTapped, animation: .default)
-            }
-        }
-        .foregroundColor(.secondary)
-        
-        Divider()
-      }
-      label : {
-        Text("Ingredients")
-          .font(.title)
-          .fontWeight(.bold)
-          .foregroundColor(.primary)
-      }
-      .disclosureGroupStyle(CustomDisclosureGroupStyle())
-      .accentColor(.primary)
+//      }
+//      label : {
+//        Text("Ingredients")
+//          .font(.title)
+//          .fontWeight(.bold)
+//          .foregroundColor(.primary)
+//      }
+//      .accentColor(.primary)
     }
   }
 }
@@ -109,24 +92,13 @@ struct IngredientsListReducer: ReducerProtocol {
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
     case scaleStepperButtonTapped(Double)
-    case addIngredientSectionButtonTapped
   }
   
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
       case let .ingredient(id, action):
-        switch action {
-        case let .delegate(delegateAction):
-          switch delegateAction {
-          case .deleteSectionButtonTapped:
-            // TODO: Delete animation broken
-            state.ingredients.remove(id: id)
-            return .none
-          }
-        default:
-          return .none
-        }
+        return .none
         
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
@@ -154,7 +126,6 @@ struct IngredientsListReducer: ReducerProtocol {
           }
         }()
         
-        // TODO: Scaling causes text to move in ugly way.
         state.scale = newScale
         for i in state.ingredients.indices {
           for j in state.ingredients[i].ingredients.indices {
@@ -167,16 +138,6 @@ struct IngredientsListReducer: ReducerProtocol {
           }
         }
         return .none
-        
-      case .addIngredientSectionButtonTapped:
-        state.ingredients.append(
-          .init(
-            id: .init(),
-            ingredientSection: .init(id: .init(), name: "New Ingredient Section", ingredients: []),
-            isExpanded: true
-          )
-        )
-        return .none
       }
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
@@ -187,11 +148,11 @@ struct IngredientsListReducer: ReducerProtocol {
 }
 
 // MARK: - Previews
-struct IngredientsListView_Previews: PreviewProvider {
+struct IngredientList_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      ScrollView {
-        IngredientsListView(store: .init(
+      List {
+        IngredientListView(store: .init(
           initialState: .init(
             recipe: Recipe.longMock,
             isExpanded: true,
@@ -202,8 +163,185 @@ struct IngredientsListView_Previews: PreviewProvider {
             // TODO:
           }
         ))
-        .padding()
       }
+      .listStyle(.plain)
     }
   }
 }
+
+
+//import SwiftUI
+//import ComposableArchitecture
+//
+//// List
+//// item - edit
+//// item - move
+//// item - swipe to delete
+//// item - multi-select delete
+//// section - delete
+//// section - move
+//// section operations will require transformation of the view
+//// into rows of sections, this will make things tricky
+//// go find ur repo where u fixed the selection bug
+//
+//
+//// MARK: - View
+//struct IngredientsListViewView: View {
+//  let store: StoreOf<IngredientsListViewReducer>
+//
+//  var body: some View {
+//    WithViewStore(store, observe: { $0 }) { viewStore in
+//      NavigationStack {
+//        List(selection: viewStore.binding(
+//          get: { $0.selection },
+//          send: { _ in .selectionEdited }
+//        )) {
+//          ForEach(viewStore.sections) { section in
+//            Section {
+//              if viewStore.cTap {
+//                ForEach(section.ingredients) { ingredient in
+//                  IngredientViewX(ingredient: ingredient)
+//                }
+//              }
+//            } header: {
+//              HStack {
+//                TextField(
+//                  "Untitled Ingredient Section",
+//                  text: .constant(section.name),
+//                  axis: .vertical
+//                )
+//                .font(.title3)
+//                .fontWeight(.bold)
+//                .foregroundColor(.primary)
+//                .accentColor(.accentColor)
+//                .frame(alignment: .leading)
+//                .multilineTextAlignment(.leading)
+//                .disabled(true)
+//
+//                Spacer()
+//                Image(systemName: "chevron.right")
+//                  .rotationEffect(viewStore.cTap ? .degrees(90) : .degrees(0))
+//                  .animation(.linear(duration: 0.3), value: viewStore.cTap)
+//                  .font(.caption)
+//                  .fontWeight(.bold)
+//                  .onTapGesture {
+//                    viewStore.send(.cTap, animation: .default)
+//                  }
+//              }
+//            }
+//          }
+//        }
+//        .navigationTitle("Ingredients")
+//        .listStyle(.plain)
+//        .toolbar {
+//          ToolbarItemGroup(placement: .primaryAction) {
+//            Button {
+//              viewStore.send(.editButtonTapped)
+//            } label: {
+//              Image(systemName: "ellipsis.circle")
+//            }
+//          }
+//        }
+//        .environment(\.editMode, .constant(viewStore.isEditing ? .active : .inactive))
+//        .animation(.default, value: viewStore.isEditing)
+//      }
+//    }
+//  }
+//}
+//
+//// MARK: - Reducer
+//struct IngredientsListViewReducer: ReducerProtocol {
+//  struct State: Equatable {
+//    var sections: IdentifiedArrayOf<Recipe.IngredientSection>
+//    var selection: Set<Recipe.IngredientSection.Ingredient.ID> = []
+//    var isEditing: Bool = false
+//    var isMoving: Bool = false
+//    var cTap = true
+//
+//    var hasSelectedAll: Bool {
+//      selection.count == sections.reduce(into: 0) { $0 + $1.ingredients.count }
+//    }
+//
+//    var navigationBarTitle: String {
+//      isEditing && selection.count > 0 ? "\(selection.count) Selected": "Ingredients"
+//    }
+//
+//
+//    init(recipe: Recipe) {
+//      self.sections = recipe.ingredientSections
+//    }
+//  }
+//
+//  enum Action: Equatable {
+//    case cTap
+//    case editButtonTapped
+//    case moveButtonTapped
+//    case selectionEdited
+//  }
+//
+//  var body: some ReducerProtocolOf<Self> {
+//    Reduce { state, action in
+//      switch action {
+//      case .cTap:
+//        state.cTap.toggle()
+//        return .none
+//
+//      case .editButtonTapped:
+//        state.isEditing.toggle()
+//        return .none
+//
+//      case .moveButtonTapped:
+//        return .none
+//
+//      case .selectionEdited:
+//        return .none
+//      }
+//    }
+//  }
+//}
+//
+//// MARK: - Preview
+//struct IngredientsListViewView_Previews: PreviewProvider {
+//  static var previews: some View {
+//    IngredientsListViewView(store: .init(
+//      initialState: .init(recipe: .longMock),
+//      reducer: IngredientsListViewReducer.init
+//    ))
+//  }
+//}
+//
+//
+//// MARK: - View
+//struct IngredientViewX: View {
+//  let ingredient: Recipe.IngredientSection.Ingredient
+//  var body: some View {
+//      HStack(alignment: .top) {
+//
+//        // Checkbox
+//        Image(systemName: "square")
+//          .fontWeight(.medium)
+//          .padding([.top], 2)
+//
+//        // Name
+//        TextField("...", text: .constant(ingredient.name), axis: .vertical)
+//          .autocapitalization(.none)
+//          .autocorrectionDisabled()
+//          .disabled(true)
+//
+//        // Amount
+//        TextField("...", text: .constant(String(ingredient.amount)))
+//          .fixedSize()
+//          .autocapitalization(.none)
+//          .autocorrectionDisabled()
+//          .disabled(true)
+//
+//        // Measurement
+//        TextField( "...", text: .constant(ingredient.measure))
+//          .fixedSize()
+//          .autocapitalization(.none)
+//          .autocorrectionDisabled()
+//          .disabled(true)
+//      }
+//      .accentColor(.accentColor)
+//  }
+//}

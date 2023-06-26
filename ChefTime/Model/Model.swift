@@ -43,6 +43,7 @@ struct Recipe: Identifiable, Equatable {
   var aboutSections: IdentifiedArrayOf<AboutSection>
   var ingredientSections: IdentifiedArrayOf<IngredientSection>
   var steps: IdentifiedArrayOf<StepSection>
+  var isComplete: Bool = false
   
   
   struct ImageData: Identifiable, Equatable {

@@ -14,23 +14,23 @@ import Combine
 // MARK: - View
 struct IngredientView: View {
   let store: StoreOf<IngredientReducer>
-  
+
   struct ViewState: Equatable {
     var ingredient: Recipe.IngredientSection.Ingredient
     var ingredientAmountString: String
     var isComplete: Bool
-    
+
     init(_ state: IngredientReducer.State) {
       self.ingredient = state.ingredient
       self.ingredientAmountString = state.ingredientAmountString
       self.isComplete = state.isComplete
     }
   }
-  
+
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
       HStack(alignment: .top) {
-        
+
         // Checkbox
         Image(systemName: viewStore.isComplete ? "checkmark.square" : "square")
           .fontWeight(.medium)
@@ -38,7 +38,7 @@ struct IngredientView: View {
             viewStore.send(.isCompleteButtonToggled)
           }
           .padding([.top], 2)
-        
+
         // Name
         TextField(
           "...",
@@ -50,7 +50,7 @@ struct IngredientView: View {
         )
         .autocapitalization(.none)
         .autocorrectionDisabled()
-        
+
         // Amount
         TextField(
           "...",
@@ -70,7 +70,7 @@ struct IngredientView: View {
         .fixedSize()
         .autocapitalization(.none)
         .autocorrectionDisabled()
-        
+
         // Measurement
         TextField(
           "...",
@@ -101,19 +101,19 @@ struct IngredientView: View {
 struct IngredientReducer: ReducerProtocol {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
-    
+
     let id: ID
     var ingredient: Recipe.IngredientSection.Ingredient
     var ingredientAmountString: String
     var isComplete: Bool = false
-    
+
     init(id: ID, ingredient: Recipe.IngredientSection.Ingredient) {
       self.id = id
       self.ingredient = ingredient
       self.ingredientAmountString = String(ingredient.amount)
     }
   }
-  
+
   enum Action: Equatable {
     case ingredientNameEdited(String)
     case ingredientAmountEdited(String)
@@ -121,29 +121,29 @@ struct IngredientReducer: ReducerProtocol {
     case isCompleteButtonToggled
     case delegate(DelegateAction)
   }
-  
+
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
-        
+
       case let .ingredientNameEdited(newName):
         state.ingredient.name = newName
         return .none
-        
+
       case let .ingredientAmountEdited(newAmountString):
         // TODO: Fix...
         state.ingredientAmountString = newAmountString
         state.ingredient.amount = Double(newAmountString) ?? 0
         return .none
-        
+
       case let .ingredientMeasureEdited(newMeasure):
         state.ingredient.measure = newMeasure
         return .none
-        
+
       case .isCompleteButtonToggled:
         state.isComplete.toggle()
         return .none
-        
+
       case .delegate:
         return .none
       }
@@ -183,7 +183,7 @@ struct IngredientView_Previews: PreviewProvider {
 private struct NumbersOnlyViewModifier: ViewModifier {
   @Binding var text: String
   var includeDecimal: Bool
-  
+
   func body(content: Content) -> some View {
     content
       .keyboardType(includeDecimal ? .decimalPad : .numberPad)
@@ -216,26 +216,26 @@ private extension View {
 struct AddIngredientView: View {
   var body: some View {
     HStack(alignment: .top) {
-      
+
       // Checkbox
       Image(systemName: "square")
         .fontWeight(.medium)
         .padding([.top], 2)
-      
+
       // Name
       TextField("...", text: .constant(""))
         .disabled(true)
-      
+
       // Amount
       TextField("...", text: .constant(""))
         .disabled(true)
         .fixedSize()
-      
+
       // Measurement
       TextField("...", text: .constant(""))
         .disabled(true)
         .fixedSize()
-      
+
       Image(systemName: "plus")
         .fontWeight(.medium)
         .padding([.top], 2)
