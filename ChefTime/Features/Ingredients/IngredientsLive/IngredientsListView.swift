@@ -382,7 +382,7 @@ struct IngredientList_Previews: PreviewProvider {
     NavigationStack {
       IngredientListView(store: .init(
         initialState: .init(
-          recipe: Recipe.longMock,
+          recipe: Recipe.shortMock,
           isExpanded: true,
           childrenIsExpanded: true
         ),

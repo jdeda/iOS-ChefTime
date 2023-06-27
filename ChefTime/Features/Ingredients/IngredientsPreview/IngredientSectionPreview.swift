@@ -32,6 +32,10 @@ struct IngredientSectionPreview: View {
           action: IngredientSectionPreviewReducer.Action.ingredient
         )) { childStore in
           IngredientPreview(store: childStore)
+            .contentShape(Rectangle())
+            .onTapGesture {
+              viewStore.send(.delegate(.sectionNavigationAreaTapped))
+            }
           Divider()
         }
         
@@ -49,6 +53,7 @@ struct IngredientSectionPreview: View {
         .multilineTextAlignment(.leading)
         .disabled(true)
       }
+//      .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
     }
   }
@@ -78,6 +83,7 @@ struct IngredientSectionPreviewReducer: ReducerProtocol  {
     case ingredient(IngredientPreviewReducer.State.ID, IngredientPreviewReducer.Action)
     case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
+    case delegate(DelegateAction)
   }
   
   var body: some ReducerProtocolOf<Self> {
@@ -93,11 +99,20 @@ struct IngredientSectionPreviewReducer: ReducerProtocol  {
       case let .ingredientSectionNameEdited(newName):
         state.name = newName
         return .none
+        
+      case .delegate:
+        return .none
       }
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientPreviewReducer()
     }
+  }
+}
+
+extension IngredientSectionPreviewReducer {
+  enum DelegateAction {
+    case sectionNavigationAreaTapped
   }
 }
 

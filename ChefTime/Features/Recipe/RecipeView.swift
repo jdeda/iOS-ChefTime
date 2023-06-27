@@ -6,48 +6,47 @@ import Tagged
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
   
-  struct ViewState: Equatable {
-    var ingredientsList: IngredientsListPreviewReducer.State
-    let maxW = UIScreen.main.bounds.width * 0.85
-    let recipe: Recipe = .longMock
-    
-    init(_ state: RecipeReducer.State) {
-      self.ingredientsList = state.ingredients
-    }
-  }
-  
   var body: some View {
-    WithViewStore(store, observe: ViewState.init) { viewStore in
-      ScrollView {
-        PhotosView(store: store.scope(
-          state: \.photos,
-          action: RecipeReducer.Action.photos
+    WithViewStore(store) { viewStore in
+      NavigationStack {
+        ScrollView {
+          PhotosView(store: store.scope(
+            state: \.photos,
+            action: RecipeReducer.Action.photos
+          ))
+          .padding([.horizontal])
+          .padding([.bottom])
+          
+          AboutPreviewListView(store: store.scope(
+            state: \.about,
+            action: RecipeReducer.Action.about
+          ))
+          .padding([.horizontal])
+          
+          IngredientListPreview(store: store.scope(
+            state: \.ingredients,
+            action: RecipeReducer.Action.list
+          ))
+          .padding([.horizontal])
+          
+          StepsListView(store: store.scope(
+            state: \.steps,
+            action: RecipeReducer.Action.steps
+          ))
+          .padding([.horizontal])
+        }
+        .navigationTitle(viewStore.binding(
+          get:  \.recipe.name,
+          send: { .recipeNameEdited($0) }
         ))
-        .padding([.horizontal])
-        .padding([.bottom])
-        
-        AboutPreviewListView(store: store.scope(
-          state: \.about,
-          action: RecipeReducer.Action.about
-        ))
-        .padding([.horizontal])
-        
-        IngredientListPreview(store: store.scope(
-          state: \.ingredients,
-          action: RecipeReducer.Action.list
-        ))
-        .padding([.horizontal])
-        
-        StepsListView(store: store.scope(
-          state: \.steps,
-          action: RecipeReducer.Action.steps
-        ))
-        .padding([.horizontal])
+        .navigationDestination(
+          store: store.scope(state: \.$destination, action: RecipeReducer.Action.destination),
+          state: /RecipeReducer.DestinationReducer.State.ingredients,
+          action: RecipeReducer.DestinationReducer.Action.ingredients,
+          destination: IngredientListView.init
+        )
       }
-      .navigationTitle(viewStore.binding(
-        get:  \.recipe.name,
-        send: { .recipeNameEdited($0) }
-      ))
+     
     }
   }
 }
@@ -60,12 +59,15 @@ struct RecipeReducer: ReducerProtocol {
     var ingredients: IngredientsListPreviewReducer.State
     var steps: StepsListReducer.State
     
-    init(recipe: Recipe) {
+    @PresentationState var destination: DestinationReducer.State?
+    
+    init(recipe: Recipe, destination: DestinationReducer.State? = nil) {
       self.recipe = recipe
       self.photos = .init(recipe: recipe)
       self.about = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
       self.ingredients = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
       self.steps = .init(recipe: recipe, isExpanded: false, childrenIsExpanded: false)
+      self.destination = destination
     }
   }
   
@@ -75,13 +77,23 @@ struct RecipeReducer: ReducerProtocol {
     case list(IngredientsListPreviewReducer.Action)
     case steps(StepsListReducer.Action)
     case recipeNameEdited(String)
+    case destination(PresentationAction<DestinationReducer.Action>)
   }
   
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
       case let .list(action):
-        return .none
+        switch action {
+        case .delegate(.sectionNavigationAreaTapped):
+          state.destination = .ingredients(IngredientsListReducer.State.init(
+            recipe: state.recipe,
+            isExpanded: true,
+            childrenIsExpanded: true
+          ))
+          return .none
+        default: return .none
+        }
         
       case let .steps(action):
         return .none
@@ -95,7 +107,13 @@ struct RecipeReducer: ReducerProtocol {
       case let .recipeNameEdited(newName):
         state.recipe.name = newName
         return .none
+        
+      case let .destination(action):
+        return .none
       }
+    }
+    .ifLet(\.$destination, action: /Action.destination) {
+      DestinationReducer()
     }
     Scope(state: \.photos, action: /Action.photos) {
       PhotosReducer()
@@ -112,43 +130,55 @@ struct RecipeReducer: ReducerProtocol {
   }
 }
 
+extension RecipeReducer {
+  struct DestinationReducer: ReducerProtocol {
+    enum State: Equatable {
+      case ingredients(IngredientsListReducer.State)
+    }
+    
+    enum Action: Equatable {
+      case ingredients(IngredientsListReducer.Action)
+    }
+    
+    var body: some ReducerProtocolOf<Self> {
+      Scope(state: /State.ingredients, action: /Action.ingredients) {
+        IngredientsListReducer()
+      }
+    }
+  }
+}
+
 struct RecipeView_Previews: PreviewProvider {
   static var previews: some View {
     // Long
-    NavigationStack {
-      RecipeView(store: .init(
-        initialState: RecipeReducer.State(
-          recipe: .longMock
-        ),
-        reducer: RecipeReducer.init,
-        withDependencies: { _ in
-          // TODO:
-        }
-      ))
-    }
+    RecipeView(store: .init(
+      initialState: RecipeReducer.State(
+        recipe: .longMock
+      ),
+      reducer: RecipeReducer.init,
+      withDependencies: { _ in
+        // TODO:
+      }
+    ))
     // Short
-    NavigationStack {
-      RecipeView(store: .init(
-        initialState: RecipeReducer.State(
-          recipe: .shortMock
-        ),
-        reducer: RecipeReducer.init,
-        withDependencies: { _ in
-          // TODO:
-        }
-      ))
-    }
+    RecipeView(store: .init(
+      initialState: RecipeReducer.State(
+        recipe: .shortMock
+      ),
+      reducer: RecipeReducer.init,
+      withDependencies: { _ in
+        // TODO:
+      }
+    ))
     // Empty
-    NavigationStack {
-      RecipeView(store: .init(
-        initialState: RecipeReducer.State(
-          recipe: .empty
-        ),
-        reducer: RecipeReducer.init,
-        withDependencies: { _ in
-          // TODO:
-        }
-      ))
-    }
+    RecipeView(store: .init(
+      initialState: RecipeReducer.State(
+        recipe: .empty
+      ),
+      reducer: RecipeReducer.init,
+      withDependencies: { _ in
+        // TODO:
+      }
+    ))
   }
 }

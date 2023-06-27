@@ -34,18 +34,10 @@ struct IngredientListPreview: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-        Stepper(
-          value: viewStore.binding(
-            get: { $0.scale },
-            send: { .scaleStepperButtonTapped($0) }
-          ),
-          in: 0.25...10.0,
-          step: 1.0
-        ) {
-          Text("Servings \(viewStore.scaleString)")
-            .font(.title3)
-            .fontWeight(.bold)
-        }
+        IngredientStepper(scale: viewStore.binding(
+          get: { $0.scale },
+          send: { .scaleStepperButtonTapped($0) }
+        ))
         
         ForEachStore(store.scope(
           state: \.ingredients,
@@ -92,12 +84,20 @@ struct IngredientsListPreviewReducer: ReducerProtocol {
     case ingredient(IngredientSectionPreviewReducer.State.ID, IngredientSectionPreviewReducer.Action)
     case isExpandedButtonToggled
     case scaleStepperButtonTapped(Double)
+    case delegate(DelegateAction)
   }
   
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
       case let .ingredient(id, action):
+        switch action {
+        case let .delegate(.sectionNavigationAreaTapped):
+          return .send(.delegate(.sectionNavigationAreaTapped))
+          
+        default:
+          return .none
+        }
         return .none
         
       case .isExpandedButtonToggled:
@@ -139,12 +139,21 @@ struct IngredientsListPreviewReducer: ReducerProtocol {
           }
         }
         return .none
+        
+      case .delegate:
+        return .none
       }
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientSectionPreviewReducer()
     }
     ._printChanges()
+  }
+}
+
+extension IngredientsListPreviewReducer {
+  enum DelegateAction {
+    case sectionNavigationAreaTapped
   }
 }
 
