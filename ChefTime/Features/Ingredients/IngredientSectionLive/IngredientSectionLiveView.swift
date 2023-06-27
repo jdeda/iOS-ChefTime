@@ -5,15 +5,12 @@ import Tagged
 // TODO: ingredient textfield name moves when expansions change, this happens almost every time with multi-line text
 // TODO: ContextMenu acts weird
 // TODO: Scale causes ugly refresh
-// TODO: Multiplier will format a sttring, but maybe we shold put a check in place
-// if it is empty, keep the string...
+// TODO: Multiplier will format a string, but maybe we shold put a check in place
 
 // MARK: - View
 struct IngredientSectionLiveView: View {
   let store: StoreOf<IngredientSectionLiveReducer>
   
-  // TODO: Expand button area not working properly, border hack
-  // TODO: Context Menu not working properly, area is messed up
   var body: some View {
     WithViewStore(store) { viewStore in
       VStack {
@@ -30,8 +27,8 @@ struct IngredientSectionLiveView: View {
                   .disabled(true)
                   .tag(ViewStore(childStore).id)
               }
-              .onMove { _, _ in
-                // ...
+              .onMove { indexSet, index in
+                viewStore.send(.onMove(indexSet, index), animation: .default)
               }
             
           }
@@ -42,6 +39,11 @@ struct IngredientSectionLiveView: View {
         }
         else {
           List {
+            IngredientStepper(scale: viewStore.binding(
+              get: \.scale,
+              send:  { .scaleStepperButtonTapped($0) }
+            ))
+            
             ForEachStore(store.scope(
               state: \.ingredients,
               action: IngredientSectionLiveReducer.Action.ingredient
@@ -111,10 +113,6 @@ struct IngredientSectionLiveView: View {
   }
 }
 
-// TODO: context menu f'd up...
-// selection should just highlight whole view not a row
-// vertical textfield looks like shit
-
 // MARK: - Reducer
 struct IngredientSectionLiveReducer: ReducerProtocol  {
   struct State: Equatable, Identifiable {
@@ -125,6 +123,8 @@ struct IngredientSectionLiveReducer: ReducerProtocol  {
     var ingredients: IdentifiedArrayOf<IngredientLiveReducer.State>
     var selection: Set<IngredientLiveReducer.State.ID> = []
     var isEditing: Bool = false
+    var scale: Double = 1.0
+    
     @PresentationState var alert: AlertState<AlertAction>?
     
     var hasSelectedAll: Bool {
@@ -149,6 +149,7 @@ struct IngredientSectionLiveReducer: ReducerProtocol  {
   }
   
   enum Action: Equatable {
+    case scaleStepperButtonTapped(Double)
     case ingredient(IngredientLiveReducer.State.ID, IngredientLiveReducer.Action)
     case ingredientSectionLiveNameEdited(String)
     case newSelection(Set<IngredientLiveReducer.State.ID>)
@@ -157,6 +158,7 @@ struct IngredientSectionLiveReducer: ReducerProtocol  {
     case doneButtonTapped
     case addIngredientButtonTapped
     case deleteSelectedButtonTapped
+    case onMove(IndexSet, Int)
     case alert(PresentationAction<AlertAction>)
 
   }
@@ -164,6 +166,20 @@ struct IngredientSectionLiveReducer: ReducerProtocol  {
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
+      case let .scaleStepperButtonTapped(newScale):
+        let oldScale = state.scale
+        state.scale = newScale
+        for id in state.ingredients.ids {
+          guard let i = state.ingredients[id: id],
+                !i.ingredientAmountString.isEmpty
+          else { continue }
+          let a = (i.ingredient.amount / oldScale) * newScale
+          let s = String(a)
+          state.ingredients[id: id]?.ingredient.amount = a
+          state.ingredients[id: id]?.ingredientAmountString = s
+        }
+        return .none
+        
       case let .ingredient(id, action):
         switch action {
         case let .delegate(delegateAction):
@@ -241,6 +257,10 @@ struct IngredientSectionLiveReducer: ReducerProtocol  {
         case .dismiss:
           return .none
         }
+        
+      case let .onMove(source, destination):
+        state.ingredients.move(fromOffsets: source, toOffset: destination)
+        return .none
       }
     }
     .forEach(\.ingredients, action: /Action.ingredient) {

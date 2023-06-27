@@ -126,6 +126,7 @@ struct IngredientsListPreviewReducer: ReducerProtocol {
           }
         }()
         
+        // TODO: Do this with ids...
         state.scale = newScale
         for i in state.ingredients.indices {
           for j in state.ingredients[i].ingredients.indices {

@@ -3,34 +3,6 @@ import ComposableArchitecture
 
 // TODO: Section deletion has no animation
 
-enum IsEditingAnimation {
-  case isEditing
-  case notEditing
-  case transition
-}
-
-// List
-// item - edit
-// item - move
-// item - swipe to delete
-// item - multi-select delete
-// section - delete
-// section - move
-// section - add item
-// section operations will require transformation of the view
-// into rows of sections, this will make things tricky
-// go find ur repo where u fixed the selection bug
-
-// IngredientListView
-// section - multi-select delete
-// section - delete
-// section - move
-// section - add item
-// item - check
-// section operations will require transformation of the view
-// into rows of sections, this will make things tricky
-// go find ur repo where u fixed the selection bug
-
 // MARK: - IngredientsListView
 struct IngredientListView: View {
   let store: StoreOf<IngredientsListReducer>
@@ -40,6 +12,10 @@ struct IngredientListView: View {
       VStack {
         if !viewStore.isEditing {
           List {
+            IngredientStepper(scale: viewStore.binding(
+              get: \.scale,
+              send: { .scaleStepperButtonTapped($0) }
+            ))
             ForEachStore(store.scope(
               state: \.ingredients,
               action: IngredientsListReducer.Action.ingredient
@@ -75,8 +51,8 @@ struct IngredientListView: View {
                 .tag(childViewStore.id)
               }
             }
-            .onMove { _, _ in
-              // do...
+            .onMove { indexSet, index in
+              viewStore.send(.onMove(indexSet, index), animation: .default)
             }
           }
         }
@@ -198,6 +174,7 @@ struct IngredientsListReducer: ReducerProtocol {
   }
   
   enum Action: Equatable {
+    case scaleStepperButtonTapped(Double)
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
     case newSelection(Set<IngredientSectionReducer.State.ID>)
@@ -210,12 +187,28 @@ struct IngredientsListReducer: ReducerProtocol {
     case doneButtonTapped
     case addSectionButtonTapped
     case deleteSelectedButtonTapped
+    case onMove(IndexSet, Int)
     case destination(PresentationAction<DestinationReducer.Action>)
   }
   
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
+      case let .scaleStepperButtonTapped(newScale):
+        let oldScale = state.scale
+        state.scale = newScale
+        for i in state.ingredients.indices {
+          for j in state.ingredients[i].ingredients.indices {
+            let vs = state.ingredients[i].ingredients[j]
+            guard !vs.ingredientAmountString.isEmpty else { continue }
+            let a = (vs.ingredient.amount / oldScale) * newScale
+            let s = String(a)
+            state.ingredients[i].ingredients[j].ingredient.amount = a
+            state.ingredients[i].ingredients[j].ingredientAmountString = s
+          }
+        }
+        return .none
+        
       case let .ingredient(id, action):
         switch action {
         case let .delegate(action):
@@ -301,7 +294,7 @@ struct IngredientsListReducer: ReducerProtocol {
           state.ingredients[id: $0]?.isExpanded = true
         }
         return .none
-      
+        
       case .deleteSelectedButtonTapped:
         state.destination = .alert(.init(
           title: { TextState("Delete Selected") },
@@ -317,6 +310,10 @@ struct IngredientsListReducer: ReducerProtocol {
             TextState("Are you sure you want to delete the selected items?")
           }
         ))
+        return .none
+        
+      case let .onMove(source, destination):
+        state.ingredients.move(fromOffsets: source, toOffset: destination)
         return .none
         
       case let .destination(action):

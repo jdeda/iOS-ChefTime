@@ -59,6 +59,7 @@ struct IngredientSectionView: View {
               .animation(.linear(duration: 0.3), value: viewStore.isExpanded)
               .font(.caption)
               .fontWeight(.bold)
+              .frame(maxWidth : 50, maxHeight: .infinity, alignment: .trailing)
               .onTapGesture {
                 viewStore.send(.isExpandedButtonToggled, animation: .default)
               }
