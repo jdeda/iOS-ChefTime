@@ -6,15 +6,15 @@ import Tagged
 // TODO: Scale causes ugly refresh
 
 // MARK: - View
-struct IngredientSectionPreview: View {
-  let store: StoreOf<IngredientSectionPreviewReducer>
+struct IngredientSection: View {
+  let store: StoreOf<IngredientSectionReducer>
   
   struct ViewState: Equatable {
     var name: String
-    var ingredients: IdentifiedArrayOf<IngredientPreviewReducer.State>
+    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
     var isExpanded: Bool
     
-    init(_ state: IngredientSectionPreviewReducer.State) {
+    init(_ state: IngredientSectionReducer.State) {
       self.name = state.name
       self.ingredients = state.ingredients
       self.isExpanded = state.isExpanded
@@ -29,9 +29,9 @@ struct IngredientSectionPreview: View {
       )) {
         ForEachStore(store.scope(
           state: \.ingredients,
-          action: IngredientSectionPreviewReducer.Action.ingredient
+          action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
-          IngredientPreview(store: childStore)
+          Ingredient(store: childStore)
             .contentShape(Rectangle())
             .onTapGesture {
               viewStore.send(.delegate(.sectionNavigationAreaTapped))
@@ -42,7 +42,10 @@ struct IngredientSectionPreview: View {
       } label: {
         TextField(
           "Untitled Ingredient Section",
-          text: .constant(viewStore.name),
+          text: viewStore.binding(
+            get: \.name,
+            send: { .ingredientSectionNameEdited($0) }
+          ),
           axis: .vertical
         )
         .font(.title3)
@@ -51,22 +54,21 @@ struct IngredientSectionPreview: View {
         .accentColor(.accentColor)
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
-        .disabled(true)
       }
-//      .disclosureGroupStyle(CustomDisclosureGroupStyle())
+      .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
     }
   }
 }
 
 // MARK: - Reducer
-struct IngredientSectionPreviewReducer: ReducerProtocol  {
+struct IngredientSectionReducer: ReducerProtocol  {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
     var name: String
-    var ingredients: IdentifiedArrayOf<IngredientPreviewReducer.State>
+    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
     var isExpanded: Bool
     
     init(id: ID, ingredientSection: Recipe.IngredientSection, isExpanded: Bool) {
@@ -80,7 +82,7 @@ struct IngredientSectionPreviewReducer: ReducerProtocol  {
   }
   
   enum Action: Equatable {
-    case ingredient(IngredientPreviewReducer.State.ID, IngredientPreviewReducer.Action)
+    case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
     case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
     case delegate(DelegateAction)
@@ -105,29 +107,29 @@ struct IngredientSectionPreviewReducer: ReducerProtocol  {
       }
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
-      IngredientPreviewReducer()
+      IngredientReducer()
     }
   }
 }
 
-extension IngredientSectionPreviewReducer {
+extension IngredientSectionReducer {
   enum DelegateAction {
     case sectionNavigationAreaTapped
   }
 }
 
 // MARK: - Previews
-struct IngredientSectionPreview_Previews: PreviewProvider {
+struct IngredientSection_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
       ScrollView {
-        IngredientSectionPreview(store: .init(
+        IngredientSection(store: .init(
           initialState: .init(
             id: .init(),
             ingredientSection: Recipe.longMock.ingredientSections.first!,
             isExpanded: true
           ),
-          reducer: IngredientSectionPreviewReducer.init,
+          reducer: IngredientSectionReducer.init,
           withDependencies: { _ in
             // TODO:
           }

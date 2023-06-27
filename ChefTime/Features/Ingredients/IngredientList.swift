@@ -4,11 +4,11 @@ import ComposableArchitecture
 // TODO: Section deletion has no animation
 
 // MARK: - IngredientsListView
-struct IngredientListPreview: View {
-  let store: StoreOf<IngredientsListPreviewReducer>
+struct IngredientListView: View {
+  let store: StoreOf<IngredientsListReducer>
   
   struct ViewState: Equatable {
-    var ingredients: IdentifiedArrayOf<IngredientSectionPreviewReducer.State>
+    var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
     var isExpanded: Bool
     var scale: Double = 1.0
     
@@ -20,7 +20,7 @@ struct IngredientListPreview: View {
       }
     }
     
-    init(_ state: IngredientsListPreviewReducer.State) {
+    init(_ state: IngredientsListReducer.State) {
       self.ingredients = state.ingredients
       self.scale = state.scale
       self.isExpanded = state.isExpanded
@@ -41,9 +41,9 @@ struct IngredientListPreview: View {
         
         ForEachStore(store.scope(
           state: \.ingredients,
-          action: IngredientsListPreviewReducer.Action.ingredient
+          action: IngredientsListReducer.Action.ingredient
         )) { childStore in
-          IngredientSectionPreview(store: childStore)
+          IngredientSection(store: childStore)
         }
       }
       label : {
@@ -57,10 +57,10 @@ struct IngredientListPreview: View {
   }
 }
 
-// MARK: - IngredientsListPreviewReducer
-struct IngredientsListPreviewReducer: ReducerProtocol {
+// MARK: - IngredientsListReducer
+struct IngredientsListReducer: ReducerProtocol {
   struct State: Equatable {
-    var ingredients: IdentifiedArrayOf<IngredientSectionPreviewReducer.State>
+    var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
     var isExpanded: Bool
     var scale: Double = 1.0
     
@@ -81,7 +81,7 @@ struct IngredientsListPreviewReducer: ReducerProtocol {
     }
   }
   enum Action: Equatable {
-    case ingredient(IngredientSectionPreviewReducer.State.ID, IngredientSectionPreviewReducer.Action)
+    case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
     case scaleStepperButtonTapped(Double)
     case delegate(DelegateAction)
@@ -145,30 +145,30 @@ struct IngredientsListPreviewReducer: ReducerProtocol {
       }
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
-      IngredientSectionPreviewReducer()
+      IngredientSectionReducer()
     }
     ._printChanges()
   }
 }
 
-extension IngredientsListPreviewReducer {
+extension IngredientsListReducer {
   enum DelegateAction {
     case sectionNavigationAreaTapped
   }
 }
 
 // MARK: - Previews
-struct IngredientListPreview_Previews: PreviewProvider {
+struct IngredientList_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
       ScrollView {
-        IngredientListPreview(store: .init(
+        IngredientListView(store: .init(
           initialState: .init(
             recipe: Recipe.longMock,
             isExpanded: true,
             childrenIsExpanded: true
           ),
-          reducer: IngredientsListPreviewReducer.init,
+          reducer: IngredientsListReducer.init,
           withDependencies: { _ in
             // TODO:
           }

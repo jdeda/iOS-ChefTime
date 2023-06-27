@@ -23,7 +23,7 @@ struct RecipeView: View {
           ))
           .padding([.horizontal])
           
-          IngredientListPreview(store: store.scope(
+          IngredientListView(store: store.scope(
             state: \.ingredients,
             action: RecipeReducer.Action.list
           ))
@@ -39,14 +39,8 @@ struct RecipeView: View {
           get:  \.recipe.name,
           send: { .recipeNameEdited($0) }
         ))
-        .navigationDestination(
-          store: store.scope(state: \.$destination, action: RecipeReducer.Action.destination),
-          state: /RecipeReducer.DestinationReducer.State.ingredients,
-          action: RecipeReducer.DestinationReducer.Action.ingredients,
-          destination: IngredientListView.init
-        )
       }
-     
+      
     }
   }
 }
@@ -56,7 +50,7 @@ struct RecipeReducer: ReducerProtocol {
     var recipe: Recipe
     var photos: PhotosReducer.State
     var about: AboutPreviewListReducer.State
-    var ingredients: IngredientsListPreviewReducer.State
+    var ingredients: IngredientsListReducer.State
     var steps: StepsListReducer.State
     
     @PresentationState var destination: DestinationReducer.State?
@@ -74,7 +68,7 @@ struct RecipeReducer: ReducerProtocol {
   enum Action: Equatable {
     case photos(PhotosReducer.Action)
     case about(AboutPreviewListReducer.Action)
-    case list(IngredientsListPreviewReducer.Action)
+    case list(IngredientsListReducer.Action)
     case steps(StepsListReducer.Action)
     case recipeNameEdited(String)
     case destination(PresentationAction<DestinationReducer.Action>)
@@ -122,7 +116,7 @@ struct RecipeReducer: ReducerProtocol {
       AboutPreviewListReducer()
     }
     Scope(state: \.ingredients, action: /Action.list) {
-      IngredientsListPreviewReducer()
+      IngredientsListReducer()
     }
     Scope(state: \.steps, action: /Action.steps) {
       StepsListReducer()

@@ -11,8 +11,8 @@ import Combine
 //     that shouldn't move whatsoever
 
 // MARK: - View
-struct IngredientLiveView: View {
-  let store: StoreOf<IngredientLiveReducer>
+struct Ingredient: View {
+  let store: StoreOf<IngredientReducer>
   
   
   var body: some View {
@@ -31,6 +31,10 @@ struct IngredientLiveView: View {
         TextField("...", text: viewStore.binding(\.$ingredient.name), axis: .vertical)
           .autocapitalization(.none)
           .autocorrectionDisabled()
+        
+        Rectangle()
+          .fill(.clear)
+          .frame(width: 50)
         
         // Amount
         TextField("...", text: viewStore.binding(\.$ingredientAmountString))
@@ -60,7 +64,7 @@ struct IngredientLiveView: View {
 }
 
 // MARK: - Reducer
-struct IngredientLiveReducer: ReducerProtocol {
+struct IngredientReducer: ReducerProtocol {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
@@ -122,27 +126,26 @@ struct IngredientLiveReducer: ReducerProtocol {
   }
 }
 
-extension IngredientLiveReducer {
+extension IngredientReducer {
   enum DelegateAction: Equatable {
     case swipedToDelete
   }
 }
 
 // MARK: - Previews
-struct IngredientLiveView_Previews: PreviewProvider {
+struct Ingredient_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      List
-      {
-        IngredientLiveView(store: .init(
+      ScrollView {
+        Ingredient(store: .init(
           initialState: .init(
             id: .init(),
             ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!
           ),
-          reducer: IngredientLiveReducer.init
+          reducer: IngredientReducer.init
         ))
+        .padding()
       }
-      .listStyle(.plain)
     }
   }
 }
