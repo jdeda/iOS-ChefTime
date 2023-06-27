@@ -36,16 +36,29 @@ import SwiftUI
 struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
+//      NavigationStack {
+//        StepView(store: .init(
+//          initialState: .init(
+//            id: .init(),
+//            stepNumber: 1,
+//            step: Recipe.longMock.steps.first!.steps.first!
+//          ),
+//          reducer: StepReducer.init,
+//          withDependencies: { _ in
+//            // ...
+//          }
+//        ))
+//      }
       NavigationStack {
-        StepView(store: .init(
+        IngredientListView(store: .init(
           initialState: .init(
-            id: .init(),
-            stepNumber: 1,
-            step: Recipe.longMock.steps.first!.steps.first!
+            recipe: Recipe.longMock,
+            isExpanded: true,
+            childrenIsExpanded: true
           ),
-          reducer: StepReducer.init,
+          reducer: IngredientsListReducer.init,
           withDependencies: { _ in
-            // ...
+            // TODO:
           }
         ))
       }

@@ -3,64 +3,155 @@ import ComposableArchitecture
 
 // TODO: Section deletion has no animation
 
+enum IsEditingAnimation {
+  case isEditing
+  case notEditing
+  case transition
+}
+
+// List
+// item - edit
+// item - move
+// item - swipe to delete
+// item - multi-select delete
+// section - delete
+// section - move
+// section - add item
+// section operations will require transformation of the view
+// into rows of sections, this will make things tricky
+// go find ur repo where u fixed the selection bug
+
+// IngredientListView
+// section - multi-select delete
+// section - delete
+// section - move
+// section - add item
+// item - check
+// section operations will require transformation of the view
+// into rows of sections, this will make things tricky
+// go find ur repo where u fixed the selection bug
+
 // MARK: - IngredientsListView
 struct IngredientListView: View {
   let store: StoreOf<IngredientsListReducer>
   
-  struct ViewState: Equatable {
-    var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
-    var isExpanded: Bool
-    var scale: Double = 1.0
-    
-    var scaleString: String {
-      switch scale {
-      case 0.25: return "1/4"
-      case 0.50: return "1/2"
-      default:   return String(Int(scale))
-      }
-    }
-    
-    init(_ state: IngredientsListReducer.State) {
-      self.ingredients = state.ingredients
-      self.scale = state.scale
-      self.isExpanded = state.isExpanded
-    }
-  }
-  
-  
   var body: some View {
-    WithViewStore(store, observe: ViewState.init) { viewStore in
-//      DisclosureGroup(isExpanded: viewStore.binding(
-//        get: { $0.isExpanded },
-//        send: { _ in .isExpandedButtonToggled }
-//      )) {
-        Stepper(
-          value: viewStore.binding(
-            get: { $0.scale },
-            send: { .scaleStepperButtonTapped($0) }
-          ),
-          in: 0.25...10.0,
-          step: 1.0
-        ) {
-          Text("Servings \(viewStore.scaleString)")
-            .font(.title3)
-            .fontWeight(.bold)
+    WithViewStore(store, observe: { $0 } ) { viewStore in
+      VStack {
+        if !viewStore.isEditing {
+          List {
+            ForEachStore(store.scope(
+              state: \.ingredients,
+              action: IngredientsListReducer.Action.ingredient
+            )) { childStore in
+              IngredientSectionView(store: childStore)
+            }
+          }
         }
-        
-        ForEachStore(store.scope(
-          state: \.ingredients,
-          action: IngredientsListReducer.Action.ingredient
-        )) { childStore in
-          IngredientSectionView(store: childStore)
+        else {
+          List(selection: viewStore.binding(
+            get: \.selection,
+            send: { .newSelection($0) }
+          )) {
+            ForEachStore(store.scope(
+              state: \.ingredients,
+              action: IngredientsListReducer.Action.ingredient
+            )) { childStore in
+              WithViewStore(childStore) { childViewStore in
+                HStack {
+                  TextField(
+                    "Untitled Ingredient Section",
+                    text: .constant(childViewStore.name),
+                    axis: .vertical
+                  )
+                  .font(.title3)
+                  .fontWeight(.bold)
+                  .foregroundColor(.primary)
+                  .accentColor(.accentColor)
+                  .frame(alignment: .leading)
+                  .multilineTextAlignment(.leading)
+                  Spacer()
+                }
+                .tag(childViewStore.id)
+              }
+            }
+            .onMove { _, _ in
+              // do...
+            }
+          }
         }
-//      }
-//      label : {
-//        Text("Ingredients")
-//          .font(.title)
-//          .fontWeight(.bold)
-//          .foregroundColor(.primary)
-//      }
-//      .accentColor(.primary)
+      }
+      .listStyle(.plain)
+      .navigationTitle(viewStore.navigationTitle)
+      .environment(\.editMode, .constant(viewStore.isEditing ? .active : .inactive))
+      .animation(.default, value: viewStore.isEditing)
+      .alert(
+        store: store.scope(state: \.$destination, action: { .destination($0) }),
+        state: /IngredientsListReducer.DestinationReducer.State.alert,
+        action: IngredientsListReducer.DestinationReducer.Action.alert
+      )
+      .navigationDestination(
+        store: store.scope(state: \.$destination, action: IngredientsListReducer.Action.destination),
+        state: /IngredientsListReducer.DestinationReducer.State.section,
+        action: IngredientsListReducer.DestinationReducer.Action.section,
+        destination: IngredientSectionLiveView.init
+      )
+      .toolbar {
+        if viewStore.isEditing {
+          ToolbarItemGroup(placement: .navigationBarLeading) {
+            Button {
+              viewStore.send(.selectAllButtonTapped, animation: .default)
+            } label: {
+              Text(viewStore.hasSelectedAll ? "Deselect All" : "Select All")
+            }
+          }
+          ToolbarItemGroup(placement: .primaryAction) {
+            Button {
+              viewStore.send(.doneButtonTapped, animation: .default)
+            } label: {
+              Text("Done")
+            }
+          }
+          ToolbarItemGroup(placement: .bottomBar) {
+            Spacer()
+            Button {
+              viewStore.send(.deleteSelectedButtonTapped, animation: .default)
+            } label: {
+              Image(systemName: "trash")
+            }
+            .disabled(viewStore.selection.count == 0)
+          }
+        }
+        else {
+          ToolbarItemGroup(placement: .primaryAction) {
+            Menu {
+              Button {
+                viewStore.send(.selectButtonTapped, animation: .default)
+              } label: {
+                Label("Edit", systemImage: "checkmark")
+              }
+              Button {
+                viewStore.send(.addSectionButtonTapped, animation: .default)
+              } label: {
+                Label("Add", systemImage: "plus")
+              }
+              Button {
+                viewStore.send(.expandAllButtonTapped, animation: .default)
+              } label: {
+                Label("Expand All", systemImage: "arrow.up.left.and.arrow.down.right")
+              }
+              Button {
+                viewStore.send(.collapseAllButtonTapped, animation: .default)
+              } label: {
+                Label("Collapse All", systemImage: "arrow.down.right.and.arrow.up.left")
+              }
+            } label: {
+              Image(systemName: "ellipsis.circle")
+            }
+            .foregroundColor(.primary)
+          }
+        }
+      }
     }
   }
 }
@@ -71,8 +162,24 @@ struct IngredientsListReducer: ReducerProtocol {
     var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
     var isExpanded: Bool
     var scale: Double = 1.0
+    var selection: Set<IngredientSectionReducer.State.ID> = []
+    var isEditing: Bool = false
+    @PresentationState var destination: DestinationReducer.State?
     
-    init(recipe: Recipe, isExpanded: Bool, childrenIsExpanded: Bool) {
+    var hasSelectedAll: Bool {
+      selection.count == ingredients.count
+    }
+    
+    var navigationTitle: String {
+      isEditing && selection.count > 0 ? "\(selection.count) Selected": "Ingredients"
+    }
+    
+    init(
+      recipe: Recipe,
+      isExpanded: Bool,
+      childrenIsExpanded: Bool,
+      destination: DestinationReducer.State? = nil
+    ) {
       self.ingredients = .init(uniqueElements: recipe.ingredientSections.map({
         .init(
           id: .init(),
@@ -86,64 +193,189 @@ struct IngredientsListReducer: ReducerProtocol {
       }))
       self.scale = 1.0
       self.isExpanded = isExpanded
+      self.destination = destination
     }
   }
+  
   enum Action: Equatable {
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
-    case scaleStepperButtonTapped(Double)
+    case newSelection(Set<IngredientSectionReducer.State.ID>)
+    case selectButtonTapped
+    case collapseAllButtonTapped
+    case expandAllButtonTapped
+    case collapseAll
+    case setIsEditing(Bool)
+    case selectAllButtonTapped
+    case doneButtonTapped
+    case addSectionButtonTapped
+    case deleteSelectedButtonTapped
+    case destination(PresentationAction<DestinationReducer.Action>)
   }
   
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
       case let .ingredient(id, action):
+        switch action {
+        case let .delegate(action):
+          switch action {
+          case .deleteSectionButtonTapped:
+            state.ingredients.remove(id: id)
+            return .none
+            
+          case .sectionNavigationAreaTapped:
+            let s = state.ingredients[id: id]!
+            state.destination = .section(.init(
+              id: .init(),
+              ingredientSectionLive: .init(
+                id: .init(),
+                name: s.name,
+                ingredients: .init(uniqueElements: s.ingredients.map(\.ingredient))
+              )
+            ))
+            return .none
+          }
+        default:
+          return .none
+        }
         return .none
         
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
         return .none
         
-      case let .scaleStepperButtonTapped(newValue):
-        let incremented = newValue > state.scale
-        let oldScale = state.scale
-        let newScale: Double = {
-          if incremented {
-            switch oldScale {
-            case 0.25: return 0.5
-            case 0.5: return 1.0
-            case 1.0..<10.0: return oldScale + 1
-            default: return oldScale
-            }
-          }
-          else {
-            switch oldScale {
-            case 0.25: return 0.25
-            case 0.5: return 0.25
-            case 1.0: return 0.5
-            default: return oldScale - 1
-            }
-          }
-        }()
+      case let .newSelection(newSelection):
+        state.selection = newSelection
+        return .none
         
-        state.scale = newScale
-        for i in state.ingredients.indices {
-          for j in state.ingredients[i].ingredients.indices {
-            let vs = state.ingredients[i].ingredients[j]
-            guard !vs.ingredientAmountString.isEmpty else { continue }
-            let a = (vs.ingredient.amount / oldScale) * newScale
-            let s = String(a)
-            state.ingredients[i].ingredients[j].ingredient.amount = a
-            state.ingredients[i].ingredients[j].ingredientAmountString = s
-          }
+      case .selectButtonTapped:
+        return .run { send in
+          await send(.collapseAll, animation: .default)
+          try await Task.sleep(nanoseconds: NSEC_PER_SEC / 2)
+          await send(.setIsEditing(true), animation: .default)
+        }
+        
+      case .collapseAll:
+        state.ingredients.ids.forEach {
+          state.ingredients[id: $0]?.isExpanded = false
         }
         return .none
+        
+      case let .setIsEditing(value):
+        state.isEditing = value
+        return .none
+        
+      case .selectAllButtonTapped:
+        state.selection = state.hasSelectedAll ? [] : .init(state.ingredients.map(\.id))
+        state.isExpanded = true
+        return .none
+        
+      case .doneButtonTapped:
+        state.isEditing = false
+        state.ingredients.ids.forEach {
+          state.ingredients[id: $0]?.isExpanded = true
+        }
+        return .none
+        
+      case .addSectionButtonTapped:
+        state.ingredients.append(.init(
+          id: .init(),
+          ingredientSection: .init(
+            id: .init(),
+            name: "",
+            ingredients: []
+          ),
+          isExpanded: true
+        ))
+        return .none
+        
+      case .collapseAllButtonTapped:
+        state.ingredients.ids.forEach {
+          state.ingredients[id: $0]?.isExpanded = false
+        }
+        return .none
+        
+      case .expandAllButtonTapped:
+        state.ingredients.ids.forEach {
+          state.ingredients[id: $0]?.isExpanded = true
+        }
+        return .none
+      
+      case .deleteSelectedButtonTapped:
+        state.destination = .alert(.init(
+          title: { TextState("Delete Selected") },
+          actions: {
+            ButtonState(
+              role: .destructive,
+              action: .send(.confirmDeleteSelected, animation: .default)
+            ) {
+              TextState("Confirm")
+            }
+          },
+          message: {
+            TextState("Are you sure you want to delete the selected items?")
+          }
+        ))
+        return .none
+        
+      case let .destination(action):
+        switch action {
+        case let .presented(.alert(action)):
+          switch action {
+          case .confirmDeleteSelected:
+            state.ingredients = state.ingredients.filter {
+              !state.selection.contains($0.id)
+            }
+            state.selection = []
+            state.isEditing = false
+            state.ingredients.ids.forEach {
+              state.ingredients[id: $0]?.isExpanded = true
+            }
+            return .none
+          }
+        case .presented(.section):
+          return .none
+          
+        case .dismiss:
+          return .none
+        }
+        return .none
+        
       }
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientSectionReducer()
     }
+    .ifLet(\.$destination, action: /Action.destination, destination: {
+      DestinationReducer()
+    })
     ._printChanges()
+  }
+}
+
+extension IngredientsListReducer {
+  struct DestinationReducer: ReducerProtocol {
+    enum State: Equatable {
+      case section(IngredientSectionLiveReducer.State)
+      case alert(AlertState<AlertAction>)
+    }
+    
+    enum Action: Equatable {
+      case section(IngredientSectionLiveReducer.Action)
+      case alert(AlertAction)
+    }
+    
+    var body: some ReducerProtocolOf<Self> {
+      Scope(state: /State.section, action: /Action.section) {
+        IngredientSectionLiveReducer()
+      }
+      EmptyReducer()
+    }
+  }
+  
+  enum AlertAction {
+    case confirmDeleteSelected
   }
 }
 
@@ -151,197 +383,14 @@ struct IngredientsListReducer: ReducerProtocol {
 struct IngredientList_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      List {
-        IngredientListView(store: .init(
-          initialState: .init(
-            recipe: Recipe.longMock,
-            isExpanded: true,
-            childrenIsExpanded: true
-          ),
-          reducer: IngredientsListReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
-        ))
-      }
-      .listStyle(.plain)
+      IngredientListView(store: .init(
+        initialState: .init(
+          recipe: Recipe.longMock,
+          isExpanded: true,
+          childrenIsExpanded: true
+        ),
+        reducer: IngredientsListReducer.init
+      ))
     }
   }
 }
-
-
-//import SwiftUI
-//import ComposableArchitecture
-//
-//// List
-//// item - edit
-//// item - move
-//// item - swipe to delete
-//// item - multi-select delete
-//// section - delete
-//// section - move
-//// section operations will require transformation of the view
-//// into rows of sections, this will make things tricky
-//// go find ur repo where u fixed the selection bug
-//
-//
-//// MARK: - View
-//struct IngredientsListViewView: View {
-//  let store: StoreOf<IngredientsListViewReducer>
-//
-//  var body: some View {
-//    WithViewStore(store, observe: { $0 }) { viewStore in
-//      NavigationStack {
-//        List(selection: viewStore.binding(
-//          get: { $0.selection },
-//          send: { _ in .selectionEdited }
-//        )) {
-//          ForEach(viewStore.sections) { section in
-//            Section {
-//              if viewStore.cTap {
-//                ForEach(section.ingredients) { ingredient in
-//                  IngredientViewX(ingredient: ingredient)
-//                }
-//              }
-//            } header: {
-//              HStack {
-//                TextField(
-//                  "Untitled Ingredient Section",
-//                  text: .constant(section.name),
-//                  axis: .vertical
-//                )
-//                .font(.title3)
-//                .fontWeight(.bold)
-//                .foregroundColor(.primary)
-//                .accentColor(.accentColor)
-//                .frame(alignment: .leading)
-//                .multilineTextAlignment(.leading)
-//                .disabled(true)
-//
-//                Spacer()
-//                Image(systemName: "chevron.right")
-//                  .rotationEffect(viewStore.cTap ? .degrees(90) : .degrees(0))
-//                  .animation(.linear(duration: 0.3), value: viewStore.cTap)
-//                  .font(.caption)
-//                  .fontWeight(.bold)
-//                  .onTapGesture {
-//                    viewStore.send(.cTap, animation: .default)
-//                  }
-//              }
-//            }
-//          }
-//        }
-//        .navigationTitle("Ingredients")
-//        .listStyle(.plain)
-//        .toolbar {
-//          ToolbarItemGroup(placement: .primaryAction) {
-//            Button {
-//              viewStore.send(.editButtonTapped)
-//            } label: {
-//              Image(systemName: "ellipsis.circle")
-//            }
-//          }
-//        }
-//        .environment(\.editMode, .constant(viewStore.isEditing ? .active : .inactive))
-//        .animation(.default, value: viewStore.isEditing)
-//      }
-//    }
-//  }
-//}
-//
-//// MARK: - Reducer
-//struct IngredientsListViewReducer: ReducerProtocol {
-//  struct State: Equatable {
-//    var sections: IdentifiedArrayOf<Recipe.IngredientSection>
-//    var selection: Set<Recipe.IngredientSection.Ingredient.ID> = []
-//    var isEditing: Bool = false
-//    var isMoving: Bool = false
-//    var cTap = true
-//
-//    var hasSelectedAll: Bool {
-//      selection.count == sections.reduce(into: 0) { $0 + $1.ingredients.count }
-//    }
-//
-//    var navigationBarTitle: String {
-//      isEditing && selection.count > 0 ? "\(selection.count) Selected": "Ingredients"
-//    }
-//
-//
-//    init(recipe: Recipe) {
-//      self.sections = recipe.ingredientSections
-//    }
-//  }
-//
-//  enum Action: Equatable {
-//    case cTap
-//    case editButtonTapped
-//    case moveButtonTapped
-//    case selectionEdited
-//  }
-//
-//  var body: some ReducerProtocolOf<Self> {
-//    Reduce { state, action in
-//      switch action {
-//      case .cTap:
-//        state.cTap.toggle()
-//        return .none
-//
-//      case .editButtonTapped:
-//        state.isEditing.toggle()
-//        return .none
-//
-//      case .moveButtonTapped:
-//        return .none
-//
-//      case .selectionEdited:
-//        return .none
-//      }
-//    }
-//  }
-//}
-//
-//// MARK: - Preview
-//struct IngredientsListViewView_Previews: PreviewProvider {
-//  static var previews: some View {
-//    IngredientsListViewView(store: .init(
-//      initialState: .init(recipe: .longMock),
-//      reducer: IngredientsListViewReducer.init
-//    ))
-//  }
-//}
-//
-//
-//// MARK: - View
-//struct IngredientViewX: View {
-//  let ingredient: Recipe.IngredientSection.Ingredient
-//  var body: some View {
-//      HStack(alignment: .top) {
-//
-//        // Checkbox
-//        Image(systemName: "square")
-//          .fontWeight(.medium)
-//          .padding([.top], 2)
-//
-//        // Name
-//        TextField("...", text: .constant(ingredient.name), axis: .vertical)
-//          .autocapitalization(.none)
-//          .autocorrectionDisabled()
-//          .disabled(true)
-//
-//        // Amount
-//        TextField("...", text: .constant(String(ingredient.amount)))
-//          .fixedSize()
-//          .autocapitalization(.none)
-//          .autocorrectionDisabled()
-//          .disabled(true)
-//
-//        // Measurement
-//        TextField( "...", text: .constant(ingredient.measure))
-//          .fixedSize()
-//          .autocapitalization(.none)
-//          .autocorrectionDisabled()
-//          .disabled(true)
-//      }
-//      .accentColor(.accentColor)
-//  }
-//}

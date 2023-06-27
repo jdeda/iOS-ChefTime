@@ -3,4 +3,70 @@
    uuid = "AD1F4572-D5E1-40FA-B5A9-E6595D7996CA"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F446DD9D-A794-44F3-A32E-60B970795765"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/IngredientsLive/IngredientsListView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "227"
+            endingLineNumber = "227"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "254DF4AA-6C54-44E4-A6DC-9CB9DDAA3F9C"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/IngredientsLive/IngredientSectionView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "30"
+            endingLineNumber = "30"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "254DF4AA-6C54-44E4-A6DC-9CB9DDAA3F9C - 8502f21f2bf17eca"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in closure #1 (ComposableArchitecture.Store&lt;ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action&gt;) -&gt; Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0&gt; in closure #1 () -&gt; ComposableArchitecture.ForEachStore&lt;ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action, IdentifiedCollections.IdentifiedArray&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ChefTime.IngredientReducer.State&gt;, Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ComposableArchitecture.WithViewStore&lt;OrderedCollections.OrderedSet&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;&gt;, (Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ChefTime.IngredientReducer.Action), SwiftUI.ForEach&lt;OrderedCollections.OrderedSet&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;&gt;, Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0&gt;&gt;&gt;&gt; in closure #1 () -&gt; SwiftUI.Section&lt;&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0, ComposableArchitecture.ForEachStore&lt;ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action, IdentifiedCollections.IdentifiedArray&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ChefTime.IngredientReducer.State&gt;, Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ComposableArchitecture.WithViewStore&lt;OrderedCollections.OrderedSet&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;&gt;, (Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ChefTime.IngredientReducer.Action), SwiftUI.ForEach&lt;OrderedCollections.OrderedSet&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;&gt;, Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0&gt;&gt;&gt;&gt;, SwiftUI.EmptyView&gt; in closure #1 (ComposableArchitecture.ViewStore&lt;ChefTime.IngredientSectionReducer.State, ChefTime.IngredientSectionReducer.Action&gt;) -&gt; &lt;&lt;opaque return type of SwiftUI.View.alert&lt;&#x3c4;_0_0, &#x3c4;_0_1, &#x3c4;_0_2&gt;(store: ComposableArchitecture.Store&lt;ComposableArchitecture.PresentationState&lt;&#x3c4;_1_0&gt;, ComposableArchitecture.PresentationAction&lt;&#x3c4;_1_1&gt;&gt;, state: (&#x3c4;_1_0) -&gt; Swift.Optional&lt;_SwiftUINavigationState.AlertState&lt;&#x3c4;_1_2&gt;&gt;, action: (&#x3c4;_1_2) -&gt; &#x3c4;_1_1) -&gt; some&gt;&gt;.0 in ChefTime.IngredientSectionView.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/IngredientsLive/IngredientSectionView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "29"
+                  endingLineNumber = "29"
+                  offsetFromSymbolStart = "103">
+               </Location>
+               <Location
+                  uuid = "254DF4AA-6C54-44E4-A6DC-9CB9DDAA3F9C - 8502f21f2bf17eca"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in closure #1 (ComposableArchitecture.Store&lt;ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action&gt;) -&gt; Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0&gt; in closure #1 () -&gt; ComposableArchitecture.ForEachStore&lt;ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action, IdentifiedCollections.IdentifiedArray&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ChefTime.IngredientReducer.State&gt;, Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ComposableArchitecture.WithViewStore&lt;OrderedCollections.OrderedSet&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;&gt;, (Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ChefTime.IngredientReducer.Action), SwiftUI.ForEach&lt;OrderedCollections.OrderedSet&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;&gt;, Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0&gt;&gt;&gt;&gt; in closure #1 () -&gt; SwiftUI.Section&lt;&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0, ComposableArchitecture.ForEachStore&lt;ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action, IdentifiedCollections.IdentifiedArray&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ChefTime.IngredientReducer.State&gt;, Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ComposableArchitecture.WithViewStore&lt;OrderedCollections.OrderedSet&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;&gt;, (Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, ChefTime.IngredientReducer.Action), SwiftUI.ForEach&lt;OrderedCollections.OrderedSet&lt;Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;&gt;, Tagged.Tagged&lt;ChefTime.IngredientReducer.State, Foundation.UUID&gt;, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.onTapGesture(count: Swift.Int, perform: () -&gt; ()) -&gt; some&gt;&gt;.0&gt;&gt;&gt;&gt;, SwiftUI.EmptyView&gt; in closure #1 (ComposableArchitecture.ViewStore&lt;ChefTime.IngredientSectionReducer.State, ChefTime.IngredientSectionReducer.Action&gt;) -&gt; &lt;&lt;opaque return type of SwiftUI.View.alert&lt;&#x3c4;_0_0, &#x3c4;_0_1, &#x3c4;_0_2&gt;(store: ComposableArchitecture.Store&lt;ComposableArchitecture.PresentationState&lt;&#x3c4;_1_0&gt;, ComposableArchitecture.PresentationAction&lt;&#x3c4;_1_1&gt;&gt;, state: (&#x3c4;_1_0) -&gt; Swift.Optional&lt;_SwiftUINavigationState.AlertState&lt;&#x3c4;_1_2&gt;&gt;, action: (&#x3c4;_1_2) -&gt; &#x3c4;_1_1) -&gt; some&gt;&gt;.0 in ChefTime.IngredientSectionView.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/IngredientsLive/IngredientSectionView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "29"
+                  endingLineNumber = "29"
+                  offsetFromSymbolStart = "72">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>
