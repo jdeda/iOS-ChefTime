@@ -92,9 +92,9 @@ struct IngredientsListReducer: ReducerProtocol {
       switch action {
       case let .ingredient(id, action):
         switch action {
-        case let .delegate(.sectionNavigationAreaTapped):
-          return .send(.delegate(.sectionNavigationAreaTapped))
-          
+        case .delegate(.deleteSectionButtonTapped):
+          state.ingredients.remove(id: id)
+          return .none
         default:
           return .none
         }

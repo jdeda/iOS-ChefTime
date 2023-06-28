@@ -11,7 +11,7 @@ import Combine
 //     that shouldn't move whatsoever
 
 // MARK: - View
-struct Ingredient: View {
+struct IngredientView: View {
   let store: StoreOf<IngredientReducer>
   
   
@@ -52,12 +52,15 @@ struct Ingredient: View {
       }
       .foregroundColor(viewStore.isComplete ? .secondary : .primary)
       .accentColor(.accentColor)
-      .swipeActions(content: {
+      .contextMenu(menuItems: {
         Button(role: .destructive) {
           viewStore.send(.delegate(.swipedToDelete), animation: .default)
         } label: {
-          Image(systemName: "trash")
+          Text("Delete")
         }
+      }, preview: {
+        IngredientContextMenuPreview(state: viewStore.state)
+          .padding()
       })
     }
   }
@@ -133,11 +136,11 @@ extension IngredientReducer {
 }
 
 // MARK: - Previews
-struct Ingredient_Previews: PreviewProvider {
+struct IngredientView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
       ScrollView {
-        Ingredient(store: .init(
+        IngredientView(store: .init(
           initialState: .init(
             id: .init(),
             ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!
@@ -177,5 +180,39 @@ private struct NumbersOnlyViewModifier: ViewModifier {
 private extension View {
   func numbersOnly(_ text: Binding<String>, includeDecimal: Bool = false) -> some View {
     self.modifier(NumbersOnlyViewModifier(text: text, includeDecimal: includeDecimal))
+  }
+}
+
+struct IngredientContextMenuPreview: View {
+  let state: IngredientReducer.State
+  
+  var body: some View {
+      HStack(alignment: .top) {
+        
+        // Checkbox
+        Image(systemName: state.isComplete ? "checkmark.square" : "square")
+          .fontWeight(.medium)
+          .padding([.top], 2)
+        
+        // Name
+        Text(!state.ingredient.name.isEmpty ? state.ingredient.name : "...")
+          .lineLimit(1)
+        
+        Spacer()
+        
+        Rectangle()
+          .fill(.clear)
+          .frame(width: 50)
+        
+        // Amount
+        Text(!state.ingredientAmountString.isEmpty ? state.ingredientAmountString : "...")
+          .lineLimit(1)
+        
+        // Measurement
+        Text(!state.ingredient.measure.isEmpty ? state.ingredient.measure : "...")
+          .lineLimit(1)
+      }
+      .foregroundColor(state.isComplete ? .secondary : .primary)
+      .accentColor(.accentColor)
   }
 }

@@ -9,20 +9,8 @@ import Tagged
 struct IngredientSection: View {
   let store: StoreOf<IngredientSectionReducer>
   
-  struct ViewState: Equatable {
-    var name: String
-    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
-    var isExpanded: Bool
-    
-    init(_ state: IngredientSectionReducer.State) {
-      self.name = state.name
-      self.ingredients = state.ingredients
-      self.isExpanded = state.isExpanded
-    }
-  }
-  
   var body: some View {
-    WithViewStore(store, observe: ViewState.init) { viewStore in
+    WithViewStore(store) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
@@ -31,11 +19,7 @@ struct IngredientSection: View {
           state: \.ingredients,
           action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
-          Ingredient(store: childStore)
-            .contentShape(Rectangle())
-            .onTapGesture {
-              viewStore.send(.delegate(.sectionNavigationAreaTapped))
-            }
+          IngredientView(store: childStore)
           Divider()
         }
         
@@ -57,6 +41,17 @@ struct IngredientSection: View {
       }
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
+      .contextMenu {
+        Button(role: .destructive) {
+          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+        } label: {
+          Text("Delete")
+        }
+      } preview: {
+        IngredientSectionContextMenuPreview(state: viewStore.state)
+          .frame(width: 200)
+          .padding()
+      }
     }
   }
 }
@@ -92,7 +87,16 @@ struct IngredientSectionReducer: ReducerProtocol  {
     Reduce { state, action in
       switch action {
       case let .ingredient(id, action):
-        return .none
+        switch action {
+        case let .delegate(action):
+          switch action {
+          case .swipedToDelete:
+            state.ingredients.remove(id: id)
+            return .none
+          }
+        default:
+          return .none
+        }
         
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
@@ -114,7 +118,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
 
 extension IngredientSectionReducer {
   enum DelegateAction {
-    case sectionNavigationAreaTapped
+    case deleteSectionButtonTapped
   }
 }
 
@@ -137,5 +141,29 @@ struct IngredientSection_Previews: PreviewProvider {
         .padding()
       }
     }
+  }
+}
+
+// MARK: - IngredientSectionContextMenuPreview
+private struct IngredientSectionContextMenuPreview: View {
+  let state: IngredientSectionReducer.State
+  
+  var body: some View {
+    DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
+      ForEach(state.ingredients.prefix(5)) { ingredient in
+        IngredientContextMenuPreview(state: ingredient)
+        Divider()
+      }
+    } label: {
+      Text(!state.name.isEmpty ? state.name : "Untitled Ingredient Section")
+        .font(.title3)
+        .fontWeight(.bold)
+        .foregroundColor(.primary)
+        .accentColor(.accentColor)
+        .frame(alignment: .leading)
+        .multilineTextAlignment(.leading)
+    }
+    .disclosureGroupStyle(CustomDisclosureGroupStyle())
+    .accentColor(.primary)
   }
 }
