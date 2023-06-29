@@ -25,11 +25,12 @@ struct IngredientSection: View {
           // Or we could add a property for the child view, that is immutable?
           // But that may not be very clear to understand.
           IngredientView(store: childStore)
+            .onTapGesture {
+              viewStore.send(.rowTapped(ViewStore(childStore).id))
+            }
             .focused($focusedField, equals: .row(ViewStore(childStore).id))
           Divider()
         }
-        .animation(.default, value: viewStore.ingredients.count)
-        
       } label: {
         TextField(
           "Untitled Ingredient Section",
@@ -45,11 +46,22 @@ struct IngredientSection: View {
         .accentColor(.accentColor)
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
+        .focused($focusedField, equals: .name)
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
       .contextMenu {
+        Button {
+          viewStore.send(.delegate(.insertSection(.above)), animation: .default)
+        } label: {
+          Text("Insert Section Above")
+        }
+        Button {
+          viewStore.send(.delegate(.insertSection(.below)), animation: .default)
+        } label: {
+          Text("Insert Section Below")
+        }
         Button(role: .destructive) {
           viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
         } label: {
@@ -73,10 +85,15 @@ struct IngredientSectionReducer: ReducerProtocol  {
     var name: String
     var ingredients: IdentifiedArrayOf<IngredientReducer.State>
     var isExpanded: Bool
-    @BindingState var focusedField: FocusField? = nil
-
+    @BindingState var focusedField: FocusField?
     
-    init(id: ID, ingredientSection: Recipe.IngredientSection, isExpanded: Bool) {
+    
+    init(
+      id: ID,
+      ingredientSection: Recipe.IngredientSection,
+      isExpanded: Bool,
+      focusedField: FocusField? = nil
+    ) {
       self.id = id
       self.name = ingredientSection.name
       self.ingredients = .init(uniqueElements: ingredientSection.ingredients.map({
@@ -88,6 +105,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
         )
       }))
       self.isExpanded = isExpanded
+      self.focusedField = focusedField
     }
   }
   
@@ -96,6 +114,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
     case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
     case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
+    case rowTapped(IngredientReducer.State.ID)
     case delegate(DelegateAction)
   }
   
@@ -128,7 +147,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
             )
             state.ingredients.insert(sOld, at: i)
             state.ingredients[id: id]?.focusedField = nil
-
+            
             // Insert a new ingredient above or below it.
             let s = IngredientReducer.State.init(
               id: .init(),
@@ -143,7 +162,10 @@ struct IngredientSectionReducer: ReducerProtocol  {
               ingredientAmountString: "",
               isComplete: false
             )
-            state.ingredients.insert(s, at: above ? i : i + 1)
+            switch above {
+            case .above: state.ingredients.insert(s, at: i)
+            case .below: state.ingredients.insert(s, at: i + 1)
+            }
             state.focusedField = .row(s.id)
             return .none
           }
@@ -159,6 +181,44 @@ struct IngredientSectionReducer: ReducerProtocol  {
         state.name = newName
         return .none
         
+      case let .rowTapped(id):
+        
+        // Set the current selected row isSelected value to false.
+        if case let .row(id) = state.focusedField {
+          guard let i = state.ingredients.index(id: id),
+                let ingredient = state.ingredients[id: id]
+          else { return .none }
+          state.ingredients.remove(at: i)
+          let sOld = IngredientReducer.State(
+            id: ingredient.id,
+            isSelected: false,
+            focusedField: ingredient.focusedField,
+            ingredient: ingredient.ingredient,
+            ingredientAmountString: ingredient.ingredientAmountString,
+            isComplete: ingredient.isComplete
+          )
+          state.ingredients.insert(sOld, at: i)
+        }
+        
+        // Set the just selected row isSelected value to true.
+        guard let i = state.ingredients.index(id: id),
+              let ingredient = state.ingredients[id: id]
+        else { return .none }
+        state.ingredients.remove(at: i)
+        let sOld = IngredientReducer.State(
+          id: ingredient.id,
+          isSelected: true,
+          focusedField: ingredient.focusedField,
+          ingredient: ingredient.ingredient,
+          ingredientAmountString: ingredient.ingredientAmountString,
+          isComplete: ingredient.isComplete
+        )
+        state.ingredients.insert(sOld, at: i)
+        
+        // Set the focused field.
+        state.focusedField = .row(id)
+        return .none
+        
       case .delegate, .binding:
         return .none
       }
@@ -169,40 +229,22 @@ struct IngredientSectionReducer: ReducerProtocol  {
   }
 }
 
+// MARK: - DelegateAction
 extension IngredientSectionReducer {
-  enum DelegateAction {
+  enum DelegateAction: Equatable {
     case deleteSectionButtonTapped
+    case insertSection(AboveBelow)
   }
 }
 
-
+// MARK: - FocusField
 extension IngredientSectionReducer {
   enum FocusField: Equatable, Hashable {
     case row(IngredientReducer.State.ID)
+    case name
   }
 }
 
-// MARK: - Previews
-struct IngredientSection_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        IngredientSection(store: .init(
-          initialState: .init(
-            id: .init(),
-            ingredientSection: Recipe.longMock.ingredientSections.first!,
-            isExpanded: true
-          ),
-          reducer: IngredientSectionReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
-        ))
-        .padding()
-      }
-    }
-  }
-}
 
 // MARK: - IngredientSectionContextMenuPreview
 private struct IngredientSectionContextMenuPreview: View {
@@ -225,5 +267,27 @@ private struct IngredientSectionContextMenuPreview: View {
     }
     .disclosureGroupStyle(CustomDisclosureGroupStyle())
     .accentColor(.primary)
+  }
+}
+
+// MARK: - Previews
+struct IngredientSection_Previews: PreviewProvider {
+  static var previews: some View {
+    NavigationStack {
+      ScrollView {
+        IngredientSection(store: .init(
+          initialState: .init(
+            id: .init(),
+            ingredientSection: Recipe.longMock.ingredientSections.first!,
+            isExpanded: true
+          ),
+          reducer: IngredientSectionReducer.init,
+          withDependencies: { _ in
+            // TODO:
+          }
+        ))
+        .padding()
+      }
+    }
   }
 }

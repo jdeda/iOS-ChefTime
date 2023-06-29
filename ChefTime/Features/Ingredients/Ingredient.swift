@@ -10,37 +10,6 @@ import Combine
 //  3. sometimes editing another textfield moves text
 //     that shouldn't move whatsoever
 
-enum DidEnter: Equatable {
-  case didNotSatisfy
-  case beginning
-  case end
-}
-/// Determines if and where the `TextField` has entered, either at the beginning or end of the new string.
-/// Returns a DidEnter enumeration representing:
-/// - didNotSatisfy - if the new value has not satisfied the parameters for a valid return
-/// - beginning - if the value has satisfied the parameters for a valid return, and did so via the beginning
-/// - end - if the value has satisfied the parameters for a valid return, and did so via the end
-func didEnter(_ old: String, _ new: String) -> DidEnter {
-  guard !old.isEmpty, !new.isEmpty
-  else { return .didNotSatisfy }
-  
-  let newSafe = new
-  
-  var new = newSafe
-  let lastCharacter = new.removeLast()
-  if old == new && lastCharacter.isNewline {
-    return .end
-  }
-  else {
-    var new = newSafe
-    let firstCharacter = new.removeFirst()
-    if old == new && firstCharacter.isNewline {
-      return .beginning
-    }
-  }
-  return .didNotSatisfy
-}
-
 // MARK: - View
 struct IngredientView: View {
   let store: StoreOf<IngredientReducer>
@@ -67,10 +36,10 @@ struct IngredientView: View {
           ),
           axis: .vertical
         )
-          .submitLabel(.done)
-          .autocapitalization(.none)
-          .autocorrectionDisabled()
-          .focused($focusedField, equals: .name)
+        .submitLabel(.next)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+        .focused($focusedField, equals: .name)
         
         Rectangle()
           .fill(.clear)
@@ -89,21 +58,26 @@ struct IngredientView: View {
           get: \.ingredientAmountString,
           send: { .ingredientAmountEdited($0) }
         ), includeDecimal: true)
-          .submitLabel(.done)
-          .fixedSize()
-          .autocapitalization(.none)
-          .autocorrectionDisabled()
-          .focused($focusedField, equals: .amount)
-          .toolbar {
-            if viewStore.isSelected && viewStore.state.focusedField == .amount {
-              ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                  viewStore.send(.ingredientAmountSubmitButtonTapped)
+        .submitLabel(.next)
+        .fixedSize()
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+        .focused($focusedField, equals: .amount)
+        .toolbar {
+          if viewStore.isSelected {
+            ToolbarItemGroup(placement: .keyboard) {
+              Spacer()
+              if viewStore.focusedField == .amount {
+                Button("next") {
+                  viewStore.send(.keyboardNextButtonTapped)
                 }
+              }
+              Button("done") {
+                viewStore.send(.keyboardDoneButtonTapped)
               }
             }
           }
+        }
         
         // Measurement
         TextField(
@@ -113,15 +87,15 @@ struct IngredientView: View {
             send: { .ingredientMeasureEdited($0) }
           )
         )
-          .fixedSize()
-          .submitLabel(.done)
-          .autocapitalization(.none)
-          .autocorrectionDisabled()
-          .focused($focusedField, equals: .measure)
-          .onSubmit {
-            viewStore.send(.delegate(.insertIngredient(above: false)), animation: .default)
-          }
-
+        .fixedSize()
+        .submitLabel(.next)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+        .focused($focusedField, equals: .measure)
+        .onSubmit {
+          viewStore.send(.delegate(.insertIngredient(.below)), animation: .default)
+        }
+        
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .foregroundColor(viewStore.isComplete ? .secondary : .primary)
@@ -159,11 +133,8 @@ struct IngredientReducer: ReducerProtocol {
     case ingredientAmountEdited(String)
     case ingredientMeasureEdited(String)
     case isCompleteButtonToggled
-    
-    case ingredientNameSubmitButtonTapped
-    case ingredientAmountSubmitButtonTapped
-    case ingredientMeasureSubmitButtonTapped
-    
+    case keyboardDoneButtonTapped
+    case keyboardNextButtonTapped
     case delegate(DelegateAction)
   }
   
@@ -196,7 +167,7 @@ struct IngredientReducer: ReducerProtocol {
           /// properly amogst this reducer and parent reducers and views.
           return .run { send in
             try await Task.sleep(for: .nanoseconds(1))
-            await send(.delegate(.insertIngredient(above: true)), animation: .default)
+            await send(.delegate(.insertIngredient(.above)), animation: .default)
           }
         case .end:
           // Keep the original string because only trailing or leading spaces were added.
@@ -218,31 +189,31 @@ struct IngredientReducer: ReducerProtocol {
         state.isComplete.toggle()
         return .none
         
-      case .delegate:
+      case .keyboardDoneButtonTapped:
+        state.focusedField = nil
         return .none
-      
-      case .ingredientNameSubmitButtonTapped:
-        state.focusedField = .amount
-        return .none
-      
-      case .ingredientAmountSubmitButtonTapped:
+        
+      case .keyboardNextButtonTapped:
+        guard state.focusedField == .amount else { return .none }
         state.focusedField = .measure
         return .none
-      
-      case .ingredientMeasureSubmitButtonTapped:
-        return .send(.delegate(.insertIngredient(above: false)))
+        
+      case .delegate:
+        return .none
       }
     }
   }
 }
 
+// MARK: - DelegateAction
 extension IngredientReducer {
   enum DelegateAction: Equatable {
     case swipedToDelete
-    case insertIngredient(above: Bool)
+    case insertIngredient(AboveBelow)
   }
 }
 
+// MARK: - FocusField
 extension IngredientReducer {
   enum FocusField: Equatable {
     case name
@@ -251,27 +222,6 @@ extension IngredientReducer {
   }
 }
 
-// MARK: - Previews
-struct IngredientView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        IngredientView(store: .init(
-          initialState: .init(
-            id: .init(),
-            isSelected: true,
-            focusedField: nil,
-            ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!,
-            ingredientAmountString: String(Recipe.longMock.ingredientSections.first!.ingredients.first!.amount),
-            isComplete: false
-          ),
-          reducer: IngredientReducer.init
-        ))
-        .padding()
-      }
-    }
-  }
-}
 
 // MARK: - NumbersOnlyViewModifier (Private)
 private struct NumbersOnlyViewModifier: ViewModifier {
@@ -304,7 +254,6 @@ private extension View {
 }
 
 // MARK: - IngredientContextMenuPreview
-
 struct IngredientContextMenuPreview: View {
   let state: IngredientReducer.State
   
@@ -336,5 +285,60 @@ struct IngredientContextMenuPreview: View {
     }
     .foregroundColor(state.isComplete ? .secondary : .primary)
     .accentColor(.accentColor)
+  }
+}
+
+// MARK: - TextField didEnter helper.
+/// Determines if and where the `TextField` has entered, either at the beginning or end of the new string.
+/// Returns a DidEnter enumeration representing:
+/// - didNotSatisfy - if the new value has not satisfied the parameters for a valid return
+/// - beginning - if the value has satisfied the parameters for a valid return, and did so via the beginning
+/// - end - if the value has satisfied the parameters for a valid return, and did so via the end
+enum DidEnter: Equatable {
+  case didNotSatisfy
+  case beginning
+  case end
+}
+
+private func didEnter(_ old: String, _ new: String) -> DidEnter {
+  guard !old.isEmpty, !new.isEmpty
+  else { return .didNotSatisfy }
+  
+  let newSafe = new
+  
+  var new = newSafe
+  let lastCharacter = new.removeLast()
+  if old == new && lastCharacter.isNewline {
+    return .end
+  }
+  else {
+    var new = newSafe
+    let firstCharacter = new.removeFirst()
+    if old == new && firstCharacter.isNewline {
+      return .beginning
+    }
+  }
+  return .didNotSatisfy
+}
+
+// MARK: - Previews
+struct IngredientView_Previews: PreviewProvider {
+  static var previews: some View {
+    NavigationStack {
+      ScrollView {
+        IngredientView(store: .init(
+          initialState: .init(
+            id: .init(),
+            isSelected: true,
+            focusedField: nil,
+            ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!,
+            ingredientAmountString: String(Recipe.longMock.ingredientSections.first!.ingredients.first!.amount),
+            isComplete: false
+          ),
+          reducer: IngredientReducer.init
+        ))
+        .padding()
+      }
+    }
   }
 }

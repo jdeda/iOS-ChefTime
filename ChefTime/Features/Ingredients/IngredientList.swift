@@ -2,34 +2,14 @@ import SwiftUI
 import ComposableArchitecture
 
 // TODO: Section deletion has no animation
-
+// TODO: Section addition has no animation
 // MARK: - IngredientsListView
 struct IngredientListView: View {
   let store: StoreOf<IngredientsListReducer>
-  
-  struct ViewState: Equatable {
-    var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
-    var isExpanded: Bool
-    var scale: Double = 1.0
+  @FocusState private var focusedField: IngredientsListReducer.FocusField?
     
-    var scaleString: String {
-      switch scale {
-      case 0.25: return "1/4"
-      case 0.50: return "1/2"
-      default:   return String(Int(scale))
-      }
-    }
-    
-    init(_ state: IngredientsListReducer.State) {
-      self.ingredients = state.ingredients
-      self.scale = state.scale
-      self.isExpanded = state.isExpanded
-    }
-  }
-  
-  
   var body: some View {
-    WithViewStore(store, observe: ViewState.init) { viewStore in
+    WithViewStore(store) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
@@ -44,6 +24,7 @@ struct IngredientListView: View {
           action: IngredientsListReducer.Action.ingredient
         )) { childStore in
           IngredientSection(store: childStore)
+            .focused($focusedField, equals: .row(ViewStore(childStore).id))
         }
       }
       label : {
@@ -53,6 +34,7 @@ struct IngredientListView: View {
           .foregroundColor(.primary)
       }
       .accentColor(.primary)
+      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
     }
   }
 }
@@ -63,8 +45,13 @@ struct IngredientsListReducer: ReducerProtocol {
     var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
     var isExpanded: Bool
     var scale: Double = 1.0
-    
-    init(recipe: Recipe, isExpanded: Bool, childrenIsExpanded: Bool) {
+    @BindingState var focusedField: FocusField? = nil
+
+    init(
+      recipe: Recipe,
+      isExpanded: Bool,
+      childrenIsExpanded: Bool
+    ) {
       self.ingredients = .init(uniqueElements: recipe.ingredientSections.map({
         .init(
           id: .init(),
@@ -80,7 +67,9 @@ struct IngredientsListReducer: ReducerProtocol {
       self.isExpanded = isExpanded
     }
   }
-  enum Action: Equatable {
+  
+  enum Action: Equatable, BindableAction {
+    case binding(BindingAction<State>)
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
     case scaleStepperButtonTapped(Double)
@@ -88,17 +77,40 @@ struct IngredientsListReducer: ReducerProtocol {
   }
   
   var body: some ReducerProtocolOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
       case let .ingredient(id, action):
         switch action {
-        case .delegate(.deleteSectionButtonTapped):
-          state.ingredients.remove(id: id)
-          return .none
+        case let .delegate(action):
+          switch action {
+          case .deleteSectionButtonTapped:
+            state.ingredients.remove(id: id)
+            return .none
+            
+          case let .insertSection(aboveBelow):
+            guard let i = state.ingredients.index(id: id)
+            else { return .none }
+            let newSection = IngredientSectionReducer.State(
+              id: .init(),
+              ingredientSection: .init(
+                id: .init(),
+                name: "",
+                ingredients: []
+              ),
+              isExpanded: true,
+              focusedField: .name
+            )
+            switch aboveBelow {
+            case .above: state.ingredients.insert(newSection, at: i)
+            case .below: state.ingredients.insert(newSection, at: i + 1)
+            }
+            state.focusedField = .row(newSection.id)
+            return .none
+          }
         default:
           return .none
         }
-        return .none
         
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
@@ -140,8 +152,9 @@ struct IngredientsListReducer: ReducerProtocol {
         }
         return .none
         
-      case .delegate:
+      case .delegate, .binding:
         return .none
+        
       }
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
@@ -151,9 +164,17 @@ struct IngredientsListReducer: ReducerProtocol {
   }
 }
 
+// MARK: - DelegateAction
 extension IngredientsListReducer {
   enum DelegateAction {
     case sectionNavigationAreaTapped
+  }
+}
+
+// MARK: - FocusField
+extension IngredientsListReducer {
+  enum FocusField: Equatable, Hashable {
+    case row(IngredientSectionReducer.State.ID)
   }
 }
 

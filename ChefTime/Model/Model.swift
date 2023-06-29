@@ -270,3 +270,9 @@ extension Recipe {
   )
   
 }
+
+// TODO: May want to move into unique file
+enum AboveBelow: Equatable {
+  case above
+  case below
+}
