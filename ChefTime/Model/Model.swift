@@ -34,6 +34,7 @@ struct DataImageView: View {
   }
 }
 
+// TODO: Add a bunch of default inits?
 struct Recipe: Identifiable, Equatable {
   typealias ID = Tagged<Self, UUID>
   

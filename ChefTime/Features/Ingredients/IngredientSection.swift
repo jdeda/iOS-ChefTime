@@ -8,6 +8,7 @@ import Tagged
 // MARK: - View
 struct IngredientSection: View {
   let store: StoreOf<IngredientSectionReducer>
+  @FocusState private var focusedField: IngredientSectionReducer.FocusField?
   
   var body: some View {
     WithViewStore(store) { viewStore in
@@ -19,9 +20,15 @@ struct IngredientSection: View {
           state: \.ingredients,
           action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
+          // Must make sure there is only one keyboard item at a time...
+          // We could do it here...
+          // Or we could add a property for the child view, that is immutable?
+          // But that may not be very clear to understand.
           IngredientView(store: childStore)
+            .focused($focusedField, equals: .row(ViewStore(childStore).id))
           Divider()
         }
+        .animation(.default, value: viewStore.ingredients.count)
         
       } label: {
         TextField(
@@ -39,6 +46,7 @@ struct IngredientSection: View {
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
       }
+      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
       .contextMenu {
@@ -65,18 +73,26 @@ struct IngredientSectionReducer: ReducerProtocol  {
     var name: String
     var ingredients: IdentifiedArrayOf<IngredientReducer.State>
     var isExpanded: Bool
+    @BindingState var focusedField: FocusField? = nil
+
     
     init(id: ID, ingredientSection: Recipe.IngredientSection, isExpanded: Bool) {
       self.id = id
       self.name = ingredientSection.name
       self.ingredients = .init(uniqueElements: ingredientSection.ingredients.map({
-        .init(id: .init(), ingredient: $0)
+        .init(
+          id: .init(),
+          isSelected: false,
+          ingredient: $0,
+          ingredientAmountString: String($0.amount)
+        )
       }))
       self.isExpanded = isExpanded
     }
   }
   
-  enum Action: Equatable {
+  enum Action: Equatable, BindableAction {
+    case binding(BindingAction<State>)
     case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
     case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
@@ -84,6 +100,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
   }
   
   var body: some ReducerProtocolOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
       case let .ingredient(id, action):
@@ -92,6 +109,42 @@ struct IngredientSectionReducer: ReducerProtocol  {
           switch action {
           case .swipedToDelete:
             state.ingredients.remove(id: id)
+            return .none
+          case let .insertIngredient(above):
+            // Get the index and the ingredient.
+            guard let i = state.ingredients.index(id: id),
+                  let ingredient = state.ingredients[id: id]
+            else { return .none }
+            
+            // Replace it with a new isSelected and focused field value.
+            state.ingredients.remove(at: i)
+            let sOld = IngredientReducer.State(
+              id: .init(),
+              isSelected: false,
+              focusedField: nil,
+              ingredient: ingredient.ingredient,
+              ingredientAmountString: ingredient.ingredientAmountString,
+              isComplete: ingredient.isComplete
+            )
+            state.ingredients.insert(sOld, at: i)
+            state.ingredients[id: id]?.focusedField = nil
+
+            // Insert a new ingredient above or below it.
+            let s = IngredientReducer.State.init(
+              id: .init(),
+              isSelected: true,
+              focusedField: nil,
+              ingredient: .init(
+                id: .init(),
+                name: "",
+                amount: 0.0,
+                measure: ""
+              ),
+              ingredientAmountString: "",
+              isComplete: false
+            )
+            state.ingredients.insert(s, at: above ? i : i + 1)
+            state.focusedField = .row(s.id)
             return .none
           }
         default:
@@ -106,7 +159,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
         state.name = newName
         return .none
         
-      case .delegate:
+      case .delegate, .binding:
         return .none
       }
     }
@@ -119,6 +172,13 @@ struct IngredientSectionReducer: ReducerProtocol  {
 extension IngredientSectionReducer {
   enum DelegateAction {
     case deleteSectionButtonTapped
+  }
+}
+
+
+extension IngredientSectionReducer {
+  enum FocusField: Equatable, Hashable {
+    case row(IngredientReducer.State.ID)
   }
 }
 
