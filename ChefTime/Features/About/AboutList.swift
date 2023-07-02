@@ -5,6 +5,7 @@ import ComposableArchitecture
 // TODO: Section addition has no animation
 // TODO: ContextMenu Previews need a look
 // TODO: Make sure all expansions are matching what you want for the app
+// TODO: Make TextField view with reducer to remove redundant code, maybe even possible for disclosure group...?
 // MARK: - AboutListView
 struct AboutListView: View {
   let store: StoreOf<AboutListReducer>
@@ -22,7 +23,7 @@ struct AboutListView: View {
         )) { childStore in
           AboutSection(store: childStore)
             .contentShape(Rectangle())
-          //            .focused($focusedField, equals: .row(ViewStore(childStore).id))
+            .focused($focusedField, equals: .row(ViewStore(childStore).id))
             .accentColor(.accentColor)
           
           if ViewStore(childStore).isExpanded {
@@ -37,13 +38,15 @@ struct AboutListView: View {
         }
       }
       label : {
-        Text("Ingredients")
+        Text("About")
           .font(.title)
           .fontWeight(.bold)
           .foregroundColor(.primary)
+        Spacer()
       }
       .accentColor(.primary)
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
     }
   }
 }
@@ -135,7 +138,7 @@ extension AboutListReducer {
 // MARK: - FocusField
 extension AboutListReducer {
   enum FocusField: Equatable, Hashable {
-    case row(IngredientSectionReducer.State.ID)
+    case row(AboutSectionReducer.State.ID)
   }
 }
 

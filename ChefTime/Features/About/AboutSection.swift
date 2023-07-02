@@ -23,9 +23,22 @@ struct AboutSection: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-        TextField("", text: .constant(viewStore.aboutSection.description), axis: .vertical)
-          .focused($focusedField, equals: .description)
-          .accentColor(.accentColor)
+        TextField(
+          "...",
+          text: viewStore.binding(
+            get: \.aboutSection.description,
+            send: { .aboutSectionDescriptionEdited($0) }
+          ),
+          axis: .vertical
+        )
+        .foregroundColor(.primary)
+        .accentColor(.accentColor)
+        .frame(alignment: .leading)
+        .multilineTextAlignment(.leading)
+        .lineLimit(.max)
+        .focused($focusedField, equals: .name)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
       } label: {
         // TODO: An alert might feel nicer here to restore the DisclosureGroup collapse UX.
         TextField(
@@ -46,9 +59,6 @@ struct AboutSection: View {
         .focused($focusedField, equals: .name)
         .autocapitalization(.none)
         .autocorrectionDisabled()
-        .onSubmit {
-          viewStore.send(.ingredientSectionNameTextFieldSubmitted)
-        }
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
@@ -105,7 +115,7 @@ struct AboutSectionReducer: ReducerProtocol  {
     case binding(BindingAction<State>)
     case isExpandedButtonToggled
     case aboutSectionNameEdited(String)
-    case ingredientSectionNameTextFieldSubmitted
+    case aboutSectionDescriptionEdited(String)
     case delegate(DelegateAction)
   }
   
@@ -144,8 +154,29 @@ struct AboutSectionReducer: ReducerProtocol  {
           }
         }
         
-      case .ingredientSectionNameTextFieldSubmitted:
-        state.focusedField = nil
+      case let .aboutSectionDescriptionEdited(newDescription):
+        let oldDescription = state.aboutSection.description
+        if oldDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            newDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+          return .none
+        }
+        // TODO: Make this .trimmingWhiteCharacter thing an extension thats alot shorter as its used a lot:
+        // myString.trimmedWhitespacesAndNewlines.isEmpty
+        // myString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let didEnter = DidEnter.didEnter(oldDescription, newDescription)
+        switch didEnter {
+        case .didNotSatisfy:
+          state.aboutSection.description = newDescription
+          return .none
+        case .leading, .trailing:
+          state.focusedField = nil
+          if oldDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return .send(.delegate(.deleteSectionButtonTapped))
+          }
+          else {
+            return .none
+          }
+        }
         return .none
         
       case .delegate, .binding:
