@@ -19,6 +19,7 @@
 		975A4EED2A44C23300C9509A /* IngredientSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEC2A44C23300C9509A /* IngredientSection.swift */; };
 		975A4EEF2A44C23800C9509A /* Ingredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEE2A44C23800C9509A /* Ingredient.swift */; };
 		977633D62A4F77C9009FD90C /* Binding+RemoveDuplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */; };
+		977633D82A51B8FA009FD90C /* RecipeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D72A51B8F9009FD90C /* RecipeModel.swift */; };
 		9782405B2A3B410000CAC459 /* IngredientList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9782405A2A3B410000CAC459 /* IngredientList.swift */; };
 		97AD13B82A2E7392002FCE30 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B72A2E7392002FCE30 /* Main.swift */; };
 		97AD13BC2A2E7394002FCE30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BB2A2E7394002FCE30 /* Assets.xcassets */; };
@@ -57,6 +58,7 @@
 		975A4EEC2A44C23300C9509A /* IngredientSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSection.swift; sourceTree = "<group>"; };
 		975A4EEE2A44C23800C9509A /* Ingredient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ingredient.swift; sourceTree = "<group>"; };
 		977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+RemoveDuplicates.swift"; sourceTree = "<group>"; };
+		977633D72A51B8F9009FD90C /* RecipeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeModel.swift; sourceTree = "<group>"; };
 		9782405A2A3B410000CAC459 /* IngredientList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientList.swift; sourceTree = "<group>"; };
 		97AD13B42A2E7392002FCE30 /* ChefTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChefTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AD13B72A2E7392002FCE30 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 		975A4EFC2A44C3C400C9509A /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				977633D72A51B8F9009FD90C /* RecipeModel.swift */,
 				97AD13D22A2E74E9002FCE30 /* Model.swift */,
 			);
 			path = Model;
@@ -373,6 +376,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				975A4EED2A44C23300C9509A /* IngredientSection.swift in Sources */,
+				977633D82A51B8FA009FD90C /* RecipeModel.swift in Sources */,
 				97E08CDD2A3B87D7003A6232 /* StepListView.swift in Sources */,
 				977633D62A4F77C9009FD90C /* Binding+RemoveDuplicates.swift in Sources */,
 				97AD13D32A2E74E9002FCE30 /* Model.swift in Sources */,

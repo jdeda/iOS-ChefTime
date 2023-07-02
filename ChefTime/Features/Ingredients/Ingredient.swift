@@ -3,13 +3,6 @@ import ComposableArchitecture
 import Tagged
 import Combine
 
-// TODO: Number TextField still has bugs
-//  1. fixed size means the row refreshes in a ugly way
-//  2. typing invalid text still refreshes in a ugly way,
-//     but this should be impossible from a device perspective
-//  3. sometimes editing another textfield moves text
-//     that shouldn't move whatsoever
-
 // MARK: - View
 struct IngredientView: View {
   let store: StoreOf<IngredientReducer>
@@ -28,6 +21,7 @@ struct IngredientView: View {
           .padding([.top], 2)
         
         // Name
+        // TODO: Sometimes editing another textfield moves text that shouldn't move whatsoever
         TextField(
           "...",
           text: viewStore.binding(
@@ -48,6 +42,10 @@ struct IngredientView: View {
           .frame(width: 50)
         
         // Amount
+        // TODO: This NumberTextField still has bugs
+        //  1. fixed size means the row refreshes in a ugly way
+        //  2. typing invalid text still refreshes in a ugly way,
+        //     but this should be impossible from a device perspective
         TextField(
           "...",
           text: viewStore.binding(
@@ -124,7 +122,7 @@ struct IngredientReducer: ReducerProtocol {
     let id: ID
     @BindingState var focusedField: FocusField? = nil
     var ingredient: Recipe.IngredientSection.Ingredient
-    var ingredientAmountString: String
+    var ingredientAmountString: String // This string must be synchronized with the ingredient.amount and is used for the ingredient amount textfield.
     var isComplete: Bool = false
   }
   
@@ -159,23 +157,27 @@ struct IngredientReducer: ReducerProtocol {
         }
         let oldName = state.ingredient.name
         state.ingredient.name = newName
-        let didEnter = didEnter(oldName, newName)
+        let didEnter = DidEnter.didEnter(oldName, newName)
         switch didEnter {
         case .didNotSatisfy:
           return .none
-        case .beginning:
+        case .leading:
           // Keep the original string because only trailing or leading spaces were added.
           state.ingredient.name = oldName
           state.focusedField = nil
           /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
-          /// extremely brief moment, animations and focus does not work properly, This very short sleep fixes the problem.
+          /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
+          /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
+          /// This effect is also debounced to prevent multi additons as this action may be called from the a TextField
+          /// which always emits twice when interacted with, which is a SwiftUI behavior:
+          /// https://github.com/pointfreeco/swift-composable-architecture/discussions/800
           return .run { send in
             try await self.clock.sleep(for: .microseconds(10))
             await send(.delegate(.insertIngredient(.above)), animation: .default)
           }
           .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
           
-        case .end:
+        case .trailing:
           // Keep the original string because only trailing or leading spaces were added.
           state.ingredient.name = oldName
           state.focusedField = .amount
@@ -200,6 +202,8 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case .keyboardNextButtonTapped:
+        // TODO: Would be nice if the name could perform leading and trailing enters just like the text binding action for name.
+        // However it does not seem easy or nice to do so.
         switch state.focusedField {
         case .name:
           state.focusedField = .amount
@@ -211,7 +215,8 @@ struct IngredientReducer: ReducerProtocol {
           state.focusedField = nil
           return .run { send in
             /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
-            /// extremely brief moment, the focus does not focus, This very short sleep fixes the problem.
+            /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
+            /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
             try await self.clock.sleep(for: .microseconds(10))
             await send(.delegate(.insertIngredient(.below)), animation: .default)
           }
