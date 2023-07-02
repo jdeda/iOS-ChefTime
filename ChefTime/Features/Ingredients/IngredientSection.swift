@@ -10,6 +10,8 @@ import Combine
 // but sometimes if you tap another row, the dupe goes away, this does not work all the time
 // this is all happening probably because we didn't nil out the focus state
 
+// TODO: If the section is empty and they type a name and press enter, create a new element and focus onto it.
+
 // MARK: - View
 struct IngredientSection: View {
   let store: StoreOf<IngredientSectionReducer>

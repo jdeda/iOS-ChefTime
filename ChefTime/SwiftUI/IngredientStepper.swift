@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - Possible to make this a unique Reducer?
+// TODO: Not really needed here anymore, should be moved into RecipeList
 struct IngredientStepper: View {
   @Binding var scale: Double
   

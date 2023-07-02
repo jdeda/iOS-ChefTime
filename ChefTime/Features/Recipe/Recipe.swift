@@ -17,7 +17,7 @@ struct RecipeView: View {
           .padding([.horizontal])
           .padding([.bottom])
           
-          AboutPreviewListView(store: store.scope(
+          AboutListView(store: store.scope(
             state: \.about,
             action: RecipeReducer.Action.about
           ))
@@ -49,7 +49,7 @@ struct RecipeReducer: ReducerProtocol {
   struct State: Equatable {
     var recipe: Recipe
     var photos: PhotosReducer.State
-    var about: AboutPreviewListReducer.State
+    var about: AboutListReducer.State
     var ingredients: IngredientsListReducer.State
     var steps: StepsListReducer.State
     
@@ -67,7 +67,7 @@ struct RecipeReducer: ReducerProtocol {
   
   enum Action: Equatable {
     case photos(PhotosReducer.Action)
-    case about(AboutPreviewListReducer.Action)
+    case about(AboutListReducer.Action)
     case list(IngredientsListReducer.Action)
     case steps(StepsListReducer.Action)
     case recipeNameEdited(String)
@@ -113,7 +113,7 @@ struct RecipeReducer: ReducerProtocol {
       PhotosReducer()
     }
     Scope(state: \.about, action: /Action.about) {
-      AboutPreviewListReducer()
+      AboutListReducer()
     }
     Scope(state: \.ingredients, action: /Action.list) {
       IngredientsListReducer()
