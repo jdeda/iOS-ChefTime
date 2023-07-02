@@ -210,18 +210,27 @@ private struct AboutSectionContextMenuPreview: View {
   
   var body: some View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
-      Text(state.aboutSection.description)
-    } label: {
-      Text(!state.aboutSection.name.isEmpty ? state.aboutSection.name : "Untitled About Section")
+      Text(!state.aboutSection.description.isEmpty ? state.aboutSection.description : "...")
+          .foregroundColor(.primary)
+          .accentColor(.accentColor)
+          .frame(alignment: .leading)
+          .multilineTextAlignment(.leading)
+          .lineLimit(4)
+          .autocapitalization(.none)
+          .autocorrectionDisabled()
+      } label: {
+        Text(!state.aboutSection.name.isEmpty ? state.aboutSection.name : "Untitled About Section")
         .font(.title3)
         .fontWeight(.bold)
         .foregroundColor(.primary)
         .accentColor(.accentColor)
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
-    }
-    .disclosureGroupStyle(CustomDisclosureGroupStyle())
-    .accentColor(.primary)
+        .lineLimit(1)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+      }
+      .accentColor(.primary)
   }
 }
 
