@@ -32,7 +32,9 @@ struct IngredientView: View {
           "...",
           text: viewStore.binding(
             get: \.ingredient.name,
-            send: { .ingredientNameEdited($0) }
+            send: {
+              .ingredientNameEdited($0)
+            }
           ),
           axis: .vertical
         )
@@ -63,21 +65,6 @@ struct IngredientView: View {
         .autocapitalization(.none)
         .autocorrectionDisabled()
         .focused($focusedField, equals: .amount)
-        .toolbar {
-          if viewStore.isSelected {
-            ToolbarItemGroup(placement: .keyboard) {
-              Spacer()
-              if viewStore.focusedField == .amount {
-                Button("next") {
-                  viewStore.send(.keyboardNextButtonTapped)
-                }
-              }
-              Button("done") {
-                viewStore.send(.keyboardDoneButtonTapped)
-              }
-            }
-          }
-        }
         
         // Measurement
         TextField(
@@ -99,6 +86,21 @@ struct IngredientView: View {
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .foregroundColor(viewStore.isComplete ? .secondary : .primary)
+      .toolbar {
+        if viewStore.focusedField != nil {
+          ToolbarItemGroup(placement: .keyboard) {
+            Spacer()
+            Button("next") {
+              viewStore.send(.keyboardNextButtonTapped, animation: .default)
+            }
+            .foregroundColor(.primary)
+            Button("done") {
+              viewStore.send(.keyboardDoneButtonTapped, animation: .default)
+            }
+            .foregroundColor(.primary)
+          }
+        }
+      }
       .accentColor(.accentColor)
       .contextMenu(menuItems: {
         Button(role: .destructive) {
@@ -120,7 +122,6 @@ struct IngredientReducer: ReducerProtocol {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    let isSelected: Bool
     @BindingState var focusedField: FocusField? = nil
     var ingredient: Recipe.IngredientSection.Ingredient
     var ingredientAmountString: String
@@ -138,6 +139,11 @@ struct IngredientReducer: ReducerProtocol {
     case delegate(DelegateAction)
   }
   
+  @Dependency(\.continuousClock) var clock
+  
+  private enum IngredientNameEditedID: Hashable { case timer }
+
+  
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
     Reduce { state, action in
@@ -147,6 +153,9 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case let .ingredientNameEdited(newName):
+        if state.ingredient.name.isEmpty && newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+          return .none
+        }
         let oldName = state.ingredient.name
         state.ingredient.name = newName
         let didEnter = didEnter(oldName, newName)
@@ -157,7 +166,6 @@ struct IngredientReducer: ReducerProtocol {
           // Keep the original string because only trailing or leading spaces were added.
           state.ingredient.name = oldName
           state.focusedField = nil
-          
           /// MARK: - There is a strange bug where sending this action without
           /// briefly waiting, for even a nanosecond prevents focus state,
           /// animations, and possibly even more from working as expected.
@@ -166,9 +174,11 @@ struct IngredientReducer: ReducerProtocol {
           /// somehow allows the logic run within the TextField binding to work
           /// properly amogst this reducer and parent reducers and views.
           return .run { send in
-            try await Task.sleep(for: .nanoseconds(1))
+            try await self.clock.sleep(for: .microseconds(10))
             await send(.delegate(.insertIngredient(.above)), animation: .default)
           }
+          .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
+          
         case .end:
           // Keep the original string because only trailing or leading spaces were added.
           state.ingredient.name = oldName
@@ -194,10 +204,23 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case .keyboardNextButtonTapped:
-        guard state.focusedField == .amount else { return .none }
-        state.focusedField = .measure
-        return .none
-        
+        switch state.focusedField {
+        case .name:
+          state.focusedField = .amount
+          return .none
+        case .amount:
+          state.focusedField = .measure
+          return .none
+        case .measure:
+          state.focusedField = nil
+//          return .send(.delegate(.insertIngredient(.below)), animation: .default)
+          return .run { send in
+            try await self.clock.sleep(for: .microseconds(10))
+            await send(.delegate(.insertIngredient(.below)), animation: .default)
+          }
+        case .none:
+          return .none
+        }
       case .delegate:
         return .none
       }
@@ -329,7 +352,6 @@ struct IngredientView_Previews: PreviewProvider {
         IngredientView(store: .init(
           initialState: .init(
             id: .init(),
-            isSelected: true,
             focusedField: nil,
             ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!,
             ingredientAmountString: String(Recipe.longMock.ingredientSections.first!.ingredients.first!.amount),

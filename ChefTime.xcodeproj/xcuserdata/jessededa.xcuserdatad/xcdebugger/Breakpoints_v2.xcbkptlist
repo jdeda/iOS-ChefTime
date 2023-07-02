@@ -3,4 +3,302 @@
    uuid = "AD1F4572-D5E1-40FA-B5A9-E6595D7996CA"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9E973955-C26B-4A16-94B4-87B546C40094"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/Ingredient.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "155"
+            endingLineNumber = "155"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "9E973955-C26B-4A16-94B4-87B546C40094 - 8df743b82c183f88"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "149"
+                  endingLineNumber = "149"
+                  offsetFromSymbolStart = "1228">
+               </Location>
+               <Location
+                  uuid = "9E973955-C26B-4A16-94B4-87B546C40094 - 8df743b82c183f88"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "149"
+                  endingLineNumber = "149"
+                  offsetFromSymbolStart = "1196">
+               </Location>
+               <Location
+                  uuid = "9E973955-C26B-4A16-94B4-87B546C40094 - 8df743b82c183f57"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "148"
+                  endingLineNumber = "148"
+                  offsetFromSymbolStart = "1084">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/Ingredient.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - a1a74486f2605ec"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "169"
+                  endingLineNumber = "169"
+                  offsetFromSymbolStart = "32">
+               </Location>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - fc4057d7fa1367ef"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "169"
+                  endingLineNumber = "169"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - d6ae375515ccc9ee"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(5) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "169"
+                  endingLineNumber = "169"
+                  offsetFromSymbolStart = "28">
+               </Location>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - 7956b54f42b941ea"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "169"
+                  endingLineNumber = "169"
+                  offsetFromSymbolStart = "68">
+               </Location>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - e5409c37a9bb33f6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "169"
+                  endingLineNumber = "169"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - a1a74486f2605ec"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "169"
+                  endingLineNumber = "169"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - 7956b54f42b9418b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "170"
+                  endingLineNumber = "170"
+                  offsetFromSymbolStart = "68">
+               </Location>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - e5409c37a9bb3397"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "170"
+                  endingLineNumber = "170"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "59076071-4CB9-4E55-9EC2-4E438865E0AC - a1a74486f26058d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.IngredientReducer.Action&gt;) async throws -&gt; () in closure #1 (inout ChefTime.IngredientReducer.State, ChefTime.IngredientReducer.Action) -&gt; ComposableArchitecture.EffectPublisher&lt;ChefTime.IngredientReducer.Action, Swift.Never&gt; in ChefTime.IngredientReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Ingredients/Ingredient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "170"
+                  endingLineNumber = "170"
+                  offsetFromSymbolStart = "20">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0A48FEE5-6597-48F8-82AA-434FCEBCAF43"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/IngredientSection.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "208"
+            endingLineNumber = "208"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1DD720BF-C725-4277-BF81-3CAC6E25CA84"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/IngredientSection.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "216"
+            endingLineNumber = "216"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "30B34310-6C0F-4327-B342-38B67ACAC29B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/IngredientSection.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "219"
+            endingLineNumber = "219"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0A42BB39-AC4B-4D9F-9548-C56B8E7F9492"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/IngredientSection.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "217"
+            endingLineNumber = "217"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0753B67D-6285-479C-8A3E-54B04497BB77"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Ingredients/Ingredient.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

@@ -24,7 +24,18 @@ struct IngredientListView: View {
           action: IngredientsListReducer.Action.ingredient
         )) { childStore in
           IngredientSection(store: childStore)
+            .contentShape(Rectangle())
             .focused($focusedField, equals: .row(ViewStore(childStore).id))
+          
+          if ViewStore(childStore).isExpanded {
+            Rectangle()
+              .fill(.clear)
+              .frame(height: 5)
+          }
+          
+          if !ViewStore(childStore).isExpanded {
+            Divider()
+          }
         }
       }
       label : {
@@ -160,7 +171,6 @@ struct IngredientsListReducer: ReducerProtocol {
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientSectionReducer()
     }
-    ._printChanges()
   }
 }
 
