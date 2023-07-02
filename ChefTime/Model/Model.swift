@@ -276,3 +276,37 @@ enum AboveBelow: Equatable {
   case above
   case below
 }
+
+// TODO: May want to move into unique file
+// MARK: - TextField didEnter helper.
+/// Determines if and where the `TextField` has entered, either at the beginning or end of the new string.
+/// Returns a DidEnter enumeration representing:
+/// - didNotSatisfy - if the new value has not satisfied the parameters for a valid return
+/// - beginning - if the value has satisfied the parameters for a valid return, and did so via the beginning
+/// - end - if the value has satisfied the parameters for a valid return, and did so via the end
+enum DidEnter: Equatable {
+  case didNotSatisfy
+  case beginning
+  case end
+}
+
+func didEnter(_ old: String, _ new: String) -> DidEnter {
+  guard !old.isEmpty, !new.isEmpty
+  else { return .didNotSatisfy }
+  
+  let newSafe = new
+  
+  var new = newSafe
+  let lastCharacter = new.removeLast()
+  if old == new && lastCharacter.isNewline {
+    return .end
+  }
+  else {
+    var new = newSafe
+    let firstCharacter = new.removeFirst()
+    if old == new && firstCharacter.isNewline {
+      return .beginning
+    }
+  }
+  return .didNotSatisfy
+}

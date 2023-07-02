@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import Tagged
+import Combine
 
 // TODO: ingredient textfield name moves when expansions change, this happens almost every time with multi-line text
 // TODO: Scale causes ugly refres
@@ -60,6 +61,7 @@ struct IngredientSection: View {
         .accentColor(.accentColor)
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
+        .lineLimit(.max)
         .focused($focusedField, equals: .name)
         .autocapitalization(.none)
         .autocorrectionDisabled()
@@ -134,8 +136,11 @@ struct IngredientSectionReducer: ReducerProtocol  {
     case ingredientSectionNameEdited(String)
     case ingredientSectionNameTextFieldSubmitted
     case rowTapped(IngredientReducer.State.ID)
+    case setFocusedField(FocusField)
     case delegate(DelegateAction)
   }
+  
+  @Dependency(\.continuousClock) var clock
   
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
@@ -145,7 +150,8 @@ struct IngredientSectionReducer: ReducerProtocol  {
         switch action {
         case let .delegate(action):
           switch action {
-          case .swipedToDelete:
+          case .tappedToDelete:
+            // TODO: Animation can be a bit clunky, fix.
             state.ingredients.remove(id: id)
             return .none
           case let .insertIngredient(aboveBelow):
@@ -153,19 +159,6 @@ struct IngredientSectionReducer: ReducerProtocol  {
             guard let i = state.ingredients.index(id: id),
                   let ingredient = state.ingredients[id: id]
             else { return .none }
-            
-            // Replace the current ingredient to prevent duplicate actions.
-            // MARK: - There is a strange bug where this runs twice, may because of textfield
-            // This is causing a runtime warning! You are deleting this guy when he is running...
-//            state.ingredients.remove(at: i)
-//            let sOld = IngredientReducer.State(
-//              id: .init(),
-//              focusedField: nil,
-//              ingredient: ingredient.ingredient,
-//              ingredientAmountString: ingredient.ingredientAmountString,
-//              isComplete: ingredient.isComplete
-//            )
-//            state.ingredients.insert(sOld, at: i)
             state.ingredients[id: id]?.focusedField = nil
             
             // Insert a new ingredient above or below it.
@@ -197,8 +190,26 @@ struct IngredientSectionReducer: ReducerProtocol  {
         return .none
         
       case let .ingredientSectionNameEdited(newName):
-        state.name = newName
-        return .none
+        if state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+          return .none
+        }
+        // doesnt check if empty string
+        let didEnter = didEnter(state.name, newName)
+        switch didEnter {
+        case .didNotSatisfy:
+          state.name = newName
+          return .none
+        case .beginning, .end:
+          state.focusedField = nil
+          if state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return .send(.delegate(.deleteSectionButtonTapped))
+          }
+          else {
+            return .none
+          }
+
+        }
         
       case .ingredientSectionNameTextFieldSubmitted:
         state.focusedField = nil
@@ -206,18 +217,25 @@ struct IngredientSectionReducer: ReducerProtocol  {
         
       case let .rowTapped(id):
         
+        
         // Set the current selected row isSelected value to false.
         // This somehow causes an issue where all the focus in the section dies
         // and you have to click again...
         // Why?
         // We should be unfocusing the original one then setting focus to the newly activated one...
         // Unless this reducer runs twice
-        withAnimation {
-//          if case let .row(currId) = state.focusedField {
-//            state.ingredients[id: currId]?.focusedField = nil
-//          }
-          state.focusedField = .row(id)
-        }
+          if case let .row(currId) = state.focusedField {
+            if currId == id { return .none }
+            state.ingredients[id: currId]?.focusedField = nil
+            return .run { send in
+              try await clock.sleep(for: .microseconds(10))
+              await send(.setFocusedField(.row(id)))
+            }
+          }
+          return .none
+        
+      case let .setFocusedField(newFocusedField):
+        state.focusedField = newFocusedField
         return .none
         
       case .delegate, .binding:

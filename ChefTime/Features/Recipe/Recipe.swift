@@ -29,11 +29,11 @@ struct RecipeView: View {
           ))
           .padding([.horizontal])
           
-          StepsListView(store: store.scope(
-            state: \.steps,
-            action: RecipeReducer.Action.steps
-          ))
-          .padding([.horizontal])
+//          StepsListView(store: store.scope(
+//            state: \.steps,
+//            action: RecipeReducer.Action.steps
+//          ))
+//          .padding([.horizontal])
         }
         .navigationTitle(viewStore.binding(
           get:  \.recipe.name,
