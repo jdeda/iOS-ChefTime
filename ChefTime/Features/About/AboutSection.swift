@@ -23,22 +23,22 @@ struct AboutSection: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-        TextField(
-          "...",
-          text: viewStore.binding(
-            get: \.aboutSection.description,
-            send: { .aboutSectionDescriptionEdited($0) }
-          ),
-          axis: .vertical
-        )
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
-        .focused($focusedField, equals: .name)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+          TextField(
+            "...",
+            text: viewStore.binding(
+              get: \.aboutSection.description,
+              send: { .aboutSectionDescriptionEdited($0) }
+            ),
+            axis: .vertical
+          )
+          .focused($focusedField, equals: .description)
+          .foregroundColor(.primary)
+          .accentColor(.accentColor)
+          .frame(alignment: .leading)
+          .multilineTextAlignment(.leading)
+          .lineLimit(.max)
+          .autocapitalization(.none)
+          .autocorrectionDisabled()
       } label: {
         // TODO: An alert might feel nicer here to restore the DisclosureGroup collapse UX.
         TextField(
@@ -49,6 +49,7 @@ struct AboutSection: View {
           ),
           axis: .vertical
         )
+        .focused($focusedField, equals: .name)
         .font(.title3)
         .fontWeight(.bold)
         .foregroundColor(.primary)
@@ -56,7 +57,6 @@ struct AboutSection: View {
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
         .lineLimit(.max)
-        .focused($focusedField, equals: .name)
         .autocapitalization(.none)
         .autocorrectionDisabled()
       }

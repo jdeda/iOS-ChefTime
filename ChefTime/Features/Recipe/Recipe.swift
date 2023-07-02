@@ -144,26 +144,26 @@ extension RecipeReducer {
 
 struct RecipeView_Previews: PreviewProvider {
   static var previews: some View {
-    // Long
-    RecipeView(store: .init(
-      initialState: RecipeReducer.State(
-        recipe: .longMock
-      ),
-      reducer: RecipeReducer.init,
-      withDependencies: { _ in
-        // TODO:
-      }
-    ))
-    // Short
-    RecipeView(store: .init(
-      initialState: RecipeReducer.State(
-        recipe: .shortMock
-      ),
-      reducer: RecipeReducer.init,
-      withDependencies: { _ in
-        // TODO:
-      }
-    ))
+//    // Long
+//    RecipeView(store: .init(
+//      initialState: RecipeReducer.State(
+//        recipe: .longMock
+//      ),
+//      reducer: RecipeReducer.init,
+//      withDependencies: { _ in
+//        // TODO:
+//      }
+//    ))
+//    // Short
+//    RecipeView(store: .init(
+//      initialState: RecipeReducer.State(
+//        recipe: .shortMock
+//      ),
+//      reducer: RecipeReducer.init,
+//      withDependencies: { _ in
+//        // TODO:
+//      }
+//    ))
     // Empty
     RecipeView(store: .init(
       initialState: RecipeReducer.State(

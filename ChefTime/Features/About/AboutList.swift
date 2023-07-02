@@ -94,6 +94,7 @@ struct AboutListReducer: ReducerProtocol {
             return .none
             
           case let .insertSection(aboveBelow):
+            // TODO: Focus is  not working properly. It cant seem to figure diff b/w .name and .description
             guard let i = state.aboutSections.index(id: id)
             else { return .none }
             let newSection = AboutSectionReducer.State(
@@ -106,7 +107,7 @@ struct AboutListReducer: ReducerProtocol {
             case .above: state.aboutSections.insert(newSection, at: i)
             case .below: state.aboutSections.insert(newSection, at: i + 1)
             }
-            //            state.focusedField = .row(newSection.id)
+            state.focusedField = .row(newSection.id)
             return .none
           }
         default:
