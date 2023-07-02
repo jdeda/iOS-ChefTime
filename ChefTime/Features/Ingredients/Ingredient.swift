@@ -142,7 +142,6 @@ struct IngredientReducer: ReducerProtocol {
   @Dependency(\.continuousClock) var clock
   
   private enum IngredientNameEditedID: Hashable { case timer }
-
   
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
@@ -166,13 +165,8 @@ struct IngredientReducer: ReducerProtocol {
           // Keep the original string because only trailing or leading spaces were added.
           state.ingredient.name = oldName
           state.focusedField = nil
-          /// MARK: - There is a strange bug where sending this action without
-          /// briefly waiting, for even a nanosecond prevents focus state,
-          /// animations, and possibly even more from working as expected.
-          /// This only happens when performing additional logic in a TextField binding
-          /// This little sleep saves the day, and may only take a nanosecond. It
-          /// somehow allows the logic run within the TextField binding to work
-          /// properly amogst this reducer and parent reducers and views.
+          /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
+          /// extremely brief moment, animations and focus does not work properly, This very short sleep fixes the problem.
           return .run { send in
             try await self.clock.sleep(for: .microseconds(10))
             await send(.delegate(.insertIngredient(.above)), animation: .default)
@@ -213,8 +207,9 @@ struct IngredientReducer: ReducerProtocol {
           return .none
         case .measure:
           state.focusedField = nil
-//          return .send(.delegate(.insertIngredient(.below)), animation: .default)
           return .run { send in
+            /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
+            /// extremely brief moment, the focus does not focus, This very short sleep fixes the problem.
             try await self.clock.sleep(for: .microseconds(10))
             await send(.delegate(.insertIngredient(.below)), animation: .default)
           }
