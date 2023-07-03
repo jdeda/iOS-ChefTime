@@ -1,7 +1,11 @@
 import SwiftUI
 
 // MARK: - Possible to make this a unique Reducer?
+// i.e., How could we create a generic reducer,
+// where we can inject specific actions into specific reducer case?
 // TODO: Not really needed here anymore, should be moved into RecipeList
+
+
 struct IngredientStepper: View {
   @Binding var scale: Double
   

@@ -271,6 +271,7 @@ private struct NumbersOnlyViewModifier: ViewModifier {
       }
   }
 }
+
 // MARK: - NumbersOnlyViewModifierExtension (Private)
 private extension View {
   func numbersOnly(_ text: Binding<String>, includeDecimal: Bool = false) -> some View {
@@ -281,6 +282,7 @@ private extension View {
 // MARK: - IngredientContextMenuPreview
 struct IngredientContextMenuPreview: View {
   let state: IngredientReducer.State
+  let maxW: CGFloat = UIScreen.main.bounds.width * 0.90
   
   var body: some View {
     HStack(alignment: .top) {

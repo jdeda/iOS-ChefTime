@@ -3,14 +3,13 @@ import ComposableArchitecture
 import Tagged
 import Combine
 
-// TODO: ingredient textfield name moves when expansions change, this happens almost every time with multi-line text
-// TODO: Scale causes ugly refres
-
 // TODO: - Bug - if focused on a row, then collapse, then click a row again, dupe buttons appear...
 // but sometimes if you tap another row, the dupe goes away, this does not work all the time
 // this is all happening probably because we didn't nil out the focus state
 
-// TODO: Make sure all accent colors are lightened up
+// TODO: Make sure all sections have a dismiss button
+// TODO: Sectin empty and pressed enter create element.
+// TODO: Fix this focus bug
 
 // MARK: - View
 struct AboutSection: View {
@@ -23,22 +22,34 @@ struct AboutSection: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-          TextField(
-            "...",
-            text: viewStore.binding(
-              get: \.aboutSection.description,
-              send: { .aboutSectionDescriptionEdited($0) }
-            ),
-            axis: .vertical
-          )
-          .focused($focusedField, equals: .description)
-          .foregroundColor(.primary)
-          .accentColor(.accentColor)
-          .frame(alignment: .leading)
-          .multilineTextAlignment(.leading)
-          .lineLimit(.max)
-          .autocapitalization(.none)
-          .autocorrectionDisabled()
+        TextField(
+          "...",
+          text: viewStore.binding(
+            get: \.aboutSection.description,
+            send: { .aboutSectionDescriptionEdited($0) }
+          ),
+          axis: .vertical
+        )
+        .focused($focusedField, equals: .description)
+        .foregroundColor(.primary)
+        .accentColor(.accentColor)
+        .frame(alignment: .leading)
+        .multilineTextAlignment(.leading)
+        .lineLimit(.max)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+        .toolbar {
+          if viewStore.focusedField == .description {
+            ToolbarItemGroup(placement: .keyboard) {
+              Spacer()
+              Button {
+                viewStore.send(.keyboardDoneButtonTapped)
+              } label: {
+                Text("done")
+              }
+            }
+          }
+        }
       } label: {
         // TODO: An alert might feel nicer here to restore the DisclosureGroup collapse UX.
         TextField(
@@ -59,6 +70,18 @@ struct AboutSection: View {
         .lineLimit(.max)
         .autocapitalization(.none)
         .autocorrectionDisabled()
+        .toolbar {
+          if viewStore.focusedField == .name {
+            ToolbarItemGroup(placement: .keyboard) {
+              Spacer()
+              Button {
+                viewStore.send(.keyboardDoneButtonTapped)
+              } label: {
+                Text("done")
+              }
+            }
+          }
+        }
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
@@ -116,6 +139,7 @@ struct AboutSectionReducer: ReducerProtocol  {
     case isExpandedButtonToggled
     case aboutSectionNameEdited(String)
     case aboutSectionDescriptionEdited(String)
+    case keyboardDoneButtonTapped
     case delegate(DelegateAction)
   }
   
@@ -136,9 +160,6 @@ struct AboutSectionReducer: ReducerProtocol  {
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
         }
-        // TODO: Make this .trimmingWhiteCharacter thing an extension thats alot shorter as its used a lot:
-        // myString.trimmedWhitespacesAndNewlines.isEmpty
-        // myString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         let didEnter = DidEnter.didEnter(oldName, newName)
         switch didEnter {
         case .didNotSatisfy:
@@ -155,28 +176,11 @@ struct AboutSectionReducer: ReducerProtocol  {
         }
         
       case let .aboutSectionDescriptionEdited(newDescription):
-        let oldDescription = state.aboutSection.description
-        if oldDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            newDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-          return .none
-        }
-        // TODO: Make this .trimmingWhiteCharacter thing an extension thats alot shorter as its used a lot:
-        // myString.trimmedWhitespacesAndNewlines.isEmpty
-        // myString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        let didEnter = DidEnter.didEnter(oldDescription, newDescription)
-        switch didEnter {
-        case .didNotSatisfy:
-          state.aboutSection.description = newDescription
-          return .none
-        case .leading, .trailing:
-          state.focusedField = nil
-          if oldDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return .send(.delegate(.deleteSectionButtonTapped))
-          }
-          else {
-            return .none
-          }
-        }
+        state.aboutSection.description = newDescription
+        return .none
+        
+      case .keyboardDoneButtonTapped:
+        state.focusedField = nil
         return .none
         
       case .delegate, .binding:
@@ -211,26 +215,26 @@ private struct AboutSectionContextMenuPreview: View {
   var body: some View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
       Text(!state.aboutSection.description.isEmpty ? state.aboutSection.description : "...")
-          .foregroundColor(.primary)
-          .accentColor(.accentColor)
-          .frame(alignment: .leading)
-          .multilineTextAlignment(.leading)
-          .lineLimit(4)
-          .autocapitalization(.none)
-          .autocorrectionDisabled()
-      } label: {
-        Text(!state.aboutSection.name.isEmpty ? state.aboutSection.name : "Untitled About Section")
+        .lineLimit(4)
+        .foregroundColor(.primary)
+        .accentColor(.accentColor)
+        .frame(alignment: .leading)
+        .multilineTextAlignment(.leading)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+    } label: {
+      Text(!state.aboutSection.name.isEmpty ? state.aboutSection.name : "Untitled About Section")
+        .lineLimit(2)
         .font(.title3)
         .fontWeight(.bold)
         .foregroundColor(.primary)
         .accentColor(.accentColor)
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
-        .lineLimit(1)
         .autocapitalization(.none)
         .autocorrectionDisabled()
-      }
-      .accentColor(.primary)
+    }
+    .accentColor(.primary)
   }
 }
 

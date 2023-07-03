@@ -1,9 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-// TODO: Section deletion has no animation
-// TODO: Section addition has no animation
-// TODO: ContextMenu Previews need a look
 // MARK: - IngredientsListView
 struct IngredientListView: View {
   let store: StoreOf<IngredientsListReducer>
@@ -54,25 +51,28 @@ struct IngredientListView: View {
 // MARK: - IngredientsListReducer
 struct IngredientsListReducer: ReducerProtocol {
   struct State: Equatable {
+    
     var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
     var isExpanded: Bool
     var scale: Double = 1.0
     @BindingState var focusedField: FocusField? = nil
-
+    
     init(
       recipe: Recipe,
       isExpanded: Bool,
       childrenIsExpanded: Bool
     ) {
+      @Dependency(\.uuid) var uuid
       self.ingredients = .init(uniqueElements: recipe.ingredientSections.map({
         .init(
-          id: .init(),
+          id: .init(rawValue: uuid()),
           ingredientSection: .init(
-            id: .init(),
+            id: .init(rawValue: uuid()),
             name: $0.name,
             ingredients: $0.ingredients
           ),
-          isExpanded: childrenIsExpanded
+          isExpanded: childrenIsExpanded,
+          focusedField: nil
         )
       }))
       self.scale = 1.0
@@ -88,6 +88,8 @@ struct IngredientsListReducer: ReducerProtocol {
     case delegate(DelegateAction)
   }
   
+  @Dependency(\.uuid) var uuid
+    
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
     Reduce { state, action in
@@ -104,9 +106,9 @@ struct IngredientsListReducer: ReducerProtocol {
             guard let i = state.ingredients.index(id: id)
             else { return .none }
             let newSection = IngredientSectionReducer.State(
-              id: .init(),
+              id: .init(rawValue: uuid()),
               ingredientSection: .init(
-                id: .init(),
+                id: .init(rawValue: uuid()),
                 name: "",
                 ingredients: []
               ),
@@ -126,6 +128,12 @@ struct IngredientsListReducer: ReducerProtocol {
         
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
+        state.ingredients.ids.forEach { id1 in
+          state.ingredients[id: id1]?.focusedField = nil
+          state.ingredients[id: id1]?.ingredients.ids.forEach { id2 in
+            state.ingredients[id: id1]?.ingredients[id: id2]?.focusedField = nil
+          }
+        }
         return .none
         
       case let .scaleStepperButtonTapped(newValue):
@@ -200,10 +208,7 @@ struct IngredientList_Previews: PreviewProvider {
             isExpanded: true,
             childrenIsExpanded: true
           ),
-          reducer: IngredientsListReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: IngredientsListReducer.init
         ))
         .padding()
       }

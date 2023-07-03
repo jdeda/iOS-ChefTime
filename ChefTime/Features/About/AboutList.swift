@@ -3,9 +3,8 @@ import ComposableArchitecture
 
 // TODO: Section deletion has no animation
 // TODO: Section addition has no animation
-// TODO: ContextMenu Previews need a look
 // TODO: Make sure all expansions are matching what you want for the app
-// TODO: Make TextField view with reducer to remove redundant code, maybe even possible for disclosure group...?
+
 // MARK: - AboutListView
 struct AboutListView: View {
   let store: StoreOf<AboutListReducer>
@@ -63,9 +62,11 @@ struct AboutListReducer: ReducerProtocol {
       isExpanded: Bool,
       childrenIsExpanded: Bool
     ) {
+      @Dependency(\.uuid) var uuid
+      
       self.aboutSections = .init(uniqueElements: recipe.aboutSections.map {
         AboutSectionReducer.State(
-          id: .init(),
+          id: .init(rawValue: uuid()),
           aboutSection: $0,
           isExpanded: isExpanded
         )
@@ -80,6 +81,8 @@ struct AboutListReducer: ReducerProtocol {
     case isExpandedButtonToggled
     case delegate(DelegateAction)
   }
+  
+  @Dependency(\.uuid) var uuid
   
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
@@ -98,8 +101,8 @@ struct AboutListReducer: ReducerProtocol {
             guard let i = state.aboutSections.index(id: id)
             else { return .none }
             let newSection = AboutSectionReducer.State(
-              id: .init(),
-              aboutSection: .init(id: .init(), name: "", description: ""), // TODO: Make sure all these inits matchup even lie ingredients
+              id: .init(rawValue: uuid()),
+              aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""), // TODO: Make sure all these inits matchup even lie ingredients
               isExpanded: true,
               focusedField: .name
             )
@@ -116,6 +119,10 @@ struct AboutListReducer: ReducerProtocol {
         
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
+        state.focusedField = nil
+        state.aboutSections.ids.forEach { id1 in
+          state.aboutSections[id: id1]?.focusedField = nil
+        }
         return .none
         
       case .delegate, .binding:

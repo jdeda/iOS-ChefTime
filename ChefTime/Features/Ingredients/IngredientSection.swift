@@ -3,14 +3,12 @@ import ComposableArchitecture
 import Tagged
 import Combine
 
-// TODO: ingredient textfield name moves when expansions change, this happens almost every time with multi-line text
-// TODO: Scale causes ugly refres
-
 // TODO: - Bug - if focused on a row, then collapse, then click a row again, dupe buttons appear...
 // but sometimes if you tap another row, the dupe goes away, this does not work all the time
 // this is all happening probably because we didn't nil out the focus state
 
 // TODO: If the section is empty and they type a name and press enter, create a new element and focus onto it.
+// TODO: Fix the weird textfield behavior with spaces
 
 // MARK: - View
 struct IngredientSection: View {
@@ -58,8 +56,17 @@ struct IngredientSection: View {
         .focused($focusedField, equals: .name)
         .autocapitalization(.none)
         .autocorrectionDisabled()
-        .onSubmit {
-          viewStore.send(.ingredientSectionNameTextFieldSubmitted)
+        .toolbar {
+          if viewStore.focusedField == .name {
+            ToolbarItemGroup(placement: .keyboard) {
+              Spacer()
+              Button {
+                viewStore.send(.ingredientSectionNameDoneButtonTapped)
+              } label: {
+                Text("done")
+              }
+            }
+          }
         }
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
@@ -108,11 +115,12 @@ struct IngredientSectionReducer: ReducerProtocol  {
       isExpanded: Bool,
       focusedField: FocusField? = nil
     ) {
+      @Dependency(\.uuid) var uuid
       self.id = id
       self.name = ingredientSection.name
       self.ingredients = .init(uniqueElements: ingredientSection.ingredients.map({
         .init(
-          id: .init(),
+          id: .init(rawValue: uuid()),
           ingredient: $0,
           ingredientAmountString: String($0.amount)
         )
@@ -122,12 +130,14 @@ struct IngredientSectionReducer: ReducerProtocol  {
     }
   }
   
+  @Dependency(\.uuid) var uuid
+  
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
     case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
-    case ingredientSectionNameTextFieldSubmitted
+    case ingredientSectionNameDoneButtonTapped
     case rowTapped(IngredientReducer.State.ID)
     case setFocusedField(FocusField)
     case delegate(DelegateAction)
@@ -153,10 +163,10 @@ struct IngredientSectionReducer: ReducerProtocol  {
             else { return .none }
             state.ingredients[id: id]?.focusedField = nil
             let s = IngredientReducer.State.init(
-              id: .init(),
+              id: .init(rawValue: uuid()),
               focusedField: .name,
               ingredient: .init(
-                id: .init(),
+                id: .init(rawValue: uuid()),
                 name: "",
                 amount: 0.0,
                 measure: ""
@@ -201,7 +211,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
           
         }
         
-      case .ingredientSectionNameTextFieldSubmitted:
+      case .ingredientSectionNameDoneButtonTapped:
         state.focusedField = nil
         return .none
         
@@ -258,12 +268,13 @@ private struct IngredientSectionContextMenuPreview: View {
   
   var body: some View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
-      ForEach(state.ingredients.prefix(5)) { ingredient in
+      ForEach(state.ingredients.prefix(4)) { ingredient in
         IngredientContextMenuPreview(state: ingredient)
         Divider()
       }
     } label: {
       Text(!state.name.isEmpty ? state.name : "Untitled Ingredient Section")
+        .lineLimit(2)
         .font(.title3)
         .fontWeight(.bold)
         .foregroundColor(.primary)

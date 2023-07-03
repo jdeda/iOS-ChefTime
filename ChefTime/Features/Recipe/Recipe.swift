@@ -117,6 +117,7 @@ struct RecipeReducer: ReducerProtocol {
         state.about.aboutSections.ids.forEach {
           state.about.aboutSections[id: $0]?.isExpanded = expand
         }
+        // TODO: May need to worry about focus state
         
         state.ingredients.isExpanded = expand
         state.ingredients.ingredients.ids.forEach {
