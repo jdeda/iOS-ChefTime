@@ -1,10 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-// TODO: Section deletion has no animation
-// TODO: Section addition has no animation
-// TODO: Make sure all expansions are matching what you want for the app
-
 // MARK: - AboutListView
 struct AboutListView: View {
   let store: StoreOf<AboutListReducer>
@@ -26,7 +22,7 @@ struct AboutListView: View {
             .accentColor(.accentColor)
           
           if ViewStore(childStore).isExpanded {
-            Rectangle()
+            Rectangle() // This serves a spacer()
               .fill(.clear)
               .frame(height: 5)
           }
@@ -97,19 +93,15 @@ struct AboutListReducer: ReducerProtocol {
             return .none
             
           case let .insertSection(aboveBelow):
-            // TODO: Focus is  not working properly. It cant seem to figure diff b/w .name and .description
-            guard let i = state.aboutSections.index(id: id)
-            else { return .none }
+            // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
+            guard let i = state.aboutSections.index(id: id) else { return .none }
             let newSection = AboutSectionReducer.State(
               id: .init(rawValue: uuid()),
-              aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""), // TODO: Make sure all these inits matchup even lie ingredients
+              aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""),
               isExpanded: true,
               focusedField: .name
             )
-            switch aboveBelow {
-            case .above: state.aboutSections.insert(newSection, at: i)
-            case .below: state.aboutSections.insert(newSection, at: i + 1)
-            }
+            state.aboutSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
             state.focusedField = .row(newSection.id)
             return .none
           }

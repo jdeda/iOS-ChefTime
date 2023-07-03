@@ -26,7 +26,7 @@ struct IngredientListView: View {
             .focused($focusedField, equals: .row(ViewStore(childStore).id))
           
           if ViewStore(childStore).isExpanded {
-            Rectangle()
+            Rectangle() // This serves a spacer()
               .fill(.clear)
               .frame(height: 5)
           }
