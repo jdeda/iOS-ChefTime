@@ -7,7 +7,6 @@ import Combine
 // but sometimes if you tap another row, the dupe goes away, this does not work all the time
 // this is all happening probably because we didn't nil out the focus state
 
-// TODO: If the section is empty and they type a name and press enter, create a new element and focus onto it.
 // TODO: Fix the weird textfield behavior with spaces
 
 // MARK: - View
@@ -138,12 +137,15 @@ struct IngredientSectionReducer: ReducerProtocol  {
     case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
     case ingredientSectionNameDoneButtonTapped
+    case addIngredient
     case rowTapped(IngredientReducer.State.ID)
     case setFocusedField(FocusField)
     case delegate(DelegateAction)
   }
   
   @Dependency(\.continuousClock) var clock
+  
+  private enum AddIngredientID: Hashable { case timer }
   
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
@@ -202,13 +204,20 @@ struct IngredientSectionReducer: ReducerProtocol  {
           return .none
         case .leading, .trailing:
           state.focusedField = nil
-          if state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return .send(.delegate(.deleteSectionButtonTapped))
-          }
+          if !state.ingredients.isEmpty { return .none }
           else {
-            return .none
+            /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
+            /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
+            /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
+            /// This effect is also debounced to prevent multi additons as this action may be called from the a TextField
+            /// which always emits twice when interacted with, which is a SwiftUI behavior:
+            return .run { send in
+              try await self.clock.sleep(for: .microseconds(10))
+              await send(.addIngredient, animation: .default)
+            }
+            .cancellable(id: AddIngredientID.timer, cancelInFlight: true)
+
           }
-          
         }
         
       case .ingredientSectionNameDoneButtonTapped:
@@ -232,6 +241,18 @@ struct IngredientSectionReducer: ReducerProtocol  {
         
       case let .setFocusedField(newFocusedField):
         state.focusedField = newFocusedField
+        return .none
+        
+      case .addIngredient:
+        let s = IngredientReducer.State(
+          id: .init(rawValue: uuid()),
+          focusedField: .name,
+          ingredient: .init(id: .init(rawValue: uuid()), name: "", amount: 0.0, measure: ""),
+          ingredientAmountString: "",
+          isComplete: false
+        )
+        state.ingredients.append(s)
+        state.focusedField = .row(s.id)
         return .none
         
       case .delegate, .binding:
