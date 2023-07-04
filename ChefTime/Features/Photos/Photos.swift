@@ -17,28 +17,22 @@ struct PhotosView: View {
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
       if viewStore.photos.isEmpty {
-        ZStack {
-//          RoundedRectangle(cornerRadius: 15)
-//              .stroke(.secondary, lineWidth: 1)
-//              .padding(1)
-          
           VStack {
             Image(systemName: "photo.stack")
-//            Image(systemName: "camera.badge.ellipsis")
-//            Image(systemName: "camera.fill")
               .resizable()
               .scaledToFit()
-              .frame(width: 100, height: 100)
+              .frame(width: 75, height: 75)
               .clipped()
               .foregroundColor(.secondary)
               .padding()
             Text("Add Images")
+              .fontWeight(.bold) // TODO: To be or not to be bold...
               .foregroundColor(.secondary)
           }
-        }
         .frame(width: maxW, height: maxW)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 15))
+        .accentColor(.accentColor)
       }
       else {
         ImageSliderView(imageDatas: viewStore.photos)
