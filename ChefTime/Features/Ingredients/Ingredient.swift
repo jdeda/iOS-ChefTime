@@ -227,6 +227,7 @@ struct IngredientReducer: ReducerProtocol {
         return .none
       }
     }
+    ._printChanges()
   }
 }
 

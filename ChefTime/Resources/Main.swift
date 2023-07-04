@@ -45,6 +45,7 @@ struct ChefTimeApp: App {
           // TODO:
         }
       ))
+//      FeatureView(store: .init(initialState: .init(), reducer: FeatureReducer.init()))
     }
   }
 }

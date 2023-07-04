@@ -225,17 +225,6 @@ struct IngredientSectionReducer: ReducerProtocol  {
         return .none
         
       case let .rowTapped(id):
-        // TODO: This sleep causes keyboard to briefly dismiss which is ugly and makes switching between rows a bit slow.
-        // Must nil current focus and set new row focus. Must wait a very briefly time to switch focus or focus does
-        // not work properly, i.e. focus doesnt even switch in the UI so you have to tap the row again that you just tapped
-        //        if case let .row(currId) = state.focusedField {
-        //          if currId == id { return .none }
-        //          state.ingredients[id: currId]?.focusedField = nil
-        //          return .run { send in
-        //            try await clock.sleep(for: .microseconds(10))
-        //            await send(.setFocusedField(.row(id)))
-        //          }
-        //        }
         state.focusedField = .row(id)
         return .none
         
@@ -262,7 +251,6 @@ struct IngredientSectionReducer: ReducerProtocol  {
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientReducer()
     }
-    ._printChanges()
   }
 }
 

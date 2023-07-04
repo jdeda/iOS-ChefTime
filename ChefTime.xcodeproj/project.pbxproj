@@ -19,6 +19,7 @@
 		977633D82A51B8FA009FD90C /* RecipeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D72A51B8F9009FD90C /* RecipeModel.swift */; };
 		977633DA2A51C4B0009FD90C /* AboutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D92A51C4B0009FD90C /* AboutSection.swift */; };
 		977633DC2A51C987009FD90C /* AboutList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633DB2A51C987009FD90C /* AboutList.swift */; };
+		977633E22A533717009FD90C /* Feature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633E12A533717009FD90C /* Feature.swift */; };
 		9782405B2A3B410000CAC459 /* IngredientList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9782405A2A3B410000CAC459 /* IngredientList.swift */; };
 		97AD13B82A2E7392002FCE30 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B72A2E7392002FCE30 /* Main.swift */; };
 		97AD13BC2A2E7394002FCE30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BB2A2E7394002FCE30 /* Assets.xcassets */; };
@@ -56,6 +57,7 @@
 		977633D72A51B8F9009FD90C /* RecipeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeModel.swift; sourceTree = "<group>"; };
 		977633D92A51C4B0009FD90C /* AboutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSection.swift; sourceTree = "<group>"; };
 		977633DB2A51C987009FD90C /* AboutList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutList.swift; sourceTree = "<group>"; };
+		977633E12A533717009FD90C /* Feature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feature.swift; sourceTree = "<group>"; };
 		9782405A2A3B410000CAC459 /* IngredientList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientList.swift; sourceTree = "<group>"; };
 		97AD13B42A2E7392002FCE30 /* ChefTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChefTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AD13B72A2E7392002FCE30 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
@@ -206,11 +208,12 @@
 		97AD13B62A2E7392002FCE30 /* ChefTime */ = {
 			isa = PBXGroup;
 			children = (
+				977633E12A533717009FD90C /* Feature.swift */,
+				975A4EF52A44C31700C9509A /* SwiftUI */,
 				975A4EF22A44C30500C9509A /* Features */,
 				975A4EFC2A44C3C400C9509A /* Model */,
 				975A4EF32A44C30B00C9509A /* Dependencies */,
 				975A4EF42A44C31000C9509A /* Resources */,
-				975A4EF52A44C31700C9509A /* SwiftUI */,
 			);
 			path = ChefTime;
 			sourceTree = "<group>";
@@ -368,6 +371,7 @@
 				97AD13C62A2E73C8002FCE30 /* AppReducer.swift in Sources */,
 				977633DA2A51C4B0009FD90C /* AboutSection.swift in Sources */,
 				97AD13B82A2E7392002FCE30 /* Main.swift in Sources */,
+				977633E22A533717009FD90C /* Feature.swift in Sources */,
 				975A4EEF2A44C23800C9509A /* Ingredient.swift in Sources */,
 				97CC0C112A3A1F6800E311C9 /* StepView.swift in Sources */,
 				97E08CD92A3B8560003A6232 /* StepsListPreview.swift in Sources */,

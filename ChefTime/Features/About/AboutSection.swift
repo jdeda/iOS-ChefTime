@@ -142,9 +142,7 @@ struct AboutSectionReducer: ReducerProtocol  {
     case keyboardDoneButtonTapped
     case delegate(DelegateAction)
   }
-  
-  @Dependency(\.continuousClock) var clock
-  
+    
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
     Reduce { state, action in
@@ -167,10 +165,9 @@ struct AboutSectionReducer: ReducerProtocol  {
           return .none
         case .leading, .trailing:
           state.focusedField = nil
-          if oldName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return .send(.delegate(.deleteSectionButtonTapped))
-          }
+          if !state.aboutSection.description.isEmpty { return .none }
           else {
+            state.focusedField = .description
             return .none
           }
         }
