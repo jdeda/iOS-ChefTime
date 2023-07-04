@@ -12,27 +12,53 @@ struct IngredientListView: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-        IngredientStepper(scale: viewStore.binding(
-          get: { $0.scale },
-          send: { .scaleStepperButtonTapped($0) }
-        ))
-        
-        ForEachStore(store.scope(
-          state: \.ingredients,
-          action: IngredientsListReducer.Action.ingredient
-        )) { childStore in
-          IngredientSection(store: childStore)
-            .contentShape(Rectangle())
-            .focused($focusedField, equals: .row(ViewStore(childStore).id))
-          
-          if ViewStore(childStore).isExpanded {
-            Rectangle() // This serves a spacer()
-              .fill(.clear)
-              .frame(height: 5)
+        if viewStore.ingredients.isEmpty {
+          HStack {
+            TextField(
+              "Untitled Ingredient Section",
+              text: .constant(""),
+              axis: .vertical
+            )
+            .font(.title3)
+            .fontWeight(.bold)
+            .foregroundColor(.primary)
+            .accentColor(.accentColor)
+            .frame(alignment: .leading)
+            .multilineTextAlignment(.leading)
+            .lineLimit(.max)
+            .autocapitalization(.none)
+            .autocorrectionDisabled()
+            Spacer()
+            Image(systemName: "plus")
           }
+          .foregroundColor(.secondary)
+          .onTapGesture {
+            viewStore.send(.addSectionButtonTapped, animation: .default)
+          }
+        }
+        else {
+          IngredientStepper(scale: viewStore.binding(
+            get: { $0.scale },
+            send: { .scaleStepperButtonTapped($0) }
+          ))
           
-          if !ViewStore(childStore).isExpanded {
-            Divider()
+          ForEachStore(store.scope(
+            state: \.ingredients,
+            action: IngredientsListReducer.Action.ingredient
+          )) { childStore in
+            IngredientSection(store: childStore)
+              .contentShape(Rectangle())
+              .focused($focusedField, equals: .row(ViewStore(childStore).id))
+            
+            if ViewStore(childStore).isExpanded {
+              Rectangle() // This serves a spacer()
+                .fill(.clear)
+                .frame(height: 5)
+            }
+            
+            if !ViewStore(childStore).isExpanded {
+              Divider()
+            }
           }
         }
       }
@@ -41,9 +67,11 @@ struct IngredientListView: View {
           .font(.title)
           .fontWeight(.bold)
           .foregroundColor(.primary)
+        Spacer()
       }
       .accentColor(.primary)
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
     }
   }
 }
@@ -85,6 +113,7 @@ struct IngredientsListReducer: ReducerProtocol {
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case isExpandedButtonToggled
     case scaleStepperButtonTapped(Double)
+    case addSectionButtonTapped
     case delegate(DelegateAction)
   }
   
@@ -172,6 +201,16 @@ struct IngredientsListReducer: ReducerProtocol {
         }
         return .none
         
+      case .addSectionButtonTapped:
+        let s = IngredientSectionReducer.State(
+          id: .init(rawValue: uuid()),
+          ingredientSection: .init(id: .init(rawValue: uuid()), name: "", ingredients: []),
+          isExpanded: true,
+          focusedField: .name
+        )
+        state.ingredients.append(s)
+        return .none
+        
       case .delegate, .binding:
         return .none
         
@@ -204,7 +243,7 @@ struct IngredientList_Previews: PreviewProvider {
       ScrollView {
         IngredientListView(store: .init(
           initialState: .init(
-            recipe: Recipe.longMock,
+            recipe: Recipe.empty,
             isExpanded: true,
             childrenIsExpanded: true
           ),

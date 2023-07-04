@@ -5,6 +5,7 @@ import ComposableArchitecture
 struct AboutListView: View {
   let store: StoreOf<AboutListReducer>
   @FocusState private var focusedField: AboutListReducer.FocusField?
+  // TODO: If they have a section with an empty name and content and click done just delete it...
   
   var body: some View {
     WithViewStore(store) { viewStore in
@@ -12,23 +13,49 @@ struct AboutListView: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-        ForEachStore(store.scope(
-          state: \.aboutSections,
-          action: AboutListReducer.Action.aboutSection
-        )) { childStore in
-          AboutSection(store: childStore)
-            .contentShape(Rectangle())
-            .focused($focusedField, equals: .row(ViewStore(childStore).id))
+        if viewStore.aboutSections.isEmpty {
+          HStack {
+            TextField(
+              "Untitled About Section",
+              text: .constant(""),
+              axis: .vertical
+            )
+            .font(.title3)
+            .fontWeight(.bold)
+            .foregroundColor(.primary)
             .accentColor(.accentColor)
-          
-          if ViewStore(childStore).isExpanded {
-            Rectangle() // This serves a spacer()
-              .fill(.clear)
-              .frame(height: 5)
+            .frame(alignment: .leading)
+            .multilineTextAlignment(.leading)
+            .lineLimit(.max)
+            .autocapitalization(.none)
+            .autocorrectionDisabled()
+            Spacer()
+            Image(systemName: "plus")
           }
-          
-          if !ViewStore(childStore).isExpanded {
-            Divider()
+          .foregroundColor(.secondary)
+          .onTapGesture {
+            viewStore.send(.addSectionButtonTapped, animation: .default)
+          }
+        }
+        else {
+          ForEachStore(store.scope(
+            state: \.aboutSections,
+            action: AboutListReducer.Action.aboutSection
+          )) { childStore in
+            AboutSection(store: childStore)
+              .contentShape(Rectangle())
+              .focused($focusedField, equals: .row(ViewStore(childStore).id))
+              .accentColor(.accentColor)
+            
+            if ViewStore(childStore).isExpanded {
+              Rectangle() // This serves a spacer()
+                .fill(.clear)
+                .frame(height: 5)
+            }
+            
+            if !ViewStore(childStore).isExpanded {
+              Divider()
+            }
           }
         }
       }
@@ -75,6 +102,7 @@ struct AboutListReducer: ReducerProtocol {
     case binding(BindingAction<State>)
     case aboutSection(AboutSectionReducer.State.ID, AboutSectionReducer.Action)
     case isExpandedButtonToggled
+    case addSectionButtonTapped
     case delegate(DelegateAction)
   }
   
@@ -117,6 +145,16 @@ struct AboutListReducer: ReducerProtocol {
         }
         return .none
         
+      case .addSectionButtonTapped:
+        let s = AboutSectionReducer.State.init(
+          id: .init(rawValue: uuid()),
+          aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""),
+          isExpanded: true,
+          focusedField: .name
+        )
+        state.aboutSections.append(s)
+        return .none
+        
       case .delegate, .binding:
         return .none
         
@@ -149,7 +187,7 @@ struct AboutList_Previews: PreviewProvider {
       ScrollView {
         AboutListView(store: .init(
           initialState: .init(
-            recipe: Recipe.longMock,
+            recipe: Recipe.empty,
             isExpanded: true,
             childrenIsExpanded: true
           ),

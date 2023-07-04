@@ -38,7 +38,7 @@ struct ChefTimeApp: App {
     WindowGroup {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          recipe: .longMock
+          recipe: .empty
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in
