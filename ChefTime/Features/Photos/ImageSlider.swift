@@ -30,7 +30,7 @@ struct ImageSliderView: View {
       .clipShape(RoundedRectangle(cornerRadius: 15))
       .tabViewStyle(PageTabViewStyle())
       .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: isHovering ? .always : .never))
-      .onHover { isHovering = $0 }
+      .onHover { isHovering = $0 } // TODO: Make this work.
     }
   }
 }

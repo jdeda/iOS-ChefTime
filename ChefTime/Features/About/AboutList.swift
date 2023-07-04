@@ -9,11 +9,15 @@ struct AboutListView: View {
   
   var body: some View {
     WithViewStore(store) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
-        if viewStore.aboutSections.isEmpty {
+      if viewStore.aboutSections.isEmpty {
+        VStack {
+          HStack {
+            Text("About")
+              .font(.title)
+              .fontWeight(.bold)
+              .foregroundColor(.primary)
+            Spacer()
+          }
           HStack {
             TextField(
               "Untitled About Section",
@@ -37,7 +41,12 @@ struct AboutListView: View {
             viewStore.send(.addSectionButtonTapped, animation: .default)
           }
         }
-        else {
+      }
+      else {
+        DisclosureGroup(isExpanded: viewStore.binding(
+          get: { $0.isExpanded },
+          send: { _ in .isExpandedButtonToggled }
+        )) {
           ForEachStore(store.scope(
             state: \.aboutSections,
             action: AboutListReducer.Action.aboutSection
@@ -58,20 +67,92 @@ struct AboutListView: View {
             }
           }
         }
+        label : {
+          Text("About")
+            .font(.title)
+            .fontWeight(.bold)
+            .foregroundColor(.primary)
+          Spacer()
+        }
+        .accentColor(.primary)
+        .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+        .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
       }
-      label : {
-        Text("About")
-          .font(.title)
-          .fontWeight(.bold)
-          .foregroundColor(.primary)
-        Spacer()
-      }
-      .accentColor(.primary)
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-      .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
     }
   }
 }
+
+//// MARK: - AboutListView
+//struct AboutListView: View {
+//  let store: StoreOf<AboutListReducer>
+//  @FocusState private var focusedField: AboutListReducer.FocusField?
+//  // TODO: If they have a section with an empty name and content and click done just delete it...
+//
+//  var body: some View {
+//    WithViewStore(store) { viewStore in
+//      DisclosureGroup(isExpanded: viewStore.binding(
+//        get: { $0.isExpanded },
+//        send: { _ in .isExpandedButtonToggled }
+//      )) {
+//        if viewStore.aboutSections.isEmpty {
+//          HStack {
+//            TextField(
+//              "Untitled About Section",
+//              text: .constant(""),
+//              axis: .vertical
+//            )
+//            .font(.title3)
+//            .fontWeight(.bold)
+//            .foregroundColor(.primary)
+//            .accentColor(.accentColor)
+//            .frame(alignment: .leading)
+//            .multilineTextAlignment(.leading)
+//            .lineLimit(.max)
+//            .autocapitalization(.none)
+//            .autocorrectionDisabled()
+//            Spacer()
+//            Image(systemName: "plus")
+//          }
+//          .foregroundColor(.secondary)
+//          .onTapGesture {
+//            viewStore.send(.addSectionButtonTapped, animation: .default)
+//          }
+//        }
+//        else {
+//          ForEachStore(store.scope(
+//            state: \.aboutSections,
+//            action: AboutListReducer.Action.aboutSection
+//          )) { childStore in
+//            AboutSection(store: childStore)
+//              .contentShape(Rectangle())
+//              .focused($focusedField, equals: .row(ViewStore(childStore).id))
+//              .accentColor(.accentColor)
+//
+//            if ViewStore(childStore).isExpanded {
+//              Rectangle() // This serves a spacer()
+//                .fill(.clear)
+//                .frame(height: 5)
+//            }
+//
+//            if !ViewStore(childStore).isExpanded {
+//              Divider()
+//            }
+//          }
+//        }
+//      }
+//      label : {
+//        Text("About")
+//          .font(.title)
+//          .fontWeight(.bold)
+//          .foregroundColor(.primary)
+//        Spacer()
+//      }
+//      .accentColor(.primary)
+//      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+//      .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
+//    }
+//  }
+//}
 
 // MARK: - AboutListReducer
 struct AboutListReducer: ReducerProtocol {

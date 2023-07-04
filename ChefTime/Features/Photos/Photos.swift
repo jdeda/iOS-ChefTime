@@ -4,6 +4,7 @@ import ComposableArchitecture
 // MARK: - View
 struct PhotosView: View {
   let store: StoreOf<PhotosReducer>
+  let maxW = UIScreen.main.bounds.width * 0.85
   
   struct ViewState: Equatable {
     var photos: IdentifiedArrayOf<Recipe.ImageData>
@@ -15,7 +16,33 @@ struct PhotosView: View {
   
   var body: some View {
     WithViewStore(store, observe: ViewState.init) { viewStore in
-      ImageSliderView(imageDatas: viewStore.photos)
+      if viewStore.photos.isEmpty {
+        ZStack {
+//          RoundedRectangle(cornerRadius: 15)
+//              .stroke(.secondary, lineWidth: 1)
+//              .padding(1)
+          
+          VStack {
+            Image(systemName: "photo.stack")
+//            Image(systemName: "camera.badge.ellipsis")
+//            Image(systemName: "camera.fill")
+              .resizable()
+              .scaledToFit()
+              .frame(width: 100, height: 100)
+              .clipped()
+              .foregroundColor(.secondary)
+              .padding()
+            Text("Add Images")
+              .foregroundColor(.secondary)
+          }
+        }
+        .frame(width: maxW, height: maxW)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+      }
+      else {
+        ImageSliderView(imageDatas: viewStore.photos)
+      }
     }
   }
 }
@@ -49,7 +76,7 @@ struct PhotosView_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         PhotosView(store: .init(
-          initialState: .init(recipe: .longMock),
+          initialState: .init(recipe: .empty),
           reducer: PhotosReducer.init
         ))
       }

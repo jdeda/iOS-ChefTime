@@ -2,7 +2,11 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
-/// TODO: Make sure disclosure group styles are consistent
+// TODO: If deleting, maybe nil focus, keyboard animation gets ugly
+// TODO: sometimes screen moves very weird oon inserts
+// TODO: ingredient .next/return sometimes doesnt focus to new element
+
+// TODO: Make sure disclosure group styles are consistent
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
   
@@ -15,24 +19,38 @@ struct RecipeView: View {
             action: RecipeReducer.Action.photos
           ))
           .padding([.horizontal])
-          .padding([.bottom])
+          .padding([.bottom, .top])
           
+          // TODO: If tapped done on section with empty name and ingredients delete it
           AboutListView(store: store.scope(
             state: \.about,
             action: RecipeReducer.Action.about
           ))
           .padding([.horizontal])
           
+          Divider()
+            .padding([.horizontal])
+            .padding([.top], 5)
+
+          // TODO: if empty or if last section has no ingredients, put a divider
           IngredientListView(store: store.scope(
             state: \.ingredients,
             action: RecipeReducer.Action.list
           ))
           .padding([.horizontal])
           
-//          Spacer()
+          if viewStore.ingredients.ingredients.isEmpty ||
+              viewStore.ingredients.ingredients.last?.ingredients.isEmpty ?? false
+          {
+            Divider()
+              .padding([.horizontal])
+              .padding([.top], 5)
+          }
+          
+          Spacer()
         }
         .navigationTitle(viewStore.binding(
-          get:  \.recipe.name,
+          get:  { !$0.recipe.name.isEmpty ? $0.recipe.name : "Untitled Recipe" },
           send: { .recipeNameEdited($0) }
         ))
         .toolbar {

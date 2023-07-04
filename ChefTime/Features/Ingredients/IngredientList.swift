@@ -5,14 +5,18 @@ import ComposableArchitecture
 struct IngredientListView: View {
   let store: StoreOf<IngredientsListReducer>
   @FocusState private var focusedField: IngredientsListReducer.FocusField?
-    
+  
   var body: some View {
     WithViewStore(store) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
-        if viewStore.ingredients.isEmpty {
+      if viewStore.ingredients.isEmpty {
+        VStack {
+          HStack {
+            Text("Ingredients")
+              .font(.title)
+              .fontWeight(.bold)
+              .foregroundColor(.primary)
+            Spacer()
+          }
           HStack {
             TextField(
               "Untitled Ingredient Section",
@@ -36,7 +40,12 @@ struct IngredientListView: View {
             viewStore.send(.addSectionButtonTapped, animation: .default)
           }
         }
-        else {
+      }
+      else {
+        DisclosureGroup(isExpanded: viewStore.binding(
+          get: { $0.isExpanded },
+          send: { _ in .isExpandedButtonToggled }
+        )) {
           IngredientStepper(scale: viewStore.binding(
             get: { $0.scale },
             send: { .scaleStepperButtonTapped($0) }
@@ -61,17 +70,17 @@ struct IngredientListView: View {
             }
           }
         }
+        label : {
+          Text("Ingredients")
+            .font(.title)
+            .fontWeight(.bold)
+            .foregroundColor(.primary)
+          Spacer()
+        }
+        .accentColor(.primary)
+        .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+        .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
       }
-      label : {
-        Text("Ingredients")
-          .font(.title)
-          .fontWeight(.bold)
-          .foregroundColor(.primary)
-        Spacer()
-      }
-      .accentColor(.primary)
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-      .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
     }
   }
 }
@@ -118,7 +127,7 @@ struct IngredientsListReducer: ReducerProtocol {
   }
   
   @Dependency(\.uuid) var uuid
-    
+  
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
     Reduce { state, action in
