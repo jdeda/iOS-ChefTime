@@ -3,7 +3,7 @@ import ComposableArchitecture
 import Tagged
 
 // TODO: If deleting, maybe nil focus, keyboard animation gets ugly
-// TODO: sometimes screen moves very weird oon inserts
+// TODO: sometimes screen moves very weird on inserts
 // TODO: ingredient .next/return sometimes doesnt focus to new element
 
 // TODO: Make sure disclosure group styles are consistent
@@ -14,13 +14,20 @@ struct RecipeView: View {
     WithViewStore(store) { viewStore in
       NavigationStack {
         ScrollView {
-          PhotosView(store: store.scope(
-            state: \.photos,
-            action: RecipeReducer.Action.photos
-          ))
-          .padding([.horizontal])
-          .padding([.bottom, .top])
-          
+          if !viewStore.isHidingImages {
+            PhotosView(store: store.scope(
+              state: \.photos,
+              action: RecipeReducer.Action.photos
+            ))
+            .padding([.horizontal])
+            .padding([.bottom, .top])
+          }
+          else {
+            Rectangle()
+              .fill(.clear)
+              .frame(height: 5)
+          }
+
           // TODO: If tapped done on section with empty name and ingredients delete it
           AboutListView(store: store.scope(
             state: \.about,
@@ -28,9 +35,14 @@ struct RecipeView: View {
           ))
           .padding([.horizontal])
           
-          Divider()
-            .padding([.horizontal])
-            .padding([.top], 5)
+          if viewStore.about.isExpanded && viewStore.about.aboutSections.last?.isExpanded == false {
+            EmptyView()
+          }
+          else {
+            Divider()
+              .padding([.horizontal])
+              .padding([.top], 5)
+          }
 
           // TODO: if empty or if last section has no ingredients, put a divider
           IngredientListView(store: store.scope(
@@ -39,13 +51,19 @@ struct RecipeView: View {
           ))
           .padding([.horizontal])
           
-          if viewStore.ingredients.ingredients.isEmpty ||
-              viewStore.ingredients.ingredients.last?.ingredients.isEmpty ?? false
-          {
-            Divider()
-              .padding([.horizontal])
-              .padding([.top], 5)
+          if viewStore.ingredients.isExpanded && viewStore.ingredients.ingredients.last?.isExpanded == false {
+            EmptyView()
           }
+          else {
+            if viewStore.ingredients.ingredients.isEmpty ||
+                viewStore.ingredients.ingredients.last?.ingredients.isEmpty ?? false
+            {
+              Divider()
+                .padding([.horizontal])
+                .padding([.top], 5)
+            }
+          }
+
           
           Spacer()
         }
@@ -66,6 +84,11 @@ struct RecipeView: View {
               } label: {
                 Label("Collapse All", systemImage: "arrow.down.forward.and.arrow.up.backward")
               }
+              Button {
+                viewStore.send(.toggleHideImages, animation: .default)
+              } label: {
+                Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
+              }
             } label: {
               Image(systemName: "ellipsis.circle")
             }
@@ -83,6 +106,7 @@ struct RecipeReducer: ReducerProtocol {
     var photos: PhotosReducer.State
     var about: AboutListReducer.State
     var ingredients: IngredientsListReducer.State
+    var isHidingImages: Bool
     
     @PresentationState var destination: DestinationReducer.State?
     
@@ -91,6 +115,7 @@ struct RecipeReducer: ReducerProtocol {
       self.photos = .init(recipe: recipe)
       self.about = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
       self.ingredients = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
+      self.isHidingImages = false
       self.destination = destination
     }
   }
@@ -100,6 +125,7 @@ struct RecipeReducer: ReducerProtocol {
     case about(AboutListReducer.Action)
     case list(IngredientsListReducer.Action)
     case recipeNameEdited(String)
+    case toggleHideImages
     case setExpansionButtonTapped(Bool)
     case destination(PresentationAction<DestinationReducer.Action>)
   }
@@ -130,6 +156,10 @@ struct RecipeReducer: ReducerProtocol {
         return .none
         
       case let .destination(action):
+        return .none
+        
+      case .toggleHideImages:
+        state.isHidingImages.toggle()
         return .none
     
       case let .setExpansionButtonTapped(expand):

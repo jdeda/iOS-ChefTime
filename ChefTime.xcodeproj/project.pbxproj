@@ -39,6 +39,7 @@
 		97C04E6D2A40AA0D00EB7D6D /* burger_bun_05.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E672A40AA0D00EB7D6D /* burger_bun_05.jpg */; };
 		97CC0C112A3A1F6800E311C9 /* StepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CC0C102A3A1F6800E311C9 /* StepView.swift */; };
 		97CC0C132A3A210B00E311C9 /* StepSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CC0C122A3A210B00E311C9 /* StepSectionView.swift */; };
+		97D8CCFF2A55EED60031E760 /* PhotosClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97D8CCFE2A55EED60031E760 /* PhotosClient.swift */; };
 		97E08CD92A3B8560003A6232 /* StepsListPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E08CD82A3B8560003A6232 /* StepsListPreview.swift */; };
 		97E08CDD2A3B87D7003A6232 /* StepListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E08CDC2A3B87D7003A6232 /* StepListView.swift */; };
 /* End PBXBuildFile section */
@@ -76,6 +77,7 @@
 		97C04E672A40AA0D00EB7D6D /* burger_bun_05.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_05.jpg; sourceTree = "<group>"; };
 		97CC0C102A3A1F6800E311C9 /* StepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepView.swift; sourceTree = "<group>"; };
 		97CC0C122A3A210B00E311C9 /* StepSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSectionView.swift; sourceTree = "<group>"; };
+		97D8CCFE2A55EED60031E760 /* PhotosClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosClient.swift; sourceTree = "<group>"; };
 		97E08CD82A3B8560003A6232 /* StepsListPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsListPreview.swift; sourceTree = "<group>"; };
 		97E08CDC2A3B87D7003A6232 /* StepListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -118,6 +120,7 @@
 		975A4EF32A44C30B00C9509A /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				97D8CCFE2A55EED60031E760 /* PhotosClient.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -369,6 +372,7 @@
 				97CC0C132A3A210B00E311C9 /* StepSectionView.swift in Sources */,
 				9712FB502A438A0B00E5E227 /* ImageSlider.swift in Sources */,
 				97AD13C62A2E73C8002FCE30 /* AppReducer.swift in Sources */,
+				97D8CCFF2A55EED60031E760 /* PhotosClient.swift in Sources */,
 				977633DA2A51C4B0009FD90C /* AboutSection.swift in Sources */,
 				97AD13B82A2E7392002FCE30 /* Main.swift in Sources */,
 				977633E22A533717009FD90C /* Feature.swift in Sources */,

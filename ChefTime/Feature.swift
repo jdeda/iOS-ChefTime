@@ -24,7 +24,6 @@ struct FeatureView: View {
           
         }
         .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-//        .bind(viewStore.binding(\.$focusedField), to: $focusedField)
         .toolbar {
           ToolbarItemGroup(placement: .primaryAction) {
             Button {
