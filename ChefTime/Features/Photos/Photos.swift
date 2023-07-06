@@ -11,13 +11,8 @@ import PhotosUI
 /// - tap gestures won't work here
 /// - hold -> context menu -> 3 buttons ->  replace, add, remove
 /// - click -> navigation -> grid view -> tap to replace
-///
-///
-///
-///
 
 // TODO: how 2 align context menu space, should they have a icon too?
-// TODO: separaate contwxt mnenus
 // TODO: put a limit of 5-10 photos a recpe
 // TODO: lots of testing to make sure things go right here...
 
@@ -25,13 +20,12 @@ import PhotosUI
 struct PhotosView: View {
   let store: StoreOf<PhotosReducer>
   let maxW = UIScreen.main.bounds.width * 0.85
-//  @State var selection: Recipe.ImageData.ID?
   
   var body: some View {
     WithViewStore(store) { viewStore in
       VStack {
         if viewStore.photos.isEmpty {
-          VStack { // TODO: Mess with color scheme here.
+          VStack {
             Image(systemName: "photo.stack")
               .resizable()
               .scaledToFit()
@@ -40,7 +34,7 @@ struct PhotosView: View {
               .foregroundColor(Color(uiColor: .systemGray4))
               .padding()
             Text("Add Images")
-              .fontWeight(.bold) // TODO: To be or not to be bold...
+              .fontWeight(.bold)
               .foregroundColor(Color(uiColor: .systemGray4))
           }
           .frame(width: maxW, height: maxW)
@@ -59,7 +53,6 @@ struct PhotosView: View {
         }
       }
       .contextMenu(menuItems: {
-        // TODO: should they be hidden or grayed out
         if !viewStore.photos.isEmpty {
           Button {
             viewStore.send(.replaceButtonTapped, animation: .default)
@@ -151,12 +144,13 @@ struct PhotosReducer: ReducerProtocol {
         guard let id = state.selection else { return .none }
         state.photoEditStatus = .add(id)
         return .none
-
+        
       case .deleteButtonTapped:
         guard let id = state.selection,
               let i = state.photos.index(id: id)
         else { return .none }
         state.photos.remove(at: i)
+        // TODO: Why does this work for last but not first...WTF
         state.selection = state.photos.elements.first?.id // TODO: WHERE?
         return .none
         
@@ -173,12 +167,9 @@ struct PhotosReducer: ReducerProtocol {
         return .none
         
       case let .applyPhotoEdit(status, imageData):
-        // id represents the id of the image that a photo operation was performed on,
-        // such as replace, add, or delete.
-        //
-        // it is possible during the time the user was selecting
-        // an image someone could magically mutate the existing selection
-        // and may be worth considering how that affects mutation here.
+        /// the id represents the id of the image that a photo operation was performed on, such as replace, add, or delete...
+        /// it is possible during the time the user was selecting, an image someone could magically mutate the existing selection
+        /// and would have implications on how that affects mutation here...
         switch status {
         case let .replace(id):
           state.photos[id: id]?.imageData = imageData.imageData
@@ -221,7 +212,7 @@ struct PhotosContextMenuPreview: View {
   var body: some View {
     VStack {
       if state.photos.isEmpty {
-        VStack { // TODO: Mess with color scheme here.
+        VStack {
           Image(systemName: "photo.stack")
             .resizable()
             .scaledToFit()
@@ -230,7 +221,7 @@ struct PhotosContextMenuPreview: View {
             .foregroundColor(Color(uiColor: .systemGray4))
             .padding()
           Text("Add Images")
-            .fontWeight(.bold) // TODO: To be or not to be bold...
+            .fontWeight(.bold)
             .foregroundColor(Color(uiColor: .systemGray4))
         }
         .frame(width: maxW, height: maxW)
