@@ -3,6 +3,52 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
+/// I have data
+/// I want to treat that data like it can ALWAYS turn into a UImage
+/// So maybe I create a wrapper type
+struct BigImageData: Equatable, Codable {
+  let imageData: Data
+  
+  var image: Image {
+    .init(uiImage: UIImage(data: imageData)!)
+  }
+  
+  init?(imageData: Data) {
+    guard let _ = UIImage(data: imageData) else { return nil }
+    self.imageData = imageData
+  }
+  
+  enum CodingKeys: CodingKey {
+    case imageData
+  }
+
+  init(from decoder: Decoder) throws {
+    enum ParseError: Error { case failure }
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.imageData = try container.decode(Data.self, forKey: .imageData)
+    guard let _ = UIImage(data: imageData) else { throw ParseError.failure  }
+  }
+  
+  func encode(to encoder: Encoder) throws {
+    enum ParseError: Error { case failure }
+    guard let _ = UIImage(data: self.imageData) else { throw ParseError.failure  }
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(imageData, forKey: .imageData)
+  }
+}
+
+struct FooView: View {
+  let bigImageData: BigImageData
+  var body: some View {
+    Image(uiImage: .init(data: bigImageData.imageData)!)
+  }
+}
+/// now i have a completely immutable struct that can
+/// only be created if the imageData (Data) can be converted into a UIImage
+///
+/// does this mean that we have a type, that we can fully trust to use in creating images?
+/// well, sort of...well, anywhere you use that imag
+
 /// Modeling our Images
 /// 1. URLs
 /// 2. Data
