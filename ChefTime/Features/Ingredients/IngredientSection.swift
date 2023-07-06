@@ -36,7 +36,6 @@ struct IngredientSection: View {
           Divider()
         }
       } label: {
-        // TODO: An alert might feel nicer here to restore the DisclosureGroup collapse UX.
         TextField(
           "Untitled Ingredient Section",
           text: viewStore.binding(

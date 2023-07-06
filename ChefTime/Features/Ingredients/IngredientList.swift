@@ -166,6 +166,7 @@ struct IngredientsListReducer: ReducerProtocol {
         
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
+        // MARK: - W/O niling could end up with duplicate keyboard buttons due to conditional logic
         state.ingredients.ids.forEach { id1 in
           state.ingredients[id: id1]?.focusedField = nil
           state.ingredients[id: id1]?.ingredients.ids.forEach { id2 in
@@ -174,38 +175,17 @@ struct IngredientsListReducer: ReducerProtocol {
         }
         return .none
         
-      case let .scaleStepperButtonTapped(newValue):
-        let incremented = newValue > state.scale
+      case let .scaleStepperButtonTapped(newScale):
         let oldScale = state.scale
-        let newScale: Double = {
-          if incremented {
-            switch oldScale {
-            case 0.25: return 0.5
-            case 0.5: return 1.0
-            case 1.0..<10.0: return oldScale + 1
-            default: return oldScale
-            }
-          }
-          else {
-            switch oldScale {
-            case 0.25: return 0.25
-            case 0.5: return 0.25
-            case 1.0: return 0.5
-            default: return oldScale - 1
-            }
-          }
-        }()
-        
-        // TODO: Do this with ids...
         state.scale = newScale
         for i in state.ingredients.indices {
-          for j in state.ingredients[i].ingredients.indices {
-            let vs = state.ingredients[i].ingredients[j]
-            guard !vs.ingredientAmountString.isEmpty else { continue }
-            let a = (vs.ingredient.amount / oldScale) * newScale
-            let s = String(a)
-            state.ingredients[i].ingredients[j].ingredient.amount = a
-            state.ingredients[i].ingredients[j].ingredientAmountString = s
+          for j in state.ingredients[i].ingredients.indices { // TODO: Maybe do this with IDs and in parallel? :D
+            let ingredient = state.ingredients[i].ingredients[j]
+            guard !ingredient.ingredientAmountString.isEmpty else { continue }
+            let amount = (ingredient.ingredient.amount / oldScale) * newScale
+            let string = String(amount)
+            state.ingredients[i].ingredients[j].ingredient.amount = amount
+            state.ingredients[i].ingredients[j].ingredientAmountString = string
           }
         }
         return .none
@@ -242,6 +222,59 @@ extension IngredientsListReducer {
 extension IngredientsListReducer {
   enum FocusField: Equatable, Hashable {
     case row(IngredientSectionReducer.State.ID)
+  }
+}
+
+
+// MARK: - IngredientStepper
+private struct IngredientStepper: View {
+  @Binding var scale: Double
+  
+  var scaleString: String {
+    switch scale {
+    case 0.25: return "1/4"
+    case 0.50: return "1/2"
+    default:   return String(Int(scale))
+    }
+  }
+  
+  var body: some View {
+    Stepper(
+      value: .init(
+        get: { scale },
+        set: { scaleStepperButtonTapped($0) }
+      ),
+      in: 0.25...10.0,
+      step: 1.0
+    ) {
+      Text("Servings \(scaleString)")
+        .font(.title3)
+        .fontWeight(.bold)
+    }
+  }
+  
+  func scaleStepperButtonTapped(_ newScale: Double) {
+    let incremented = newScale > scale
+    let oldScale = scale
+    let newScale: Double = {
+      if incremented {
+        switch oldScale {
+        case 0.25: return 0.5
+        case 0.5: return 1.0
+        case 1.0..<10.0: return oldScale + 1
+        default: return oldScale
+        }
+      }
+      else {
+        switch oldScale {
+        case 0.25: return 0.25
+        case 0.5: return 0.25
+        case 1.0: return 0.5
+        default: return oldScale - 1
+        }
+      }
+    }()
+    scale = newScale
   }
 }
 
