@@ -15,6 +15,7 @@
 		972440052A4CD623002E3AAF /* View+Synchronize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972440042A4CD623002E3AAF /* View+Synchronize.swift */; };
 		975A4EED2A44C23300C9509A /* IngredientSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEC2A44C23300C9509A /* IngredientSection.swift */; };
 		975A4EEF2A44C23800C9509A /* Ingredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEE2A44C23800C9509A /* Ingredient.swift */; };
+		9760758A2A5771D2005E3532 /* IngredientTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976075892A5771D2005E3532 /* IngredientTest.swift */; };
 		977633D62A4F77C9009FD90C /* Binding+RemoveDuplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */; };
 		977633D82A51B8FA009FD90C /* RecipeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D72A51B8F9009FD90C /* RecipeModel.swift */; };
 		977633DA2A51C4B0009FD90C /* AboutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D92A51C4B0009FD90C /* AboutSection.swift */; };
@@ -42,6 +43,16 @@
 		97E08CDD2A3B87D7003A6232 /* StepListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E08CDC2A3B87D7003A6232 /* StepListView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		976075832A5771B4005E3532 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97AD13AC2A2E7392002FCE30 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97AD13B32A2E7392002FCE30;
+			remoteInfo = ChefTime;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		9712FB4F2A438A0B00E5E227 /* ImageSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSlider.swift; sourceTree = "<group>"; };
 		9712FB572A438E2A00E5E227 /* recipe_00.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = recipe_00.jpeg; sourceTree = "<group>"; };
@@ -52,6 +63,8 @@
 		972440042A4CD623002E3AAF /* View+Synchronize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Synchronize.swift"; sourceTree = "<group>"; };
 		975A4EEC2A44C23300C9509A /* IngredientSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSection.swift; sourceTree = "<group>"; };
 		975A4EEE2A44C23800C9509A /* Ingredient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ingredient.swift; sourceTree = "<group>"; };
+		9760757F2A5771B4005E3532 /* ChefTimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChefTimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		976075892A5771D2005E3532 /* IngredientTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientTest.swift; sourceTree = "<group>"; };
 		977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+RemoveDuplicates.swift"; sourceTree = "<group>"; };
 		977633D72A51B8F9009FD90C /* RecipeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeModel.swift; sourceTree = "<group>"; };
 		977633D92A51C4B0009FD90C /* AboutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSection.swift; sourceTree = "<group>"; };
@@ -79,6 +92,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9760757C2A5771B4005E3532 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97AD13B12A2E7392002FCE30 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -187,10 +207,27 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		976075802A5771B4005E3532 /* ChefTimeTests */ = {
+			isa = PBXGroup;
+			children = (
+				976075882A5771C9005E3532 /* Ingredients */,
+			);
+			path = ChefTimeTests;
+			sourceTree = "<group>";
+		};
+		976075882A5771C9005E3532 /* Ingredients */ = {
+			isa = PBXGroup;
+			children = (
+				976075892A5771D2005E3532 /* IngredientTest.swift */,
+			);
+			path = Ingredients;
+			sourceTree = "<group>";
+		};
 		97AD13AB2A2E7392002FCE30 = {
 			isa = PBXGroup;
 			children = (
 				97AD13B62A2E7392002FCE30 /* ChefTime */,
+				976075802A5771B4005E3532 /* ChefTimeTests */,
 				97AD13B52A2E7392002FCE30 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -199,6 +236,7 @@
 			isa = PBXGroup;
 			children = (
 				97AD13B42A2E7392002FCE30 /* ChefTime.app */,
+				9760757F2A5771B4005E3532 /* ChefTimeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -269,6 +307,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9760757E2A5771B4005E3532 /* ChefTimeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 976075872A5771B4005E3532 /* Build configuration list for PBXNativeTarget "ChefTimeTests" */;
+			buildPhases = (
+				9760757B2A5771B4005E3532 /* Sources */,
+				9760757C2A5771B4005E3532 /* Frameworks */,
+				9760757D2A5771B4005E3532 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				976075842A5771B4005E3532 /* PBXTargetDependency */,
+			);
+			name = ChefTimeTests;
+			productName = ChefTimeTests;
+			productReference = 9760757F2A5771B4005E3532 /* ChefTimeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		97AD13B32A2E7392002FCE30 /* ChefTime */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97AD13C22A2E7394002FCE30 /* Build configuration list for PBXNativeTarget "ChefTime" */;
@@ -300,6 +356,10 @@
 				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					9760757E2A5771B4005E3532 = {
+						CreatedOnToolsVersion = 14.3.1;
+						TestTargetID = 97AD13B32A2E7392002FCE30;
+					};
 					97AD13B32A2E7392002FCE30 = {
 						CreatedOnToolsVersion = 14.3;
 					};
@@ -323,11 +383,19 @@
 			projectRoot = "";
 			targets = (
 				97AD13B32A2E7392002FCE30 /* ChefTime */,
+				9760757E2A5771B4005E3532 /* ChefTimeTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9760757D2A5771B4005E3532 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97AD13B22A2E7392002FCE30 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -349,6 +417,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9760757B2A5771B4005E3532 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9760758A2A5771D2005E3532 /* IngredientTest.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97AD13B02A2E7392002FCE30 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -378,7 +454,51 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		976075842A5771B4005E3532 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 97AD13B32A2E7392002FCE30 /* ChefTime */;
+			targetProxy = 976075832A5771B4005E3532 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		976075852A5771B4005E3532 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ME637H7ZM9;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dedaInc.ChefTimeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChefTime.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ChefTime";
+			};
+			name = Debug;
+		};
+		976075862A5771B4005E3532 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ME637H7ZM9;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dedaInc.ChefTimeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChefTime.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ChefTime";
+			};
+			name = Release;
+		};
 		97AD13C02A2E7394002FCE30 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -558,6 +678,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		976075872A5771B4005E3532 /* Build configuration list for PBXNativeTarget "ChefTimeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				976075852A5771B4005E3532 /* Debug */,
+				976075862A5771B4005E3532 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		97AD13AF2A2E7392002FCE30 /* Build configuration list for PBXProject "ChefTime" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

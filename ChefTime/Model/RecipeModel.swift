@@ -120,9 +120,10 @@ struct Recipe: Identifiable, Equatable {
       typealias ID = Tagged<Self, UUID>
       
       let id: ID
-      var name: String
-      var amount: Double
-      var measure: String
+      var name: String = ""
+      var amount: Double = 0.0
+      var measure: String = ""
+      var isComplete: Bool = false
     }
   }
   

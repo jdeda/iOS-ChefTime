@@ -13,7 +13,7 @@ struct IngredientView: View {
       HStack(alignment: .top) {
         
         // Checkbox
-        Image(systemName: viewStore.isComplete ? "checkmark.square" : "square")
+        Image(systemName: viewStore.ingredient.isComplete ? "checkmark.square" : "square")
           .fontWeight(.medium)
           .onTapGesture {
             viewStore.send(.isCompleteButtonToggled)
@@ -83,7 +83,7 @@ struct IngredientView: View {
         
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-      .foregroundColor(viewStore.isComplete ? .secondary : .primary)
+      .foregroundColor(viewStore.ingredient.isComplete ? .secondary : .primary)
       .toolbar {
         if viewStore.focusedField != nil {
           ToolbarItemGroup(placement: .keyboard) {
@@ -123,7 +123,6 @@ struct IngredientReducer: ReducerProtocol {
     @BindingState var focusedField: FocusField? = nil
     var ingredient: Recipe.IngredientSection.Ingredient
     var ingredientAmountString: String // This string must be synchronized with the ingredient.amount and is used for the ingredient amount textfield.
-    var isComplete: Bool = false
   }
   
   enum Action: Equatable, BindableAction {
@@ -194,7 +193,7 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case .isCompleteButtonToggled:
-        state.isComplete.toggle()
+        state.ingredient.isComplete.toggle()
         return .none
         
       case .keyboardDoneButtonTapped:
@@ -289,7 +288,7 @@ struct IngredientContextMenuPreview: View {
     HStack(alignment: .top) {
       
       // Checkbox
-      Image(systemName: state.isComplete ? "checkmark.square" : "square")
+      Image(systemName: state.ingredient.isComplete ? "checkmark.square" : "square")
         .fontWeight(.medium)
         .padding([.top], 2)
       
@@ -311,7 +310,7 @@ struct IngredientContextMenuPreview: View {
       Text(!state.ingredient.measure.isEmpty ? state.ingredient.measure : "...")
         .lineLimit(1)
     }
-    .foregroundColor(state.isComplete ? .secondary : .primary)
+    .foregroundColor(state.ingredient.isComplete ? .secondary : .primary)
     .accentColor(.accentColor)
   }
 }
@@ -326,8 +325,7 @@ struct IngredientView_Previews: PreviewProvider {
             id: .init(),
             focusedField: nil,
             ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!,
-            ingredientAmountString: String(Recipe.longMock.ingredientSections.first!.ingredients.first!.amount),
-            isComplete: false
+            ingredientAmountString: String(Recipe.longMock.ingredientSections.first!.ingredients.first!.amount)
           ),
           reducer: IngredientReducer.init
         ))
