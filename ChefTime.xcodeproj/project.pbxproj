@@ -94,8 +94,8 @@
 		9712FB5E2A4393B100E5E227 /* Photos */ = {
 			isa = PBXGroup;
 			children = (
-				9712FB4F2A438A0B00E5E227 /* ImageSlider.swift */,
 				9712FB612A43A13800E5E227 /* Photos.swift */,
+				9712FB4F2A438A0B00E5E227 /* ImageSlider.swift */,
 			);
 			path = Photos;
 			sourceTree = "<group>";
