@@ -82,6 +82,8 @@ struct IngredientView: View {
         }
         
       }
+      // TODO: Perhaps all .syncs should remove the .onAppear
+      // and add a .onAppear reducer action case
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .foregroundColor(viewStore.ingredient.isComplete ? .secondary : .primary)
       .toolbar {
@@ -122,7 +124,22 @@ struct IngredientReducer: ReducerProtocol {
     let id: ID
     @BindingState var focusedField: FocusField? = nil
     var ingredient: Recipe.IngredientSection.Ingredient
-    var ingredientAmountString: String // This string must be synchronized with the ingredient.amount and is used for the ingredient amount textfield.
+    var ingredientAmountString: String // ingredient.amount is really derived from this string
+    
+//    init(
+//      id: ID,
+//      focusedField: FocusField? = nil,
+//      ingredient: Recipe.IngredientSection.Ingredient,
+//      emptyIngredientAmountString: Bool
+//    ) {
+//      self.id = id
+//      self.focusedField = focusedField
+//      self.ingredient = ingredient
+//      /// This `emptyIngredientAmountString` allows one to have an empty string for the
+//      /// amount textfield. This is safer than allowing the caller of the initialzee to set the ingredientAmountString directly.
+//      /// However nobody should be able to set that value directly.
+//      self.ingredientAmountString = emptyIngredientAmountString ? "" : String(ingredient.amount)
+//    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -139,7 +156,24 @@ struct IngredientReducer: ReducerProtocol {
   @Dependency(\.continuousClock) var clock
   
   private enum IngredientNameEditedID: Hashable { case timer }
-  
+
+  /// The textfields have the following mechanism:
+  /// According the the following rules:
+  /// 1. Name
+  ///   1. if leading newline, don't update name and insert above
+  ///   2. else trailing newline, don't update name and focus to amount
+  ///   3. else, update name
+  ///   4. user may tap done to dismiss and stop editing or next to move to the amount
+  /// 2. Amount
+  ///   0. assume that they can only type positive numbers with valid decimal checking
+  ///   1. sync the amount string and the amount
+  ///   2. can only change focus if keyboard button tapped
+  ///   3. user may tap done to dismiss and stop editing or next to move to the measure
+  /// 3. Measure
+  ///   1. if trailing newline, don't update name and insert below
+  ///   2. else, update name
+  ///   3. on submit (trailing newline), insert below
+  ///   4. user may tap done to dismiss and stop editing or next to insert below
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
     Reduce { state, action in
@@ -149,60 +183,35 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case let .ingredientNameEdited(newName):
-        /// May or may not updates the ingredient name
-        /// May or may not move focus or insert an ingredient above or below this one
-        /// According the the following rules:
-        /// 1. Name
-        ///   1. if leading newline, don't update name and insert above
-        ///   2. else trailing newline, don't update name and focus to amount
-        ///   3. else, update name
-        /// 2. Amount
-        ///   0. assume that they can only type positive numbers with valid decimal checking
-        ///   1. sync the amount string and the amount
-        ///   3. can only change focus if keyboard button tapped
-        /// 3. Measure
-        ///   1. if trailing newline, don't update name and insert below
-        ///   3. else, update name
-        
-        // TODO: bug where spam clicking very fast return will get a new line character stuck
-        // Prevent starting with any whitespace.
-        // If the string is empty and the user enters, nothing should happen.
-        if state.ingredient.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-          return .none
-        }
-        let oldName = state.ingredient.name
-        state.ingredient.name = newName
-        let didEnter = DidEnter.didEnter(oldName, newName)
+        let didEnter = DidEnter.didEnter(state.ingredient.name, newName)
         switch didEnter {
         case .didNotSatisfy:
+          state.ingredient.name = newName
           return .none
         case .leading:
-          // Keep the original string because only trailing or leading spaces were added.
-          state.ingredient.name = oldName
           state.focusedField = nil
-          /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
-          /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
-          /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
-          /// This effect is also debounced to prevent multi additons as this action may be called from the a TextField
-          /// which always emits twice when interacted with, which is a SwiftUI behavior:
-          /// https://github.com/pointfreeco/swift-composable-architecture/discussions/800
           return .run { send in
             try await self.clock.sleep(for: .microseconds(10))
+            /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
+            /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
+            /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
+            /// This effect is also debounced to prevent multi additons as this action may be called from the a TextField
+            /// which always emits twice when interacted with, which is a SwiftUI behavior:
+            /// https://github.com/pointfreeco/swift-composable-architecture/discussions/800
             await send(.delegate(.insertIngredient(.above)), animation: .default)
           }
           .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
           
         case .trailing:
-          // Keep the original string because only trailing or leading spaces were added.
-          state.ingredient.name = oldName
           state.focusedField = .amount
           return .none
         }
         
       case let .ingredientAmountEdited(newAmountString):
-        state.ingredientAmountString = newAmountString
-        state.ingredient.amount = Double(newAmountString) ?? 0
+        if let amount = Double(newAmountString) {
+          state.ingredient.amount = amount
+          state.ingredientAmountString = newAmountString
+        }
         return .none
         
       case let .ingredientMeasureEdited(newMeasure):
@@ -218,7 +227,8 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case .keyboardNextButtonTapped:
-        // TODO: Would be nice if the name could perform leading and trailing enters just like the text binding action for name.
+        // MARK: Would be nice if the name could perform leading
+        // and trailing enters just like the text binding action for name.
         // However it does not seem easy or nice to do so.
         switch state.focusedField {
         case .name:
@@ -230,10 +240,10 @@ struct IngredientReducer: ReducerProtocol {
         case .measure:
           state.focusedField = nil
           return .run { send in
+            try await self.clock.sleep(for: .microseconds(10))
             /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
             /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
             /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
-            try await self.clock.sleep(for: .microseconds(10))
             await send(.delegate(.insertIngredient(.below)), animation: .default)
           }
         case .none:
@@ -243,7 +253,6 @@ struct IngredientReducer: ReducerProtocol {
         return .none
       }
     }
-    ._printChanges()
   }
 }
 
@@ -263,7 +272,6 @@ extension IngredientReducer {
     case measure
   }
 }
-
 
 // MARK: - NumbersOnlyViewModifier (Private)
 private struct NumbersOnlyViewModifier: ViewModifier {
@@ -350,4 +358,31 @@ struct IngredientView_Previews: PreviewProvider {
       }
     }
   }
+}
+
+private struct SynchronizedStringAndDouble{
+    private var internalString: String = ""
+    private var internalDouble: Double = 0
+    
+    var synchronizedString: String {
+        get {
+            return internalString
+        }
+        set {
+          if let newDouble = Double(newValue) {
+            internalString = newValue
+            internalDouble = newDouble
+          }
+        }
+    }
+    
+    var synchronizedDouble: Double {
+        get {
+            return internalDouble
+        }
+        set {
+          internalDouble = newValue
+          internalString = String(newValue)
+        }
+    }
 }
