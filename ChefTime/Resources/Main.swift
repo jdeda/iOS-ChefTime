@@ -36,16 +36,18 @@ import SwiftUI
 struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
-      RecipeView(store: .init(
-        initialState: RecipeReducer.State(
-          recipe: .longMock
-        ),
-        reducer: RecipeReducer.init,
-        withDependencies: { _ in
-          // TODO:
-        }
-      ))
-//      FeatureView(store: .init(initialState: .init(), reducer: FeatureReducer.init()))
+      if NSClassFromString("XCTestCase") == nil {        
+        RecipeView(store: .init(
+          initialState: RecipeReducer.State(
+            recipe: .longMock
+          ),
+          reducer: RecipeReducer.init,
+          withDependencies: { _ in
+            // TODO:
+          }
+        ))
+        //      FeatureView(store: .init(initialState: .init(), reducer: FeatureReducer.init()))
+      }
     }
   }
 }

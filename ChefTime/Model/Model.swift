@@ -29,6 +29,8 @@ extension DidEnter {
     guard !old.isEmpty, !new.isEmpty
     else { return .didNotSatisfy }
     
+    
+    
     let newSafe = new
     
     var new = newSafe

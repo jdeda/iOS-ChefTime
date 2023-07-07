@@ -6,43 +6,41 @@ import SwiftUI
 /// I have data
 /// I want to treat that data like it can ALWAYS turn into a UImage
 /// So maybe I create a wrapper type
-struct BigImageData: Equatable, Codable {
-  let imageData: Data
+/// but what about image types...like u may only support png, and how does this affect PhotoPicker
+struct ImageData: Equatable, Codable {
+  let data: Data
   
   var image: Image {
-    .init(uiImage: UIImage(data: imageData)!)
+    .init(uiImage: UIImage(data: data)!)
   }
   
-  init?(imageData: Data) {
-    guard let _ = UIImage(data: imageData) else { return nil }
-    self.imageData = imageData
+  init?(data: Data) {
+    guard let _ = UIImage(data: data) else { return nil }
+    self.data = data
   }
   
   enum CodingKeys: CodingKey {
-    case imageData
+    case data
   }
+  
+  enum ParseError: Error { case failure }
 
   init(from decoder: Decoder) throws {
     enum ParseError: Error { case failure }
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.imageData = try container.decode(Data.self, forKey: .imageData)
-    guard let _ = UIImage(data: imageData) else { throw ParseError.failure  }
+    self.data = try container.decode(Data.self, forKey: .data)
+    guard let _ = UIImage(data: data) else { throw ParseError.failure  }
   }
   
   func encode(to encoder: Encoder) throws {
     enum ParseError: Error { case failure }
-    guard let _ = UIImage(data: self.imageData) else { throw ParseError.failure  }
+    guard let _ = UIImage(data: self.data) else { throw ParseError.failure  }
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(imageData, forKey: .imageData)
+    try container.encode(data, forKey: .data)
   }
 }
 
-struct FooView: View {
-  let bigImageData: BigImageData
-  var body: some View {
-    Image(uiImage: .init(data: bigImageData.imageData)!)
-  }
-}
+
 /// now i have a completely immutable struct that can
 /// only be created if the imageData (Data) can be converted into a UIImage
 ///

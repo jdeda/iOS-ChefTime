@@ -149,7 +149,24 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case let .ingredientNameEdited(newName):
+        /// May or may not updates the ingredient name
+        /// May or may not move focus or insert an ingredient above or below this one
+        /// According the the following rules:
+        /// 1. Name
+        ///   1. if leading newline, don't update name and insert above
+        ///   2. else trailing newline, don't update name and focus to amount
+        ///   3. else, update name
+        /// 2. Amount
+        ///   0. assume that they can only type positive numbers with valid decimal checking
+        ///   1. sync the amount string and the amount
+        ///   3. can only change focus if keyboard button tapped
+        /// 3. Measure
+        ///   1. if trailing newline, don't update name and insert below
+        ///   3. else, update name
+        
         // TODO: bug where spam clicking very fast return will get a new line character stuck
+        // Prevent starting with any whitespace.
+        // If the string is empty and the user enters, nothing should happen.
         if state.ingredient.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
