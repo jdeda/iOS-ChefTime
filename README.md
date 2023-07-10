@@ -1,4 +1,5 @@
 # ChefTime
+<img src="GitAssets/ChefTime_Banner_01.svg" alt="drawing" width="650"/>
 
 ChefTime is the cookbook app for the enthusiast. 
 - `Build your cookbook`: Create and manage recipes and folders with ease.
