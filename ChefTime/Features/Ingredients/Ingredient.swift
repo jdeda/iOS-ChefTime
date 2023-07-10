@@ -124,22 +124,29 @@ struct IngredientReducer: ReducerProtocol {
     let id: ID
     @BindingState var focusedField: FocusField? = nil
     var ingredient: Recipe.IngredientSection.Ingredient
-    var ingredientAmountString: String // ingredient.amount is really derived from this string
+    private var _ingredientAmountString: String
+    var ingredientAmountString: String {
+      get {
+        _ingredientAmountString
+      }
+      set {
+        if let amount = Double(newValue) {
+          _ingredientAmountString = newValue
+          ingredient.amount = amount
+        }
+      }
+    }
     
-//    init(
-//      id: ID,
-//      focusedField: FocusField? = nil,
-//      ingredient: Recipe.IngredientSection.Ingredient,
-//      emptyIngredientAmountString: Bool
-//    ) {
-//      self.id = id
-//      self.focusedField = focusedField
-//      self.ingredient = ingredient
-//      /// This `emptyIngredientAmountString` allows one to have an empty string for the
-//      /// amount textfield. This is safer than allowing the caller of the initialzee to set the ingredientAmountString directly.
-//      /// However nobody should be able to set that value directly.
-//      self.ingredientAmountString = emptyIngredientAmountString ? "" : String(ingredient.amount)
-//    }
+    init(
+      id: ID,
+      focusedField: FocusField? = nil,
+      ingredient: Recipe.IngredientSection.Ingredient
+    ) {
+      self.id = id
+      self.focusedField = focusedField
+      self.ingredient = ingredient
+      self._ingredientAmountString = String(ingredient.amount)
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -349,8 +356,7 @@ struct IngredientView_Previews: PreviewProvider {
           initialState: .init(
             id: .init(),
             focusedField: nil,
-            ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!,
-            ingredientAmountString: String(Recipe.longMock.ingredientSections.first!.ingredients.first!.amount)
+            ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!
           ),
           reducer: IngredientReducer.init
         ))
@@ -358,31 +364,4 @@ struct IngredientView_Previews: PreviewProvider {
       }
     }
   }
-}
-
-private struct SynchronizedStringAndDouble{
-    private var internalString: String = ""
-    private var internalDouble: Double = 0
-    
-    var synchronizedString: String {
-        get {
-            return internalString
-        }
-        set {
-          if let newDouble = Double(newValue) {
-            internalString = newValue
-            internalDouble = newDouble
-          }
-        }
-    }
-    
-    var synchronizedDouble: Double {
-        get {
-            return internalDouble
-        }
-        set {
-          internalDouble = newValue
-          internalString = String(newValue)
-        }
-    }
 }
