@@ -70,6 +70,7 @@
 		9782405A2A3B410000CAC459 /* IngredientList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientList.swift; sourceTree = "<group>"; };
 		97833B992A584E4E002EB24B /* ChefTimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChefTimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		97833B9B2A584E4E002EB24B /* IngredientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientTests.swift; sourceTree = "<group>"; };
+		979F80812A5DE08600E3B152 /* ChefTime.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChefTime.xctestplan; sourceTree = "<group>"; };
 		97AD13B42A2E7392002FCE30 /* ChefTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChefTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AD13B72A2E7392002FCE30 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		97AD13BB2A2E7394002FCE30 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -218,6 +219,7 @@
 		97AD13AB2A2E7392002FCE30 = {
 			isa = PBXGroup;
 			children = (
+				979F80812A5DE08600E3B152 /* ChefTime.xctestplan */,
 				97AD13B62A2E7392002FCE30 /* ChefTime */,
 				97833B9A2A584E4E002EB24B /* ChefTimeTests */,
 				97AD13B52A2E7392002FCE30 /* Products */,

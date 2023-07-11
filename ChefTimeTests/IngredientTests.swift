@@ -48,29 +48,24 @@ final class IngredientTests: XCTestCase {
     XCTAssertTrue(state.ingredientAmountString == "0.01")
     XCTAssertTrue(state.ingredient.amount == 0.01)
     
+    // Should not change.
     state.ingredientAmountString = ".01"
-    XCTAssertTrue(state.ingredientAmountString == ".01")
+    XCTAssertTrue(state.ingredientAmountString == "0.01")
     XCTAssertTrue(state.ingredient.amount == 0.01)
     
+    
+    // Should not change.
     state.ingredientAmountString = "1/2"
     XCTAssertTrue(state.ingredientAmountString == "0.01")
     XCTAssertTrue(state.ingredient.amount == 0.01)
   }
   
-  func testIngredientAmountStrin2() async {
+  func testIngredientAmountString2() async {
     var state = IngredientReducer.State(id: .init(), ingredient: .init(id: .init()))
     XCTAssertTrue(state.ingredient.amount == 0.0)
     XCTAssertTrue(state.ingredientAmountString == "0.0")
     
-    state.ingredient.amount = "0.01"
-    XCTAssertTrue(state.ingredientAmountString == "0.01")
-    XCTAssertTrue(state.ingredient.amount == 0.01)
-    
-    state.ingredientAmountString = ".01"
-    XCTAssertTrue(state.ingredientAmountString == ".01")
-    XCTAssertTrue(state.ingredient.amount == 0.01)
-    
-    state.ingredientAmountString = "1/2"
+    state.ingredient.amount = 0.01
     XCTAssertTrue(state.ingredientAmountString == "0.01")
     XCTAssertTrue(state.ingredient.amount == 0.01)
   }
@@ -148,7 +143,7 @@ final class IngredientTests: XCTestCase {
     // Test pressing enter at the end of the name.
     await store.send(.ingredientNameEdited(" foobar \n")) {
       $0.focusedField = .amount
-    }
+    } // MARK: - Debounce or nah?
     
     // Simulate user tapping back onto the name.
     await store.send(.set(\.$focusedField, .name))  {
@@ -176,10 +171,26 @@ final class IngredientTests: XCTestCase {
     await store.send(.ingredientNameEdited("\n foobar "))
     await clock.advance(by: .microseconds(15))
     await store.receive(.delegate(.insertIngredient(.above)))
+    // MARK: May fail due to nondeterminism
 
     // Make sure all in-flight effects are done.
     await clock.advance(by: .seconds(5))
     await store.finish(timeout: .microseconds(20))
+    
+    // Try lots of debounces.
+    await store.send(.set(\.$focusedField, .name)) { $0.focusedField = .name }
+    await store.send(.ingredientNameEdited("\n foobar ")) { $0.focusedField = nil }
+    await clock.advance(by: .microseconds(5))
+    await store.send(.ingredientNameEdited("\n foobar "))
+    await clock.advance(by: .microseconds(5))
+    await store.send(.ingredientNameEdited("\n foobar "))
+    await clock.advance(by: .microseconds(5))
+    await store.send(.ingredientNameEdited("\n foobar "))
+    await clock.advance(by: .microseconds(5))
+    await store.send(.ingredientNameEdited("\n foobar "))
+    await clock.advance(by: .microseconds(15))
+    await store.receive(.delegate(.insertIngredient(.above)))
+    // MARK: May fail due to nondeterminism
   }
   
   func testIngredientAmountEdited() async {
@@ -188,6 +199,72 @@ final class IngredientTests: XCTestCase {
       initialState: IngredientReducer.State(
         id: .init(),
         focusedField: .name, // Assume we are focused on the name for starts.
+        ingredient: .init(id: .init(), name: "foo"),
+        emptyIngredientAmountString: true
+      ),
+      reducer: IngredientReducer.init,
+      withDependencies: {
+        $0.continuousClock = clock
+      }
+    )
+    
+    XCTAssertTrue(store.state.ingredientAmountString == "")
+    XCTAssertTrue(store.state.ingredient.amount == 0)
+    
+    await store.send(.ingredientAmountEdited(""))
+    await store.send(.ingredientAmountEdited("."))
+    await store.send(.ingredientAmountEdited("foo"))
+
+    await store.send(.ingredientAmountEdited("0.2")) {
+      $0.ingredientAmountString = "0.2"
+      $0.ingredient.amount = 0.2
+    }
+
+    await store.send(.ingredientAmountEdited("0.")) {
+      $0.ingredientAmountString = "0"
+      $0.ingredient.amount = 0
+    }
+
+    await store.send(.ingredientAmountEdited("0"))
+  }
+  
+  func testIngredientMeasureEdited() async {
+    let clock = TestClock()
+    let store = TestStore(
+      initialState: IngredientReducer.State(
+        id: .init(),
+        focusedField: .name, // Assume we are focused on the name for starts.
+        ingredient: .init(id: .init(), name: "foo"),
+        emptyIngredientAmountString: true
+      ),
+      reducer: IngredientReducer.init,
+      withDependencies: {
+        $0.continuousClock = clock
+      }
+    )
+    
+    await store.send(.ingredientMeasureEdited("foo")) {
+      $0.ingredient.measure = "foo"
+    }
+    
+    // This should not insert below, as this textfield uses .onSubmit
+    await store.send(.ingredientMeasureEdited("foo\n")) {
+      $0.ingredient.measure = "foo\n"
+    }
+    
+    await store.send(.ingredientMeasureEdited("foo")) { $0.ingredient.measure = "foo" }
+    await store.send(.ingredientMeasureEdited("fo")) { $0.ingredient.measure = "fo" }
+    await store.send(.ingredientMeasureEdited("f")) { $0.ingredient.measure = "f" }
+    await store.send(.ingredientMeasureEdited("")) { $0.ingredient.measure = "" }
+    await store.send(.ingredientMeasureEdited("FOOBAR")) { $0.ingredient.measure = "FOOBAR" }
+  }
+  
+  
+  func testKeyboardDoneButtonTapped() async {
+    let clock = TestClock()
+    let store = TestStore(
+      initialState: IngredientReducer.State(
+        id: .init(),
         ingredient: .init(id: .init(), name: "foo")
       ),
       reducer: IngredientReducer.init,
@@ -195,23 +272,43 @@ final class IngredientTests: XCTestCase {
         $0.continuousClock = clock
       }
     )
-    //     TODO: UI u must double back to get empty str for some reason
-//    await store.send(.ingredientAmountEdited("")) {
-//      $0.ingredientAmountString = "0"
-//      $0.ingredient.amount = 0
-//    }
-//    await store.send(.ingredientAmountEdited("."))
-//
-//    await store.send(.ingredientAmountEdited("0.2")) {
-//      $0.ingredientAmountString = "0.2"
-//      $0.ingredient.amount = 0.2
-//    }
-//
-//    await store.send(.ingredientAmountEdited("0.")) {
-//      $0.ingredientAmountString = "0"
-//      $0.ingredient.amount = 0
-//    }
-//
-//    await store.send(.ingredientAmountEdited("0"))
+    XCTAssertTrue(store.state.focusedField == nil)
+    
+    // Simulate user tapping onto the name then taps done.
+    await store.send(.set(\.$focusedField, .name)) { $0.focusedField = .name }
+    await store.send(.keyboardDoneButtonTapped) { $0.focusedField = nil }
+    
+    // Simulate user tapping onto the amount then taps done.
+    await store.send(.set(\.$focusedField, .amount)) { $0.focusedField = .amount }
+    await store.send(.keyboardDoneButtonTapped) { $0.focusedField = nil }
+    
+    // Simulate user tapping onto the measure then taps done.
+    await store.send(.set(\.$focusedField, .measure)) { $0.focusedField = .measure }
+    await store.send(.keyboardDoneButtonTapped) { $0.focusedField = nil }
+  }
+  
+  func testKeyboardNextButtonTapped() async {
+    let clock = TestClock()
+    let store = TestStore(
+      initialState: IngredientReducer.State(
+        id: .init(),
+        ingredient: .init(id: .init(), name: "foo")
+      ),
+      reducer: IngredientReducer.init,
+      withDependencies: {
+        $0.continuousClock = clock
+      }
+    )
+    XCTAssertTrue(store.state.focusedField == nil)
+    await store.send(.keyboardNextButtonTapped)
+
+    await store.send(.set(\.$focusedField, .name)) { $0.focusedField = .name }
+    await store.send(.keyboardNextButtonTapped) { $0.focusedField = .amount }
+    await store.send(.keyboardNextButtonTapped) { $0.focusedField = .measure }
+    await store.send(.keyboardNextButtonTapped) { $0.focusedField = nil }
+    await clock.advance(by: .microseconds(10))
+    await store.receive(.delegate(.insertIngredient(.below)), timeout: .microseconds(10))
+    
+
   }
 }

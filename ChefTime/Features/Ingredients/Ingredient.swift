@@ -123,7 +123,20 @@ struct IngredientReducer: ReducerProtocol {
     
     let id: ID
     @BindingState var focusedField: FocusField? = nil
-    var ingredient: Recipe.IngredientSection.Ingredient
+    
+    private var _ingredient: Recipe.IngredientSection.Ingredient
+    var ingredient: Recipe.IngredientSection.Ingredient {
+      get {
+        _ingredient
+      }
+      set {
+        _ingredient = newValue
+        _ingredientAmountString = String(newValue.amount)
+      }
+    }
+    
+    // The ingredient.amount is really derived from the
+    // ingredientAmountString and both should be synchronized.
     private var _ingredientAmountString: String
     var ingredientAmountString: String {
       get {
@@ -140,12 +153,13 @@ struct IngredientReducer: ReducerProtocol {
     init(
       id: ID,
       focusedField: FocusField? = nil,
-      ingredient: Recipe.IngredientSection.Ingredient
+      ingredient: Recipe.IngredientSection.Ingredient,
+      emptyIngredientAmountString: Bool = false
     ) {
       self.id = id
       self.focusedField = focusedField
-      self.ingredient = ingredient
-      self._ingredientAmountString = String(ingredient.amount)
+      self._ingredient = ingredient
+      self._ingredientAmountString = emptyIngredientAmountString ? "" : String(ingredient.amount)
     }
   }
   
