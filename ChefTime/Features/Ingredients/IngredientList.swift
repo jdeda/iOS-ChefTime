@@ -101,7 +101,6 @@ struct IngredientsListReducer: ReducerProtocol {
     case isExpandedButtonToggled
     case scaleStepperButtonTapped(Double)
     case addSectionButtonTapped
-    case delegate(DelegateAction)
   }
   
   @Dependency(\.uuid) var uuid
@@ -175,7 +174,7 @@ struct IngredientsListReducer: ReducerProtocol {
         ))
         return .none
         
-      case .delegate, .binding:
+      case .binding:
         return .none
         
       }
@@ -183,13 +182,6 @@ struct IngredientsListReducer: ReducerProtocol {
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientSectionReducer()
     }
-  }
-}
-
-// MARK: - DelegateAction
-extension IngredientsListReducer {
-  enum DelegateAction {
-    case sectionNavigationAreaTapped
   }
 }
 

@@ -191,7 +191,6 @@ struct IngredientSectionReducer: ReducerProtocol  {
               await send(.addIngredient, animation: .default)
             }
             .cancellable(id: AddIngredientID.timer, cancelInFlight: true)
-
           }
         }
         

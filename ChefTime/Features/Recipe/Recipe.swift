@@ -47,7 +47,7 @@ struct RecipeView: View {
           // TODO: if empty or if last section has no ingredients, put a divider
           IngredientListView(store: store.scope(
             state: \.ingredients,
-            action: RecipeReducer.Action.list
+            action: RecipeReducer.Action.ingredients
           ))
           .padding([.horizontal])
           
@@ -108,14 +108,12 @@ struct RecipeReducer: ReducerProtocol {
     var ingredients: IngredientsListReducer.State
     var isHidingImages: Bool
     
-    @PresentationState var destination: DestinationReducer.State?
     
-    init(recipe: Recipe, destination: DestinationReducer.State? = nil) {
+    init(recipe: Recipe) {
       @Dependency(\.uuid) var uuid
       self.recipe = recipe
       self.photos = .init(recipe: recipe)
       self.about = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
-//      self.ingredients = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
       self.ingredients = .init(
         ingredients: .init(uniqueElements: recipe.ingredientSections.map({ section in
             .init(
@@ -133,46 +131,26 @@ struct RecipeReducer: ReducerProtocol {
         focusedField: nil
       )
       self.isHidingImages = false
-      self.destination = destination
     }
   }
   
   enum Action: Equatable {
     case photos(PhotosReducer.Action)
     case about(AboutListReducer.Action)
-    case list(IngredientsListReducer.Action)
+    case ingredients(IngredientsListReducer.Action)
     case recipeNameEdited(String)
     case toggleHideImages
     case setExpansionButtonTapped(Bool)
-    case destination(PresentationAction<DestinationReducer.Action>)
   }
   
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
-      case let .list(action):
-        switch action {
-        case .delegate(.sectionNavigationAreaTapped):
-          state.destination = .ingredients(IngredientsListReducer.State.init(
-            recipe: state.recipe,
-            isExpanded: true,
-            childrenIsExpanded: true
-          ))
-          return .none
-        default: return .none
-        }
-        
-      case let .about(action):
-        return .none
-        
-      case let .photos(action):
+      case .photos, .about, .ingredients:
         return .none
         
       case let .recipeNameEdited(newName):
         state.recipe.name = newName
-        return .none
-        
-      case let .destination(action):
         return .none
         
       case .toggleHideImages:
@@ -193,35 +171,14 @@ struct RecipeReducer: ReducerProtocol {
         return .none
       }
     }
-    .ifLet(\.$destination, action: /Action.destination) {
-      DestinationReducer()
-    }
     Scope(state: \.photos, action: /Action.photos) {
       PhotosReducer()
     }
     Scope(state: \.about, action: /Action.about) {
       AboutListReducer()
     }
-    Scope(state: \.ingredients, action: /Action.list) {
+    Scope(state: \.ingredients, action: /Action.ingredients) {
       IngredientsListReducer()
-    }
-  }
-}
-
-extension RecipeReducer {
-  struct DestinationReducer: ReducerProtocol {
-    enum State: Equatable {
-      case ingredients(IngredientsListReducer.State)
-    }
-    
-    enum Action: Equatable {
-      case ingredients(IngredientsListReducer.Action)
-    }
-    
-    var body: some ReducerProtocolOf<Self> {
-      Scope(state: /State.ingredients, action: /Action.ingredients) {
-        IngredientsListReducer()
-      }
     }
   }
 }

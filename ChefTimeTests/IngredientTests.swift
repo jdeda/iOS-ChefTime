@@ -150,6 +150,13 @@ final class IngredientTests: XCTestCase {
       $0.focusedField = .name
     }
     
+    // Test pressing enter at the beginning of an empty name.
+    await store.send(.ingredientNameEdited("")) { $0.ingredient.name = "" }
+    await store.send(.ingredientNameEdited("\n"))
+    await store.send(.ingredientNameEdited(" "))
+    await store.send(.ingredientNameEdited("       "))
+
+    
     // Test pressing enter at the beginning of the name.
     await store.send(.ingredientNameEdited("\n foobar ")) { $0.focusedField = nil }
     await clock.advance(by: .microseconds(20))

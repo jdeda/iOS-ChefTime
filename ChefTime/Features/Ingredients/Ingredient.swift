@@ -204,6 +204,10 @@ struct IngredientReducer: ReducerProtocol {
         return .none
         
       case let .ingredientNameEdited(newName):
+        if state.ingredient.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+          return .none
+        }
         let didEnter = DidEnter.didEnter(state.ingredient.name, newName)
         switch didEnter {
         case .didNotSatisfy:
