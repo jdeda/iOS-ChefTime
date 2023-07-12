@@ -155,7 +155,10 @@ final class IngredientTests: XCTestCase {
     await store.send(.ingredientNameEdited("\n"))
     await store.send(.ingredientNameEdited(" "))
     await store.send(.ingredientNameEdited("       "))
-
+    
+    await store.send(.ingredientNameEdited(" foobar ")) {
+      $0.ingredient.name = " foobar "
+    }
     
     // Test pressing enter at the beginning of the name.
     await store.send(.ingredientNameEdited("\n foobar ")) { $0.focusedField = nil }

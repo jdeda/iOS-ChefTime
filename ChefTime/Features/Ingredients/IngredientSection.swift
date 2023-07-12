@@ -121,7 +121,6 @@ struct IngredientSectionReducer: ReducerProtocol  {
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
     case rowTapped(IngredientReducer.State.ID)
-    case setFocusedField(FocusField)
     case delegate(DelegateAction)
   }
   
@@ -139,6 +138,9 @@ struct IngredientSectionReducer: ReducerProtocol  {
           switch action {
           case .tappedToDelete:
             // TODO: Animation can be a bit clunky, fix.
+            if case let .row(currId) = state.focusedField, id == currId {
+              state.focusedField = nil
+            }
             state.ingredients.remove(id: id)
             return .none
             
@@ -200,10 +202,6 @@ struct IngredientSectionReducer: ReducerProtocol  {
         
       case let .rowTapped(id):
         state.focusedField = .row(id)
-        return .none
-        
-      case let .setFocusedField(newFocusedField):
-        state.focusedField = newFocusedField
         return .none
         
       case .addIngredient:

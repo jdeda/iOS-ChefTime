@@ -92,6 +92,7 @@
 		97D8CCFE2A55EED60031E760 /* PhotosClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosClient.swift; sourceTree = "<group>"; };
 		97E08CD82A3B8560003A6232 /* StepsListPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsListPreview.swift; sourceTree = "<group>"; };
 		97E08CDC2A3B87D7003A6232 /* StepListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepListView.swift; sourceTree = "<group>"; };
+		97F019442A5F2C3700264922 /* ChefTimeTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChefTimeTests.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +223,7 @@
 		97AD13AB2A2E7392002FCE30 = {
 			isa = PBXGroup;
 			children = (
+				97F019442A5F2C3700264922 /* ChefTimeTests.xctestplan */,
 				979F80812A5DE08600E3B152 /* ChefTime.xctestplan */,
 				97AD13B62A2E7392002FCE30 /* ChefTime */,
 				97833B9A2A584E4E002EB24B /* ChefTimeTests */,
