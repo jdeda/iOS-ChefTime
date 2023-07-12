@@ -105,24 +105,11 @@ struct IngredientSectionReducer: ReducerProtocol  {
     var ingredients: IdentifiedArrayOf<IngredientReducer.State>
     var isExpanded: Bool
     @BindingState var focusedField: FocusField?
-    
-    
-    init(
-      id: ID,
-      ingredientSection: Recipe.IngredientSection,
-      isExpanded: Bool,
-      focusedField: FocusField? = nil
-    ) {
-      @Dependency(\.uuid) var uuid
-      self.id = id
-      self.name = ingredientSection.name
-      self.ingredients = .init(uniqueElements: ingredientSection.ingredients.map({
-        .init(id: .init(rawValue: uuid()), ingredient: $0)
-      }))
-      self.isExpanded = isExpanded
-      self.focusedField = focusedField
-    }
   }
+  
+  // do i even need to test dependency in init?
+  // i'd say yes because ur gonna have to assert
+  // can i have two instance of dependencies?
   
   @Dependency(\.uuid) var uuid
   
@@ -290,8 +277,17 @@ struct IngredientSection_Previews: PreviewProvider {
         IngredientSection(store: .init(
           initialState: .init(
             id: .init(),
-            ingredientSection: Recipe.longMock.ingredientSections.first!,
-            isExpanded: true
+            name: Recipe.longMock.ingredientSections.first!.name,
+            ingredients: .init(uniqueElements: Recipe.longMock.ingredientSections.first!.ingredients.map {
+              .init(
+                id: .init(),
+                focusedField: nil,
+                ingredient: $0,
+                emptyIngredientAmountString: false
+              )
+            }),
+            isExpanded: true,
+            focusedField: nil
           ),
           reducer: IngredientSectionReducer.init,
           withDependencies: { _ in

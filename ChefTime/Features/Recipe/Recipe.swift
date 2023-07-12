@@ -111,10 +111,27 @@ struct RecipeReducer: ReducerProtocol {
     @PresentationState var destination: DestinationReducer.State?
     
     init(recipe: Recipe, destination: DestinationReducer.State? = nil) {
+      @Dependency(\.uuid) var uuid
       self.recipe = recipe
       self.photos = .init(recipe: recipe)
       self.about = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
-      self.ingredients = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
+//      self.ingredients = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
+      self.ingredients = .init(
+        ingredients: .init(uniqueElements: recipe.ingredientSections.map({ section in
+            .init(
+              id: .init(rawValue: uuid()),
+              name: section.name,
+              ingredients: .init(uniqueElements: section.ingredients.map({ ingredient in
+                  .init(id: .init(), focusedField: nil, ingredient: ingredient, emptyIngredientAmountString: false)
+              })),
+              isExpanded: true,
+              focusedField: nil
+            )
+        })),
+        isExpanded: true,
+        scale: 1.0,
+        focusedField: nil
+      )
       self.isHidingImages = false
       self.destination = destination
     }

@@ -93,28 +93,6 @@ struct IngredientsListReducer: ReducerProtocol {
     var isExpanded: Bool
     var scale: Double = 1.0
     @BindingState var focusedField: FocusField? = nil
-    
-    init(
-      recipe: Recipe,
-      isExpanded: Bool,
-      childrenIsExpanded: Bool
-    ) {
-      @Dependency(\.uuid) var uuid
-      self.ingredients = .init(uniqueElements: recipe.ingredientSections.map({
-        .init(
-          id: .init(rawValue: uuid()),
-          ingredientSection: .init(
-            id: .init(rawValue: uuid()),
-            name: $0.name,
-            ingredients: $0.ingredients
-          ),
-          isExpanded: childrenIsExpanded,
-          focusedField: nil
-        )
-      }))
-      self.scale = 1.0
-      self.isExpanded = isExpanded
-    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -145,11 +123,8 @@ struct IngredientsListReducer: ReducerProtocol {
             else { return .none }
             let newSection = IngredientSectionReducer.State(
               id: .init(rawValue: uuid()),
-              ingredientSection: .init(
-                id: .init(rawValue: uuid()),
-                name: "",
-                ingredients: []
-              ),
+              name: "",
+              ingredients: [],
               isExpanded: true,
               focusedField: .name
             )
@@ -191,13 +166,13 @@ struct IngredientsListReducer: ReducerProtocol {
         return .none
         
       case .addSectionButtonTapped:
-        let s = IngredientSectionReducer.State(
+        state.ingredients.append(.init(
           id: .init(rawValue: uuid()),
-          ingredientSection: .init(id: .init(rawValue: uuid()), name: "", ingredients: []),
+          name: "",
+          ingredients: [],
           isExpanded: true,
           focusedField: .name
-        )
-        state.ingredients.append(s)
+        ))
         return .none
         
       case .delegate, .binding:
@@ -285,12 +260,36 @@ struct IngredientList_Previews: PreviewProvider {
       ScrollView {
         IngredientListView(store: .init(
           initialState: .init(
-            recipe: Recipe.empty,
+            ingredients: .init(uniqueElements: Recipe.longMock.ingredientSections.map { section in
+              .init(
+                id: .init(),
+                name: section.name,
+                ingredients: .init(uniqueElements: (section.ingredients.map { ingredient in
+                    .init(
+                      id: .init(),
+                      focusedField: nil,
+                      ingredient: ingredient,
+                      emptyIngredientAmountString: false
+                    )
+                })),
+                isExpanded: true,
+                focusedField: nil
+              )
+            }),
             isExpanded: true,
-            childrenIsExpanded: true
+            scale: 1.0,
+            focusedField: nil
           ),
           reducer: IngredientsListReducer.init
         ))
+//        IngredientListView(store: .init(
+//          initialState: .init(
+//            recipe: Recipe.empty,
+//            isExpanded: true,
+//            childrenIsExpanded: true
+//          ),
+//          reducer: IngredientsListReducer.init
+//        ))
         .padding()
       }
     }

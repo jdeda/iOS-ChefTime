@@ -21,6 +21,7 @@
 		977633DC2A51C987009FD90C /* AboutList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633DB2A51C987009FD90C /* AboutList.swift */; };
 		9782405B2A3B410000CAC459 /* IngredientList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9782405A2A3B410000CAC459 /* IngredientList.swift */; };
 		97833B9C2A584E4E002EB24B /* IngredientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97833B9B2A584E4E002EB24B /* IngredientTests.swift */; };
+		979F80832A5DE43000E3B152 /* IngredientSectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 979F80822A5DE43000E3B152 /* IngredientSectionTests.swift */; };
 		97AD13B82A2E7392002FCE30 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B72A2E7392002FCE30 /* Main.swift */; };
 		97AD13BC2A2E7394002FCE30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BB2A2E7394002FCE30 /* Assets.xcassets */; };
 		97AD13BF2A2E7394002FCE30 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BE2A2E7394002FCE30 /* Preview Assets.xcassets */; };
@@ -71,6 +72,7 @@
 		97833B992A584E4E002EB24B /* ChefTimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChefTimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		97833B9B2A584E4E002EB24B /* IngredientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientTests.swift; sourceTree = "<group>"; };
 		979F80812A5DE08600E3B152 /* ChefTime.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChefTime.xctestplan; sourceTree = "<group>"; };
+		979F80822A5DE43000E3B152 /* IngredientSectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSectionTests.swift; sourceTree = "<group>"; };
 		97AD13B42A2E7392002FCE30 /* ChefTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChefTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AD13B72A2E7392002FCE30 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		97AD13BB2A2E7394002FCE30 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -211,6 +213,7 @@
 		97833B9A2A584E4E002EB24B /* ChefTimeTests */ = {
 			isa = PBXGroup;
 			children = (
+				979F80822A5DE43000E3B152 /* IngredientSectionTests.swift */,
 				97833B9B2A584E4E002EB24B /* IngredientTests.swift */,
 			);
 			path = ChefTimeTests;
@@ -415,6 +418,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				979F80832A5DE43000E3B152 /* IngredientSectionTests.swift in Sources */,
 				97833B9C2A584E4E002EB24B /* IngredientTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
