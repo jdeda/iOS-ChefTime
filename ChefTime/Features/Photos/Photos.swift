@@ -1,12 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import PhotosUI
-///   0. ideal, but may be impoosible w/o going to great lengths -
-///   double click, get a multi-select, validate and notify in real time when tapped if image didnt work
-///   1, double click, get a multi-select, if some images fail, notify them that some images didn't work
-///   2. single click, get a single select for the specific image indexed, ntofiy them that an image didnt work
-///   3. double click, nav to new page, showing selected images, user can tap an image to get a sheet and notify if didntt work
-///
+
 /// must worry about add, remove, replace, order (but not reorder)
 /// - tap gestures won't work here
 /// - hold -> context menu -> 3 buttons ->  replace, add, remove
@@ -47,7 +42,7 @@ struct PhotosView: View {
             imageDatas: viewStore.photos,
             selection: viewStore.binding(
               get: \.selection,
-              send: { .setSelection($0) }
+              send: { .photoSelectionChanged($0) }
             )
           )
         }
@@ -59,6 +54,7 @@ struct PhotosView: View {
           } label: {
             Text("Replace")
           }
+          .disabled(viewStore.photoEditInFlight)
         }
         
         Button {
@@ -66,6 +62,7 @@ struct PhotosView: View {
         } label: {
           Text("Add")
         }
+        .disabled(viewStore.photoEditInFlight)
         
         if !viewStore.photos.isEmpty {
           Button(role: .destructive) {
@@ -73,6 +70,7 @@ struct PhotosView: View {
           } label: {
             Text("Delete")
           }
+          .disabled(viewStore.photoEditInFlight)
         }
       }, preview: {
         PhotosContextMenuPreview(state: viewStore.state)
@@ -102,14 +100,13 @@ struct PhotosReducer: ReducerProtocol {
     var photoPickerItem: PhotosPickerItem? = nil
     var photoEditStatus: PhotoEditStatus? = nil
     
-    init(recipe: Recipe) {
-      self.photos = recipe.imageData
-      self.selection = recipe.imageData.first?.id
+    var photoEditInFlight: Bool {
+      photoEditStatus != nil
     }
   }
   
   enum Action: Equatable {
-    case setSelection(Recipe.ImageData.ID?)
+    case photoSelectionChanged(Recipe.ImageData.ID?)
     case replaceButtonTapped
     case addButtonTapped
     case deleteButtonTapped
@@ -125,7 +122,7 @@ struct PhotosReducer: ReducerProtocol {
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
-      case let .setSelection(id):
+      case let .photoSelectionChanged(id):
         if let id = id, state.photos.ids.contains(id) {
           state.selection = id
         }
@@ -134,26 +131,52 @@ struct PhotosReducer: ReducerProtocol {
         }
         return .none
         
+        // TODO: Checking if in flight here not super necessary.
       case .replaceButtonTapped:
-        // TODO: what if the id is invalid or nil?
-        guard let id = state.selection else { return .none }
+        guard let id = state.selection
+        else { return .none } // TODO: what if the id is invalid or nil?
+        
         state.photoEditStatus = .replace(id)
         return .none
         
       case .addButtonTapped:
-        guard let id = state.selection else { return .none }
-        state.photoEditStatus = .add(id)
-        return .none
+        if state.photos.isEmpty {
+          state.photoEditStatus = .addWhenEmpty
+          return .none
+        }
+        else {
+          guard let id = state.selection else { return .none }
+          state.photoEditStatus = .add(id)
+          return .none
+        }
         
       case .deleteButtonTapped:
         guard let id = state.selection,
               let i = state.photos.index(id: id)
         else { return .none }
-        state.photos.remove(at: i)
-        // TODO: Why does this work for last but not first...WTF
-        state.selection = state.photos.elements.first?.id // TODO: WHERE?
+        
+        state.photos.remove(id: id)
+        state.selection = nil
+        if state.photos.isEmpty {
+          state.selection = nil
+          return .none
+        }
+        else if i <= state.photos.count - 1 {
+          state.selection = state.photos[i].id
+        }
+        else {
+          var i = i
+          while i > state.photos.count -  1 {
+            i -= 1
+          }
+          state.selection = state.photos[i].id
+        }
         return .none
         
+        /// how do we test, this photopickeritem
+        /// 1. we cant even create a photopicker item
+        /// 2. we have a dependency that parses it into data...
+        /// 3. this is just calling that operator to
       case let .photoPickerItem(item):
         guard let item else { return .none}
         return .run { [status = state.photoEditStatus] send in
@@ -174,13 +197,21 @@ struct PhotosReducer: ReducerProtocol {
         case let .replace(id):
           state.photos[id: id]?.imageData = imageData.imageData
           // really, imageData should be immutable, so i should have to put a copy...
+          state.photoEditStatus = nil
           return .none
           
         case let .add(id):
-          guard let i = state.photos.index(id: id)
-          else { return .none }
-          state.photos.insert(imageData, at: i)
-          state.selection = imageData.id // TODO: WHERE
+          guard let i = state.photos.index(id: id) else { return .none }
+          state.photos.insert(imageData, at: i + 0)
+          // TODO: To insert in place, or after?
+          state.selection = imageData.id
+          state.photoEditStatus = nil
+          return .none
+    
+        case .addWhenEmpty:
+          state.photos.append(imageData) // Possible could insert not a zero?
+          state.selection = imageData.id
+          state.photoEditStatus = nil
           return .none
           
         case .none:
@@ -201,6 +232,7 @@ extension PhotosReducer {
   enum PhotoEditStatus: Equatable {
     case replace(Recipe.ImageData.ID)
     case add(Recipe.ImageData.ID)
+    case addWhenEmpty
   }
 }
 
@@ -246,7 +278,10 @@ struct PhotosView_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         PhotosView(store: .init(
-          initialState: .init(recipe: .longMock),
+          initialState: .init(
+            photos: Recipe.longMock.imageData,
+            selection: Recipe.longMock.imageData.first?.id
+          ),
           reducer: PhotosReducer.init
         ))
       }

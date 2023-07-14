@@ -7,7 +7,6 @@ struct PhotosClient: DependencyKey {
   var requestAuthorization: @Sendable () async -> PHAuthorizationStatus
   var getAuthorizationStatus: @Sendable () -> PHAuthorizationStatus
   var convertPhotoPickerItem: @Sendable (PhotosPickerItem) async -> Data?
-  var convertPhotoPickerItems: @Sendable ([PhotosPickerItem]) async -> [Data]
 
   struct Failure: Equatable, Error {}
 }
@@ -21,8 +20,8 @@ extension DependencyValues {
 
 extension PhotosClient {
   static var liveValue = Self.live
-//  static var previewValue = Self.preview
-//  static var testValue = Self.test
+  static var previewValue = Self.preview
+  static var testValue = Self.test
 }
 
 extension PhotosClient {
@@ -36,20 +35,17 @@ extension PhotosClient {
       },
       convertPhotoPickerItem: { photosPickerItem in
         try? await photosPickerItem.loadTransferable(type: Data.self)
-      },
-      convertPhotoPickerItems: { photosPickerItems in
-        await withTaskGroup(of: Data?.self, returning: [Data].self) { taskGroup in
-          for item in photosPickerItems {
-            taskGroup.addTask {
-              try? await item.loadTransferable(type: Data.self)
-            }
-          }
-          return await taskGroup.reduce(into: []) { partial, element in
-            guard let element else { return }
-            partial.append(element)
-          }
-        }
       }
+    )
+  }
+  
+  static var preview: PhotosClient = .live
+  
+  static var test: Self {
+    return Self(
+      requestAuthorization: XCTUnimplemented("\(Self.self).requestAuthorization"),
+      getAuthorizationStatus: XCTUnimplemented("\(Self.self).getAuthorizationStatus"),
+      convertPhotoPickerItem: XCTUnimplemented("\(Self.self).requestAuthorization")
     )
   }
 }

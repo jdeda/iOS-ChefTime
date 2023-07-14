@@ -112,7 +112,10 @@ struct RecipeReducer: ReducerProtocol {
     init(recipe: Recipe) {
       @Dependency(\.uuid) var uuid
       self.recipe = recipe
-      self.photos = .init(recipe: recipe)
+      self.photos = .init(
+        photos: recipe.imageData,
+        selection: recipe.imageData.first?.id
+      )
       self.about = .init(
         aboutSections: .init(uniqueElements: recipe.aboutSections.map({ section in
             .init(id: .init(rawValue: uuid()), aboutSection: section, isExpanded: true)
