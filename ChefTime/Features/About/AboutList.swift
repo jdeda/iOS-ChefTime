@@ -88,23 +88,6 @@ struct AboutListReducer: ReducerProtocol {
     var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State>
     var isExpanded: Bool
     @BindingState var focusedField: FocusField? = nil
-    
-    init(
-      recipe: Recipe,
-      isExpanded: Bool,
-      childrenIsExpanded: Bool
-    ) {
-      @Dependency(\.uuid) var uuid
-      
-      self.aboutSections = .init(uniqueElements: recipe.aboutSections.map {
-        AboutSectionReducer.State(
-          id: .init(rawValue: uuid()),
-          aboutSection: $0,
-          isExpanded: isExpanded
-        )
-      })
-      self.isExpanded = isExpanded
-    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -196,9 +179,10 @@ struct AboutList_Previews: PreviewProvider {
       ScrollView {
         AboutListView(store: .init(
           initialState: .init(
-            recipe: Recipe.empty,
-            isExpanded: true,
-            childrenIsExpanded: true
+            aboutSections: .init(uniqueElements: Recipe.longMock.aboutSections.map({
+              .init(id: .init(), aboutSection: $0, isExpanded: true)
+            })),
+            isExpanded: true
           ),
           reducer: AboutListReducer.init,
           withDependencies: { _ in

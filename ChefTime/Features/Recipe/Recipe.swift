@@ -113,7 +113,13 @@ struct RecipeReducer: ReducerProtocol {
       @Dependency(\.uuid) var uuid
       self.recipe = recipe
       self.photos = .init(recipe: recipe)
-      self.about = .init(recipe: recipe, isExpanded: true, childrenIsExpanded: true)
+      self.about = .init(
+        aboutSections: .init(uniqueElements: recipe.aboutSections.map({ section in
+            .init(id: .init(rawValue: uuid()), aboutSection: section, isExpanded: true)
+        })),
+        isExpanded: true,
+        focusedField: nil
+      )
       self.ingredients = .init(
         ingredients: .init(uniqueElements: recipe.ingredientSections.map({ section in
             .init(
