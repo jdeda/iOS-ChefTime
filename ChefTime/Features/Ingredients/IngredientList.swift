@@ -2,6 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 
 // MARK: - IngredientsListView
+// TODO: Why is there a focus state
 struct IngredientListView: View {
   let store: StoreOf<IngredientsListReducer>
   @FocusState private var focusedField: IngredientsListReducer.FocusField?
@@ -120,6 +121,8 @@ struct IngredientsListReducer: ReducerProtocol {
           case let .insertSection(aboveBelow):
             guard let i = state.ingredients.index(id: id)
             else { return .none }
+            state.ingredients[i].focusedField = nil
+            
             let newSection = IngredientSectionReducer.State(
               id: .init(rawValue: uuid()),
               name: "",
@@ -140,6 +143,7 @@ struct IngredientsListReducer: ReducerProtocol {
         
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
+        state.focusedField = nil
         // MARK: - W/O niling could end up with duplicate keyboard buttons due to conditional logic
         state.ingredients.ids.forEach { id1 in
           state.ingredients[id: id1]?.focusedField = nil
@@ -165,13 +169,15 @@ struct IngredientsListReducer: ReducerProtocol {
         return .none
         
       case .addSectionButtonTapped:
+        let id = IngredientSectionReducer.State.ID(rawValue: uuid())
         state.ingredients.append(.init(
-          id: .init(rawValue: uuid()),
+          id: id,
           name: "",
           ingredients: [],
           isExpanded: true,
           focusedField: .name
         ))
+        state.focusedField = .row(id)
         return .none
         
       case .binding:

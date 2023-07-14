@@ -477,21 +477,6 @@ final class IngredientSectionTests: XCTestCase {
         }
       )
     }
-
-//    let store = TestStore(
-//      initialState: IngredientSectionReducer.State(
-//        id: .init(rawValue: .init()),
-//        name: "Fig Jam",
-//        ingredients: ingredients,
-//        isExpanded: false,
-//        focusedField: nil
-//      ),
-//      reducer: IngredientSectionReducer.init,
-//      withDependencies: {
-//        $0.uuid = .incrementing
-//      }
-//    )
-//
     
     // Focus onto a row and insert above.
     guard let first = try? XCTUnwrap(store.state.ingredients.first)
