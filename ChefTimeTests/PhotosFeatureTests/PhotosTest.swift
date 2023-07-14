@@ -7,16 +7,7 @@ import Dependencies
 
 @MainActor
 final class PhotosTests: XCTestCase {
-  
-  
-  //case setSelection(Recipe.ImageData.ID?)
-  //case replaceButtonTapped
-  //case addButtonTapped
-  //case deleteButtonTapped
-  //case photoPickerItem(PhotosPickerItem?)
-  //case dismissPhotosPicker
-  //case applyPhotoEdit(PhotoEditStatus?, Recipe.ImageData)
-  
+    
   func testPhotoSelectionChanged() async {
     let store = withDependencies {
       $0.uuid = .incrementing
@@ -244,8 +235,6 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = nil
       XCTAssertTrue($0.photoEditInFlight == false)
     }
-    
-    
     
     // Swipe back and delete.
     await store.send(.photoSelectionChanged(fourthPhotoID)) {
