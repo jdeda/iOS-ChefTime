@@ -95,7 +95,6 @@ struct AboutListReducer: ReducerProtocol {
     case aboutSection(AboutSectionReducer.State.ID, AboutSectionReducer.Action)
     case isExpandedButtonToggled
     case addSectionButtonTapped
-    case delegate(DelegateAction)
   }
   
   @Dependency(\.uuid) var uuid
@@ -109,12 +108,16 @@ struct AboutListReducer: ReducerProtocol {
         case let .delegate(action):
           switch action {
           case .deleteSectionButtonTapped:
+            if case .row = state.focusedField {
+              state.focusedField = nil
+            }
             state.aboutSections.remove(id: id)
             return .none
             
           case let .insertSection(aboveBelow):
             // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
             guard let i = state.aboutSections.index(id: id) else { return .none }
+            state.aboutSections[i].focusedField = nil
             let newSection = AboutSectionReducer.State(
               id: .init(rawValue: uuid()),
               aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""),
@@ -138,6 +141,7 @@ struct AboutListReducer: ReducerProtocol {
         return .none
         
       case .addSectionButtonTapped:
+        guard state.aboutSections.isEmpty else { return .none }
         let s = AboutSectionReducer.State.init(
           id: .init(rawValue: uuid()),
           aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""),
@@ -145,9 +149,10 @@ struct AboutListReducer: ReducerProtocol {
           focusedField: .name
         )
         state.aboutSections.append(s)
+        state.focusedField = .row(s.id)
         return .none
         
-      case .delegate, .binding:
+      case .binding:
         return .none
         
       }
@@ -155,13 +160,6 @@ struct AboutListReducer: ReducerProtocol {
     .forEach(\.aboutSections, action: /Action.aboutSection) {
       AboutSectionReducer()
     }
-  }
-}
-
-// MARK: - DelegateAction
-extension AboutListReducer {
-  enum DelegateAction {
-    case sectionNavigationAreaTapped
   }
 }
 

@@ -220,11 +220,11 @@
 		97833B9A2A584E4E002EB24B /* ChefTimeTests */ = {
 			isa = PBXGroup;
 			children = (
+				97B00B442A617A6E00227251 /* AboutSectionTests.swift */,
+				97590E452A61816500EBC604 /* AboutListTests.swift */,
 				979ED97C2A5F47A000CF2B5F /* IngredientListTests.swift */,
 				979F80822A5DE43000E3B152 /* IngredientSectionTests.swift */,
 				97833B9B2A584E4E002EB24B /* IngredientTests.swift */,
-				97B00B442A617A6E00227251 /* AboutSectionTests.swift */,
-				97590E452A61816500EBC604 /* AboutListTests.swift */,
 			);
 			path = ChefTimeTests;
 			sourceTree = "<group>";
