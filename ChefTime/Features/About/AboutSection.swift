@@ -158,6 +158,11 @@ struct AboutSectionReducer: ReducerProtocol  {
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
         }
+        if !oldName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+          state.aboutSection.name = ""
+          return .none
+        }
         let didEnter = DidEnter.didEnter(oldName, newName)
         switch didEnter {
         case .didNotSatisfy:

@@ -219,6 +219,15 @@ final class IngredientSectionTests: XCTestCase {
       $0.name = ""
     }
     
+    await store.send(.ingredientSectionNameEdited("foo")) {
+      $0.name = "foo"
+    }
+    
+    // Pasting an empty name should leave the name as empty and nothing else.
+    await store.send(.ingredientSectionNameEdited("\n")) {
+      $0.name = ""
+    }
+    
     // Clicking enter with nothing but whitespaces shouldn't trigger a keyboard dismiss.
     await store.send(.ingredientSectionNameEdited("\n"))
     await store.send(.ingredientSectionNameEdited("\n     "))

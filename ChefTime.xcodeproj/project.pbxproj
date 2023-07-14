@@ -31,6 +31,7 @@
 		97AD13CC2A2E7447002FCE30 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = 97AD13CB2A2E7447002FCE30 /* Tagged */; };
 		97AD13CF2A2E74C2002FCE30 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13CE2A2E74C2002FCE30 /* Recipe.swift */; };
 		97AD13D32A2E74E9002FCE30 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13D22A2E74E9002FCE30 /* Model.swift */; };
+		97B00B452A617A6E00227251 /* AboutSectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B00B442A617A6E00227251 /* AboutSectionTests.swift */; };
 		97B62F312A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B62F302A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift */; };
 		97C04E682A40AA0D00EB7D6D /* burger_bun_01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E622A40AA0C00EB7D6D /* burger_bun_01.jpg */; };
 		97C04E692A40AA0D00EB7D6D /* burger_bun_02.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E632A40AA0D00EB7D6D /* burger_bun_02.jpg */; };
@@ -82,6 +83,7 @@
 		97AD13C52A2E73C8002FCE30 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
 		97AD13CE2A2E74C2002FCE30 /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
 		97AD13D22A2E74E9002FCE30 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		97B00B442A617A6E00227251 /* AboutSectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSectionTests.swift; sourceTree = "<group>"; };
 		97B62F302A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDisclosureGroupStyle.swift; sourceTree = "<group>"; };
 		97C04E622A40AA0C00EB7D6D /* burger_bun_01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_01.jpg; sourceTree = "<group>"; };
 		97C04E632A40AA0D00EB7D6D /* burger_bun_02.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_02.jpg; sourceTree = "<group>"; };
@@ -219,6 +221,7 @@
 				979ED97C2A5F47A000CF2B5F /* IngredientListTests.swift */,
 				979F80822A5DE43000E3B152 /* IngredientSectionTests.swift */,
 				97833B9B2A584E4E002EB24B /* IngredientTests.swift */,
+				97B00B442A617A6E00227251 /* AboutSectionTests.swift */,
 			);
 			path = ChefTimeTests;
 			sourceTree = "<group>";
@@ -424,6 +427,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				979F80832A5DE43000E3B152 /* IngredientSectionTests.swift in Sources */,
+				97B00B452A617A6E00227251 /* AboutSectionTests.swift in Sources */,
 				979ED97D2A5F47A000CF2B5F /* IngredientListTests.swift in Sources */,
 				97833B9C2A584E4E002EB24B /* IngredientTests.swift in Sources */,
 			);

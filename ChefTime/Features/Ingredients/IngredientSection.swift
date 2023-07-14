@@ -174,6 +174,11 @@ struct IngredientSectionReducer: ReducerProtocol  {
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
         }
+        if !state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+          state.name = ""
+          return .none
+        }
         let didEnter = DidEnter.didEnter(state.name, newName)
         switch didEnter {
         case .didNotSatisfy:
