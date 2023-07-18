@@ -9,7 +9,8 @@ import PhotosUI
 
 // TODO: how 2 align context menu space, should they have a icon too?
 // TODO: put a limit of 5-10 photos a recpe
-// TODO: lots of testing to make sure things go right here...
+// TODO: add progress view and alert if photos fail
+// TODO: ask for user permissions
 
 // MARK: - View
 struct PhotosView: View {
