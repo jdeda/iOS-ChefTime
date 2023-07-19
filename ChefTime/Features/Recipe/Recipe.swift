@@ -14,20 +14,25 @@ struct RecipeView: View {
     WithViewStore(store) { viewStore in
       NavigationStack {
         ScrollView {
-          if !viewStore.isHidingImages {
-            PhotosView(store: store.scope(
-              state: \.photos,
-              action: RecipeReducer.Action.photos
-            ))
-            .padding([.horizontal])
-            .padding([.bottom, .top])
+          VStack {
+            if !viewStore.isHidingImages {
+              PhotosView(store: store.scope(
+                state: \.photos,
+                action: RecipeReducer.Action.photos
+              ))
+              .padding([.horizontal])
+              .padding([.bottom, .top])
+            }
+            else {
+              Rectangle()
+                .fill(.clear)
+                .frame(height: 5)
+              // TODO: This must be the same size as the photos view
+              // or expansion will look werd
+            }
           }
-          else {
-            Rectangle()
-              .fill(.clear)
-              .frame(height: 5)
-          }
-
+          .animation(.default, value: viewStore.isHidingImages)
+          
           // TODO: If tapped done on section with empty name and ingredients delete it
           AboutListView(store: store.scope(
             state: \.about,
@@ -43,7 +48,7 @@ struct RecipeView: View {
               .padding([.horizontal])
               .padding([.top], 5)
           }
-
+          
           // TODO: if empty or if last section has no ingredients, put a divider
           IngredientListView(store: store.scope(
             state: \.ingredients,
@@ -63,6 +68,12 @@ struct RecipeView: View {
                 .padding([.top], 5)
             }
           }
+          
+//          StepsListView(store: store.scope(
+//            state: \.steps,
+//            action: RecipeReducer.Action.steps
+//          ))
+//          .padding([.horizontal])
 
           
           Spacer()
@@ -106,8 +117,8 @@ struct RecipeReducer: ReducerProtocol {
     var photos: PhotosReducer.State
     var about: AboutListReducer.State
     var ingredients: IngredientsListReducer.State
+//    var steps: StepsListReducer.State
     var isHidingImages: Bool
-    
     
     init(recipe: Recipe) {
       @Dependency(\.uuid) var uuid
@@ -118,7 +129,11 @@ struct RecipeReducer: ReducerProtocol {
       )
       self.about = .init(
         aboutSections: .init(uniqueElements: recipe.aboutSections.map({ section in
-            .init(id: .init(rawValue: uuid()), aboutSection: section, isExpanded: true)
+            .init(
+              id: .init(rawValue: uuid()),
+              aboutSection: section,
+              isExpanded: true
+            )
         })),
         isExpanded: true,
         focusedField: nil
@@ -129,7 +144,12 @@ struct RecipeReducer: ReducerProtocol {
               id: .init(rawValue: uuid()),
               name: section.name,
               ingredients: .init(uniqueElements: section.ingredients.map({ ingredient in
-                  .init(id: .init(), focusedField: nil, ingredient: ingredient, emptyIngredientAmountString: false)
+                  .init(
+                    id: .init(),
+                    focusedField: nil,
+                    ingredient: ingredient,
+                    emptyIngredientAmountString: false
+                  )
               })),
               isExpanded: true,
               focusedField: nil
@@ -139,6 +159,21 @@ struct RecipeReducer: ReducerProtocol {
         scale: 1.0,
         focusedField: nil
       )
+//      self.steps = .init(
+//        stepSections: .init(uniqueElements: recipe.steps.map({ section in
+//            .init(
+//              id: .init(rawValue: uuid()),
+//              name: section.name,
+//              steps: .init(uniqueElements: section.steps.map({ step in
+//                  .init(
+//                    id: .init(rawValue: uuid()),
+//                    description: step.description,
+//                    imageData: step.imageData
+//                  )
+//              }))
+//            )
+//        }))
+//      )
       self.isHidingImages = false
     }
   }
@@ -147,6 +182,7 @@ struct RecipeReducer: ReducerProtocol {
     case photos(PhotosReducer.Action)
     case about(AboutListReducer.Action)
     case ingredients(IngredientsListReducer.Action)
+//    case steps(StepsListReducer.Action)
     case recipeNameEdited(String)
     case toggleHideImages
     case setExpansionButtonTapped(Bool)
@@ -165,7 +201,7 @@ struct RecipeReducer: ReducerProtocol {
       case .toggleHideImages:
         state.isHidingImages.toggle()
         return .none
-    
+        
       case let .setExpansionButtonTapped(expand):
         state.about.isExpanded = expand
         state.about.aboutSections.ids.forEach {
@@ -189,32 +225,14 @@ struct RecipeReducer: ReducerProtocol {
     Scope(state: \.ingredients, action: /Action.ingredients) {
       IngredientsListReducer()
     }
+//    Scope(state: \.steps, action: /Action.steps) {
+//      StepsListReducer()
+//    }
   }
 }
 
 struct RecipeView_Previews: PreviewProvider {
   static var previews: some View {
-    // Long
-//    RecipeView(store: .init(
-//      initialState: RecipeReducer.State(
-//        recipe: .longMock
-//      ),
-//      reducer: RecipeReducer.init,
-//      withDependencies: { _ in
-//        // TODO:
-//      }
-//    ))
-//    // Short
-//    RecipeView(store: .init(
-//      initialState: RecipeReducer.State(
-//        recipe: .shortMock
-//      ),
-//      reducer: RecipeReducer.init,
-//      withDependencies: { _ in
-//        // TODO:
-//      }
-//    ))
-    // Empty
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
         recipe: .empty
