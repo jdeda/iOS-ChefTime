@@ -28,6 +28,7 @@ struct StepSection: View {
           action: StepSectionReducer.Action.step
         )) { childStore in
           StepView(store: childStore, index: 1)
+            .accentColor(.accentColor)
         }
       } label: {
         TextField(
@@ -178,7 +179,9 @@ struct StepSectionReducer: ReducerProtocol  {
         return .none
       }
     }
-    ._printChanges()
+    .forEach(\.steps, action: /Action.step) {
+      StepReducer()
+    }
   }
 }
 
@@ -218,7 +221,7 @@ private struct StepSectionContextMenuPreview: View {
         .accentColor(.accentColor)
         .frame(alignment: .leading)
         .multilineTextAlignment(.leading)
-
+      
     }
     .accentColor(.primary)
   }
