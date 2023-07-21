@@ -49,18 +49,6 @@ struct StepView: View {
               } label: {
                 Text("done")
               }
-            }
-          }
-        }
-        .toolbar {
-          if viewStore.focusedField == .description {
-            ToolbarItemGroup(placement: .keyboard) {
-              Spacer()
-              Button {
-                viewStore.send(.keyboardDoneButtonTapped)
-              } label: {
-                Text("done")
-              }
               .accentColor(.primary)
             }
           }
