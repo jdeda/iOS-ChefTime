@@ -6,7 +6,7 @@ import Tagged
 // TODO: sometimes screen moves very weird on inserts
 // TODO: ingredient .next/return sometimes doesnt focus to new element
 // TODO: rename model and feature names to be more consistent
-
+// TODO: debounce collapse buttons (would be super slick)
 // TODO: Make sure disclosure group styles are consistent
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>

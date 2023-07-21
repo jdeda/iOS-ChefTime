@@ -1,6 +1,9 @@
 import SwiftUI
 import ComposableArchitecture
 
+// TODO: For every feature deleagte,pleas euse a casepath, plerase dop it on all of them
+
+
 // MARK: - StepListView
 struct StepListView: View {
   let store: StoreOf<StepListReducer>

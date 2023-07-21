@@ -124,10 +124,26 @@ struct StepSectionReducer: ReducerProtocol  {
       case let .step(id, action):
         let action = (/StepReducer.Action.delegate).extract(from: action)
         switch action  {
-        default:
+        case .deleteButtonTapped:
+          state.steps.remove(id: id)
+          return .none
+
+        case let .insertButtonTapped(aboveBelow):
+          // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
+          guard let i = state.steps.index(id: id) else { return .none }
+          state.steps[i].focusedField = nil
+          let newStep = StepReducer.State(
+            id: .init(rawValue: uuid()),
+            step: .init(id: .init(rawValue: uuid()), description: ""),
+            focusedField: .description
+          )
+          state.steps.insert(newStep, at: aboveBelow == .above ? i : i + 1)
+          return .none
+          
+        case .none:
           return .none
         }
-        return .none
+        
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
         state.focusedField = nil
@@ -173,6 +189,11 @@ struct StepSectionReducer: ReducerProtocol  {
         
       case .addStep:
         // TODO: ...
+        state.steps.append(StepReducer.State(
+          id: .init(rawValue: uuid()),
+          step: .init(id: .init(rawValue: uuid()), description: ""),
+          focusedField: .description
+        ))
         return .none
         
       case .delegate, .binding:
@@ -197,7 +218,6 @@ extension StepSectionReducer {
 extension StepSectionReducer {
   enum FocusField: Equatable, Hashable {
     case name
-    case description
   }
 }
 

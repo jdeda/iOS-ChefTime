@@ -280,14 +280,6 @@ struct IngredientList_Previews: PreviewProvider {
           ),
           reducer: IngredientsListReducer.init
         ))
-//        IngredientListView(store: .init(
-//          initialState: .init(
-//            recipe: Recipe.empty,
-//            isExpanded: true,
-//            childrenIsExpanded: true
-//          ),
-//          reducer: IngredientsListReducer.init
-//        ))
         .padding()
       }
     }

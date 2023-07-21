@@ -50,6 +50,27 @@ struct StepView: View {
         Divider()
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .contextMenu {
+        Button {
+          viewStore.send(.delegate(.insertButtonTapped(.above)), animation: .default)
+        } label: {
+          Text("Insert Step Above")
+        }
+        Button {
+          viewStore.send(.delegate(.insertButtonTapped(.below)), animation: .default)
+        } label: {
+          Text("Insert Step Below")
+        }
+        Button(role: .destructive) {
+          viewStore.send(.delegate(.deleteButtonTapped), animation: .default)
+        } label: {
+          Text("Delete")
+        }
+      } preview: {
+        StepContextMenuPreview(state: viewStore.state)
+          .frame(width: 200)
+          .padding()
+      }
     }
   }
 }
@@ -98,7 +119,8 @@ extension StepReducer {
 
 extension StepReducer {
   enum DelegateAction: Equatable {
-    
+    case insertButtonTapped(AboveBelow)
+    case deleteButtonTapped
   }
 }
 
@@ -114,7 +136,6 @@ struct StepContextMenuPreview: View {
         .padding(.bottom, 1)
       Text(state.step.description)
         .lineLimit(2)
-      Divider()
     }
   }
 }
