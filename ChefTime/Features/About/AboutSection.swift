@@ -3,6 +3,42 @@ import ComposableArchitecture
 import Tagged
 import Combine
 
+// toolbarDone
+//  .toolbar {
+//    if viewStore.focusedField == .someValueWeCareAbout {
+//      ToolbarItemGroup(placement: .keyboard) {
+//        Spacer()
+//        Button {
+//          viewStore.send(.keyboardDoneButtonTapped)
+//        } label: {
+//          Text("done")
+//        }
+//      }
+//    }
+
+// contextMenuAddReplaceDelete
+//  .contextMenu {
+//    Button {
+//      viewStore.send(.delegate(.insertSection(.above)), animation: .default)
+//    } label: {
+//      Text("Insert Section Above")
+//    }
+//    Button {
+//      viewStore.send(.delegate(.insertSection(.below)), animation: .default)
+//    } label: {
+//      Text("Insert Section Below")
+//    }
+//    Button(role: .destructive) {
+//      viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+//    } label: {
+//      Text("Delete")
+//    }
+//  } preview: {
+//    AboutSectionContextMenuPreview(state: viewStore.state)
+//      .frame(width: 200)
+//      .padding()
+//  }
+
 // TODO: - Bug - if focused on a row, then collapse, then click a row again, dupe buttons appear...
 // but sometimes if you tap another row, the dupe goes away, this does not work all the time
 // this is all happening probably because we didn't nil out the focus state
@@ -31,11 +67,7 @@ struct AboutSection: View {
           axis: .vertical
         )
         .focused($focusedField, equals: .description)
-        .foregroundColor(.primary)
         .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
         .autocapitalization(.none)
         .autocorrectionDisabled()
         .toolbar {
@@ -51,7 +83,6 @@ struct AboutSection: View {
           }
         }
       } label: {
-        // TODO: An alert might feel nicer here to restore the DisclosureGroup collapse UX.
         TextField(
           "Untitled About Section",
           text: viewStore.binding(
@@ -61,15 +92,7 @@ struct AboutSection: View {
           axis: .vertical
         )
         .focused($focusedField, equals: .name)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+        .textSubtitleStyle()
         .toolbar {
           if viewStore.focusedField == .name {
             ToolbarItemGroup(placement: .keyboard) {
@@ -218,23 +241,12 @@ private struct AboutSectionContextMenuPreview: View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
       Text(!state.aboutSection.description.isEmpty ? state.aboutSection.description : "...")
         .lineLimit(4)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
         .autocapitalization(.none)
         .autocorrectionDisabled()
     } label: {
-      Text(!state.aboutSection.name.isEmpty ? state.aboutSection.name : "Untitled About Section")
+      Text(!state.aboutSection.name.isEmpty ? state.aboutSection.name : "...")
         .lineLimit(2)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+        .textSubtitleStyle()
     }
     .accentColor(.primary)
   }

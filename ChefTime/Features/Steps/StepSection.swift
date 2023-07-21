@@ -22,15 +22,18 @@ struct StepSection: View {
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
       )) {
-        // TODO: Step view goes here.
         ForEachStore(store.scope(
           state: \.steps,
           action: StepSectionReducer.Action.step
         )) { childStore in
           // TODO: Move this into reducer and test.
-          let index = viewStore.steps.index(id: ViewStore(childStore).id) ?? 0
+          let id = ViewStore(childStore).id
+          let index = viewStore.steps.index(id:id) ?? 0
           StepView(store: childStore, index: index)
             .accentColor(.accentColor)
+          if let lastId = viewStore.steps.last?.id, lastId != id {
+            Divider()
+          }
         }
       } label: {
         TextField(
@@ -42,15 +45,7 @@ struct StepSection: View {
           axis: .vertical
         )
         .focused($focusedField, equals: .name)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+        .textSubtitleStyle()
         .toolbar {
           if viewStore.focusedField == .name {
             ToolbarItemGroup(placement: .keyboard) {
@@ -233,17 +228,13 @@ private struct StepSectionContextMenuPreview: View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
       ForEach(state.steps.prefix(4)) { step in
         StepContextMenuPreview(state: step)
+        Divider() // TODO: Dont render last divier
       }
     } label: {
-      Text(state.name.isEmpty  ? "Untitled About Section" : state.name)
+      TextField("Untitled About Section", text: .constant(state.name))
+        .textSubtitleStyle()
         .lineLimit(2)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-      
+        .disabled(true)
     }
     .accentColor(.primary)
   }

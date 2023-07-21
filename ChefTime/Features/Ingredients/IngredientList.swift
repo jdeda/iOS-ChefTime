@@ -13,9 +13,7 @@ struct IngredientListView: View {
         VStack {
           HStack {
             Text("Ingredients")
-              .font(.title)
-              .fontWeight(.bold)
-              .foregroundColor(.primary)
+              .textTitleStyle()
             Spacer()
           }
           HStack {
@@ -24,15 +22,7 @@ struct IngredientListView: View {
               text: .constant(""),
               axis: .vertical
             )
-            .font(.title3)
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
-            .accentColor(.accentColor)
-            .frame(alignment: .leading)
-            .multilineTextAlignment(.leading)
-            .lineLimit(.max)
-            .autocapitalization(.none)
-            .autocorrectionDisabled()
+            .textSubtitleStyle()
             Spacer()
             Image(systemName: "plus")
           }
@@ -59,23 +49,13 @@ struct IngredientListView: View {
             IngredientSection(store: childStore)
               .contentShape(Rectangle())
               .focused($focusedField, equals: .row(ViewStore(childStore).id))
-            
-            if ViewStore(childStore).isExpanded {
-              Rectangle() // This serves a spacer()
-                .fill(.clear)
-                .frame(height: 5)
-            }
-            
-            if !ViewStore(childStore).isExpanded {
-              Divider()
-            }
+            Divider()
+              .padding(.bottom, 5)
           }
         }
         label : {
           Text("Ingredients")
-            .font(.title)
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
+            .textTitleStyle()
           Spacer()
         }
         .accentColor(.primary)

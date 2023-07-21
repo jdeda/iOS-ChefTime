@@ -16,9 +16,7 @@ struct StepListView: View {
         VStack {
           HStack {
             Text("Steps")
-              .font(.title)
-              .fontWeight(.bold)
-              .foregroundColor(.primary)
+              .textTitleStyle()
             Spacer()
           }
           HStack {
@@ -27,15 +25,7 @@ struct StepListView: View {
               text: .constant(""),
               axis: .vertical
             )
-            .font(.title3)
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
-            .accentColor(.accentColor)
-            .frame(alignment: .leading)
-            .multilineTextAlignment(.leading)
-            .lineLimit(.max)
-            .autocapitalization(.none)
-            .autocorrectionDisabled()
+            .textSubtitleStyle()
             Spacer()
             Image(systemName: "plus")
           }
@@ -58,23 +48,13 @@ struct StepListView: View {
               .contentShape(Rectangle())
               .focused($focusedField, equals: .row(ViewStore(childStore).id))
               .accentColor(.accentColor)
-
-            if ViewStore(childStore).isExpanded {
-              Rectangle() // This serves a spacer()
-                .fill(.clear)
-                .frame(height: 5)
-            }
-
-            if !ViewStore(childStore).isExpanded {
-              Divider()
-            }
+            Divider()
+              .padding(.bottom, 5)
           }
         }
         label : {
           Text("Steps")
-            .font(.title)
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
+            .textTitleStyle()
           Spacer()
         }
         .accentColor(.primary)

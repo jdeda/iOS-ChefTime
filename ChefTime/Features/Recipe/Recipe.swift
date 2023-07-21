@@ -2,6 +2,9 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
+// TODO: cleanup any redundant view code, maybe make modifiers for text/textfield
+// TODO: cleanup any redundant reducer code, maybe make a component
+//
 // TODO: If deleting, maybe nil focus, keyboard animation gets ugly
 // TODO: sometimes screen moves very weird on inserts
 // TODO: ingredient .next/return sometimes doesnt focus to new element

@@ -59,9 +59,7 @@ struct StepView: View {
             .scaledToFill()
             .frame(width: maxW, height: maxW)
             .clipShape(RoundedRectangle(cornerRadius: 15))
-        }
-        
-        Divider()
+        }        
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .contextMenu {

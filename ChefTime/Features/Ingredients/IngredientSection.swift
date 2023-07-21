@@ -24,16 +24,15 @@ struct IngredientSection: View {
           state: \.ingredients,
           action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
-          // Must make sure there is only one keyboard item at a time...
-          // We could do it here...
-          // Or we could add a property for the child view, that is immutable?
-          // But that may not be very clear to understand.
+          let id = ViewStore(childStore).id
           IngredientView(store: childStore)
             .onTapGesture {
-              viewStore.send(.rowTapped(ViewStore(childStore).id))
+              viewStore.send(.rowTapped(id))
             }
-            .focused($focusedField, equals: .row(ViewStore(childStore).id))
-          Divider()
+            .focused($focusedField, equals: .row(id))
+          if let lastId = viewStore.ingredients.last?.id, lastId != id {
+            Divider()
+          }
         }
       } label: {
         TextField(
@@ -44,16 +43,8 @@ struct IngredientSection: View {
           ),
           axis: .vertical
         )
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
         .focused($focusedField, equals: .name)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+        .textSubtitleStyle()
         .toolbar {
           if viewStore.focusedField == .name {
             ToolbarItemGroup(placement: .keyboard) {
@@ -259,12 +250,7 @@ private struct IngredientSectionContextMenuPreview: View {
     } label: {
       Text(!state.name.isEmpty ? state.name : "Untitled Ingredient Section")
         .lineLimit(2)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
+        .textSubtitleStyle()
     }
     .disclosureGroupStyle(CustomDisclosureGroupStyle())
     .accentColor(.primary)
