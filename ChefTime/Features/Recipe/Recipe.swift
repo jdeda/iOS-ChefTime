@@ -5,6 +5,7 @@ import Tagged
 // TODO: If deleting, maybe nil focus, keyboard animation gets ugly
 // TODO: sometimes screen moves very weird on inserts
 // TODO: ingredient .next/return sometimes doesnt focus to new element
+// TODO: rename model and feature names to be more consistent
 
 // TODO: Make sure disclosure group styles are consistent
 struct RecipeView: View {
@@ -69,11 +70,11 @@ struct RecipeView: View {
             }
           }
           
-//          StepsListView(store: store.scope(
-//            state: \.steps,
-//            action: RecipeReducer.Action.steps
-//          ))
-//          .padding([.horizontal])
+          StepListView(store: store.scope(
+            state: \.steps,
+            action: RecipeReducer.Action.steps
+          ))
+          .padding([.horizontal])
 
           
           Spacer()
@@ -117,7 +118,7 @@ struct RecipeReducer: ReducerProtocol {
     var photos: PhotosReducer.State
     var about: AboutListReducer.State
     var ingredients: IngredientsListReducer.State
-//    var steps: StepsListReducer.State
+    var steps: StepListReducer.State
     var isHidingImages: Bool
     
     init(recipe: Recipe) {
@@ -159,21 +160,23 @@ struct RecipeReducer: ReducerProtocol {
         scale: 1.0,
         focusedField: nil
       )
-//      self.steps = .init(
-//        stepSections: .init(uniqueElements: recipe.steps.map({ section in
-//            .init(
-//              id: .init(rawValue: uuid()),
-//              name: section.name,
-//              steps: .init(uniqueElements: section.steps.map({ step in
-//                  .init(
-//                    id: .init(rawValue: uuid()),
-//                    description: step.description,
-//                    imageData: step.imageData
-//                  )
-//              }))
-//            )
-//        }))
-//      )
+      
+      self.steps = .init(
+        stepSections: .init(uniqueElements: recipe.steps.map({ section in
+            .init(
+              id: .init(),
+              name: section.name,
+              steps: .init(uniqueElements: section.steps.map({ step in
+                  .init(id: .init(), step: step, focusedField: nil)
+              })),
+              isExpanded: true,
+              focusedField: nil
+            )
+        })),
+        isExpanded: true,
+        focusedField: nil
+      )
+      
       self.isHidingImages = false
     }
   }
@@ -182,7 +185,7 @@ struct RecipeReducer: ReducerProtocol {
     case photos(PhotosReducer.Action)
     case about(AboutListReducer.Action)
     case ingredients(IngredientsListReducer.Action)
-//    case steps(StepsListReducer.Action)
+    case steps(StepListReducer.Action)
     case recipeNameEdited(String)
     case toggleHideImages
     case setExpansionButtonTapped(Bool)
@@ -191,7 +194,7 @@ struct RecipeReducer: ReducerProtocol {
   var body: some ReducerProtocolOf<Self> {
     Reduce { state, action in
       switch action {
-      case .photos, .about, .ingredients:
+      case .photos, .about, .ingredients, .steps:
         return .none
         
       case let .recipeNameEdited(newName):
@@ -225,9 +228,9 @@ struct RecipeReducer: ReducerProtocol {
     Scope(state: \.ingredients, action: /Action.ingredients) {
       IngredientsListReducer()
     }
-//    Scope(state: \.steps, action: /Action.steps) {
-//      StepsListReducer()
-//    }
+    Scope(state: \.steps, action: /Action.steps) {
+      StepListReducer()
+    }
   }
 }
 
@@ -235,7 +238,7 @@ struct RecipeView_Previews: PreviewProvider {
   static var previews: some View {
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
-        recipe: .empty
+        recipe: .longMock
       ),
       reducer: RecipeReducer.init,
       withDependencies: { _ in
