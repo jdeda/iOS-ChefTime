@@ -37,40 +37,24 @@ struct RecipeView: View {
           }
           .animation(.default, value: viewStore.isHidingImages)
           
-          // TODO: If tapped done on section with empty name and ingredients delete it
           AboutListView(store: store.scope(
             state: \.about,
             action: RecipeReducer.Action.about
           ))
           .padding([.horizontal])
           
-          if viewStore.about.isExpanded && viewStore.about.aboutSections.last?.isExpanded == false {
-            EmptyView()
-          }
-          else {
-            Divider()
-              .padding([.horizontal])
-              .padding([.top], 5)
+          if !viewStore.about.isExpanded {
+            Divider().padding([.horizontal])
           }
           
-          // TODO: if empty or if last section has no ingredients, put a divider
           IngredientListView(store: store.scope(
             state: \.ingredients,
             action: RecipeReducer.Action.ingredients
           ))
           .padding([.horizontal])
           
-          if viewStore.ingredients.isExpanded && viewStore.ingredients.ingredients.last?.isExpanded == false {
-            EmptyView()
-          }
-          else {
-            if !viewStore.ingredients.isExpanded || viewStore.ingredients.ingredients.isEmpty ||
-                viewStore.ingredients.ingredients.last?.ingredients.isEmpty ?? false
-            {
-              Divider()
-                .padding([.horizontal])
-                .padding([.top], 5)
-            }
+          if !viewStore.ingredients.isExpanded {
+            Divider().padding([.horizontal])
           }
           
           StepListView(store: store.scope(

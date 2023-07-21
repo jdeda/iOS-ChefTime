@@ -52,6 +52,19 @@ struct StepView: View {
             }
           }
         }
+        .toolbar {
+          if viewStore.focusedField == .description {
+            ToolbarItemGroup(placement: .keyboard) {
+              Spacer()
+              Button {
+                viewStore.send(.keyboardDoneButtonTapped)
+              } label: {
+                Text("done")
+              }
+              .accentColor(.primary)
+            }
+          }
+        }
         
         if let data = viewStore.step.imageData {
           dataToImage(data)!
@@ -106,6 +119,7 @@ struct StepReducer: ReducerProtocol {
   }
   
   var body: some ReducerProtocolOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
       case .binding, .delegate:

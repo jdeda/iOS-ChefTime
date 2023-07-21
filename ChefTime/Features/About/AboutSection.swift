@@ -3,48 +3,12 @@ import ComposableArchitecture
 import Tagged
 import Combine
 
-// toolbarDone
-//  .toolbar {
-//    if viewStore.focusedField == .someValueWeCareAbout {
-//      ToolbarItemGroup(placement: .keyboard) {
-//        Spacer()
-//        Button {
-//          viewStore.send(.keyboardDoneButtonTapped)
-//        } label: {
-//          Text("done")
-//        }
-//      }
-//    }
-
-// contextMenuAddReplaceDelete
-//  .contextMenu {
-//    Button {
-//      viewStore.send(.delegate(.insertSection(.above)), animation: .default)
-//    } label: {
-//      Text("Insert Section Above")
-//    }
-//    Button {
-//      viewStore.send(.delegate(.insertSection(.below)), animation: .default)
-//    } label: {
-//      Text("Insert Section Below")
-//    }
-//    Button(role: .destructive) {
-//      viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
-//    } label: {
-//      Text("Delete")
-//    }
-//  } preview: {
-//    AboutSectionContextMenuPreview(state: viewStore.state)
-//      .frame(width: 200)
-//      .padding()
-//  }
-
 // TODO: - Bug - if focused on a row, then collapse, then click a row again, dupe buttons appear...
 // but sometimes if you tap another row, the dupe goes away, this does not work all the time
 // this is all happening probably because we didn't nil out the focus state
 
 // TODO: Make sure all sections have a dismiss button
-// TODO: Sectin empty and pressed enter create element.
+// TODO: Section empty and pressed enter create element.
 // TODO: Fix this focus bug
 
 // MARK: - View

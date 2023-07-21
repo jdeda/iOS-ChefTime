@@ -86,22 +86,6 @@ struct IngredientView: View {
       // and add a .onAppear reducer action case
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .foregroundColor(viewStore.ingredient.isComplete ? .secondary : .primary)
-      .toolbar {
-        if viewStore.focusedField != nil {
-          ToolbarItemGroup(placement: .keyboard) {
-            Spacer()
-            Button("next") {
-              viewStore.send(.keyboardNextButtonTapped, animation: .default)
-            }
-            .foregroundColor(.primary)
-            Button("done") {
-              viewStore.send(.keyboardDoneButtonTapped, animation: .default)
-            }
-            .foregroundColor(.primary)
-          }
-        }
-      }
-      .accentColor(.accentColor)
       .contextMenu(menuItems: {
         Button(role: .destructive) {
           viewStore.send(.delegate(.tappedToDelete), animation: .default)
