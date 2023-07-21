@@ -27,7 +27,9 @@ struct StepSection: View {
           state: \.steps,
           action: StepSectionReducer.Action.step
         )) { childStore in
-          StepView(store: childStore, index: 1)
+          // TODO: Move this into reducer and test.
+          let index = viewStore.steps.index(id: ViewStore(childStore).id) ?? 0
+          StepView(store: childStore, index: index)
             .accentColor(.accentColor)
         }
       } label: {
