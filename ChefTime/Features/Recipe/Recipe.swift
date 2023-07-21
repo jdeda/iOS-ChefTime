@@ -2,7 +2,6 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
-// TODO: cleanup any redundant view code, maybe make modifiers for text/textfield
 // TODO: cleanup any redundant reducer code, maybe make a component
 //
 // TODO: If deleting, maybe nil focus, keyboard animation gets ugly
@@ -11,6 +10,7 @@ import Tagged
 // TODO: rename model and feature names to be more consistent
 // TODO: debounce collapse buttons (would be super slick)
 // TODO: Make sure disclosure group styles are consistent
+
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
   
@@ -149,7 +149,7 @@ struct RecipeReducer: ReducerProtocol {
       )
       
       self.steps = .init(
-        stepSections: .init(uniqueElements: recipe.steps.map({ section in
+        stepSections: .init(uniqueElements: recipe.stepSections.map({ section in
             .init(
               id: .init(),
               name: section.name,

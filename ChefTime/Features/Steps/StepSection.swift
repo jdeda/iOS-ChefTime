@@ -248,8 +248,8 @@ struct StepSection_Previews: PreviewProvider {
         StepSection(store: .init(
           initialState: .init(
             id: .init(),
-            name: Recipe.longMock.steps.first!.name,
-            steps: .init(uniqueElements: Recipe.longMock.steps.first!.steps.map({
+            name: Recipe.longMock.stepSections.first!.name,
+            steps: .init(uniqueElements: Recipe.longMock.stepSections.first!.steps.map({
               .init(id: .init(), step: $0)
             })),
             isExpanded: true,

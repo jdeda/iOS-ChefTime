@@ -66,8 +66,8 @@ struct StepView: View {
           }
         }
         
-        if let data = viewStore.step.imageData {
-          dataToImage(data)!
+        if let imageData = viewStore.step.imageData.first {
+          imageData.image
             .resizable()
             .scaledToFill()
             .frame(width: maxW, height: maxW)
@@ -174,7 +174,7 @@ struct StepView_Previews: PreviewProvider {
         StepView(store: .init(
           initialState: .init(
             id: .init(),
-            step: Recipe.longMock.steps.first!.steps.first!
+            step: Recipe.longMock.stepSections.first!.steps.first!
           ),
           reducer: StepReducer.init
         ), index: 0)

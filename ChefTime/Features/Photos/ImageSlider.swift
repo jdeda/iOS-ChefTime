@@ -5,13 +5,13 @@ import Foundation
 // TODO: Fix swipe lag
 struct ImageSliderView: View {
   let maxW = UIScreen.main.bounds.width * 0.85
-  let imageDatas: IdentifiedArrayOf<Recipe.ImageData>
-  @Binding var selection: Recipe.ImageData.ID?
+  let imageDatas: IdentifiedArrayOf<ImageData>
+  @Binding var selection: ImageData.ID?
   
   var body: some View {
     TabView(selection: $selection) {
       ForEach(imageDatas) { imageData in
-        dataToImage(imageData.imageData!)!
+        imageData.image
           .resizable()
           .scaledToFill()
           .frame(width: maxW, height: maxW)
@@ -37,8 +37,8 @@ struct ImageSliderView_Previews: PreviewProvider {
   }
   
   struct MasterView: View {
-    @State var imageDatas: IdentifiedArrayOf<Recipe.ImageData> = Recipe.longMock.imageData
-    @State var selection: Recipe.ImageData.ID? = nil
+    @State var imageDatas: IdentifiedArrayOf<ImageData> = Recipe.longMock.imageData
+    @State var selection: ImageData.ID? = nil
     var body: some View {
       ImageSliderView(
         imageDatas: imageDatas,

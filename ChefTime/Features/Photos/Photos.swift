@@ -96,8 +96,8 @@ struct PhotosView: View {
 // MARK: - Reducer
 struct PhotosReducer: ReducerProtocol {
   struct State: Equatable {
-    var photos: IdentifiedArrayOf<Recipe.ImageData>
-    var selection: Recipe.ImageData.ID?
+    var photos: IdentifiedArrayOf<ImageData>
+    var selection: ImageData.ID?
     var photoPickerItem: PhotosPickerItem? = nil
     var photoEditStatus: PhotoEditStatus? = nil
     
@@ -107,13 +107,13 @@ struct PhotosReducer: ReducerProtocol {
   }
   
   enum Action: Equatable {
-    case photoSelectionChanged(Recipe.ImageData.ID?)
+    case photoSelectionChanged(ImageData.ID?)
     case replaceButtonTapped
     case addButtonTapped
     case deleteButtonTapped
     case photoPickerItem(PhotosPickerItem?)
     case dismissPhotosPicker
-    case applyPhotoEdit(PhotoEditStatus?, Recipe.ImageData)
+    case applyPhotoEdit(PhotoEditStatus?, ImageData)
   }
   
   @Dependency(\.photos) var photosClient
@@ -181,9 +181,12 @@ struct PhotosReducer: ReducerProtocol {
       case let .photoPickerItem(item):
         guard let item else { return .none}
         return .run { [status = state.photoEditStatus] send in
-          let data = await photosClient.convertPhotoPickerItem(item)
+          guard let data = await photosClient.convertPhotoPickerItem(item),
+                let imageData = ImageData(id: .init(rawValue: uuid()), data: data)
+          else {
+            return
+          }
           // you should be handling errors
-          let imageData = Recipe.ImageData(id: .init(rawValue: uuid()), imageData: data)
           await send(.applyPhotoEdit(status, imageData), animation: .default)
         }
       case .dismissPhotosPicker:
@@ -196,7 +199,9 @@ struct PhotosReducer: ReducerProtocol {
         /// and would have implications on how that affects mutation here...
         switch status {
         case let .replace(id):
-          state.photos[id: id]?.imageData = imageData.imageData
+          guard let i = state.photos.index(id: id)
+          else { return .none } // TODO: ERROR HANDLE
+          state.photos.replaceSubrange(i...i, with: [imageData])
           // really, imageData should be immutable, so i should have to put a copy...
           state.photoEditStatus = nil
           return .none
@@ -231,8 +236,8 @@ extension PhotosReducer {
   /// if false -> must NOT have a status nor photoIndex
   
   enum PhotoEditStatus: Equatable {
-    case replace(Recipe.ImageData.ID)
-    case add(Recipe.ImageData.ID)
+    case replace(ImageData.ID)
+    case add(ImageData.ID)
     case addWhenEmpty
   }
 }

@@ -17,6 +17,7 @@
 		975A4EED2A44C23300C9509A /* IngredientSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEC2A44C23300C9509A /* IngredientSection.swift */; };
 		975A4EEF2A44C23800C9509A /* Ingredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEE2A44C23800C9509A /* Ingredient.swift */; };
 		975F47C22A6AD3BF0016BB95 /* Text+ViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975F47C12A6AD3BF0016BB95 /* Text+ViewModifier.swift */; };
+		975F47C42A6B06FC0016BB95 /* ImageDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975F47C32A6B06FC0016BB95 /* ImageDataModel.swift */; };
 		9770F0122A61A94400602986 /* PhotosTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770F0112A61A94400602986 /* PhotosTest.swift */; };
 		977633D62A4F77C9009FD90C /* Binding+RemoveDuplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */; };
 		977633D82A51B8FA009FD90C /* RecipeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D72A51B8F9009FD90C /* RecipeModel.swift */; };
@@ -70,6 +71,7 @@
 		975A4EEC2A44C23300C9509A /* IngredientSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSection.swift; sourceTree = "<group>"; };
 		975A4EEE2A44C23800C9509A /* Ingredient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ingredient.swift; sourceTree = "<group>"; };
 		975F47C12A6AD3BF0016BB95 /* Text+ViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Text+ViewModifier.swift"; sourceTree = "<group>"; };
+		975F47C32A6B06FC0016BB95 /* ImageDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataModel.swift; sourceTree = "<group>"; };
 		9770F0112A61A94400602986 /* PhotosTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosTest.swift; sourceTree = "<group>"; };
 		977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+RemoveDuplicates.swift"; sourceTree = "<group>"; };
 		977633D72A51B8F9009FD90C /* RecipeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeModel.swift; sourceTree = "<group>"; };
@@ -215,6 +217,7 @@
 			isa = PBXGroup;
 			children = (
 				977633D72A51B8F9009FD90C /* RecipeModel.swift */,
+				975F47C32A6B06FC0016BB95 /* ImageDataModel.swift */,
 				97AD13D22A2E74E9002FCE30 /* Model.swift */,
 			);
 			path = Model;
@@ -469,6 +472,7 @@
 				97D8CCFF2A55EED60031E760 /* PhotosClient.swift in Sources */,
 				977633DA2A51C4B0009FD90C /* AboutSection.swift in Sources */,
 				97AD13B82A2E7392002FCE30 /* Main.swift in Sources */,
+				975F47C42A6B06FC0016BB95 /* ImageDataModel.swift in Sources */,
 				975F47C22A6AD3BF0016BB95 /* Text+ViewModifier.swift in Sources */,
 				975A4EEF2A44C23800C9509A /* Ingredient.swift in Sources */,
 				97EE97302A6853F6001AA88B /* Step.swift in Sources */,

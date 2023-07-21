@@ -162,7 +162,7 @@ struct StepList_Previews: PreviewProvider {
       ScrollView {
         StepListView(store: .init(
             initialState: .init(
-                stepSections: .init(uniqueElements: Recipe.longMock.steps.map({ section in
+                stepSections: .init(uniqueElements: Recipe.longMock.stepSections.map({ section in
                     .init(
                         id: .init(),
                         name: section.name,

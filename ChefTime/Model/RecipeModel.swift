@@ -3,116 +3,30 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-/// I have data
-/// I want to treat that data like it can ALWAYS turn into a UImage
-/// So maybe I create a wrapper type
-/// but what about image types...like u may only support png, and how does this affect PhotoPicker
-struct ImageData: Equatable, Codable {
-  let data: Data
-  
-  var image: Image {
-    .init(uiImage: UIImage(data: data)!)
-  }
-  
-  init?(data: Data) {
-    guard let _ = UIImage(data: data) else { return nil }
-    self.data = data
-  }
-  
-  enum CodingKeys: CodingKey {
-    case data
-  }
-  
-  enum ParseError: Error { case failure }
-
-  init(from decoder: Decoder) throws {
-    enum ParseError: Error { case failure }
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.data = try container.decode(Data.self, forKey: .data)
-    guard let _ = UIImage(data: data) else { throw ParseError.failure  }
-  }
-  
-  func encode(to encoder: Encoder) throws {
-    enum ParseError: Error { case failure }
-    guard let _ = UIImage(data: self.data) else { throw ParseError.failure  }
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(data, forKey: .data)
-  }
-}
-
-
-/// now i have a completely immutable struct that can
-/// only be created if the imageData (Data) can be converted into a UIImage
-///
-/// does this mean that we have a type, that we can fully trust to use in creating images?
-/// well, sort of...well, anywhere you use that imag
-
-/// Modeling our Images
-/// 1. URLs
-/// 2. Data
-///
-/// The truth is that our data will be persisted to CoreData/CloudKit. It would than appear that data is our only real usable type here.
-/// Well, remember that our CoreData entities will be completely seperable from our Model, but of course, should be well considered.
-///
-/// So do we use URLs or Data? Probably Data, unless there is some weird file storage behavior happening.
-/// URLs are certainly nicer to work with in terms of previews and testing.
-/// If we use Data than we will have to perform extra steps in previews and testing.
-/// With URLs, we can just: Image(url)...
-/// But with Data, we have a lot more: Image(uiImage: UIImage(data: data))99
-
-func dataToImage(_ data: Data) -> Image? {
-  guard let uiImage = UIImage(data: data)
-  else { return nil }
-  return .init(uiImage: uiImage)
-}
-
-struct DataImageView: View {
-  let data: Data?
-  var body: some View {
-    if let data = data, let uiImage = UIImage(data: data) {
-      Image(uiImage: uiImage)
-    }
-    else {
-      EmptyView()
-    }
-  }
-}
-
-// TODO: Add a bunch of default inits?
 struct Recipe: Identifiable, Equatable {
   typealias ID = Tagged<Self, UUID>
   
   let id: ID
-  var name: String
-  var imageData: IdentifiedArrayOf<ImageData>
-  var aboutSections: IdentifiedArrayOf<AboutSection>
-  var ingredientSections: IdentifiedArrayOf<IngredientSection>
-  var steps: IdentifiedArrayOf<StepSection>
-  var isComplete: Bool = false
-  
-  
-  struct ImageData: Identifiable, Equatable {
-    typealias ID = Tagged<Self, UUID>
-    
-    let id: ID
-    var imageData: Data?
-  }
+  var name: String = ""
+  var imageData: IdentifiedArrayOf<ImageData> = []
+  var aboutSections: IdentifiedArrayOf<AboutSection> = []
+  var ingredientSections: IdentifiedArrayOf<IngredientSection> = []
+  var stepSections: IdentifiedArrayOf<StepSection> = []
   
   struct AboutSection: Identifiable, Equatable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var name: String
-    var description: String
+    var name: String = ""
+    var description: String = ""
   }
-  
   
   struct IngredientSection: Identifiable, Equatable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var name: String
-    var ingredients: IdentifiedArrayOf<Ingredient>
+    var name: String = ""
+    var ingredients: IdentifiedArrayOf<Ingredient> = []
     
     struct Ingredient: Identifiable, Equatable {
       typealias ID = Tagged<Self, UUID>
@@ -129,36 +43,37 @@ struct Recipe: Identifiable, Equatable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var name: String
-    var steps: IdentifiedArrayOf<Step>
+    var name: String = ""
+    var steps: IdentifiedArrayOf<Step> = []
     
     struct Step: Identifiable, Equatable {
       typealias ID = Tagged<Self, UUID>
       
       let id: ID
-      var description: String
-      var imageData: Data?
+      var description: String = ""
+      var imageData: IdentifiedArrayOf<ImageData> = []
     }
   }
 }
 
+// There are a LOT of force unwraps...
 extension Recipe {
-  static let longMock = Self.init(
+  static let longMock = Recipe(
     id: .init(),
     name: "Double Cheese Burger",
     imageData: [
       .init(
         id: .init(),
-        imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_00", withExtension: "jpeg")!)
-      ),
+        data: (try? Data(contentsOf: Bundle.main.url(forResource: "recipe_00", withExtension: "jpeg")!))!
+      )!,
       .init(
         id: .init(),
-        imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_01", withExtension: "jpeg")!)
-      ),
+        data: (try? Data(contentsOf: Bundle.main.url(forResource: "recipe_01", withExtension: "jpeg")!))!
+      )!,
       .init(
         id: .init(),
-        imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_02", withExtension: "jpeg")!)
-      ),
+        data: (try? Data(contentsOf: Bundle.main.url(forResource: "recipe_02", withExtension: "jpeg")!))!
+      )!,
     ],
     aboutSections: [
       .init(
@@ -209,39 +124,40 @@ extension Recipe {
           .init(id: .init(), name: "Ketchup", amount: 2, measure: "tbsp"),
           .init(id: .init(), name: "Mustard", amount: 2, measure: "tbsp")
         ]
-      ),
+      )
     ],
-    steps: [
+    stepSections: [
       .init(id: .init(), name: "Buns", steps: [
         .init(
           id: .init(),
           description: "Combine ingredients into stand-mixer bowl and mix until incorporated, than allow mixer to knead for 10 minutes until taught and shiny.",
-          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_01", withExtension: "jpg")!)
+          imageData: [.init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_01", withExtension: "jpg")!))!)! ]
         ),
         .init(
           id: .init(),
           description: "Once the dough is properly kneaded, place in bowl with a cover in a moderately warm area (70F-80F) and allow to rise for 2 hours or until at least doubled in size",
-          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_02", withExtension: "jpg")!)
+          
+          imageData: [.init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_02", withExtension: "jpg")!))!)! ]
         ),
         .init(
           id: .init(),
           description: "After dough has rised, pound the gas out and re-knead into a large ball, than roll out little dough balls by pressing and pinching. Cover your balls and let them rise for another hour or until they have at least doubled in size",
-          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_03", withExtension: "jpg")!)
+          imageData: [.init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_03", withExtension: "jpg")!))!)! ]
         ),
         .init(
           id: .init(),
           description: "Once your balls have risen accordingly, uncover them and season with salt and semame seeds then bake at 450F for 45 minutes or until internal temp of 190F",
-          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_04", withExtension: "jpg")!)
+          imageData: [.init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_04", withExtension: "jpg")!))!)! ]
         ),
         .init(
           id: .init(),
           description: "After baking, immediately remove from loaf pan and place on cooling rack to prevent dough steaming into itself and getting soggy. Baste your buns generously with butter and allow to them rest for 30 minutes before slicing",
-          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_05", withExtension: "jpg")!)
+          imageData: [.init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_05", withExtension: "jpg")!))!)! ]
         ),
         .init(
           id: .init(),
           description: "Enjoy your beautiful creation!",
-          imageData: try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_06", withExtension: "jpg")!)
+          imageData: [.init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_bun_06", withExtension: "jpg")!))!)! ]
         )
       ]),
       .init(id: .init(), name: "Patties", steps: [
@@ -250,25 +166,26 @@ extension Recipe {
       .init(id: .init(), name: "Toppings", steps: [
         .init(id: .init(), description: "Prepare the toppings as you like")
       ])
-    ])
+    ]
+  )
 }
 
 extension Recipe {
-  static let shortMock = Self.init(
+  static let shortMock = Recipe.init(
     id: .init(),
     name: "Double Cheese Burger",
     imageData: [
       .init(
         id: .init(),
-        imageData: try? Data(contentsOf: Bundle.main.url(forResource: "recipe_00", withExtension: "jpeg")!)
-      )
+        data: (try? Data(contentsOf: Bundle.main.url(forResource: "recipe_00", withExtension: "jpeg")!))!
+      )!
     ],
     aboutSections: [
       .init(
         id: .init(),
         name: "Description",
         description: "A proper meat feast, this classical burger is just too good! Homemade buns and ground meat, served with your side of classic toppings, it makes a fantastic Friday night treat or cookout favorite."
-      ),
+      )
     ],
     ingredientSections: [
       .init(
@@ -286,7 +203,7 @@ extension Recipe {
         ]
       ),
     ],
-    steps: [
+    stepSections: [
       .init(id: .init(), name: "Burger", steps: [
         .init(
           id: .init(),
@@ -301,16 +218,10 @@ extension Recipe {
           description: "Assemble with toppings to your liking"
         ),
       ])
-    ])
+    ]
+  )
 }
 
 extension Recipe {
-  static let empty = Self.init(
-    id: .init(),
-    name: "",
-    imageData: [],
-    aboutSections: [],
-    ingredientSections: [],
-    steps: []
-  )
+  static let empty = Self(id: .init())
 }
