@@ -18,24 +18,18 @@ struct RecipeView: View {
     WithViewStore(store) { viewStore in
       NavigationStack {
         ScrollView {
-          VStack {
-            if !viewStore.isHidingImages {
-              PhotosView(store: store.scope(
-                state: \.photos,
-                action: RecipeReducer.Action.photos
-              ))
-              .padding([.horizontal])
-              .padding([.bottom, .top])
-            }
-            else {
-              Rectangle()
-                .fill(.clear)
-                .frame(height: 5)
-              // TODO: This must be the same size as the photos view
-              // or expansion will look werd
-            }
-          }
-          .animation(.default, value: viewStore.isHidingImages)
+          PhotosView(store: store.scope(
+            state: \.photos,
+            action: RecipeReducer.Action.photos
+          ))
+          .frame(
+            maxWidth: !viewStore.isHidingImages ? 400 : 0,
+            maxHeight: !viewStore.isHidingImages ? 400 : 0
+          )
+          .clipShape(RoundedRectangle(cornerRadius: 15))
+          .padding([.horizontal])
+          .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
+
           
           AboutListView(store: store.scope(
             state: \.about,
