@@ -17,14 +17,14 @@ struct StepView: View {
         HStack {
           Text("Step \(index + 1)") // TODO: Step...
           Spacer()
-          PhotosPicker(
-            selection: .constant(nil),
-            matching: .images,
-            preferredItemEncoding: .compatible,
-            photoLibrary: .shared()) {
-              Image(systemName: "camera.fill")
-            }
-//          Image(systemName: "camera.fill")
+//          PhotosPicker(
+//            selection: .constant(nil),
+//            matching: .images,
+//            preferredItemEncoding: .compatible,
+//            photoLibrary: .shared()) {
+//              Image(systemName: "camera.fill")
+//            }
+          Image(systemName: "camera.fill")
         }
         .font(.caption)
         .fontWeight(.medium)
@@ -64,13 +64,6 @@ struct StepView: View {
         Divider()
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-//      .photosPicker(
-//        isPresented: <#T##Binding<Bool>#>,
-//        selection: <#T##Binding<PhotosPickerItem?>#>,
-//        matching: <#T##PHPickerFilter?#>,
-//        preferredItemEncoding: <#T##PhotosPickerItem.EncodingDisambiguationPolicy#>,
-//        photoLibrary: <#T##PHPhotoLibrary#>
-//      )
       .contextMenu {
         Button {
           viewStore.send(.delegate(.insertButtonTapped(.above)), animation: .default)
