@@ -61,7 +61,7 @@ struct RecipeView: View {
             EmptyView()
           }
           else {
-            if viewStore.ingredients.ingredients.isEmpty ||
+            if !viewStore.ingredients.isExpanded || viewStore.ingredients.ingredients.isEmpty ||
                 viewStore.ingredients.ingredients.last?.ingredients.isEmpty ?? false
             {
               Divider()
@@ -205,16 +205,25 @@ struct RecipeReducer: ReducerProtocol {
         state.isHidingImages.toggle()
         return .none
         
-      case let .setExpansionButtonTapped(expand):
-        state.about.isExpanded = expand
-        state.about.aboutSections.ids.forEach {
-          state.about.aboutSections[id: $0]?.isExpanded = expand
-        }
+      case let .setExpansionButtonTapped(isExpanded):
         // TODO: May need to worry about focus state
+
+        // Collapse all about sections
+        state.about.isExpanded = isExpanded
+        state.about.aboutSections.ids.forEach {
+          state.about.aboutSections[id: $0]?.isExpanded = isExpanded
+        }
         
-        state.ingredients.isExpanded = expand
+        // Collapse all ingredient sections
+        state.ingredients.isExpanded = isExpanded
         state.ingredients.ingredients.ids.forEach {
-          state.ingredients.ingredients[id: $0]?.isExpanded = expand
+          state.ingredients.ingredients[id: $0]?.isExpanded = isExpanded
+        }
+        
+        // Collapse all step sections
+        state.steps.isExpanded = isExpanded
+        state.steps.stepSections.ids.forEach {
+          state.steps.stepSections[id: $0]?.isExpanded = isExpanded
         }
         return .none
       }
