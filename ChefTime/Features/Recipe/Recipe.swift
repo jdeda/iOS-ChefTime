@@ -11,6 +11,18 @@ import Tagged
 // TODO: debounce collapse buttons (would be super slick)
 // TODO: Make sure disclosure group styles are consistent
 
+// ANIMATION TODOS
+// TODO: Photos delete final photo transition to base is weird
+// TODO: Photos delete final photo transition to base is weird
+// TODO: Photos context menu needs to be blocked in flight
+// TODO: Photos sometimes delete just doesnt work and it gets stuck
+// TODO: AboutSection context menu doesn't transition off, you get a big black hole
+// TODO: same with ingredient
+// TODO: same with ingredientsection
+// TODO: same with stepsection
+// TODO: but the step animates only if it has an image...
+// TODO: step and Deletion is ugly, it lingers, ingrtedient kinda simnilar
+
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
   
