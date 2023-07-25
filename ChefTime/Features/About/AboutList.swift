@@ -5,7 +5,6 @@ import ComposableArchitecture
 struct AboutListView: View {
   let store: StoreOf<AboutListReducer>
   @FocusState private var focusedField: AboutListReducer.FocusField?
-  // TODO: If they have a section with an empty name and content and click done just delete it...
   
   var body: some View {
     WithViewStore(store) { viewStore in
@@ -56,7 +55,7 @@ struct AboutListView: View {
         }
         .accentColor(.primary)
         .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-        .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
+        .disclosureGroupStyle(CustomDisclosureGroupStyle())
       }
     }
   }
@@ -162,10 +161,7 @@ struct AboutList_Previews: PreviewProvider {
             })),
             isExpanded: true
           ),
-          reducer: AboutListReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: AboutListReducer.init
         ))
         .padding()
       }

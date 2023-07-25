@@ -32,7 +32,6 @@ import SwiftUI
 //  }
 //}
 
-
 // TODO: Could make vertical height better
 struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
   func makeBody(configuration: Configuration) -> some View {

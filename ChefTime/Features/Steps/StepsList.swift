@@ -1,14 +1,10 @@
 import SwiftUI
 import ComposableArchitecture
 
-// TODO: For every feature deleagte,pleas euse a casepath, plerase dop it on all of them
-
-
 // MARK: - StepListView
 struct StepListView: View {
   let store: StoreOf<StepListReducer>
   @FocusState private var focusedField: StepListReducer.FocusField?
-  // TODO: If they h ave a section with an empty name and content and click done just delete it...
 
   var body: some View {
     WithViewStore(store) { viewStore in
@@ -59,7 +55,7 @@ struct StepListView: View {
         }
         .accentColor(.primary)
         .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-        .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
+        .disclosureGroupStyle(CustomDisclosureGroupStyle())
       }
     }
   }
@@ -106,7 +102,7 @@ struct StepListReducer: ReducerProtocol {
                 name: "",
                 steps: [],
                 isExpanded: true,
-                focusedField: .name // TODO: Which value?
+                focusedField: .name
               )
             state.stepSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
             state.focusedField = .row(newSection.id)
@@ -176,10 +172,7 @@ struct StepList_Previews: PreviewProvider {
                 isExpanded: true,
                 focusedField: nil
             ),
-          reducer: StepListReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: StepListReducer.init
         ))
         .padding()
       }

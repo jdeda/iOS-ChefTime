@@ -3,14 +3,6 @@ import ComposableArchitecture
 import Tagged
 import Combine
 
-// TODO: - Bug - if focused on a row, then collapse, then click a row again, dupe buttons appear...
-// but sometimes if you tap another row, the dupe goes away, this does not work all the time
-// this is all happening probably because we didn't nil out the focus state
-
-// TODO: Make sure all sections have a dismiss button
-// TODO: Section empty and pressed enter create element.
-// TODO: Fix this focus bug
-
 // MARK: - View
 struct AboutSection: View {
   let store: StoreOf<AboutSectionReducer>
@@ -228,10 +220,7 @@ struct AboutSection_Previews: PreviewProvider {
             isExpanded: true,
             focusedField: nil
           ),
-          reducer: AboutSectionReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: AboutSectionReducer.init
         ))
         .padding()
       }
@@ -246,10 +235,7 @@ struct AboutSection_Previews: PreviewProvider {
             isExpanded: true,
             focusedField: nil
           ),
-          reducer: AboutSectionReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: AboutSectionReducer.init
         ))
         .padding()
       }

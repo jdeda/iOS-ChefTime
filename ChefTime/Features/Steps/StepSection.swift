@@ -7,10 +7,6 @@ import Combine
 // but sometimes if you tap another row, the dupe goes away, this does not work all the time
 // this is all happening probably because we didn't nil out the focus state
 
-// TODO: Make sure all sections have a dismiss button
-// TODO: Sectin empty and pressed enter create element.
-// TODO: Fix this focus bug
-
 // MARK: - View
 struct StepSection: View {
   let store: StoreOf<StepSectionReducer>
@@ -185,7 +181,6 @@ struct StepSectionReducer: ReducerProtocol  {
         
         
       case .addStep:
-        // TODO: ...
         state.steps.append(StepReducer.State(
           id: .init(rawValue: uuid()),
           step: .init(id: .init(rawValue: uuid()), description: ""),
@@ -255,10 +250,7 @@ struct StepSection_Previews: PreviewProvider {
             isExpanded: true,
             focusedField: nil
           ),
-          reducer: StepSectionReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: StepSectionReducer.init
         ))
         .padding()
       }
