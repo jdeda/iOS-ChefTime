@@ -11,7 +11,11 @@ import Tagged
 // TODO: debounce collapse buttons (would be super slick)
 // TODO: Make sure disclosure group styles are consistent
 
+// TODO: Refactor to use .task instead of .run where need be.
+// TODO: Inspect all context menu previews
+
 // ANIMATION TODOS
+// TODO: Step image deletion final photo transition is fugly
 // TODO: Photos delete final photo transition to base is weird
 // TODO: Photos delete final photo transition to base is weird
 // TODO: Photos context menu needs to be blocked in flight

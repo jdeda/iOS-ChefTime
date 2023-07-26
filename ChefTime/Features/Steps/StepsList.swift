@@ -2,7 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 
 extension Bool: EnvironmentKey {
-  public static let defaultValue: Self = true
+  public static let defaultValue: Self = false
 }
 
 extension EnvironmentValues {
