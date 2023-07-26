@@ -8,18 +8,18 @@ struct StepView: View {
   let store: StoreOf<StepReducer>
   let maxW = UIScreen.main.bounds.width * 0.90 // TODO: This needs to be global or something
   let index: Int // Immutable index representing positon in list.
+  @Environment(\.isHidingStepImages) var isHidingStepImages
   @FocusState private var focusedField: StepReducer.FocusField?
   
   
   var body: some View {
     WithViewStore(store) { viewStore in
-      VStack(alignment: .leading) {
+      VStack {
         HStack {
           Text("Step \(index + 1)") // TODO: Step...
           Spacer()
           Image(systemName: "camera.fill")
         }
-        .font(.caption)
         .fontWeight(.medium)
         .padding(.bottom, 1)
         .accentColor(.primary)
@@ -46,18 +46,18 @@ struct StepView: View {
             }
           }
         }
-      
-        if !viewStore.photos.photos.isEmpty {
-          HStack {
-            Spacer()
-            PhotosView(store: store.scope(
-              state: \.photos,
-              action: StepReducer.Action.photos
-            ))
-            Spacer()
-          }
-        }
+        
+        let isHiding = viewStore.photos.photos.isEmpty || isHidingStepImages
+        PhotosView(store: store.scope(
+          state: \.photos,
+          action: StepReducer.Action.photos
+        ))
+        .frame(height: isHiding ? 0 : maxW)
+        .opacity(isHiding ? 0 : 1.0)
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+//        .animation(.default, value: isHidingStepImages)
       }
+      .animation(.default, value: isHidingStepImages)
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .contextMenu {
         Button {

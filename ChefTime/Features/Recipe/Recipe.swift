@@ -35,6 +35,7 @@ struct RecipeView: View {
             state: \.photos,
             action: RecipeReducer.Action.photos
           ))
+          .opacity(!viewStore.isHidingImages ? 1.0 : 0.0)
           .frame(
             width: !viewStore.isHidingImages ? maxW : 0,
             height: !viewStore.isHidingImages ? maxW : 0

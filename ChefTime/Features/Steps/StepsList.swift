@@ -1,62 +1,88 @@
 import SwiftUI
 import ComposableArchitecture
 
+extension Bool: EnvironmentKey {
+  public static let defaultValue: Self = true
+}
+
+extension EnvironmentValues {
+  var isHidingStepImages: Bool {
+    get { self[Bool.self] }
+    set { self[Bool.self] = newValue }
+  }
+}
+
+
 // MARK: - StepListView
 struct StepListView: View {
   let store: StoreOf<StepListReducer>
   @FocusState private var focusedField: StepListReducer.FocusField?
-
+  @Environment(\.isHidingStepImages) var isHidingStepImages
+  
   var body: some View {
     WithViewStore(store) { viewStore in
-      if viewStore.stepSections.isEmpty {
-        VStack {
-          HStack {
+      VStack {
+        if viewStore.stepSections.isEmpty {
+          VStack {
+            HStack {
+              Text("Steps")
+                .textTitleStyle()
+              Spacer()
+            }
+            HStack {
+              TextField(
+                "Untitled About Section",
+                text: .constant(""),
+                axis: .vertical
+              )
+              .textSubtitleStyle()
+              Spacer()
+              Image(systemName: "plus")
+            }
+            .foregroundColor(.secondary)
+            .onTapGesture {
+              viewStore.send(.addSectionButtonTapped, animation: .default)
+            }
+          }
+        }
+        else {
+          DisclosureGroup(isExpanded: viewStore.binding(
+            get: { $0.isExpanded },
+            send: { _ in .isExpandedButtonToggled }
+          )) {
+            
+            Toggle(isOn: .constant(viewStore.isHidingStepImages)) {
+              Text("Hide Images")
+                .textSubtitleStyle()
+            } // onTapGesture because regular Toggle just breaks and you can't click it.
+            .onTapGesture {
+              // TODO: Debounce?
+              viewStore.send(.binding(.set(\.$isHidingStepImages, !viewStore.isHidingStepImages)))
+            }
+            
+            ForEachStore(store.scope(
+              state: \.stepSections,
+              action: StepListReducer.Action.stepSection
+            )) { childStore in
+              StepSection(store: childStore)
+                .contentShape(Rectangle())
+                .focused($focusedField, equals: .row(ViewStore(childStore).id))
+                .accentColor(.accentColor)
+              Divider()
+                .padding(.bottom, 5)
+            }
+          }
+          label : {
             Text("Steps")
               .textTitleStyle()
             Spacer()
           }
-          HStack {
-            TextField(
-              "Untitled About Section",
-              text: .constant(""),
-              axis: .vertical
-            )
-            .textSubtitleStyle()
-            Spacer()
-            Image(systemName: "plus")
-          }
-          .foregroundColor(.secondary)
-          .onTapGesture {
-            viewStore.send(.addSectionButtonTapped, animation: .default)
-          }
+          .accentColor(.primary)
+          .disclosureGroupStyle(CustomDisclosureGroupStyle())
         }
       }
-      else {
-        DisclosureGroup(isExpanded: viewStore.binding(
-          get: { $0.isExpanded },
-          send: { _ in .isExpandedButtonToggled }
-        )) {
-          ForEachStore(store.scope(
-            state: \.stepSections,
-            action: StepListReducer.Action.stepSection
-          )) { childStore in
-            StepSection(store: childStore)
-              .contentShape(Rectangle())
-              .focused($focusedField, equals: .row(ViewStore(childStore).id))
-              .accentColor(.accentColor)
-            Divider()
-              .padding(.bottom, 5)
-          }
-        }
-        label : {
-          Text("Steps")
-            .textTitleStyle()
-          Spacer()
-        }
-        .accentColor(.primary)
-        .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-        .disclosureGroupStyle(CustomDisclosureGroupStyle())
-      }
+      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .environment(\.isHidingStepImages, viewStore.isHidingStepImages)
     }
   }
 }
@@ -66,18 +92,19 @@ struct StepListReducer: ReducerProtocol {
   struct State: Equatable {
     var stepSections: IdentifiedArrayOf<StepSectionReducer.State>
     var isExpanded: Bool
+    @BindingState var isHidingStepImages: Bool = false
     @BindingState var focusedField: FocusField? = nil
   }
-
+  
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case stepSection(StepSectionReducer.State.ID, StepSectionReducer.Action)
     case isExpandedButtonToggled
     case addSectionButtonTapped
   }
-
+  
   @Dependency(\.uuid) var uuid
-
+  
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
     Reduce { state, action in
@@ -92,18 +119,18 @@ struct StepListReducer: ReducerProtocol {
             }
             state.stepSections.remove(id: id)
             return .none
-
+            
           case let .insertSection(aboveBelow):
             // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
             guard let i = state.stepSections.index(id: id) else { return .none }
             state.stepSections[i].focusedField = nil
-              let newSection = StepSectionReducer.State(
-                id: .init(rawValue: uuid()),
-                name: "",
-                steps: [],
-                isExpanded: true,
-                focusedField: .name
-              )
+            let newSection = StepSectionReducer.State(
+              id: .init(rawValue: uuid()),
+              name: "",
+              steps: [],
+              isExpanded: true,
+              focusedField: .name
+            )
             state.stepSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
             state.focusedField = .row(newSection.id)
             return .none
@@ -111,7 +138,7 @@ struct StepListReducer: ReducerProtocol {
         default:
           return .none
         }
-
+        
       case .isExpandedButtonToggled:
         state.isExpanded.toggle()
         state.focusedField = nil
@@ -119,23 +146,23 @@ struct StepListReducer: ReducerProtocol {
           state.stepSections[id: id1]?.focusedField = nil
         }
         return .none
-
+        
       case .addSectionButtonTapped:
         guard state.stepSections.isEmpty else { return .none }
-          let s = StepSectionReducer.State(
-            id: .init(rawValue: uuid()),
-            name: "",
-            steps: [],
-            isExpanded: true,
-            focusedField: nil
-          )
+        let s = StepSectionReducer.State(
+          id: .init(rawValue: uuid()),
+          name: "",
+          steps: [],
+          isExpanded: true,
+          focusedField: nil
+        )
         state.stepSections.append(s)
         state.focusedField = .row(s.id)
         return .none
-
+        
       case .binding:
         return .none
-
+        
       }
     }
     .forEach(\.stepSections, action: /Action.stepSection) {
@@ -157,21 +184,21 @@ struct StepList_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         StepListView(store: .init(
-            initialState: .init(
-                stepSections: .init(uniqueElements: Recipe.longMock.stepSections.map({ section in
-                    .init(
-                        id: .init(),
-                        name: section.name,
-                        steps: .init(uniqueElements: section.steps.map({ step in
-                            .init(id: .init(), step: step, focusedField: nil)
-                        })),
-                        isExpanded: true,
-                        focusedField: nil
-                    )
-                })),
-                isExpanded: true,
-                focusedField: nil
-            ),
+          initialState: .init(
+            stepSections: .init(uniqueElements: Recipe.longMock.stepSections.map({ section in
+                .init(
+                  id: .init(),
+                  name: section.name,
+                  steps: .init(uniqueElements: section.steps.map({ step in
+                      .init(id: .init(), step: step, focusedField: nil)
+                  })),
+                  isExpanded: true,
+                  focusedField: nil
+                )
+            })),
+            isExpanded: true,
+            focusedField: nil
+          ),
           reducer: StepListReducer.init
         ))
         .padding()

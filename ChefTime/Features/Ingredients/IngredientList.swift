@@ -201,8 +201,7 @@ private struct IngredientStepper: View {
       step: 1.0
     ) {
       Text("Servings \(scaleString)")
-        .font(.title3)
-        .fontWeight(.bold)
+        .textSubtitleStyle()
     }
   }
   
