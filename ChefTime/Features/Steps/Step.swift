@@ -17,13 +17,6 @@ struct StepView: View {
         HStack {
           Text("Step \(index + 1)") // TODO: Step...
           Spacer()
-//          PhotosPicker(
-//            selection: .constant(nil),
-//            matching: .images,
-//            preferredItemEncoding: .compatible,
-//            photoLibrary: .shared()) {
-//              Image(systemName: "camera.fill")
-//            }
           Image(systemName: "camera.fill")
         }
         .font(.caption)
@@ -53,14 +46,17 @@ struct StepView: View {
             }
           }
         }
-        
-        if let imageData = viewStore.step.imageData.first {
-          imageData.image
-            .resizable()
-            .scaledToFill()
-            .frame(width: maxW, height: maxW)
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-        }        
+      
+        if !viewStore.photos.photos.isEmpty {
+          HStack {
+            Spacer()
+            PhotosView(store: store.scope(
+              state: \.photos,
+              action: StepReducer.Action.photos
+            ))
+            Spacer()
+          }
+        }
       }
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
       .contextMenu {
@@ -96,12 +92,27 @@ struct StepReducer: ReducerProtocol {
     let id: ID
     var step: Recipe.StepSection.Step
     @BindingState var focusedField: FocusField? = nil
+    var photos: PhotosReducer.State
     
+    init(
+      id: ID,
+      step: Recipe.StepSection.Step,
+      focusedField: FocusField? = nil
+    ) {
+      self.id = id
+      self.step = step
+      self.focusedField = focusedField
+      self.photos = .init(
+        photos: step.imageData,
+        selection: step.imageData.first?.id
+      )
+    }
   }
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case delegate(DelegateAction)
+    case photos(PhotosReducer.Action)
     case stepDescriptionEdited(String)
     case keyboardDoneButtonTapped
   }
@@ -110,7 +121,7 @@ struct StepReducer: ReducerProtocol {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case .binding, .delegate:
+      case .binding, .delegate, .photos:
         return .none
         
       case let .stepDescriptionEdited(newDescription):
@@ -121,6 +132,9 @@ struct StepReducer: ReducerProtocol {
         state.focusedField = nil
         return .none
       }
+    }
+    Scope(state: \.photos, action: /Action.photos) {
+      PhotosReducer()
     }
   }
 }
@@ -167,7 +181,7 @@ struct StepView_Previews: PreviewProvider {
           reducer: StepReducer.init
         ), index: 0)
         
-        .padding([.horizontal], 10)
+        .padding([.horizontal])
         Spacer()
       }
     }

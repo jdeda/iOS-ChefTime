@@ -25,6 +25,7 @@ import Tagged
 
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
+  let maxW = UIScreen.main.bounds.width * 0.90
   
   var body: some View {
     WithViewStore(store) { viewStore in
@@ -35,8 +36,8 @@ struct RecipeView: View {
             action: RecipeReducer.Action.photos
           ))
           .frame(
-            maxWidth: !viewStore.isHidingImages ? 400 : 0,
-            maxHeight: !viewStore.isHidingImages ? 400 : 0
+            width: !viewStore.isHidingImages ? maxW : 0,
+            height: !viewStore.isHidingImages ? maxW : 0
           )
           .clipShape(RoundedRectangle(cornerRadius: 15))
           .padding([.horizontal])

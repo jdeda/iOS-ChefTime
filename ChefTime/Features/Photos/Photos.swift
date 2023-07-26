@@ -11,11 +11,12 @@ import PhotosUI
 // TODO: put a limit of 5-10 photos a recpe
 // TODO: add progress view and alert if photos fail
 // TODO: ask for user permissions
+// TODO: fix sizing issues
 
 // MARK: - View
 struct PhotosView: View {
   let store: StoreOf<PhotosReducer>
-  let maxW = UIScreen.main.bounds.width * 0.85
+  let maxW = UIScreen.main.bounds.width * 0.90
   
   var body: some View {
     WithViewStore(store) { viewStore in

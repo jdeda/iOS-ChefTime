@@ -4,7 +4,7 @@ import Foundation
 
 // TODO: Fix swipe lag
 struct ImageSliderView: View {
-  let maxW = UIScreen.main.bounds.width * 0.85
+  let maxW = UIScreen.main.bounds.width * 0.90
   let imageDatas: IdentifiedArrayOf<ImageData>
   @Binding var selection: ImageData.ID?
   
