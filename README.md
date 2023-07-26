@@ -10,6 +10,19 @@ ChefTime is the cookbook app for the enthusiast.
 - `Data persistence`: Your offline changes are saved and synchronized once you're back online.
 
 Please note that ChefTime is currently in development.
+<div>
+<img src="GitAssets/Gifs/ChefTime_Demo_01.gif" alt="drawing" width="300"/>
+<img src="GitAssets/Gifs/ChefTime_Demo_02.gif" alt="drawing" width="300"/>
+</div>
+
+<div>
+<img src="GitAssets/Gifs/ChefTime_Demo_03.gif" alt="drawing" width="300"/>
+<img src="GitAssets/Gifs/ChefTime_Demo_04.gif" alt="drawing" width="300"/>
+</div>
+
+<div>
+<img src="GitAssets/Gifs/ChefTime_Demo_05.gif" alt="drawing" width="300"/>
+</div>
 
 # About
 ChefTime is built entirely in SwiftUI and powered by a few incredibly powerful libraries:
