@@ -15,14 +15,19 @@ struct StepView: View {
   var body: some View {
     WithViewStore(store) { viewStore in
       VStack {
+        
         HStack {
           Text("Step \(index + 1)") // TODO: Step...
           Spacer()
+          
+          // TODO: Fix opacity/disable
           Image(systemName: "camera.fill")
+            .disabled(!viewStore.photos.photos.isEmpty)
+//            .disabled(isHidingStepImages || !viewStore.photos.photos.isEmpty)
+//            .opacity(isHidingStepImages ? 0 : 1.0)
         }
         .fontWeight(.medium)
         .padding(.bottom, 1)
-        .accentColor(.primary)
         
         TextField(
           "...",

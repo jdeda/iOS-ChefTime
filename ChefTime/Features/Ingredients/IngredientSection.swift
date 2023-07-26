@@ -252,7 +252,6 @@ private struct IngredientSectionContextMenuPreview: View {
         .lineLimit(2)
         .textSubtitleStyle()
     }
-    .disclosureGroupStyle(CustomDisclosureGroupStyle())
     .accentColor(.primary)
   }
 }

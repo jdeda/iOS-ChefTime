@@ -87,7 +87,7 @@ final class IngredientsListTests: XCTestCase {
     )
     
     await store.send(.addSectionButtonTapped) {
-      $0.ingredients.append(.init(
+      $0.ingredientSections.append(.init(
         id: .init(rawValue: UUID(0)),
         name: "",
         ingredients: [],
@@ -99,7 +99,7 @@ final class IngredientsListTests: XCTestCase {
     
     // MARK: - The view is really a switch, but this could still be called,
     await store.send(.addSectionButtonTapped) {
-      $0.ingredients.append(.init(
+      $0.ingredientSections.append(.init(
         id: .init(rawValue: UUID(1)),
         name: "",
         ingredients: [],
@@ -146,8 +146,8 @@ final class IngredientsListTests: XCTestCase {
     await store.send(.isExpandedButtonToggled) {
       $0.isExpanded = false
       $0.focusedField = nil
-      $0.ingredients[0].focusedField = nil
-      $0.ingredients[0].ingredients[0].focusedField = nil
+      $0.ingredientSections[0].focusedField = nil
+      $0.ingredientSections[0].ingredients[0].focusedField = nil
     }
     
     await store.send(.isExpandedButtonToggled) {
@@ -211,36 +211,36 @@ final class IngredientsListTests: XCTestCase {
     store.send(.scaleStepperButtonTapped(2)) {
       $0.scale = 2
       
-      $0.ingredients[0].ingredients[0].ingredient.amount = 2
-      $0.ingredients[0].ingredients[0].ingredientAmountString = "2.0"
-      $0.ingredients[0].ingredients[1].ingredient.amount = 4
-      $0.ingredients[0].ingredients[1].ingredientAmountString = "4.0"
-      $0.ingredients[0].ingredients[2].ingredient.amount = 6
-      $0.ingredients[0].ingredients[2].ingredientAmountString = "6.0"
-      $0.ingredients[0].ingredients[3].ingredient.amount = 8
-      $0.ingredients[0].ingredients[3].ingredientAmountString = "8.0"
+      $0.ingredientSections[0].ingredients[0].ingredient.amount = 2
+      $0.ingredientSections[0].ingredients[0].ingredientAmountString = "2.0"
+      $0.ingredientSections[0].ingredients[1].ingredient.amount = 4
+      $0.ingredientSections[0].ingredients[1].ingredientAmountString = "4.0"
+      $0.ingredientSections[0].ingredients[2].ingredient.amount = 6
+      $0.ingredientSections[0].ingredients[2].ingredientAmountString = "6.0"
+      $0.ingredientSections[0].ingredients[3].ingredient.amount = 8
+      $0.ingredientSections[0].ingredients[3].ingredientAmountString = "8.0"
 
-      $0.ingredients[1].ingredients[0].ingredient.amount = 20
-      $0.ingredients[1].ingredients[0].ingredientAmountString = "20.0"
-      $0.ingredients[1].ingredients[1].ingredient.amount = 40
-      $0.ingredients[1].ingredients[1].ingredientAmountString = "40.0"
-      $0.ingredients[1].ingredients[2].ingredient.amount = 60
-      $0.ingredients[1].ingredients[2].ingredientAmountString = "60.0"
-      $0.ingredients[1].ingredients[3].ingredient.amount = 80
-      $0.ingredients[1].ingredients[3].ingredientAmountString = "80.0"
+      $0.ingredientSections[1].ingredients[0].ingredient.amount = 20
+      $0.ingredientSections[1].ingredients[0].ingredientAmountString = "20.0"
+      $0.ingredientSections[1].ingredients[1].ingredient.amount = 40
+      $0.ingredientSections[1].ingredients[1].ingredientAmountString = "40.0"
+      $0.ingredientSections[1].ingredients[2].ingredient.amount = 60
+      $0.ingredientSections[1].ingredients[2].ingredientAmountString = "60.0"
+      $0.ingredientSections[1].ingredients[3].ingredient.amount = 80
+      $0.ingredientSections[1].ingredients[3].ingredientAmountString = "80.0"
       
-      $0.ingredients[2].ingredients[0].ingredient.amount = 2.22
-      $0.ingredients[2].ingredients[0].ingredientAmountString = "2.22"
-      $0.ingredients[2].ingredients[1].ingredient.amount = 4.44
-      $0.ingredients[2].ingredients[1].ingredientAmountString = "4.44"
-      $0.ingredients[2].ingredients[2].ingredient.amount = 6.66
-      $0.ingredients[2].ingredients[2].ingredientAmountString = "6.66"
-      $0.ingredients[2].ingredients[3].ingredient.amount = 8.88
-      $0.ingredients[2].ingredients[3].ingredientAmountString = "8.88"
+      $0.ingredientSections[2].ingredients[0].ingredient.amount = 2.22
+      $0.ingredientSections[2].ingredients[0].ingredientAmountString = "2.22"
+      $0.ingredientSections[2].ingredients[1].ingredient.amount = 4.44
+      $0.ingredientSections[2].ingredients[1].ingredientAmountString = "4.44"
+      $0.ingredientSections[2].ingredients[2].ingredient.amount = 6.66
+      $0.ingredientSections[2].ingredients[2].ingredientAmountString = "6.66"
+      $0.ingredientSections[2].ingredients[3].ingredient.amount = 8.88
+      $0.ingredientSections[2].ingredients[3].ingredientAmountString = "8.88"
     }
     
     store.send(.scaleStepperButtonTapped(1)) {
-      $0.ingredients = state.ingredients
+      $0.ingredientSections = state.ingredientSections
       $0.scale = 1.0
     }
   }
@@ -270,7 +270,7 @@ final class IngredientsListTests: XCTestCase {
     )
     
     await store.send(.ingredient(.init(rawValue: UUID(1)), .delegate(.deleteSectionButtonTapped))) {
-      $0.ingredients = []
+      $0.ingredientSections = []
     }
   }
   
@@ -303,10 +303,10 @@ final class IngredientsListTests: XCTestCase {
       )
     }
     
-    XCTAssertTrue(store.state.ingredients.first!.id.uuidString == UUID(0).uuidString)
+    XCTAssertTrue(store.state.ingredientSections.first!.id.uuidString == UUID(0).uuidString)
     
     await store.send(.ingredient(.init(rawValue: UUID(0)), .delegate(.insertSection(.above)))) {
-      $0.ingredients.insert(
+      $0.ingredientSections.insert(
         .init(
           id: .init(rawValue: UUID(1)),
           name: "",
@@ -319,10 +319,10 @@ final class IngredientsListTests: XCTestCase {
       $0.focusedField = .row(.init(rawValue: UUID(1)))
     }
     
-    XCTAssertTrue(store.state.ingredients.first!.id.uuidString == UUID(1).uuidString)
+    XCTAssertTrue(store.state.ingredientSections.first!.id.uuidString == UUID(1).uuidString)
     
     await store.send(.ingredient(.init(rawValue: UUID(1)), .delegate(.insertSection(.below)))) {
-      $0.ingredients.insert(
+      $0.ingredientSections.insert(
         .init(
           id: .init(rawValue: UUID(2)),
           name: "",
@@ -332,7 +332,7 @@ final class IngredientsListTests: XCTestCase {
         ),
         at: 1
       )
-      $0.ingredients[id: .init(rawValue: UUID(1))]?.focusedField = nil
+      $0.ingredientSections[id: .init(rawValue: UUID(1))]?.focusedField = nil
       $0.focusedField = .row(.init(rawValue: UUID(2)))
     }
   }

@@ -2,17 +2,13 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
-// TODO: cleanup any redundant reducer code, maybe make a component
 // TODO: bug where keyboard displays auto words but not for all keyboards
 // TODO: If deleting, maybe nil focus, keyboard animation gets ugly
 // TODO: sometimes screen moves very weird on inserts
 // TODO: ingredient .next/return sometimes doesnt focus to new element
-// TODO: rename model and feature names to be more consistent
 // TODO: debounce collapse buttons (would be super slick)
-// TODO: Make sure disclosure group styles are consistent
 
 // TODO: Refactor to use .task instead of .run where need be.
-// TODO: Inspect all context menu previews
 
 // ANIMATION TODOS
 // TODO: Step image deletion final photo transition is fugly
@@ -139,7 +135,7 @@ struct RecipeReducer: ReducerProtocol {
         focusedField: nil
       )
       self.ingredients = .init(
-        ingredients: .init(uniqueElements: recipe.ingredientSections.map({ section in
+        ingredientSections: .init(uniqueElements: recipe.ingredientSections.map({ section in
             .init(
               id: .init(rawValue: uuid()),
               name: section.name,
@@ -215,8 +211,8 @@ struct RecipeReducer: ReducerProtocol {
         
         // Collapse all ingredient sections
         state.ingredients.isExpanded = isExpanded
-        state.ingredients.ingredients.ids.forEach {
-          state.ingredients.ingredients[id: $0]?.isExpanded = isExpanded
+        state.ingredients.ingredientSections.ids.forEach {
+          state.ingredients.ingredientSections[id: $0]?.isExpanded = isExpanded
         }
         
         // Collapse all step sections

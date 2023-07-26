@@ -9,7 +9,7 @@ struct IngredientListView: View {
   
   var body: some View {
     WithViewStore(store) { viewStore in
-      if viewStore.ingredients.isEmpty {
+      if viewStore.ingredientSections.isEmpty {
         VStack {
           HStack {
             Text("Ingredients")
@@ -43,7 +43,7 @@ struct IngredientListView: View {
           ))
           
           ForEachStore(store.scope(
-            state: \.ingredients,
+            state: \.ingredientSections,
             action: IngredientsListReducer.Action.ingredient
           )) { childStore in
             IngredientSection(store: childStore)
@@ -70,7 +70,7 @@ struct IngredientListView: View {
 struct IngredientsListReducer: ReducerProtocol {
   struct State: Equatable {
     
-    var ingredients: IdentifiedArrayOf<IngredientSectionReducer.State>
+    var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State>
     var isExpanded: Bool
     var scale: Double = 1.0
     @BindingState var focusedField: FocusField? = nil
@@ -95,13 +95,13 @@ struct IngredientsListReducer: ReducerProtocol {
         case let .delegate(action):
           switch action {
           case .deleteSectionButtonTapped:
-            state.ingredients.remove(id: id)
+            state.ingredientSections.remove(id: id)
             return .none
             
           case let .insertSection(aboveBelow):
-            guard let i = state.ingredients.index(id: id)
+            guard let i = state.ingredientSections.index(id: id)
             else { return .none }
-            state.ingredients[i].focusedField = nil
+            state.ingredientSections[i].focusedField = nil
             
             let newSection = IngredientSectionReducer.State(
               id: .init(rawValue: uuid()),
@@ -111,8 +111,8 @@ struct IngredientsListReducer: ReducerProtocol {
               focusedField: .name
             )
             switch aboveBelow {
-            case .above: state.ingredients.insert(newSection, at: i)
-            case .below: state.ingredients.insert(newSection, at: i + 1)
+            case .above: state.ingredientSections.insert(newSection, at: i)
+            case .below: state.ingredientSections.insert(newSection, at: i + 1)
             }
             state.focusedField = .row(newSection.id)
             return .none
@@ -125,10 +125,10 @@ struct IngredientsListReducer: ReducerProtocol {
         state.isExpanded.toggle()
         state.focusedField = nil
         // MARK: - W/O niling could end up with duplicate keyboard buttons due to conditional logic
-        state.ingredients.ids.forEach { id1 in
-          state.ingredients[id: id1]?.focusedField = nil
-          state.ingredients[id: id1]?.ingredients.ids.forEach { id2 in
-            state.ingredients[id: id1]?.ingredients[id: id2]?.focusedField = nil
+        state.ingredientSections.ids.forEach { id1 in
+          state.ingredientSections[id: id1]?.focusedField = nil
+          state.ingredientSections[id: id1]?.ingredients.ids.forEach { id2 in
+            state.ingredientSections[id: id1]?.ingredients[id: id2]?.focusedField = nil
           }
         }
         return .none
@@ -136,21 +136,21 @@ struct IngredientsListReducer: ReducerProtocol {
       case let .scaleStepperButtonTapped(newScale):
         let oldScale = state.scale
         state.scale = newScale
-        for i in state.ingredients.indices {
-          for j in state.ingredients[i].ingredients.indices { // TODO: Maybe do this with IDs and in parallel? :D
-            let ingredient = state.ingredients[i].ingredients[j]
+        for i in state.ingredientSections.indices {
+          for j in state.ingredientSections[i].ingredients.indices { // TODO: Maybe do this with IDs and in parallel? :D
+            let ingredient = state.ingredientSections[i].ingredients[j]
             guard !ingredient.ingredientAmountString.isEmpty else { continue }
             let amount = (ingredient.ingredient.amount / oldScale) * newScale
             let string = String(amount)
-            state.ingredients[i].ingredients[j].ingredient.amount = amount
-            state.ingredients[i].ingredients[j].ingredientAmountString = string
+            state.ingredientSections[i].ingredients[j].ingredient.amount = amount
+            state.ingredientSections[i].ingredients[j].ingredientAmountString = string
           }
         }
         return .none
         
       case .addSectionButtonTapped:
         let id = IngredientSectionReducer.State.ID(rawValue: uuid())
-        state.ingredients.append(.init(
+        state.ingredientSections.append(.init(
           id: id,
           name: "",
           ingredients: [],
@@ -165,7 +165,7 @@ struct IngredientsListReducer: ReducerProtocol {
         
       }
     }
-    .forEach(\.ingredients, action: /Action.ingredient) {
+    .forEach(\.ingredientSections, action: /Action.ingredient) {
       IngredientSectionReducer()
     }
   }
@@ -237,7 +237,7 @@ struct IngredientList_Previews: PreviewProvider {
       ScrollView {
         IngredientListView(store: .init(
           initialState: .init(
-            ingredients: .init(uniqueElements: Recipe.longMock.ingredientSections.map { section in
+            ingredientSections: .init(uniqueElements: Recipe.longMock.ingredientSections.map { section in
               .init(
                 id: .init(),
                 name: section.name,
