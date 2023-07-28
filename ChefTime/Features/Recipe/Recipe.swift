@@ -3,10 +3,8 @@ import ComposableArchitecture
 import Tagged
 
 // TODO: bug where keyboard displays auto words but not for all keyboards
-// TODO: If deleting, maybe nil focus, keyboard animation gets ugly
-// TODO: sometimes screen moves very weird on inserts
+// TODO: sometimes screen moves very weird on inserts, the rows are not padded...
 // TODO: ingredient .next/return sometimes doesnt focus to new element
-// TODO: debounce collapse buttons (would be super slick)
 
 // TODO: Refactor to use .task instead of .run where need be.
 
@@ -22,6 +20,13 @@ import Tagged
 // TODO: same with stepsection
 // TODO: but the step animates only if it has an image...
 // TODO: step and Deletion is ugly, it lingers, ingrtedient kinda simnilar
+
+// TODO: Sometimes textfield highlight when focused just doesn't appear...
+
+// TODO: The ingredient number string is fucked up
+
+// TODO: spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
+// sometime the spam even crashes the app
 
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>

@@ -1,13 +1,28 @@
 import SwiftUI
 
-// TODO: Could make vertical height better
+// Simply a CustomDisclosureGroupStyle for better clicking ergonomics, where the expand button is strictly
+// the chevron icon, and which the expansion is briefly debounced.
 struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
+  @State var inFlight = false
+  @State var task: Task<Void, Never>?
   func makeBody(configuration: Configuration) -> some View {
     HStack(alignment: .center) {
       configuration.label
       Button {
-        withAnimation {
-          configuration.isExpanded.toggle()
+        if inFlight {
+          task?.cancel()
+        }
+        task = .init {
+          inFlight = true
+          do { try await Task.sleep(for: .milliseconds(250)) }
+          catch {
+            inFlight = false
+            return
+          }
+          withAnimation {
+            configuration.isExpanded.toggle()
+          }
+          inFlight = false
         }
       } label: {
         Image(systemName: "chevron.right")
