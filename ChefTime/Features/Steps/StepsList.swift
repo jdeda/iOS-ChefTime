@@ -57,7 +57,7 @@ struct StepListView: View {
             } // onTapGesture because regular Toggle just breaks and you can't click it.
             .onTapGesture {
               // TODO: Debounce?
-              viewStore.send(.binding(.set(\.$isHidingStepImages, !viewStore.isHidingStepImages)))
+              viewStore.send(.hideImagesToggled)
             }
             
             ForEachStore(store.scope(
@@ -100,10 +100,15 @@ struct StepListReducer: ReducerProtocol {
     case binding(BindingAction<State>)
     case stepSection(StepSectionReducer.State.ID, StepSectionReducer.Action)
     case isExpandedButtonToggled
+    case hideImagesToggled
     case addSectionButtonTapped
+    case hideImages
   }
   
   @Dependency(\.uuid) var uuid
+  @Dependency(\.continuousClock) var clock
+  
+  private enum HideImagesToggledID: Hashable { case timer }
   
   var body: some ReducerProtocolOf<Self> {
     BindingReducer()
@@ -147,6 +152,13 @@ struct StepListReducer: ReducerProtocol {
         }
         return .none
         
+      case .hideImagesToggled:
+        return .run { send in
+          try await self.clock.sleep(for: .milliseconds(250))
+          await send(.hideImages)
+        }
+        .cancellable(id: HideImagesToggledID.timer, cancelInFlight: true)
+        
       case .addSectionButtonTapped:
         guard state.stepSections.isEmpty else { return .none }
         let s = StepSectionReducer.State(
@@ -160,9 +172,12 @@ struct StepListReducer: ReducerProtocol {
         state.focusedField = .row(s.id)
         return .none
         
-      case .binding:
+      case .hideImages:
+        state.isHidingStepImages.toggle()
         return .none
         
+      case .binding:
+        return .none
       }
     }
     .forEach(\.stepSections, action: /Action.stepSection) {

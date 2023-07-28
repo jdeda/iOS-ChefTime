@@ -19,12 +19,17 @@ struct StepView: View {
         HStack {
           Text("Step \(index + 1)") // TODO: Step...
           Spacer()
-          
-          // TODO: Fix opacity/disable
-          Image(systemName: "camera.fill")
-            .disabled(!viewStore.photos.photos.isEmpty)
-//            .disabled(isHidingStepImages || !viewStore.photos.photos.isEmpty)
-//            .opacity(isHidingStepImages ? 0 : 1.0)
+          PhotosPicker(
+            selection: .constant(nil),
+            matching: .images,
+            preferredItemEncoding: .compatible,
+            photoLibrary: .shared()
+          ) {
+            Image(systemName: "camera.fill")
+              .accentColor(.primary)
+          }
+          .disabled(isHidingStepImages || !viewStore.photos.photos.isEmpty)
+          .opacity(isHidingStepImages ? 0.0 : 1.0)
         }
         .fontWeight(.medium)
         .padding(.bottom, 1)
@@ -60,7 +65,7 @@ struct StepView: View {
         .frame(height: isHiding ? 0 : maxW)
         .opacity(isHiding ? 0 : 1.0)
         .clipShape(RoundedRectangle(cornerRadius: 15))
-//        .animation(.default, value: isHidingStepImages)
+        //        .animation(.default, value: isHidingStepImages)
       }
       .animation(.default, value: isHidingStepImages)
       .synchronize(viewStore.binding(\.$focusedField), $focusedField)
