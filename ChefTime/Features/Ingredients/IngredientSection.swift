@@ -142,7 +142,8 @@ struct IngredientSectionReducer: ReducerProtocol  {
             let s = IngredientReducer.State.init(
               id: .init(rawValue: uuid()),
               focusedField: .name,
-              ingredient: .init(id: .init(rawValue: uuid()))
+              ingredient: .init(id: .init(rawValue: uuid())),
+              ingredientAmountString: ""
             )
             state.ingredients.insert(s, at: aboveBelow == .above ? i : i + 1)
             state.focusedField = .row(s.id)
@@ -204,7 +205,8 @@ struct IngredientSectionReducer: ReducerProtocol  {
         let s = IngredientReducer.State(
           id: .init(rawValue: uuid()),
           focusedField: .name,
-          ingredient: .init(id: .init(rawValue: uuid()))
+          ingredient: .init(id: .init(rawValue: uuid())),
+          ingredientAmountString: ""
         )
         state.ingredients.append(s)
         state.focusedField = .row(s.id)
@@ -270,7 +272,7 @@ struct IngredientSection_Previews: PreviewProvider {
                 id: .init(),
                 focusedField: nil,
                 ingredient: $0,
-                emptyIngredientAmountString: false
+                ingredientAmountString: String($0.amount)
               )
             }),
             isExpanded: true,

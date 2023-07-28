@@ -124,43 +124,11 @@ struct IngredientReducer: ReducerProtocol {
     let id: ID
     @BindingState var focusedField: FocusField? = nil
     
-    private var _ingredient: Recipe.IngredientSection.Ingredient
-    var ingredient: Recipe.IngredientSection.Ingredient {
-      get {
-        _ingredient
-      }
-      set {
-        _ingredient = newValue
-        _ingredientAmountString = String(newValue.amount)
-      }
-    }
+    var ingredient: Recipe.IngredientSection.Ingredient
     
     // The ingredient.amount is really derived from the
     // ingredientAmountString and both should be synchronized.
-    private var _ingredientAmountString: String
-    var ingredientAmountString: String {
-      get {
-        _ingredientAmountString
-      }
-      set {
-        if let amount = Double(newValue) {
-          _ingredientAmountString = newValue
-          ingredient.amount = amount
-        }
-      }
-    }
-    
-    init(
-      id: ID,
-      focusedField: FocusField? = nil,
-      ingredient: Recipe.IngredientSection.Ingredient,
-      emptyIngredientAmountString: Bool = false
-    ) {
-      self.id = id
-      self.focusedField = focusedField
-      self._ingredient = ingredient
-      self._ingredientAmountString = emptyIngredientAmountString ? "" : String(ingredient.amount)
-    }
+    var ingredientAmountString: String
   }
   
   enum Action: Equatable, BindableAction {
@@ -367,6 +335,7 @@ struct IngredientContextMenuPreview: View {
 
 // MARK: - Previews
 struct IngredientView_Previews: PreviewProvider {
+  static let ingredient = Recipe.longMock.ingredientSections.first!.ingredients.first!
   static var previews: some View {
     NavigationStack {
       ScrollView {
@@ -374,7 +343,8 @@ struct IngredientView_Previews: PreviewProvider {
           initialState: .init(
             id: .init(),
             focusedField: nil,
-            ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!
+            ingredient: ingredient,
+            ingredientAmountString: String(ingredient.amount)
           ),
           reducer: IngredientReducer.init
         ))

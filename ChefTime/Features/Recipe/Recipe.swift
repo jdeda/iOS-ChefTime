@@ -149,7 +149,7 @@ struct RecipeReducer: ReducerProtocol {
                     id: .init(),
                     focusedField: nil,
                     ingredient: ingredient,
-                    emptyIngredientAmountString: false
+                    ingredientAmountString: String(ingredient.amount)
                   )
               })),
               isExpanded: true,

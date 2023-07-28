@@ -246,7 +246,7 @@ struct IngredientList_Previews: PreviewProvider {
                       id: .init(),
                       focusedField: nil,
                       ingredient: ingredient,
-                      emptyIngredientAmountString: false
+                      ingredientAmountString: String(ingredient.amount)
                     )
                 })),
                 isExpanded: true,
