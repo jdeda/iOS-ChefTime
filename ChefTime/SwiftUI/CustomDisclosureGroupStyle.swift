@@ -6,11 +6,9 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
   @State var inFlight = false
   @State var task: Task<Void, Never>?
   func makeBody(configuration: Configuration) -> some View {
-    HStack(alignment: .center) {
-      configuration.label
-        .border(.red)
-      
-
+    LazyVStack {
+      HStack(alignment: .center) {
+        configuration.label
         Button {
           if inFlight {
             task?.cancel()
@@ -36,21 +34,15 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
         }
         .frame(maxWidth : 100, maxHeight: .infinity, alignment: .topTrailing)
         .buttonStyle(.plain)
-              .border(.red)
       }
-    .contentShape(Rectangle())
+      .contentShape(Rectangle())
       
-    let maxW: CGFloat = configuration.isExpanded ? .infinity : 0
-    let a: Animation = .linear(duration: configuration.isExpanded ? 0.3 : 0.1)
-    let o: Double = configuration.isExpanded ? 1.0 : 0.0
-    configuration.content
-      .animation(a, value: configuration.isExpanded)
-      .frame(maxWidth: .infinity, maxHeight: maxW)
-      .opacity(o)
-      
-      
-
+      if configuration.isExpanded {
+        configuration.content
+          .disclosureGroupStyle(self)
+      }
+    }
   }
 }
 
-  // TODO: The alignment is fucked up.
+// TODO: The alignment is fucked up.
