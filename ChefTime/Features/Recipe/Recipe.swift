@@ -2,9 +2,18 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
-// TODO: bug where keyboard displays auto words but not for all keyboards
-// TODO: sometimes screen moves very weird on inserts, the rows are not padded...
+// MARK: - Recipe Feature UI Concerning but Acceptable Bugs
+/// These bugs are concerning, but do not jepordize the quality of the app signicantly.
+/// Most of the bugs are usually ignorable and may be internal SwiftUI bugs.
+/// 1. Keyboard displays auto-fill words but not for all keyboards
+/// 2. Upon inserting sections or elements, screen moves a bit unpleasantly, and or may not
+///   be in perfect position (i.e. it could lower a bit more to really show the textfield). This
+///   may be because of padding issues
+///
+
 // TODO: ingredient .next/return sometimes doesnt focus to new element
+
+// TODO: Consider lazy rendering and  limit observation for performance
 
 // TODO: Refactor to use .task instead of .run where need be.
 
