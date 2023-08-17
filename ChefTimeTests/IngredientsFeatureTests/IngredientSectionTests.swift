@@ -11,17 +11,17 @@ final class IngredientSectionTests: XCTestCase {
     .init(
       id: .init(rawValue: UUID(1)),
       focusedField: nil,
-      ingredient: .init(id: .init(rawValue: UUID(2)), name: "figs", amount: 4, measure: "lbs", isComplete: false)
+      ingredient: .init(id: .init(rawValue: UUID(2)), name: "figs", amount: 4, measure: "lbs", isComplete: false), ingredientAmountString: "4"
     ),
     .init(
       id: .init(rawValue: UUID(3)),
       focusedField: nil,
-      ingredient: .init(id: .init(rawValue: UUID(4)), name: "brown sugar", amount: 1, measure: "cup", isComplete: false)
+      ingredient: .init(id: .init(rawValue: UUID(4)), name: "brown sugar", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1"
     ),
     .init(
       id: .init(rawValue: UUID(5)),
       focusedField: nil,
-      ingredient: .init(id: .init(rawValue: UUID(6)), name: "butter", amount: 1, measure: "cup", isComplete: false)
+      ingredient: .init(id: .init(rawValue: UUID(6)), name: "butter", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1"
     ),
   ]
   
@@ -59,10 +59,10 @@ final class IngredientSectionTests: XCTestCase {
           id: .init(rawValue: uuid()),
           name: "foo",
           ingredients: .init(uniqueElements: [
-            .init(id: .init(rawValue: uuid()), ingredient: .init(id: .init(rawValue: uuid()))),
-            .init(id: .init(rawValue: uuid()), ingredient: .init(id: .init(rawValue: uuid()))),
-            .init(id: .init(rawValue: uuid()), ingredient: .init(id: .init(rawValue: uuid()))),
-            .init(id: .init(rawValue: uuid()), ingredient: .init(id: .init(rawValue: uuid()))),
+            .init(id: .init(rawValue: uuid()), ingredient: .init(id: .init(rawValue: uuid())), ingredientAmountString: ""),
+            .init(id: .init(rawValue: uuid()), ingredient: .init(id: .init(rawValue: uuid())), ingredientAmountString: ""),
+            .init(id: .init(rawValue: uuid()), ingredient: .init(id: .init(rawValue: uuid())), ingredientAmountString: ""),
+            .init(id: .init(rawValue: uuid()), ingredient: .init(id: .init(rawValue: uuid())), ingredientAmountString: ""),
           ]),
           isExpanded: true,
           focusedField: nil
@@ -167,7 +167,7 @@ final class IngredientSectionTests: XCTestCase {
           .init(
             id: .init(rawValue: UUID(42)),
             focusedField: .name,
-            ingredient: .init(id: .init(rawValue: UUID(43)))
+            ingredient: .init(id: .init(rawValue: UUID(43))), ingredientAmountString: ""
           )
         ],
         isExpanded: true,
@@ -255,7 +255,7 @@ final class IngredientSectionTests: XCTestCase {
       $0.ingredients.append(.init(
         id: .init(rawValue: UUID(0)),
         focusedField: .name,
-        ingredient: .init(id: .init(rawValue: UUID(1)))
+        ingredient: .init(id: .init(rawValue: UUID(1))), ingredientAmountString: ""
       ))
       $0.focusedField = .row(.init(rawValue: UUID(0)))
     }
@@ -464,17 +464,17 @@ final class IngredientSectionTests: XCTestCase {
             .init(
               id: .init(rawValue: uuid()),
               focusedField: nil,
-              ingredient: .init(id: .init(rawValue: uuid()), name: "figs", amount: 4, measure: "lbs", isComplete: false)
+              ingredient: .init(id: .init(rawValue: uuid()), name: "figs", amount: 4, measure: "lbs", isComplete: false), ingredientAmountString: "4"
             ),
             .init(
               id: .init(rawValue: uuid()),
               focusedField: nil,
-              ingredient: .init(id: .init(rawValue: uuid()), name: "brown sugar", amount: 1, measure: "cup", isComplete: false)
+              ingredient: .init(id: .init(rawValue: uuid()), name: "brown sugar", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1"
             ),
             .init(
               id: .init(rawValue: uuid()),
               focusedField: nil,
-              ingredient: .init(id: .init(rawValue: uuid()), name: "butter", amount: 1, measure: "cup", isComplete: false)
+              ingredient: .init(id: .init(rawValue: uuid()), name: "butter", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1"
             ),
           ],
           isExpanded: false,
@@ -500,7 +500,8 @@ final class IngredientSectionTests: XCTestCase {
       $0.ingredients.insert(.init(
         id: .init(rawValue: UUID(7)),
         focusedField: .name,
-        ingredient: .init(id: .init(rawValue: UUID(8)))
+        ingredient: .init(id: .init(rawValue: UUID(8))),
+        ingredientAmountString: ""
       ), at: 0)
       $0.focusedField = .row(.init(rawValue: UUID(7)))
     }
@@ -516,7 +517,7 @@ final class IngredientSectionTests: XCTestCase {
       $0.ingredients.insert(.init(
         id: .init(rawValue: UUID(9)),
         focusedField: .name,
-        ingredient: .init(id: .init(rawValue: UUID(10)))
+        ingredient: .init(id: .init(rawValue: UUID(10))), ingredientAmountString: ""
       ), at: 1)
       $0.focusedField = .row(.init(rawValue: UUID(9)))
     }

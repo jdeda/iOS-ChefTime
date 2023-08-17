@@ -6,79 +6,9 @@ import Dependencies
 
 @MainActor
 final class IngredientsListTests: XCTestCase {
-  
-  let ingredientsListReducerState: IngredientsListReducer.State = .init(
-    ingredients: [
-      .init(
-        id: .init(),
-        name: "Bread",
-        ingredients: [
-          .init(id: .init(), ingredient: .init(id: .init(), name: "flour", amount: 1, measure: "cup", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "yeast", amount: 1, measure: "tbsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "water", amount: 0.25, measure: "cup", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "salt", amount: 1, measure: "tsp", isComplete: false)),
-        ],
-        isExpanded: true,
-        focusedField: nil
-      ),
-      .init(
-        id: .init(),
-        name: "Patties",
-        ingredients: [
-          .init(id: .init(), ingredient: .init(id: .init(), name: "chuck roast", amount: 2, measure: "lb", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "fat trimmmings", amount: 0.25, measure: "lb", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "msg", amount: 1, measure: "tsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "salt", amount: 1, measure: "tsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "pepper", amount: 1, measure: "tsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "garlic powder", amount: 1, measure: "tsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "onion powder", amount: 1, measure: "tsp", isComplete: false)),
-        ],
-        isExpanded: true,
-        focusedField: nil
-      ),
-      .init(
-        id: .init(),
-        name: "Patties",
-        ingredients: [
-          .init(id: .init(), ingredient: .init(id: .init(), name: "chuck roast", amount: 2, measure: "lb", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "fat trimmmings", amount: 0.25, measure: "lb", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "msg", amount: 1, measure: "tsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "salt", amount: 1, measure: "tsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "pepper", amount: 1, measure: "tsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "garlic powder", amount: 1, measure: "tsp", isComplete: false)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "onion powder", amount: 1, measure: "tsp", isComplete: false)),
-        ],
-        isExpanded: true,
-        focusedField: nil
-      ),
-      .init(
-        id: .init(),
-        name: "Toppingss",
-        ingredients: [
-          .init(id: .init(), ingredient: .init(id: .init(), name: "ketchup", amount: 1, measure: "to taste", isComplete: true)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "mustard", amount: 1, measure: "to taste", isComplete: true)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "mayo", amount: 1, measure: "to taste", isComplete: true)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "lettuce", amount: 1, measure: "to taste", isComplete: true)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "tomato", amount: 1, measure: "to taste", isComplete: true)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "onion", amount: 1, measure: "to taste", isComplete: true)),
-          .init(id: .init(), ingredient: .init(id: .init(), name: "pickle chips", amount: 1, measure: "to taste", isComplete: true)),
-        ],
-        isExpanded: true,
-        focusedField: nil
-      )
-    ],
-    isExpanded: true
-  )
-  
-  
-  //case binding(BindingAction<State>)
-  //case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
-  //case isExpandedButtonToggled
-  //case scaleStepperButtonTapped(Double)
-  
   func testAddSectionButtonTapped() async {
     let store = TestStore(
-      initialState: IngredientsListReducer.State(ingredients: [], isExpanded: true),
+      initialState: IngredientsListTests.ingredientsListReducerState,
       reducer: IngredientsListReducer.init,
       withDependencies: {
         $0.uuid = .incrementing
@@ -117,7 +47,7 @@ final class IngredientsListTests: XCTestCase {
       @Dependency(\.uuid) var uuid
       return TestStore(
         initialState: IngredientsListReducer.State(
-          ingredients: [
+          ingredientSections: .init(uniqueElements: [
             .init(
               id: .init(rawValue: UUID(0)),
               name: "foo",
@@ -125,13 +55,13 @@ final class IngredientsListTests: XCTestCase {
                 .init(
                   id: .init(rawValue: UUID(1)),
                   focusedField: .name,
-                  ingredient: .init(id: .init(rawValue: UUID(2)), name: "oats", amount: 1, measure: "cup", isComplete: false)
+                  ingredient: .init(id: .init(rawValue: UUID(2)), name: "oats", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1.0"
                 )
               ],
               isExpanded: true,
               focusedField: .row(.init(rawValue: UUID(1)))
             )
-          ],
+          ]),
           isExpanded: true,
           focusedField: .row(.init(rawValue: UUID(1)))
         ),
@@ -157,16 +87,11 @@ final class IngredientsListTests: XCTestCase {
   
   func testScaleStepperButtonTapped() {
     let state: IngredientsListReducer.State = .init(
-      ingredients: [
+      ingredientSections: .init(uniqueElements: [
         .init(
           id: .init(),
           name: "Pound-Bread-A",
-          ingredients: [
-            .init(id: .init(), ingredient: .init(id: .init(), name: "honey", amount: 1, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "butter", amount: 2, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "eggs", amount: 3, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "flour", amount: 4, measure: "lb", isComplete: false)),
-          ],
+          ingredients: IngredientsListTests.ingredients,
           isExpanded: true,
           focusedField: nil
         ),
@@ -174,10 +99,26 @@ final class IngredientsListTests: XCTestCase {
           id: .init(),
           name: "Pound-Bread-B",
           ingredients: [
-            .init(id: .init(), ingredient: .init(id: .init(), name: "honey", amount: 10, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "butter", amount: 20, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "eggs", amount: 30, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "flour", amount: 40, measure: "lb", isComplete: false)),
+            .init(
+              id: .init(),
+              ingredient: .init(id: .init(), name: "honey", amount: 10, measure: "lb", isComplete: false),
+              ingredientAmountString: "10.0"
+            ),
+            .init(
+              id: .init(),
+              ingredient: .init(id: .init(), name: "butter", amount: 20, measure: "lb", isComplete: false),
+              ingredientAmountString: "20.0"
+            ),
+            .init(
+              id: .init(),
+              ingredient: .init(id: .init(), name: "eggs", amount: 30, measure: "lb", isComplete: false),
+              ingredientAmountString: "30.0"
+            ),
+            .init(
+              id: .init(),
+              ingredient: .init(id: .init(), name: "flour", amount: 40, measure: "lb", isComplete: false),
+              ingredientAmountString: "40.0"
+            ),
           ],
           isExpanded: true,
           focusedField: nil
@@ -186,15 +127,31 @@ final class IngredientsListTests: XCTestCase {
           id: .init(),
           name: "Pound-Bread-C",
           ingredients: [
-            .init(id: .init(), ingredient: .init(id: .init(), name: "honey", amount: 1.11, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "butter", amount: 2.22, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "eggs", amount: 3.33, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "flour", amount: 4.44, measure: "lb", isComplete: false)),
+            .init(
+              id: .init(),
+              ingredient: .init(id: .init(), name: "honey", amount: 1.11, measure: "lb", isComplete: false),
+              ingredientAmountString: "1.11"
+            ),
+            .init(
+              id: .init(),
+              ingredient: .init(id: .init(), name: "butter", amount: 2.22, measure: "lb", isComplete: false),
+              ingredientAmountString: "2.22"
+            ),
+            .init(
+              id: .init(),
+              ingredient: .init(id: .init(), name: "eggs", amount: 3.33, measure: "lb", isComplete: false),
+              ingredientAmountString: "3.33"
+            ),
+            .init(
+              id: .init(),
+              ingredient: .init(id: .init(), name: "flour", amount: 4.44, measure: "lb", isComplete: false),
+              ingredientAmountString: "4.44"
+            ),
           ],
           isExpanded: true,
           focusedField: nil
         )
-      ],
+      ]),
       isExpanded: true
     )
     
@@ -247,20 +204,15 @@ final class IngredientsListTests: XCTestCase {
   
   func testDelegateDeleteSection() async {
     let state: IngredientsListReducer.State = .init(
-      ingredients: [
+      ingredientSections: .init(uniqueElements: [
         .init(
           id: .init(rawValue: UUID(1)),
           name: "Pound-Bread-A",
-          ingredients: [
-            .init(id: .init(), ingredient: .init(id: .init(), name: "honey", amount: 1, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "butter", amount: 2, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "eggs", amount: 3, measure: "lb", isComplete: false)),
-            .init(id: .init(), ingredient: .init(id: .init(), name: "flour", amount: 4, measure: "lb", isComplete: false)),
-          ],
+          ingredients: IngredientsListTests.ingredients,
           isExpanded: true,
           focusedField: nil
         ),
-      ],
+      ]),
       isExpanded: true
     )
     
@@ -280,20 +232,15 @@ final class IngredientsListTests: XCTestCase {
     } operation: {
       @Dependency(\.uuid) var uuid
       let state: IngredientsListReducer.State = .init(
-        ingredients: [
+        ingredientSections: .init(uniqueElements: [
           .init(
             id: .init(rawValue: uuid()),
             name: "Pound-Bread-A",
-            ingredients: [
-              .init(id: .init(), ingredient: .init(id: .init(), name: "honey", amount: 1, measure: "lb", isComplete: false)),
-              .init(id: .init(), ingredient: .init(id: .init(), name: "butter", amount: 2, measure: "lb", isComplete: false)),
-              .init(id: .init(), ingredient: .init(id: .init(), name: "eggs", amount: 3, measure: "lb", isComplete: false)),
-              .init(id: .init(), ingredient: .init(id: .init(), name: "flour", amount: 4, measure: "lb", isComplete: false)),
-            ],
+            ingredients: IngredientsListTests.ingredients,
             isExpanded: true,
             focusedField: nil
           ),
-        ],
+        ]),
         isExpanded: true
       )
       
@@ -338,3 +285,132 @@ final class IngredientsListTests: XCTestCase {
   }
 }
 
+
+// MARK: - IngredientsListTests reducer state.
+extension IngredientsListTests {
+  static let ingredientsListReducerState: IngredientsListReducer.State = .init(
+    ingredientSections: .init(uniqueElements: [
+      .init(
+        id: .init(),
+        name: "Bread",
+        ingredients: [
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "flour", amount: 1, measure: "cup", isComplete: false),
+            ingredientAmountString: "1.0"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "yeast", amount: 1, measure: "tbsp", isComplete: false),
+            ingredientAmountString: "1.0"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "water", amount: 0.25, measure: "cup", isComplete: false),
+            ingredientAmountString: "0.25"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "salt", amount: 1, measure: "tsp", isComplete: false),
+            ingredientAmountString: "1.0"
+          ),
+        ],
+        isExpanded: true,
+        focusedField: nil
+      ),
+      .init(
+        id: .init(),
+        name: "Patties",
+        ingredients: [
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "chuck roast", amount: 2, measure: "lb", isComplete: false),
+            ingredientAmountString: "2.0"
+          ),
+          
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "fat trimmmings", amount: 0.25, measure: "lb", isComplete: false),
+            ingredientAmountString: "0.25"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "kosher salt", amount: 2, measure: "tsp", isComplete: false),
+            ingredientAmountString: "2.0"
+          )
+        ],
+        isExpanded: true,
+        focusedField: nil
+      ),
+      .init(
+        id: .init(),
+        name: "Toppingss",
+        ingredients: [
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "ketchup", amount: 1, measure: "to taste", isComplete: true),
+            ingredientAmountString: "1.0"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "mustard", amount: 1, measure: "to taste", isComplete: true),
+            ingredientAmountString: "1.0"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "mayo", amount: 1, measure: "to taste", isComplete: true),
+            ingredientAmountString: "1.0"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "lettuce", amount: 1, measure: "to taste", isComplete: true),
+            ingredientAmountString: "1.0"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "tomato", amount: 1, measure: "to taste", isComplete: true),
+            ingredientAmountString: "1.0"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "onion", amount: 1, measure: "to taste", isComplete: true),
+            ingredientAmountString: "1.0"
+          ),
+          .init(
+            id: .init(),
+            ingredient: .init(id: .init(), name: "pickle chips", amount: 1, measure: "to taste", isComplete: true),
+            ingredientAmountString: "1.0"
+          ),
+        ],
+        isExpanded: true,
+        focusedField: nil
+      )
+    ]),
+    isExpanded: true,
+    scale: 1.0,
+    focusedField: nil
+  )
+  
+  static let ingredients: IdentifiedArrayOf<IngredientReducer.State> = [
+    .init(
+      id: .init(),
+      ingredient: .init(id: .init(), name: "honey", amount: 1, measure: "lb", isComplete: false),
+      ingredientAmountString: "1.0"
+    ),
+    .init(
+      id: .init(),
+      ingredient: .init(id: .init(), name: "butter", amount: 2, measure: "lb", isComplete: false),
+      ingredientAmountString: "2.0"
+    ),
+    .init(
+      id: .init(),
+      ingredient: .init(id: .init(), name: "eggs", amount: 3, measure: "lb", isComplete: false),
+      ingredientAmountString: "3.0"
+    ),
+    .init(
+      id: .init(),
+      ingredient: .init(id: .init(), name: "flour", amount: 4, measure: "lb", isComplete: false),
+      ingredientAmountString: "4.0"
+    ),
+  ]
+}

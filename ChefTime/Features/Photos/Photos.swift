@@ -203,7 +203,6 @@ struct PhotosReducer: ReducerProtocol {
           guard let i = state.photos.index(id: id)
           else { return .none } // TODO: ERROR HANDLE
           state.photos.replaceSubrange(i...i, with: [imageData])
-          // really, imageData should be immutable, so i should have to put a copy...
           state.photoEditStatus = nil
           return .none
           
@@ -286,7 +285,7 @@ struct PhotosView_Previews: PreviewProvider {
       ScrollView {
         PhotosView(store: .init(
           initialState: .init(
-            photos: Recipe.longMock.imageData,
+            photos: .init(Recipe.longMock.imageData.prefix(1)),
             selection: Recipe.longMock.imageData.first?.id
           ),
           reducer: PhotosReducer.init
