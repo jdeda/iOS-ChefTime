@@ -8,7 +8,7 @@ struct IngredientListView: View {
   @FocusState private var focusedField: IngredientsListReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       if viewStore.ingredientSections.isEmpty {
         VStack {
           HStack {
@@ -48,7 +48,7 @@ struct IngredientListView: View {
           )) { childStore in
             IngredientSection(store: childStore)
               .contentShape(Rectangle())
-              .focused($focusedField, equals: .row(ViewStore(childStore).id))
+              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
             Divider()
               .padding(.bottom, 5)
           }
@@ -59,7 +59,7 @@ struct IngredientListView: View {
           Spacer()
         }
         .accentColor(.primary)
-        .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+        .synchronize(viewStore.$focusedField, $focusedField)
         .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
       }
     }
@@ -67,7 +67,7 @@ struct IngredientListView: View {
 }
 
 // MARK: - IngredientsListReducer
-struct IngredientsListReducer: ReducerProtocol {
+struct IngredientsListReducer: Reducer {
   struct State: Equatable {
     
     var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State>
@@ -86,7 +86,7 @@ struct IngredientsListReducer: ReducerProtocol {
   
   @Dependency(\.uuid) var uuid
   
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
@@ -238,20 +238,20 @@ struct IngredientList_Previews: PreviewProvider {
         IngredientListView(store: .init(
           initialState: .init(
             ingredientSections: .init(uniqueElements: Recipe.longMock.ingredientSections.map { section in
-              .init(
-                id: .init(),
-                name: section.name,
-                ingredients: .init(uniqueElements: (section.ingredients.map { ingredient in
-                    .init(
-                      id: .init(),
-                      focusedField: nil,
-                      ingredient: ingredient,
-                      ingredientAmountString: String(ingredient.amount)
-                    )
-                })),
-                isExpanded: true,
-                focusedField: nil
-              )
+                .init(
+                  id: .init(),
+                  name: section.name,
+                  ingredients: .init(uniqueElements: (section.ingredients.map { ingredient in
+                      .init(
+                        id: .init(),
+                        focusedField: nil,
+                        ingredient: ingredient,
+                        ingredientAmountString: String(ingredient.amount)
+                      )
+                  })),
+                  isExpanded: true,
+                  focusedField: nil
+                )
             }),
             isExpanded: true,
             scale: 1.0,

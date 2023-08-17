@@ -5,9 +5,9 @@ import ComposableArchitecture
 struct AboutListView: View {
   let store: StoreOf<AboutListReducer>
   @FocusState private var focusedField: AboutListReducer.FocusField?
-  
+
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       if viewStore.aboutSections.isEmpty {
         VStack {
           HStack {
@@ -42,7 +42,7 @@ struct AboutListView: View {
           )) { childStore in
             AboutSection(store: childStore)
               .contentShape(Rectangle())
-              .focused($focusedField, equals: .row(ViewStore(childStore).id))
+              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
               .accentColor(.accentColor)
             Divider()
               .padding([.vertical], 5)
@@ -54,7 +54,7 @@ struct AboutListView: View {
           Spacer()
         }
         .accentColor(.primary)
-        .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+        .synchronize(viewStore.$focusedField, $focusedField)
         .disclosureGroupStyle(CustomDisclosureGroupStyle())
       }
     }
@@ -62,7 +62,7 @@ struct AboutListView: View {
 }
 
 // MARK: - AboutListReducer
-struct AboutListReducer: ReducerProtocol {
+struct AboutListReducer: Reducer {
   struct State: Equatable {
     var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State>
     var isExpanded: Bool
@@ -78,7 +78,7 @@ struct AboutListReducer: ReducerProtocol {
   
   @Dependency(\.uuid) var uuid
   
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {

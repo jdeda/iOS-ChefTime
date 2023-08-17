@@ -11,24 +11,19 @@ struct StepView: View {
   @Environment(\.isHidingStepImages) var isHidingStepImages
   @FocusState private var focusedField: StepReducer.FocusField?
   
-  
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
-        
         HStack {
-          Text("Step \(index + 1)") // TODO: Step...
+          Text("Step \(index + 1)")
           Spacer()
-          PhotosPicker(
-            selection: .constant(nil),
-            matching: .images,
-            preferredItemEncoding: .compatible,
-            photoLibrary: .shared()
-          ) {
+          Button {
+            viewStore.send(.photoPickerButtonTapped)
+          } label: {
             Image(systemName: "camera.fill")
               .accentColor(.primary)
           }
-          .disabled(isHidingStepImages || !viewStore.photos.photos.isEmpty)
+          .disabled(isHidingStepImages || viewStore.photosPickerItemInFlight || !viewStore.photos.photos.isEmpty)
           .opacity(isHidingStepImages ? 0.0 : 1.0)
         }
         .fontWeight(.medium)
@@ -57,18 +52,18 @@ struct StepView: View {
           }
         }
         
-        let isHiding = viewStore.photos.photos.isEmpty || isHidingStepImages
+        let isHidingPhotosView = viewStore.photosPickerItemInFlight ? false : (isHidingStepImages || viewStore.photos.photos.isEmpty)
         PhotosView(store: store.scope(
           state: \.photos,
           action: StepReducer.Action.photos
         ))
-        .frame(height: isHiding ? 0 : maxW)
-        .opacity(isHiding ? 0 : 1.0)
+        .frame(height: isHidingPhotosView ? 0 : maxW)
+        .opacity(isHidingPhotosView ? 0 : 1.0)
         .clipShape(RoundedRectangle(cornerRadius: 15))
-        //        .animation(.default, value: isHidingStepImages)
+        .disabled(isHidingPhotosView)
       }
-      .animation(.default, value: isHidingStepImages)
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .animation(.default, value: isHidingStepImages) // TODO: Why?
+      .synchronize(viewStore.$focusedField, $focusedField)
       .contextMenu {
         Button {
           viewStore.send(.delegate(.insertButtonTapped(.above)), animation: .default)
@@ -95,13 +90,14 @@ struct StepView: View {
 }
 
 // MARK: - Reducer
-struct StepReducer: ReducerProtocol {
+struct StepReducer: Reducer {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
     var step: Recipe.StepSection.Step
     @BindingState var focusedField: FocusField? = nil
+    var photosPickerItemInFlight: Bool = false
     var photos: PhotosReducer.State
     
     init(
@@ -125,9 +121,13 @@ struct StepReducer: ReducerProtocol {
     case photos(PhotosReducer.Action)
     case stepDescriptionEdited(String)
     case keyboardDoneButtonTapped
+    case photoPickerButtonTapped
   }
   
-  var body: some ReducerProtocolOf<Self> {
+  @Dependency(\.photos) var photosClient
+  @Dependency(\.uuid) var uuid
+  
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
@@ -140,6 +140,10 @@ struct StepReducer: ReducerProtocol {
         
       case .keyboardDoneButtonTapped:
         state.focusedField = nil
+        return .none
+        
+      case .photoPickerButtonTapped:
+        state.photos.photoEditStatus = .addWhenEmpty
         return .none
       }
     }

@@ -9,7 +9,7 @@ struct AboutSection: View {
   @FocusState private var focusedField: AboutSectionReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
@@ -62,7 +62,7 @@ struct AboutSection: View {
           }
         }
       }
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
       .contextMenu {
@@ -91,7 +91,7 @@ struct AboutSection: View {
 }
 
 // MARK: - Reducer
-struct AboutSectionReducer: ReducerProtocol  {
+struct AboutSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
@@ -122,7 +122,7 @@ struct AboutSectionReducer: ReducerProtocol  {
     case delegate(DelegateAction)
   }
     
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {

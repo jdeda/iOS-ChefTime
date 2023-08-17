@@ -13,7 +13,7 @@ struct StepSection: View {
   @FocusState private var focusedField: StepSectionReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
@@ -23,7 +23,7 @@ struct StepSection: View {
           action: StepSectionReducer.Action.step
         )) { childStore in
           // TODO: Move this into reducer and test.
-          let id = ViewStore(childStore).id
+          let id = ViewStore(childStore, observe: \.id).state
           let index = viewStore.steps.index(id:id) ?? 0
           StepView(store: childStore, index: index)
             .accentColor(.accentColor)
@@ -55,7 +55,7 @@ struct StepSection: View {
           }
         }
       }
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
       .contextMenu {
@@ -84,7 +84,7 @@ struct StepSection: View {
 }
 
 // MARK: - Reducer
-struct StepSectionReducer: ReducerProtocol  {
+struct StepSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
@@ -110,7 +110,7 @@ struct StepSectionReducer: ReducerProtocol  {
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {

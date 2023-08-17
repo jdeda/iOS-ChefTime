@@ -9,40 +9,31 @@ import Tagged
 /// 2. Upon inserting sections or elements, screen moves a bit unpleasantly, and or may not
 ///   be in perfect position (i.e. it could lower a bit more to really show the textfield). This
 ///   may be because of padding issues
-///
+
+// MARK: - Recipe Feature Animation Bugs
+/// - Step image deletion final photo transition is fugly
+/// - Photos delete final photo transition to base is weird
+/// - Photos delete final photo transition to base is weird
+/// - Photos context menu needs to be blocked in flight
+/// - Photos sometimes delete just doesnt work and it gets stuck
+/// - AboutSection context menu doesn't transition off, you get a big black hole (same with ingredient feature, step feature)
+/// - but the step animates only if it has an image...
+/// - step and Deletion is ugly, it lingers, ingrtedient kinda simnilar
+/// - Sometimes textfield highlight when focused just doesn't appear...
+/// - spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
+
 
 // TODO: ingredient .next/return sometimes doesnt focus to new element
-
 // TODO: Consider lazy rendering and  limit observation for performance
-
 // TODO: Refactor to use .task instead of .run where need be.
-
-// ANIMATION TODOS
-// TODO: Step image deletion final photo transition is fugly
-// TODO: Photos delete final photo transition to base is weird
-// TODO: Photos delete final photo transition to base is weird
-// TODO: Photos context menu needs to be blocked in flight
-// TODO: Photos sometimes delete just doesnt work and it gets stuck
-// TODO: AboutSection context menu doesn't transition off, you get a big black hole
-// TODO: same with ingredient
-// TODO: same with ingredientsection
-// TODO: same with stepsection
-// TODO: but the step animates only if it has an image...
-// TODO: step and Deletion is ugly, it lingers, ingrtedient kinda simnilar
-
-// TODO: Sometimes textfield highlight when focused just doesn't appear...
-
-// TODO: The ingredient number string is fucked up
-
-// TODO: spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
-// sometime the spam even crashes the app
+// TODO: Cleanup all context menus to use Labels
 
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
   let maxW = UIScreen.main.bounds.width * 0.90
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStack {
         ScrollView {
           PhotosView(store: store.scope(
@@ -121,7 +112,7 @@ struct RecipeView: View {
   }
 }
 
-struct RecipeReducer: ReducerProtocol {
+struct RecipeReducer: Reducer {
   struct State: Equatable {
     var recipe: Recipe
     var photos: PhotosReducer.State
@@ -200,7 +191,7 @@ struct RecipeReducer: ReducerProtocol {
     case setExpansionButtonTapped(Bool)
   }
   
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case .photos, .about, .ingredients, .steps:

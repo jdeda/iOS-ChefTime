@@ -15,7 +15,7 @@ struct IngredientSection: View {
   @FocusState private var focusedField: IngredientSectionReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: { $0.isExpanded },
         send: { _ in .isExpandedButtonToggled }
@@ -24,7 +24,7 @@ struct IngredientSection: View {
           state: \.ingredients,
           action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
-          let id = ViewStore(childStore).id
+          let id = ViewStore(childStore, observe: \.id).state
           IngredientView(store: childStore)
             .onTapGesture {
               viewStore.send(.rowTapped(id))
@@ -58,7 +58,7 @@ struct IngredientSection: View {
           }
         }
       }
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
       .contextMenu {
@@ -87,7 +87,7 @@ struct IngredientSection: View {
 }
 
 // MARK: - Reducer
-struct IngredientSectionReducer: ReducerProtocol  {
+struct IngredientSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
@@ -119,7 +119,7 @@ struct IngredientSectionReducer: ReducerProtocol  {
   
   private enum AddIngredientID: Hashable { case timer }
   
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {

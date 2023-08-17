@@ -20,7 +20,7 @@ struct StepListView: View {
   @Environment(\.isHidingStepImages) var isHidingStepImages
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         if viewStore.stepSections.isEmpty {
           VStack {
@@ -66,7 +66,7 @@ struct StepListView: View {
             )) { childStore in
               StepSection(store: childStore)
                 .contentShape(Rectangle())
-                .focused($focusedField, equals: .row(ViewStore(childStore).id))
+                .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
                 .accentColor(.accentColor)
               Divider()
                 .padding(.bottom, 5)
@@ -81,14 +81,14 @@ struct StepListView: View {
           .disclosureGroupStyle(CustomDisclosureGroupStyle())
         }
       }
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .environment(\.isHidingStepImages, viewStore.isHidingStepImages)
     }
   }
 }
 
 // MARK: - StepListReducer
-struct StepListReducer: ReducerProtocol {
+struct StepListReducer: Reducer {
   struct State: Equatable {
     var stepSections: IdentifiedArrayOf<StepSectionReducer.State>
     var isExpanded: Bool
@@ -110,7 +110,7 @@ struct StepListReducer: ReducerProtocol {
   
   private enum HideImagesToggledID: Hashable { case timer }
   
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {

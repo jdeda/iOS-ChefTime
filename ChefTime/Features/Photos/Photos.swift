@@ -2,16 +2,18 @@ import SwiftUI
 import ComposableArchitecture
 import PhotosUI
 
-/// must worry about add, remove, replace, order (but not reorder)
-/// - tap gestures won't work here
-/// - hold -> context menu -> 3 buttons ->  replace, add, remove
-/// - click -> navigation -> grid view -> tap to replace
-
 // TODO: how 2 align context menu space, should they have a icon too?
 // TODO: put a limit of 5-10 photos a recpe
-// TODO: add progress view and alert if photos fail
 // TODO: ask for user permissions
 // TODO: fix sizing issues
+
+// TODO: Move maxW UIScreen.main.bounds
+// TODO: Animation slide lag
+// TODO: Add progress view, that blocks any incoming edits and ui interactions, and cancellable,
+// and it alerts when failed
+// TODO: How to play all changes back to original recipe?
+// TODO: Maybe change order of adding a photo to next rather than inplace.
+// TODO: Fix transition animation from 0 images to 1+ images
 
 // MARK: - View
 struct PhotosView: View {
@@ -19,7 +21,7 @@ struct PhotosView: View {
   let maxW = UIScreen.main.bounds.width * 0.90
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         if viewStore.photos.isEmpty {
           VStack {
@@ -47,6 +49,14 @@ struct PhotosView: View {
               send: { .photoSelectionChanged($0) }
             )
           )
+        }
+      }
+      .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0)
+      .overlay {
+        if viewStore.photoEditInFlight {
+          ProgressView()
+            .frame(width: maxW, height: maxW)
+          
         }
       }
       .contextMenu(menuItems: {
@@ -95,7 +105,7 @@ struct PhotosView: View {
 }
 
 // MARK: - Reducer
-struct PhotosReducer: ReducerProtocol {
+struct PhotosReducer: Reducer {
   struct State: Equatable {
     var photos: IdentifiedArrayOf<ImageData>
     var selection: ImageData.ID?
@@ -121,7 +131,7 @@ struct PhotosReducer: ReducerProtocol {
   @Dependency(\.uuid) var uuid
   
   // TODO: Handle invalid IDs...
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case let .photoSelectionChanged(id):
@@ -174,14 +184,11 @@ struct PhotosReducer: ReducerProtocol {
           state.selection = state.photos[i].id
         }
         return .none
-        
-        /// how do we test, this photopickeritem
-        /// 1. we cant even create a photopicker item
-        /// 2. we have a dependency that parses it into data...
-        /// 3. this is just calling that operator to
+      
       case let .photoPickerItem(item):
         guard let item else { return .none}
         return .run { [status = state.photoEditStatus] send in
+          try await Task.sleep(for: .seconds(1))
           guard let data = await photosClient.convertPhotoPickerItem(item),
                 let imageData = ImageData(id: .init(rawValue: uuid()), data: data)
           else {
@@ -195,7 +202,7 @@ struct PhotosReducer: ReducerProtocol {
         return .none
         
       case let .applyPhotoEdit(status, imageData):
-        /// the id represents the id of the image that a photo operation was performed on, such as replace, add, or delete...
+        /// The id represents the id of the image that a photo operation was performed on, such as replace, add, or delete...
         /// it is possible during the time the user was selecting, an image someone could magically mutate the existing selection
         /// and would have implications on how that affects mutation here...
         switch status {
@@ -229,12 +236,6 @@ struct PhotosReducer: ReducerProtocol {
 }
 
 extension PhotosReducer {
-  /// var photoPickerIsPresented: Bool
-  /// var photoEditStatus: PhotoEditStatus { case replace, case add  }
-  /// var photoIndex: Recipe.ImageData.id
-  /// if true -> must have a status and photoIndex
-  /// if false -> must NOT have a status nor photoIndex
-  
   enum PhotoEditStatus: Equatable {
     case replace(ImageData.ID)
     case add(ImageData.ID)
@@ -242,7 +243,6 @@ extension PhotosReducer {
   }
 }
 
-// PhotosContextMenuPreview
 struct PhotosContextMenuPreview: View {
   let state: PhotosReducer.State
   let maxW = UIScreen.main.bounds.width * 0.85
@@ -276,7 +276,6 @@ struct PhotosContextMenuPreview: View {
     }
   }
 }
-
 
 // MARK: - Preview
 struct PhotosView_Previews: PreviewProvider {

@@ -9,7 +9,7 @@ struct IngredientView: View {
   @FocusState private var focusedField: IngredientReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       HStack(alignment: .top) {
         
         // Checkbox
@@ -84,7 +84,7 @@ struct IngredientView: View {
       }
       // TODO: Perhaps all .syncs should remove the .onAppear
       // and add a .onAppear reducer action case
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .foregroundColor(viewStore.ingredient.isComplete ? .secondary : .primary)
       .toolbar {
         if viewStore.focusedField != nil {
@@ -117,7 +117,7 @@ struct IngredientView: View {
 }
 
 // MARK: - Reducer
-struct IngredientReducer: ReducerProtocol {
+struct IngredientReducer: Reducer {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
@@ -163,7 +163,7 @@ struct IngredientReducer: ReducerProtocol {
   ///   2. else, update name
   ///   3. on submit (trailing newline), insert below
   ///   4. user may tap done to dismiss and stop editing or next to insert below
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {

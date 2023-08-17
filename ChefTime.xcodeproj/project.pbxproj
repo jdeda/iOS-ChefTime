@@ -19,6 +19,7 @@
 		97590E462A61816500EBC604 /* AboutListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97590E452A61816500EBC604 /* AboutListTests.swift */; };
 		975A4EED2A44C23300C9509A /* IngredientSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEC2A44C23300C9509A /* IngredientSection.swift */; };
 		975A4EEF2A44C23800C9509A /* Ingredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEE2A44C23800C9509A /* Ingredient.swift */; };
+		975CB55C2A8E9C980049BA07 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 975CB55B2A8E9C980049BA07 /* ComposableArchitecture */; };
 		975F47C22A6AD3BF0016BB95 /* Text+ViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975F47C12A6AD3BF0016BB95 /* Text+ViewModifier.swift */; };
 		975F47C42A6B06FC0016BB95 /* ImageDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975F47C32A6B06FC0016BB95 /* ImageDataModel.swift */; };
 		9770F0122A61A94400602986 /* PhotosTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770F0112A61A94400602986 /* PhotosTest.swift */; };
@@ -34,7 +35,6 @@
 		97AD13BC2A2E7394002FCE30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BB2A2E7394002FCE30 /* Assets.xcassets */; };
 		97AD13BF2A2E7394002FCE30 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BE2A2E7394002FCE30 /* Preview Assets.xcassets */; };
 		97AD13C62A2E73C8002FCE30 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13C52A2E73C8002FCE30 /* AppReducer.swift */; };
-		97AD13C92A2E7431002FCE30 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 97AD13C82A2E7431002FCE30 /* ComposableArchitecture */; };
 		97AD13CC2A2E7447002FCE30 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = 97AD13CB2A2E7447002FCE30 /* Tagged */; };
 		97AD13CF2A2E74C2002FCE30 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13CE2A2E74C2002FCE30 /* Recipe.swift */; };
 		97AD13D32A2E74E9002FCE30 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13D22A2E74E9002FCE30 /* Model.swift */; };
@@ -123,8 +123,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				975CB55C2A8E9C980049BA07 /* ComposableArchitecture in Frameworks */,
 				97AD13CC2A2E7447002FCE30 /* Tagged in Frameworks */,
-				97AD13C92A2E7431002FCE30 /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,8 +378,8 @@
 			);
 			name = ChefTime;
 			packageProductDependencies = (
-				97AD13C82A2E7431002FCE30 /* ComposableArchitecture */,
 				97AD13CB2A2E7447002FCE30 /* Tagged */,
+				975CB55B2A8E9C980049BA07 /* ComposableArchitecture */,
 			);
 			productName = ChefTime;
 			productReference = 97AD13B42A2E7392002FCE30 /* ChefTime.app */;
@@ -414,8 +414,8 @@
 			);
 			mainGroup = 97AD13AB2A2E7392002FCE30;
 			packageReferences = (
-				97AD13C72A2E7431002FCE30 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				97AD13CA2A2E7447002FCE30 /* XCRemoteSwiftPackageReference "swift-tagged" */,
+				975CB55A2A8E9C980049BA07 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			productRefGroup = 97AD13B52A2E7392002FCE30 /* Products */;
 			projectDirPath = "";
@@ -756,12 +756,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		97AD13C72A2E7431002FCE30 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+		975CB55A2A8E9C980049BA07 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.54.0;
+				minimumVersion = 1.0.0;
 			};
 		};
 		97AD13CA2A2E7447002FCE30 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
@@ -775,9 +775,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		97AD13C82A2E7431002FCE30 /* ComposableArchitecture */ = {
+		975CB55B2A8E9C980049BA07 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 97AD13C72A2E7431002FCE30 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			package = 975CB55A2A8E9C980049BA07 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
 		};
 		97AD13CB2A2E7447002FCE30 /* Tagged */ = {
