@@ -143,7 +143,7 @@ struct StepReducer: Reducer {
         return .none
         
       case .photoPickerButtonTapped:
-        state.photos.photoEditStatus = .addWhenEmpty
+        state.photos.photoPickerIsPresented = true
         return .none
       }
     }

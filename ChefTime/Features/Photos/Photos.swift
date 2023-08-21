@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import PhotosUI
+import Combine
 
 // TODO: how 2 align context menu space, should they have a icon too?
 // TODO: put a limit of 5-10 photos a recpe
@@ -22,45 +23,56 @@ struct PhotosView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      VStack {
-        if viewStore.photos.isEmpty {
-          VStack {
-            Image(systemName: "photo.stack")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 75, height: 75)
-              .clipped()
-              .foregroundColor(Color(uiColor: .systemGray4))
-              .padding()
-            Text("Add Images")
-              .fontWeight(.bold)
-              .foregroundColor(Color(uiColor: .systemGray4))
+      ZStack {
+        VStack {
+          if viewStore.photos.isEmpty {
+            VStack {
+              Image(systemName: "photo.stack")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 75, height: 75)
+                .clipped()
+                .foregroundColor(Color(uiColor: .systemGray4))
+                .padding()
+              Text("Add Images")
+                .fontWeight(.bold)
+                .foregroundColor(Color(uiColor: .systemGray4))
+            }
+            .background(.ultraThinMaterial)
+            .accentColor(.accentColor)
           }
-          .frame(width: maxW, height: maxW)
-          .background(.ultraThinMaterial)
-          .clipShape(RoundedRectangle(cornerRadius: 15))
-          .accentColor(.accentColor)
-        }
-        else  {
-          ImageSliderView(
-            imageDatas: viewStore.photos,
-            selection: viewStore.binding(
-              get: \.selection,
-              send: { .photoSelectionChanged($0) }
+          else  {
+            ImageSliderView(
+              imageDatas: viewStore.photos,
+              selection: viewStore.binding(
+                get: \.selection,
+                send: { .photoSelectionChanged($0) }
+              )
             )
-          )
+          }
         }
-      }
-      .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0)
-      .overlay {
-        if viewStore.photoEditInFlight {
-          ProgressView()
-            .frame(width: maxW, height: maxW)
-          
+        .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0) // TODO: Clipping problems...
+        .overlay {
+          if viewStore.photoEditInFlight {
+            ProgressView()
+          }
         }
+        .disabled(viewStore.photoEditInFlight)
+        
+        Color.clear
+          .contentShape(Rectangle())
       }
+      .frame(width: maxW, height: maxW)
+      .clipShape(RoundedRectangle(cornerRadius: 15))
       .contextMenu(menuItems: {
-        if !viewStore.photos.isEmpty {
+        if viewStore.photoEditInFlight {
+          Button {
+            viewStore.send(.cancelPhotoEdit, animation: .default)
+          } label: {
+            Text("Cancel")
+          }
+        }
+        if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
           Button {
             viewStore.send(.replaceButtonTapped, animation: .default)
           } label: {
@@ -69,14 +81,16 @@ struct PhotosView: View {
           .disabled(viewStore.photoEditInFlight)
         }
         
-        Button {
-          viewStore.send(.addButtonTapped, animation: .default)
-        } label: {
-          Text("Add")
+        if !viewStore.photoEditInFlight {
+          Button {
+            viewStore.send(.addButtonTapped, animation: .default)
+          } label: {
+            Text("Add")
+          }
+          .disabled(viewStore.photoEditInFlight)
         }
-        .disabled(viewStore.photoEditInFlight)
         
-        if !viewStore.photos.isEmpty {
+        if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
           Button(role: .destructive) {
             viewStore.send(.deleteButtonTapped, animation: .default)
           } label: {
@@ -85,11 +99,13 @@ struct PhotosView: View {
           .disabled(viewStore.photoEditInFlight)
         }
       }, preview: {
-        PhotosContextMenuPreview(state: viewStore.state)
+        PhotosView(store: store)
+        // TODO: The context menu preview version of this view won't update in real-time...
+        // So we have to use the original view
       })
       .photosPicker(
         isPresented: viewStore.binding(
-          get: { $0.photoEditStatus != nil },
+          get: { $0.photoPickerIsPresented },
           send: { _ in .dismissPhotosPicker }
         ),
         selection: viewStore.binding(
@@ -100,6 +116,7 @@ struct PhotosView: View {
         preferredItemEncoding: .compatible,
         photoLibrary: .shared()
       )
+      .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
     }
   }
 }
@@ -111,10 +128,9 @@ struct PhotosReducer: Reducer {
     var selection: ImageData.ID?
     var photoPickerItem: PhotosPickerItem? = nil
     var photoEditStatus: PhotoEditStatus? = nil
-    
-    var photoEditInFlight: Bool {
-      photoEditStatus != nil
-    }
+    var photoPickerIsPresented: Bool = false
+    var photoEditInFlight: Bool = false
+    @PresentationState var alert: AlertState<AlertAction>?
   }
   
   enum Action: Equatable {
@@ -125,42 +141,51 @@ struct PhotosReducer: Reducer {
     case photoPickerItem(PhotosPickerItem?)
     case dismissPhotosPicker
     case applyPhotoEdit(PhotoEditStatus?, ImageData)
+    case alert(PresentationAction<AlertAction>)
+    case setAlert(AlertState<AlertAction>)
+    case photoParseError
+    case cancelPhotoEdit
   }
   
   @Dependency(\.photos) var photosClient
   @Dependency(\.uuid) var uuid
+  @Dependency(\.continuousClock) var clock
+  
+  enum PhotosError: Error, Equatable {
+    case parseError
+  }
+  
+  enum PhotosCancelID: Hashable, Equatable {
+    case photoEdit
+  }
   
   // TODO: Handle invalid IDs...
   var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case let .photoSelectionChanged(id):
-        if let id = id, state.photos.ids.contains(id) {
-          state.selection = id
-        }
-        else {
-          state.selection = nil
-        }
+        if let id = id, state.photos.ids.contains(id) { state.selection = id }
+        else { state.selection = nil }
         return .none
         
         // TODO: Checking if in flight here not super necessary.
+        // TODO: what if the id is invalid or nil?
       case .replaceButtonTapped:
-        guard let id = state.selection
-        else { return .none } // TODO: what if the id is invalid or nil?
-        
+        guard let id = state.selection else { return .none }
         state.photoEditStatus = .replace(id)
+        state.photoPickerIsPresented = true
         return .none
         
       case .addButtonTapped:
         if state.photos.isEmpty {
           state.photoEditStatus = .addWhenEmpty
-          return .none
         }
         else {
           guard let id = state.selection else { return .none }
           state.photoEditStatus = .add(id)
-          return .none
         }
+        state.photoPickerIsPresented = true
+        return .none
         
       case .deleteButtonTapped:
         guard let id = state.selection,
@@ -168,68 +193,110 @@ struct PhotosReducer: Reducer {
         else { return .none }
         
         state.photos.remove(id: id)
-        state.selection = nil
-        if state.photos.isEmpty {
-          state.selection = nil
+        state.selection = {
+          if state.photos.isEmpty {
+            return nil
+          }
+          else if i <= state.photos.endIndex {
+            return state.photos[i].id
+          }
+          else {
+            var i = i
+            while i > state.photos.endIndex { i -= 1 }
+            return state.photos[i].id
+          }
+        }()
+        return .none
+        
+      case let .photoPickerItem(item):
+        state.photoPickerIsPresented = false
+        guard let item else {
+          state.photoEditStatus = nil
           return .none
         }
-        else if i <= state.photos.count - 1 {
-          state.selection = state.photos[i].id
-        }
-        else {
-          var i = i
-          while i > state.photos.count -  1 {
-            i -= 1
-          }
-          state.selection = state.photos[i].id
-        }
-        return .none
-      
-      case let .photoPickerItem(item):
-        guard let item else { return .none}
+        state.photoEditInFlight = true
         return .run { [status = state.photoEditStatus] send in
-          try await Task.sleep(for: .seconds(1))
-          guard let data = await photosClient.convertPhotoPickerItem(item),
-                let imageData = ImageData(id: .init(rawValue: uuid()), data: data)
-          else {
-            return
+          guard !Task.isCancelled else { return }
+          let imageData = try await withTimeout(for: 10) {
+            try await Task.sleep(for: .seconds(5))
+            guard let data = await photosClient.convertPhotoPickerItem(item),
+                  let imageData = ImageData(id: .init(rawValue: uuid()), data: data)
+            else { throw PhotosError.parseError }
+            return imageData
           }
-          // you should be handling errors
+          guard !Task.isCancelled else { return }
           await send(.applyPhotoEdit(status, imageData), animation: .default)
+        } catch: { _, send in
+          await send(.photoParseError)
         }
+        .cancellable(id: PhotosCancelID.photoEdit, cancelInFlight: true)
+        
       case .dismissPhotosPicker:
-        state.photoEditStatus = nil
+        state.photoPickerIsPresented = false
         return .none
         
       case let .applyPhotoEdit(status, imageData):
-        /// The id represents the id of the image that a photo operation was performed on, such as replace, add, or delete...
-        /// it is possible during the time the user was selecting, an image someone could magically mutate the existing selection
-        /// and would have implications on how that affects mutation here...
         switch status {
+          /// The id represents the id of the image that a photo operation was performed on, such as replace, add, or delete...
+          /// it is possible during the time the user was selecting, an image someone could magically mutate the existing selection
+          /// and would have implications on how that affects mutation here...
         case let .replace(id):
-          guard let i = state.photos.index(id: id)
-          else { return .none } // TODO: ERROR HANDLE
+          guard let i = state.photos.index(id: id) else {
+            state.alert = .generalError
+            break
+          }
           state.photos.replaceSubrange(i...i, with: [imageData])
-          state.photoEditStatus = nil
-          return .none
+          break
           
         case let .add(id):
-          guard let i = state.photos.index(id: id) else { return .none }
+          guard let i = state.photos.index(id: id) else {
+            state.alert = .generalError
+            break
+          }
           state.photos.insert(imageData, at: i + 0)
-          // TODO: To insert in place, or after?
           state.selection = imageData.id
-          state.photoEditStatus = nil
-          return .none
-    
+          break
+          
         case .addWhenEmpty:
-          state.photos.append(imageData) // Possible could insert not a zero?
+          state.photos.append(imageData)
           state.selection = imageData.id
-          state.photoEditStatus = nil
-          return .none
+          break
           
         case .none:
-          return .none
+          break
         }
+        state.photoEditStatus = nil
+        state.photoEditInFlight = false
+        return .none
+        
+      case let .alert(action):
+        switch action {
+        case .dismiss:
+          state.alert = nil
+          return .none
+          
+        case let .presented(action):
+          switch action {
+          case .dismiss:
+            state.alert = nil
+            return .none
+          }
+        }
+        
+      case let .setAlert(alert):
+        state.alert = alert
+        return .none
+        
+      case .photoParseError:
+        state.photoEditStatus = nil
+        state.photoEditInFlight = false
+        state.alert = .failedToParseImage
+        return .none
+        
+      case .cancelPhotoEdit:
+        state.photoEditStatus = nil
+        state.photoEditInFlight = false
+        return .cancel(id: PhotosCancelID.photoEdit)
       }
     }
   }
@@ -241,7 +308,44 @@ extension PhotosReducer {
     case add(ImageData.ID)
     case addWhenEmpty
   }
+  
+  enum AlertAction: Equatable {
+    case dismiss
+  }
 }
+
+extension AlertState where Action == PhotosReducer.AlertAction {
+  static let failedToParseImage = Self(
+    title: {
+      TextState("Failed to Parse Image")
+    },
+    actions: {
+      ButtonState {
+        TextState("Dismiss")
+      }
+    },
+    message: {
+      TextState("The selected image failed to successfully parse, please try again or use another image.")
+    }
+  )
+}
+
+extension AlertState where Action == PhotosReducer.AlertAction {
+  static let generalError = Self(
+    title: {
+      TextState("Oops")
+    },
+    actions: {
+      ButtonState {
+        TextState("Dismiss")
+      }
+    },
+    message: {
+      TextState("There was a glitch uploading that image, please try again.")
+    }
+  )
+}
+
 
 struct PhotosContextMenuPreview: View {
   let state: PhotosReducer.State
@@ -284,7 +388,7 @@ struct PhotosView_Previews: PreviewProvider {
       ScrollView {
         PhotosView(store: .init(
           initialState: .init(
-            photos: .init(Recipe.longMock.imageData.prefix(1)),
+            photos: .init(Recipe.longMock.imageData.prefix(2)),
             selection: Recipe.longMock.imageData.first?.id
           ),
           reducer: PhotosReducer.init
@@ -295,3 +399,51 @@ struct PhotosView_Previews: PreviewProvider {
   }
 }
 
+
+private enum TimedOutError: Error, Equatable {
+  case timedOut
+}
+
+/// What if...we could call an operator on a task, called ".timeout", where given for: TimeInterval (say we provide seconds)
+/// and an operation that returns some result, after the provided time, cancel the task and throw a cancellation error...
+/// and...we need to be able to use clocks for this...
+
+///
+/// Execute an operation in the current task subject to a timeout.
+///
+/// - Parameters:
+///   - seconds: The duration in seconds `operation` is allowed to run before timing out.
+///   - operation: The async operation to perform.
+/// - Returns: Returns the result of `operation` if it completed in time.
+/// - Throws: Throws ``TimedOutError`` if the timeout expires before `operation` completes.
+///   If `operation` throws an error before the timeout expires, that error is propagated to the caller.
+private func withTimeout<R>(
+  for interval: TimeInterval,
+  operation: @escaping @Sendable () async throws -> R
+) async throws -> R {
+  return try await withThrowingTaskGroup(of: R.self) { group in
+    let deadline = Date(timeIntervalSinceNow: interval)
+    
+    // Start actual work.
+    group.addTask {
+      let result = try await operation()
+      try Task.checkCancellation()
+      return result
+    }
+    // Start timeout child task.
+    group.addTask {
+      let interval = deadline.timeIntervalSinceNow
+      if interval > 0 {
+        try await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
+      }
+      try Task.checkCancellation()
+      
+      // We’ve reached the timeout.
+      throw TimedOutError.timedOut
+    }
+    // First finished child task wins, cancel the other task.
+    let result = try await group.next()!
+    group.cancelAll()
+    return result
+  }
+}
