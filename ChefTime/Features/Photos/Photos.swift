@@ -3,15 +3,8 @@ import ComposableArchitecture
 import PhotosUI
 import Combine
 
-// TODO: how 2 align context menu space, should they have a icon too?
-// TODO: put a limit of 5-10 photos a recpe
-// TODO: ask for user permissions
-// TODO: fix sizing issues
-
 // TODO: Move maxW UIScreen.main.bounds
 // TODO: Animation slide lag
-// TODO: Add progress view, that blocks any incoming edits and ui interactions, and cancellable,
-// and it alerts when failed
 // TODO: How to play all changes back to original recipe?
 // TODO: Maybe change order of adding a photo to next rather than inplace.
 // TODO: Fix transition animation from 0 images to 1+ images
@@ -24,32 +17,35 @@ struct PhotosView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       ZStack {
-        VStack {
-          if viewStore.photos.isEmpty {
-            VStack {
-              Image(systemName: "photo.stack")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 75, height: 75)
-                .clipped()
-                .foregroundColor(Color(uiColor: .systemGray4))
-                .padding()
-              Text("Add Images")
-                .fontWeight(.bold)
-                .foregroundColor(Color(uiColor: .systemGray4))
-            }
-            .background(.ultraThinMaterial)
-            .accentColor(.accentColor)
+        ZStack {
+          VStack {
+            Image(systemName: "photo.stack")
+              .resizable()
+              .scaledToFit()
+              .frame(width: 75, height: 75)
+              .clipped()
+              .foregroundColor(Color(uiColor: .systemGray4))
+              .padding()
+            Text("Add Images")
+              .fontWeight(.bold)
+              .foregroundColor(Color(uiColor: .systemGray4))
           }
-          else  {
-            ImageSliderView(
-              imageDatas: viewStore.photos,
-              selection: viewStore.binding(
-                get: \.selection,
-                send: { .photoSelectionChanged($0) }
-              )
+          .frame(width: maxW, height: maxW)
+          .background(Color(uiColor: .systemGray6))
+          .accentColor(.accentColor)
+          .clipShape(RoundedRectangle(cornerRadius: 15))
+          .opacity(viewStore.photos.isEmpty ? 1.0 : 0.0)
+          
+          ImageSliderView(
+            imageDatas: viewStore.photos,
+            selection: viewStore.binding(
+              get: \.selection,
+              send: { .photoSelectionChanged($0) }
             )
-          }
+          )
+          .frame(width: maxW, height: maxW)
+          .clipShape(RoundedRectangle(cornerRadius: 15))
+          .opacity(!viewStore.photos.isEmpty ? 1.0 : 0.0 )
         }
         .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0) // TODO: Clipping problems...
         .overlay {
@@ -59,6 +55,8 @@ struct PhotosView: View {
         }
         .disabled(viewStore.photoEditInFlight)
         
+        // This allows the ability to disable all the actual logic when
+        // a photo edit is in flight but bring the context menu to cancel.
         Color.clear
           .contentShape(Rectangle())
       }
@@ -143,7 +141,7 @@ struct PhotosReducer: Reducer {
     case applyPhotoEdit(PhotoEditStatus?, ImageData)
     case alert(PresentationAction<AlertAction>)
     case setAlert(AlertState<AlertAction>)
-    case photoParseError
+    case photoParseError(PhotosError)
     case cancelPhotoEdit
   }
   
@@ -151,8 +149,10 @@ struct PhotosReducer: Reducer {
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   
-  enum PhotosError: Error, Equatable {
+  enum PhotosError: CaseIterable, Error, Equatable {
     case parseError
+    case generalError
+    case timeoutError
   }
   
   enum PhotosCancelID: Hashable, Equatable {
@@ -218,7 +218,6 @@ struct PhotosReducer: Reducer {
         return .run { [status = state.photoEditStatus] send in
           guard !Task.isCancelled else { return }
           let imageData = try await withTimeout(for: 10) {
-            try await Task.sleep(for: .seconds(5))
             guard let data = await photosClient.convertPhotoPickerItem(item),
                   let imageData = ImageData(id: .init(rawValue: uuid()), data: data)
             else { throw PhotosError.parseError }
@@ -226,8 +225,13 @@ struct PhotosReducer: Reducer {
           }
           guard !Task.isCancelled else { return }
           await send(.applyPhotoEdit(status, imageData), animation: .default)
-        } catch: { _, send in
-          await send(.photoParseError)
+        } catch: { error, send in
+          let photosError: PhotosError = {
+            if let temp = error as? PhotosError, temp == .parseError  { return .parseError }
+            else if let temp = error as? TimedOutError, temp == .timedOut { return .timeoutError }
+            else { return .generalError }
+          }()
+          await send(.photoParseError(photosError), animation: .default)
         }
         .cancellable(id: PhotosCancelID.photoEdit, cancelInFlight: true)
         
@@ -287,10 +291,16 @@ struct PhotosReducer: Reducer {
         state.alert = alert
         return .none
         
-      case .photoParseError:
+      case let .photoParseError(error):
         state.photoEditStatus = nil
         state.photoEditInFlight = false
-        state.alert = .failedToParseImage
+        state.alert = {
+          switch error {
+          case .parseError: return .failedToParseImage
+          case .generalError: return .generalError
+          case .timeoutError: return .timeoutError
+          }
+        }()
         return .none
         
       case .cancelPhotoEdit:
@@ -346,6 +356,22 @@ extension AlertState where Action == PhotosReducer.AlertAction {
   )
 }
 
+extension AlertState where Action == PhotosReducer.AlertAction {
+  static let timeoutError = Self(
+    title: {
+      TextState("Timeout")
+    },
+    actions: {
+      ButtonState {
+        TextState("Dismiss")
+      }
+    },
+    message: {
+      TextState("The image is taking longer than usual to upload, please try again later.")
+    }
+  )
+}
+
 
 struct PhotosContextMenuPreview: View {
   let state: PhotosReducer.State
@@ -388,7 +414,7 @@ struct PhotosView_Previews: PreviewProvider {
       ScrollView {
         PhotosView(store: .init(
           initialState: .init(
-            photos: .init(Recipe.longMock.imageData.prefix(2)),
+            photos: .init(Recipe.longMock.imageData.prefix(0)),
             selection: Recipe.longMock.imageData.first?.id
           ),
           reducer: PhotosReducer.init
