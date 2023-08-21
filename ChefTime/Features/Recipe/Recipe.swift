@@ -13,14 +13,11 @@ import Tagged
 // MARK: - Recipe Feature Animation Bugs
 /// - Step image deletion final photo transition is fugly
 /// - Photos delete final photo transition to base is weird
-/// - Photos delete final photo transition to base is weird
-/// - Photos context menu needs to be blocked in flight
 /// - Photos sometimes delete just doesnt work and it gets stuck
-/// - AboutSection context menu doesn't transition off, you get a big black hole (same with ingredient feature, step feature)
-/// - but the step animates only if it has an image...
-/// - step and Deletion is ugly, it lingers, ingrtedient kinda simnilar
+/// - About/Ingredient/Step feature context menu doesn't transition off, you get a big black hole
+/// - About/Ingredient/Step feature deletion is ugly, it lingers, ingrtedient kinda simnilar
 /// - Sometimes textfield highlight when focused just doesn't appear...
-/// - spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
+/// - Spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
 
 // TODO: ingredient .next/return sometimes doesnt focus to new element
 // TODO: Consider lazy rendering and  limit observation for performance
