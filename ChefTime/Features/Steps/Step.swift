@@ -14,45 +14,48 @@ struct StepView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
-        HStack {
-          Text("Step \(index + 1)")
-          Spacer()
-          Button {
-            viewStore.send(.photoPickerButtonTapped)
-          } label: {
-            Image(systemName: "camera.fill")
-              .accentColor(.primary)
+        VStack {
+          HStack {
+            Text("Step \(index + 1)")
+            Spacer()
+            Button {
+              viewStore.send(.photoPickerButtonTapped)
+            } label: {
+              Image(systemName: "camera.fill")
+                .accentColor(.primary)
+            }
+            .disabled(isHidingStepImages || !viewStore.photos.photos.isEmpty || viewStore.photos.photoEditInFlight)
+            .opacity(isHidingStepImages ? 0.0 : 1.0)
           }
-          .disabled(isHidingStepImages || viewStore.photosPickerItemInFlight || !viewStore.photos.photos.isEmpty)
-          .opacity(isHidingStepImages ? 0.0 : 1.0)
-        }
-        .fontWeight(.medium)
-        .padding(.bottom, 1)
-        
-        TextField(
-          "...",
-          text: viewStore.binding(
-            get: \.step.description,
-            send: { .stepDescriptionEdited($0) }
-          ),
-          axis: .vertical
-        )
-        .focused($focusedField, equals: .description)
-        .toolbar {
-          if viewStore.focusedField == .description {
-            ToolbarItemGroup(placement: .keyboard) {
-              Spacer()
-              Button {
-                viewStore.send(.keyboardDoneButtonTapped)
-              } label: {
-                Text("done")
+          .fontWeight(.medium)
+          .padding(.bottom, 1)
+          
+          TextField(
+            "...",
+            text: viewStore.binding(
+              get: \.step.description,
+              send: { .stepDescriptionEdited($0) }
+            ),
+            axis: .vertical
+          )
+          .focused($focusedField, equals: .description)
+          .toolbar {
+            if viewStore.focusedField == .description {
+              ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button {
+                  viewStore.send(.keyboardDoneButtonTapped)
+                } label: {
+                  Text("done")
+                }
+                .accentColor(.primary)
               }
-              .accentColor(.primary)
             }
           }
         }
         
-        let isHidingPhotosView = viewStore.photosPickerItemInFlight ? false : (isHidingStepImages || viewStore.photos.photos.isEmpty)
+        
+        let isHidingPhotosView = isHidingStepImages || (viewStore.photos.photos.isEmpty && (viewStore.photos.photoEditStatus != .addWhenEmpty || !viewStore.photos.photoEditInFlight))
         PhotosView(store: store.scope(
           state: \.photos,
           action: StepReducer.Action.photos
@@ -97,7 +100,6 @@ struct StepReducer: Reducer {
     let id: ID
     var step: Recipe.StepSection.Step
     @BindingState var focusedField: FocusField? = nil
-    var photosPickerItemInFlight: Bool = false
     var photos: PhotosReducer.State
     
     init(
@@ -143,6 +145,7 @@ struct StepReducer: Reducer {
         return .none
         
       case .photoPickerButtonTapped:
+        state.photos.photoEditStatus = .addWhenEmpty
         state.photos.photoPickerIsPresented = true
         return .none
       }

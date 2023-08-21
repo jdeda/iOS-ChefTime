@@ -47,7 +47,7 @@ struct PhotosView: View {
           .clipShape(RoundedRectangle(cornerRadius: 15))
           .opacity(!viewStore.photos.isEmpty ? 1.0 : 0.0 )
         }
-        .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0) // TODO: Clipping problems...
+        .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0)
         .overlay {
           if viewStore.photoEditInFlight {
             ProgressView()
@@ -218,6 +218,7 @@ struct PhotosReducer: Reducer {
         return .run { [status = state.photoEditStatus] send in
           guard !Task.isCancelled else { return }
           let imageData = try await withTimeout(for: 10) {
+            try await Task.sleep(for: .seconds(3))
             guard let data = await photosClient.convertPhotoPickerItem(item),
                   let imageData = ImageData(id: .init(rawValue: uuid()), data: data)
             else { throw PhotosError.parseError }
