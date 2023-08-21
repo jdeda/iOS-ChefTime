@@ -22,7 +22,6 @@ import Tagged
 /// - Sometimes textfield highlight when focused just doesn't appear...
 /// - spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
 
-
 // TODO: ingredient .next/return sometimes doesnt focus to new element
 // TODO: Consider lazy rendering and  limit observation for performance
 // TODO: Refactor to use .task instead of .run where need be.
@@ -56,25 +55,25 @@ struct RecipeView: View {
           ))
           .padding([.horizontal])
           
-          if !viewStore.about.isExpanded {
-            Divider().padding([.horizontal])
-          }
-          
-          IngredientListView(store: store.scope(
-            state: \.ingredients,
-            action: RecipeReducer.Action.ingredients
-          ))
-          .padding([.horizontal])
-          
-          if !viewStore.ingredients.isExpanded {
-            Divider().padding([.horizontal])
-          }
-          
-          StepListView(store: store.scope(
-            state: \.steps,
-            action: RecipeReducer.Action.steps
-          ))
-          .padding([.horizontal])
+//          if !viewStore.about.isExpanded {
+//            Divider().padding([.horizontal])
+//          }
+//
+//          IngredientListView(store: store.scope(
+//            state: \.ingredients,
+//            action: RecipeReducer.Action.ingredients
+//          ))
+//          .padding([.horizontal])
+//
+//          if !viewStore.ingredients.isExpanded {
+//            Divider().padding([.horizontal])
+//          }
+//
+//          StepListView(store: store.scope(
+//            state: \.steps,
+//            action: RecipeReducer.Action.steps
+//          ))
+//          .padding([.horizontal])
 
           
           Spacer()

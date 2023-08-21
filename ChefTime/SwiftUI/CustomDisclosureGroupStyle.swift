@@ -13,7 +13,7 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
           if inFlight {
             task?.cancel()
           }
-          task = .init {
+          task = .init { @MainActor in 
             inFlight = true
             do { try await Task.sleep(for: .milliseconds(250)) }
             catch {
