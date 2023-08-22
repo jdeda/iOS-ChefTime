@@ -12,15 +12,26 @@ import Tagged
 
 // MARK: - Recipe Feature Animation Bugs
 /// - Step image deletion final photo transition is fugly
-/// - Photos delete final photo transition to base is weird
+/// - Photos delete final photo transition to base is kinda weird
 /// - Photos sometimes delete just doesnt work and it gets stuck
 /// - About/Ingredient/Step feature context menu doesn't transition off, you get a big black hole
-/// - About/Ingredient/Step feature deletion is ugly, it lingers, ingredient kinda simnilar
+/// - About/Ingredient/Step feature deletion is ugly, it lingers, ingredient kinda similar
+/// - TextFields get laggy AF.
 /// - Sometimes textfield highlight when focused just doesn't appear...
 /// - Spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
 
+
+// MARK: - Recipe Usability Issues
+/// 1. Tapping collapse button near other features i.e. ingredient / step can be crammed and its ease to mess up where you tap
+/// 2. Sometimes when you collapse the delay is a bit annoying because you may tap again because you think it should
+/// instantly tap but it doesnt, and the button isn't big enough neither is the impact area, the collapse animation should be much faster
+/// Apple already designed it very well
+
+
 // TODO: ingredient .next/return sometimes doesnt focus to new element
 // TODO: Consider lazy rendering and  limit observation for performance
+
+
 
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>

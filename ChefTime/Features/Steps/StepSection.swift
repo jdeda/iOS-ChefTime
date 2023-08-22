@@ -222,7 +222,8 @@ private struct StepSectionContextMenuPreview: View {
   var body: some View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
       ForEach(state.steps.prefix(4)) { step in
-        StepContextMenuPreview(state: step)
+        let index = state.steps.index(id: step.id) ?? 0
+        StepContextMenuPreview(state: step, index: index)
         Divider() // TODO: Dont render last divier
       }
     } label: {

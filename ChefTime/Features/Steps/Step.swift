@@ -85,7 +85,7 @@ struct StepView: View {
           Text("Delete")
         }
       } preview: {
-        StepContextMenuPreview(state: viewStore.state)
+        StepContextMenuPreview(state: viewStore.state, index: index)
           .frame(width: 200)
           .padding()
       }
@@ -173,11 +173,11 @@ extension StepReducer {
 struct StepContextMenuPreview: View {
   let state: StepReducer.State
   let maxW = UIScreen.main.bounds.width * 0.95
-  
+  let index: Int // Immutable index representing positon in list.
+
   var body: some View {
     VStack(alignment: .leading) {
-      Text("Step \(1)") // TODO: Step...
-        .font(.caption)
+      Text("Step \(index + 1)")
         .fontWeight(.medium)
         .padding(.bottom, 1)
       Text(state.step.description)
