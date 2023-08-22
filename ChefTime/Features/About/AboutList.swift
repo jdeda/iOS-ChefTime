@@ -32,11 +32,7 @@ struct AboutListView: View {
         }
       }
       else {
-        DisclosureGroup(isExpanded: viewStore.$isExpanded.animation(.easeIn(duration: 2.5))) {
-//        DisclosureGroup(isExpanded: viewStore.binding(
-//          get: { $0.isExpanded },
-//          send: { _ in .isExpandedButtonToggled } // .send(.isExpandedButtonToggled, animation: .default) }
-//        ).animation(.easeIn(duration: 2.5))) {
+        DisclosureGroup(isExpanded: viewStore.$isExpanded) {
           ForEachStore(store.scope(
             state: \.aboutSections,
             action: AboutListReducer.Action.aboutSection
@@ -73,7 +69,6 @@ struct AboutListReducer: Reducer {
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case aboutSection(AboutSectionReducer.State.ID, AboutSectionReducer.Action)
-    case isExpandedButtonToggled
     case addSectionButtonTapped
   }
   
@@ -112,14 +107,6 @@ struct AboutListReducer: Reducer {
           return .none
         }
         
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        state.focusedField = nil
-        state.aboutSections.ids.forEach { id1 in
-          state.aboutSections[id: id1]?.focusedField = nil
-        }
-        return .none
-        
       case .addSectionButtonTapped:
         guard state.aboutSections.isEmpty else { return .none }
         let s = AboutSectionReducer.State.init(
@@ -133,15 +120,18 @@ struct AboutListReducer: Reducer {
         return .none
         
       case .binding(\.$isExpanded):
-        state.focusedField = nil
-        state.aboutSections.ids.forEach { id1 in
-          state.aboutSections[id: id1]?.focusedField = nil
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          state.focusedField = nil
+          state.aboutSections.ids.forEach { id1 in
+            state.aboutSections[id: id1]?.focusedField = nil
+          }
         }
         return .none
         
       case .binding:
         return .none
-        
       }
     }
     .forEach(\.aboutSections, action: /Action.aboutSection) {

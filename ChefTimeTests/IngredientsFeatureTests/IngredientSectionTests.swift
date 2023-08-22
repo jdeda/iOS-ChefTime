@@ -108,19 +108,19 @@ final class IngredientSectionTests: XCTestCase {
     
     XCTAssertTrue(store.state.isExpanded == false)
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, true))) {
       $0.isExpanded = true
     }
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, false))) {
       $0.isExpanded = false
     }
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, true))) {
       $0.isExpanded = true
     }
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, false))) {
       $0.isExpanded = false
     }
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, true))) {
       $0.isExpanded = true
     }
   }
@@ -139,12 +139,12 @@ final class IngredientSectionTests: XCTestCase {
     
     XCTAssertTrue(store.state.isExpanded == true)
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, false))) {
       $0.focusedField = nil
       $0.isExpanded = false
     }
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, true))) {
       $0.isExpanded = true
     }
     
@@ -152,7 +152,7 @@ final class IngredientSectionTests: XCTestCase {
       $0.focusedField = .name
     }
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, false))) {
       $0.focusedField = nil
       $0.isExpanded = false
     }
@@ -180,13 +180,13 @@ final class IngredientSectionTests: XCTestCase {
     XCTAssertTrue(store.state.focusedField == .row(.init(rawValue: UUID(42))))
     XCTAssertTrue(store.state.ingredients[id: .init(rawValue: UUID(42))]?.focusedField == .name)
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, false))) {
       $0.focusedField = nil
       $0.ingredients[id: .init(rawValue: UUID(42))]?.focusedField = nil
       $0.isExpanded = false
     }
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, true))) {
       $0.isExpanded = true
     }
   }

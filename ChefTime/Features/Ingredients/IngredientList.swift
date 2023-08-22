@@ -33,10 +33,7 @@ struct IngredientListView: View {
         }
       }
       else {
-        DisclosureGroup(isExpanded: viewStore.binding(
-          get: { $0.isExpanded },
-          send: { _ in .isExpandedButtonToggled }
-        )) {
+        DisclosureGroup(isExpanded: viewStore.$isExpanded) {
           IngredientStepper(scale: viewStore.binding(
             get: { $0.scale },
             send: { .scaleStepperButtonTapped($0) }
@@ -71,15 +68,14 @@ struct IngredientsListReducer: Reducer {
   struct State: Equatable {
     
     var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State>
-    var isExpanded: Bool
     var scale: Double = 1.0
+    @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField? = nil
   }
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
-    case isExpandedButtonToggled
     case scaleStepperButtonTapped(Double)
     case addSectionButtonTapped
   }
@@ -121,18 +117,6 @@ struct IngredientsListReducer: Reducer {
           return .none
         }
         
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        state.focusedField = nil
-        // MARK: - W/O niling could end up with duplicate keyboard buttons due to conditional logic
-        state.ingredientSections.ids.forEach { id1 in
-          state.ingredientSections[id: id1]?.focusedField = nil
-          state.ingredientSections[id: id1]?.ingredients.ids.forEach { id2 in
-            state.ingredientSections[id: id1]?.ingredients[id: id2]?.focusedField = nil
-          }
-        }
-        return .none
-        
       case let .scaleStepperButtonTapped(newScale):
         let oldScale = state.scale
         state.scale = newScale
@@ -158,6 +142,20 @@ struct IngredientsListReducer: Reducer {
           focusedField: .name
         ))
         state.focusedField = .row(id)
+        return .none
+        
+      case .binding(\.$isExpanded):
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          state.focusedField = nil
+          state.ingredientSections.ids.forEach { id1 in
+            state.ingredientSections[id: id1]?.focusedField = nil
+            state.ingredientSections[id: id1]?.ingredients.ids.forEach { id2 in
+              state.ingredientSections[id: id1]?.ingredients[id: id2]?.focusedField = nil
+            }
+          }
+        }
         return .none
         
       case .binding:
@@ -254,7 +252,6 @@ struct IngredientList_Previews: PreviewProvider {
                 )
             }),
             isExpanded: true,
-            scale: 1.0,
             focusedField: nil
           ),
           reducer: IngredientsListReducer.init

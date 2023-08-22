@@ -34,10 +34,7 @@ struct StepListView: View {
           }
         }
         else {
-          DisclosureGroup(isExpanded: viewStore.binding(
-            get: { $0.isExpanded },
-            send: { _ in .isExpandedButtonToggled }
-          )) {
+          DisclosureGroup(isExpanded: viewStore.$isExpanded) {
             Toggle(isOn: .constant(viewStore.isHidingStepImages)) {
               Text("Hide Images")
                 .textSubtitleStyle()
@@ -77,7 +74,7 @@ struct StepListView: View {
 struct StepListReducer: Reducer {
   struct State: Equatable {
     var stepSections: IdentifiedArrayOf<StepSectionReducer.State>
-    var isExpanded: Bool
+    @BindingState var isExpanded: Bool
     @BindingState var isHidingStepImages: Bool = false
     @BindingState var focusedField: FocusField? = nil
   }
@@ -85,7 +82,6 @@ struct StepListReducer: Reducer {
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case stepSection(StepSectionReducer.State.ID, StepSectionReducer.Action)
-    case isExpandedButtonToggled
     case hideImagesToggled
     case addSectionButtonTapped
     case hideImages
@@ -130,14 +126,6 @@ struct StepListReducer: Reducer {
           return .none
         }
         
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        state.focusedField = nil
-        state.stepSections.ids.forEach { id1 in
-          state.stepSections[id: id1]?.focusedField = nil
-        }
-        return .none
-        
       case .hideImagesToggled:
         return .run { send in
           try await self.clock.sleep(for: .milliseconds(250))
@@ -160,6 +148,17 @@ struct StepListReducer: Reducer {
         
       case .hideImages:
         state.isHidingStepImages.toggle()
+        return .none
+        
+      case .binding(\.$isExpanded):
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          state.focusedField = nil
+          state.stepSections.ids.forEach { id1 in
+            state.stepSections[id: id1]?.focusedField = nil
+          }
+        }
         return .none
         
       case .binding:

@@ -73,14 +73,14 @@ final class IngredientsListTests: XCTestCase {
       )
     }
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.set(\.$isExpanded, false)) {
       $0.isExpanded = false
       $0.focusedField = nil
       $0.ingredientSections[0].focusedField = nil
       $0.ingredientSections[0].ingredients[0].focusedField = nil
     }
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.set(\.$isExpanded, true)) {
       $0.isExpanded = true
     }
   }
@@ -387,7 +387,6 @@ extension IngredientsListTests {
       )
     ]),
     isExpanded: true,
-    scale: 1.0,
     focusedField: nil
   )
   

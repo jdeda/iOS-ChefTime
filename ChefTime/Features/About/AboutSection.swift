@@ -10,10 +10,7 @@ struct AboutSection: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         TextField(
           "...",
           text: viewStore.binding(
@@ -97,7 +94,7 @@ struct AboutSectionReducer: Reducer  {
     
     let id: ID
     var aboutSection: Recipe.AboutSection
-    var isExpanded: Bool
+    @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
     
     init(
@@ -115,7 +112,6 @@ struct AboutSectionReducer: Reducer  {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case isExpandedButtonToggled
     case aboutSectionNameEdited(String)
     case aboutSectionDescriptionEdited(String)
     case keyboardDoneButtonTapped
@@ -126,10 +122,6 @@ struct AboutSectionReducer: Reducer  {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        state.focusedField = nil
-        return .none
         
       case let .aboutSectionNameEdited(newName):
         let oldName = state.aboutSection.name
@@ -162,6 +154,14 @@ struct AboutSectionReducer: Reducer  {
         
       case .keyboardDoneButtonTapped:
         state.focusedField = nil
+        return .none
+        
+      case .binding(\.$isExpanded):
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          state.focusedField = nil
+        }
         return .none
         
       case .delegate, .binding:

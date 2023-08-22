@@ -32,6 +32,7 @@ import Tagged
 // TODO: ingredient .next/return sometimes doesnt focus to new element
 // TODO: Consider lazy rendering and  limit observation for performance
 // TODO: Refactor bindings to new TCA
+// TODO: Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
 
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
@@ -162,7 +163,6 @@ struct RecipeReducer: Reducer {
             )
         })),
         isExpanded: true,
-        scale: 1.0,
         focusedField: nil
       )
       

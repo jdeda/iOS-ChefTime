@@ -112,18 +112,18 @@ final class AboutSectionTests: XCTestCase {
     
     XCTAssertTrue(store.state.isExpanded == true)
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, false))) {
       $0.isExpanded = false
       $0.focusedField = nil
     }
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, true))) {
       $0.isExpanded = true
     }
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, false))) {
       $0.isExpanded = false
     }
-  } 
+  }
 }
 

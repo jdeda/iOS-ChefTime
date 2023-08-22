@@ -14,10 +14,7 @@ struct StepSection: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         ForEachStore(store.scope(
           state: \.steps,
           action: StepSectionReducer.Action.step
@@ -91,14 +88,13 @@ struct StepSectionReducer: Reducer  {
     let id: ID
     var name: String
     var steps: IdentifiedArrayOf<StepReducer.State>
-    var isExpanded: Bool
+    @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
   }
   
   enum Action: Equatable, BindableAction {
     case step(StepReducer.State.ID, StepReducer.Action)
     case binding(BindingAction<State>)
-    case isExpandedButtonToggled
     case stepSectionNameEdited(String)
     case addStep
     case keyboardDoneButtonTapped
@@ -136,11 +132,6 @@ struct StepSectionReducer: Reducer  {
         case .none:
           return .none
         }
-        
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        state.focusedField = nil
-        return .none
         
       case let .stepSectionNameEdited(newName):
         let oldName = state.name
@@ -186,6 +177,14 @@ struct StepSectionReducer: Reducer  {
           step: .init(id: .init(rawValue: uuid()), description: ""),
           focusedField: .description
         ))
+        return .none
+        
+      case .binding(\.$isExpanded):
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          state.focusedField = nil
+        }
         return .none
         
       case .delegate, .binding:

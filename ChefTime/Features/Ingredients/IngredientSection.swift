@@ -16,10 +16,7 @@ struct IngredientSection: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         ForEachStore(store.scope(
           state: \.ingredients,
           action: IngredientSectionReducer.Action.ingredient
@@ -94,20 +91,15 @@ struct IngredientSectionReducer: Reducer  {
     let id: ID
     var name: String
     var ingredients: IdentifiedArrayOf<IngredientReducer.State>
-    var isExpanded: Bool
+    @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
   }
-  
-  // do i even need to test dependency in init?
-  // i'd say yes because ur gonna have to assert
-  // can i have two instance of dependencies?
   
   @Dependency(\.uuid) var uuid
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
-    case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
@@ -152,14 +144,6 @@ struct IngredientSectionReducer: Reducer  {
         default:
           return .none
         }
-        
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        if case let .row(currId) = state.focusedField {
-          state.ingredients[id: currId]?.focusedField = nil
-        }
-        state.focusedField = nil
-        return .none
         
       case let .ingredientSectionNameEdited(newName):
         if state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -210,6 +194,18 @@ struct IngredientSectionReducer: Reducer  {
         )
         state.ingredients.append(s)
         state.focusedField = .row(s.id)
+        return .none
+        
+        
+      case .binding(\.$isExpanded):
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          if case let .row(currId) = state.focusedField {
+            state.ingredients[id: currId]?.focusedField = nil
+          }
+          state.focusedField = nil
+        }
         return .none
         
       case .delegate, .binding:
