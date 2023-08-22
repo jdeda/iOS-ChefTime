@@ -468,7 +468,7 @@ final class PhotosTests: XCTestCase {
     }
     
     // Test the parse error:
-    store.dependencies.photos.convertPhotoPickerItem = { _ in 
+    store.dependencies.photos.convertPhotoPickerItem = { _ in
       _ = try? await clock.sleep(for: .seconds(2))
       return nil
     }

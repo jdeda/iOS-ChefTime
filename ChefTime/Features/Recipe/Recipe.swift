@@ -15,7 +15,7 @@ import Tagged
 /// - Photos delete final photo transition to base is weird
 /// - Photos sometimes delete just doesnt work and it gets stuck
 /// - About/Ingredient/Step feature context menu doesn't transition off, you get a big black hole
-/// - About/Ingredient/Step feature deletion is ugly, it lingers, ingrtedient kinda simnilar
+/// - About/Ingredient/Step feature deletion is ugly, it lingers, ingredient kinda simnilar
 /// - Sometimes textfield highlight when focused just doesn't appear...
 /// - Spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
 
@@ -42,7 +42,6 @@ struct RecipeView: View {
           .clipShape(RoundedRectangle(cornerRadius: 15))
           .padding([.horizontal])
           .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
-
           
           AboutListView(store: store.scope(
             state: \.about,

@@ -1,7 +1,5 @@
 import SwiftUI
 
-// TODO: button alignment is messed up.
-
 // Simply a CustomDisclosureGroupStyle for better clicking ergonomics, where the expand
 // button is strictly the chevron icon, with a brief debounce for expansion.
 struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
@@ -9,7 +7,7 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
   @State var task: Task<Void, Error>?
   
   func makeBody(configuration: Configuration) -> some View {
-    LazyVStack {
+    VStack {
       HStack(alignment: .center) {
         configuration.label
         Button {
@@ -37,16 +35,14 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
             .animation(.linear(duration: 0.3), value: configuration.isExpanded)
             .font(.caption)
             .fontWeight(.bold)
-            .opacity(inFlight ? 0.5 : 1.0)
+            .frame(maxWidth : 40, maxHeight: .infinity, alignment: .trailing)
         }
-        .frame(maxWidth : 100, maxHeight: .infinity, alignment: .topTrailing)
-        .buttonStyle(.plain)
+        .frame(maxWidth : 50, maxHeight: .infinity, alignment: .trailing)
       }
       .contentShape(Rectangle())
       
       if configuration.isExpanded {
         configuration.content
-//          .disclosureGroupStyle(self)
       }
     }
   }

@@ -5,7 +5,7 @@ import XCTestDynamicOverlay
 struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
-      if _XCTIsTesting {
+//      if _XCTIsTesting {
         RecipeView(store: .init(
           initialState: RecipeReducer.State(
             recipe: .longMock
@@ -15,7 +15,7 @@ struct ChefTimeApp: App {
             // TODO:
           }
         ))
-      }
+//      }
     }
   }
 }
