@@ -120,7 +120,7 @@ struct StepSectionReducer: Reducer  {
         case .deleteButtonTapped:
           state.steps.remove(id: id)
           return .none
-
+          
         case let .insertButtonTapped(aboveBelow):
           // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
           guard let i = state.steps.index(id: id) else { return .none }
@@ -217,8 +217,7 @@ extension StepSectionReducer {
 // MARK: - StepSectionContextMenuPreview
 private struct StepSectionContextMenuPreview: View {
   let state: StepSectionReducer.State
-  let maxW = UIScreen.main.bounds.width * 0.95
-  
+
   var body: some View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
       ForEach(state.steps.prefix(4)) { step in

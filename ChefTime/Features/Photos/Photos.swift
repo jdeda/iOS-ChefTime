@@ -3,7 +3,6 @@ import ComposableArchitecture
 import PhotosUI
 import Combine
 
-// TODO: Move maxW UIScreen.main.bounds
 // TODO: Animation slide lag
 // TODO: How to play all changes back to original recipe?
 // TODO: Maybe change order of adding a photo to next rather than inplace.
@@ -12,7 +11,8 @@ import Combine
 // MARK: - View
 struct PhotosView: View {
   let store: StoreOf<PhotosReducer>
-  let maxW = UIScreen.main.bounds.width * 0.90
+  @Environment(\.maxScreenWidth) var maxScreenWidth
+
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
@@ -30,7 +30,7 @@ struct PhotosView: View {
               .fontWeight(.bold)
               .foregroundColor(Color(uiColor: .systemGray4))
           }
-          .frame(width: maxW, height: maxW)
+          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
           .background(Color(uiColor: .systemGray6))
           .accentColor(.accentColor)
           .clipShape(RoundedRectangle(cornerRadius: 15))
@@ -43,7 +43,7 @@ struct PhotosView: View {
               send: { .photoSelectionChanged($0) }
             )
           )
-          .frame(width: maxW, height: maxW)
+          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
           .clipShape(RoundedRectangle(cornerRadius: 15))
           .opacity(!viewStore.photos.isEmpty ? 1.0 : 0.0 )
         }
@@ -60,7 +60,7 @@ struct PhotosView: View {
         Color.clear
           .contentShape(Rectangle())
       }
-      .frame(width: maxW, height: maxW)
+      .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
       .clipShape(RoundedRectangle(cornerRadius: 15))
       .contextMenu(menuItems: {
         if viewStore.photoEditInFlight {
@@ -170,8 +170,10 @@ struct PhotosReducer: Reducer {
         // TODO: Checking if in flight here not super necessary.
         // TODO: what if the id is invalid or nil?
       case .replaceButtonTapped:
-        guard let id = state.selection else { return .none } // Don't put an error just don't do anything.
-         state.photoEditStatus = .replace(id)
+        guard let id = state.selection else { // Don't put an error just don't do anything.
+          return .none
+        }
+        state.photoEditStatus = .replace(id)
         state.photoPickerIsPresented = true
         return .none
         
@@ -189,7 +191,9 @@ struct PhotosReducer: Reducer {
       case .deleteButtonTapped:
         guard let id = state.selection,
               let i = state.photos.index(id: id)
-        else { return .none }
+        else {
+          return .none
+        }
         
         state.photos.remove(id: id)
         state.selection = {
@@ -255,6 +259,7 @@ struct PhotosReducer: Reducer {
             break
           }
           state.photos.replaceSubrange(i...i, with: [imageData])
+          state.selection = imageData.id
           break
           
         case let .add(id):
@@ -379,8 +384,8 @@ extension AlertState where Action == PhotosReducer.AlertAction {
 
 struct PhotosContextMenuPreview: View {
   let state: PhotosReducer.State
-  let maxW = UIScreen.main.bounds.width * 0.85
-  
+  @Environment(\.maxScreenWidth) var maxScreenWidth
+
   var body: some View {
     VStack {
       if state.photos.isEmpty {
@@ -396,7 +401,7 @@ struct PhotosContextMenuPreview: View {
             .fontWeight(.bold)
             .foregroundColor(Color(uiColor: .systemGray4))
         }
-        .frame(width: maxW, height: maxW)
+        .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 15))
         .accentColor(.accentColor)
@@ -462,11 +467,11 @@ extension PhotosReducer {
         try Task.checkCancellation()
         return result
       }
+      
       // Start timeout child task.
       group.addTask {
         let interval = deadline.timeIntervalSinceNow
         if interval > 0 {
-//          try await Task.sleep(for: .nanoseconds(UInt64(interval * 1_000_000_000)))
           try await clock.sleep(for: .nanoseconds(UInt64(interval * 1_000_000_000)))
         }
         try Task.checkCancellation()

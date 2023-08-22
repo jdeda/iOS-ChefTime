@@ -4,9 +4,9 @@ import Foundation
 
 // TODO: Fix swipe lag
 struct ImageSliderView: View {
-  let maxW = UIScreen.main.bounds.width * 0.90
   let imageDatas: IdentifiedArrayOf<ImageData>
   @Binding var selection: ImageData.ID?
+  @Environment(\.maxScreenWidth) var maxScreenWidth
   
   var body: some View {
     TabView(selection: $selection) {
@@ -14,14 +14,14 @@ struct ImageSliderView: View {
         imageData.image
           .resizable()
           .scaledToFill()
-          .frame(width: maxW, height: maxW)
+          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
           .clipShape(RoundedRectangle(cornerRadius: 15))
           .tag(Optional(imageData.id))
       }
     }
     .tabViewStyle(PageTabViewStyle())
     .indexViewStyle(PageIndexViewStyle())
-    .frame(width: maxW, height: maxW)
+    .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
     .clipShape(RoundedRectangle(cornerRadius: 15))
     .tabViewStyle(PageTabViewStyle())
     .indexViewStyle(PageIndexViewStyle())

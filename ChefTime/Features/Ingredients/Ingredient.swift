@@ -300,7 +300,6 @@ private extension View {
 // MARK: - IngredientContextMenuPreview
 struct IngredientContextMenuPreview: View {
   let state: IngredientReducer.State
-  let maxW: CGFloat = UIScreen.main.bounds.width * 0.90
   
   var body: some View {
     HStack(alignment: .top) {

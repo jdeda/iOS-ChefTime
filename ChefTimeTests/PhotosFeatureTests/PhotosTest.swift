@@ -252,7 +252,7 @@ final class PhotosTests: XCTestCase {
     ) {
       let i = try XCTUnwrap($0.photos.index(id: fourthPhotoID))
       $0.photos.replaceSubrange(i...i, with: [fourthPhotoReplacement])
-      $0.selection = fourthPhotoID
+      $0.selection = fourthPhotoReplacementID
       $0.photoEditStatus = nil
       $0.photoEditInFlight = false
       $0.photoPickerItem = nil
@@ -282,7 +282,7 @@ final class PhotosTests: XCTestCase {
     ) {
       let i = try XCTUnwrap($0.photos.index(id: firstPhotoID))
       $0.photos.replaceSubrange(i...i, with: [firstPhotoReplacement])
-      $0.selection = firstPhotoID
+      $0.selection = firstPhotoReplacementID
       $0.photoEditStatus = nil
       $0.photoEditInFlight = false
       $0.photoPickerItem = nil

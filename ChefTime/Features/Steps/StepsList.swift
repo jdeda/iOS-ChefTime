@@ -1,18 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-extension Bool: EnvironmentKey {
-  public static let defaultValue: Self = false
-}
-
-extension EnvironmentValues {
-  var isHidingStepImages: Bool {
-    get { self[Bool.self] }
-    set { self[Bool.self] = newValue }
-  }
-}
-
-
 // MARK: - StepListView
 struct StepListView: View {
   let store: StoreOf<StepListReducer>
@@ -50,13 +38,11 @@ struct StepListView: View {
             get: { $0.isExpanded },
             send: { _ in .isExpandedButtonToggled }
           )) {
-            
             Toggle(isOn: .constant(viewStore.isHidingStepImages)) {
               Text("Hide Images")
                 .textSubtitleStyle()
             } // onTapGesture because regular Toggle just breaks and you can't click it.
             .onTapGesture {
-              // TODO: Debounce?
               viewStore.send(.hideImagesToggled)
             }
             
@@ -192,6 +178,18 @@ extension StepListReducer {
     case row(StepSectionReducer.State.ID)
   }
 }
+
+// MARK: - Environment isHidingStepImages value
+extension Bool: EnvironmentKey {
+  public static let defaultValue: Self = false
+}
+extension EnvironmentValues {
+  var isHidingStepImages: Bool {
+    get { self[Bool.self] }
+    set { self[Bool.self] = newValue }
+  }
+}
+
 
 // MARK: - Previews
 struct StepList_Previews: PreviewProvider {

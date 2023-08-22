@@ -6,8 +6,8 @@ import PhotosUI
 // MARK: - View
 struct StepView: View {
   let store: StoreOf<StepReducer>
-  let maxW = UIScreen.main.bounds.width * 0.90 // TODO: This needs to be global or something
   let index: Int // Immutable index representing positon in list.
+  @Environment(\.maxScreenWidth) var maxScreenWidth
   @Environment(\.isHidingStepImages) var isHidingStepImages
   @FocusState private var focusedField: StepReducer.FocusField?
   
@@ -61,7 +61,7 @@ struct StepView: View {
           state: \.photos,
           action: StepReducer.Action.photos
         ))
-        .frame(height: isHidingPhotosView ? 0 : maxW)
+        .frame(height: isHidingPhotosView ? 0 : maxScreenWidth.maxWidth)
         .opacity(isHidingPhotosView ? 0 : 1.0)
         .clipShape(RoundedRectangle(cornerRadius: 15))
         .disabled(isHidingPhotosView)
@@ -172,9 +172,8 @@ extension StepReducer {
 
 struct StepContextMenuPreview: View {
   let state: StepReducer.State
-  let maxW = UIScreen.main.bounds.width * 0.95
   let index: Int // Immutable index representing positon in list.
-
+    
   var body: some View {
     VStack(alignment: .leading) {
       Text("Step \(index + 1)")
