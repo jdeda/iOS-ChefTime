@@ -77,7 +77,7 @@ struct AboutSection: View {
           Text("Insert Section Below")
         }
         Button(role: .destructive) {
-          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .easeIn(duration: 2.5))
         } label: {
           Text("Delete")
         }

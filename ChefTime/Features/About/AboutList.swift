@@ -32,10 +32,11 @@ struct AboutListView: View {
         }
       }
       else {
-        DisclosureGroup(isExpanded: viewStore.binding(
-          get: { $0.isExpanded },
-          send: { _ in .isExpandedButtonToggled }
-        )) {
+        DisclosureGroup(isExpanded: viewStore.$isExpanded.animation(.easeIn(duration: 2.5))) {
+//        DisclosureGroup(isExpanded: viewStore.binding(
+//          get: { $0.isExpanded },
+//          send: { _ in .isExpandedButtonToggled } // .send(.isExpandedButtonToggled, animation: .default) }
+//        ).animation(.easeIn(duration: 2.5))) {
           ForEachStore(store.scope(
             state: \.aboutSections,
             action: AboutListReducer.Action.aboutSection
@@ -65,7 +66,7 @@ struct AboutListView: View {
 struct AboutListReducer: Reducer {
   struct State: Equatable {
     var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State>
-    var isExpanded: Bool
+    @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField? = nil
   }
   
@@ -129,6 +130,13 @@ struct AboutListReducer: Reducer {
         )
         state.aboutSections.append(s)
         state.focusedField = .row(s.id)
+        return .none
+        
+      case .binding(\.$isExpanded):
+        state.focusedField = nil
+        state.aboutSections.ids.forEach { id1 in
+          state.aboutSections[id: id1]?.focusedField = nil
+        }
         return .none
         
       case .binding:

@@ -1,10 +1,13 @@
 import SwiftUI
 
+// TODO: button alignment is messed up.
+
 // Simply a CustomDisclosureGroupStyle for better clicking ergonomics, where the expand
 // button is strictly the chevron icon, with a brief debounce for expansion.
 struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
   @State var inFlight = false
-  @State var task: Task<Void, Never>?
+  @State var task: Task<Void, Error>?
+  
   func makeBody(configuration: Configuration) -> some View {
     LazyVStack {
       HStack(alignment: .center) {
@@ -13,17 +16,20 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
           if inFlight {
             task?.cancel()
           }
-          task = .init { @MainActor in 
-            inFlight = true
-            do { try await Task.sleep(for: .milliseconds(250)) }
-            catch {
-              inFlight = false
-              return
+          task = .init {
+            @MainActor func setInFlight() {
+              inFlight = true
             }
-            withAnimation {
-              configuration.isExpanded.toggle()
+            @MainActor func toggleExpanded() {
+              withAnimation {
+                configuration.isExpanded.toggle()
+                inFlight = false
+              }
             }
-            inFlight = false
+            
+            await setInFlight()
+            try await Task.sleep(for: .milliseconds(250))
+            await toggleExpanded()
           }
         } label: {
           Image(systemName: "chevron.right")
@@ -31,6 +37,7 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
             .animation(.linear(duration: 0.3), value: configuration.isExpanded)
             .font(.caption)
             .fontWeight(.bold)
+            .opacity(inFlight ? 0.5 : 1.0)
         }
         .frame(maxWidth : 100, maxHeight: .infinity, alignment: .topTrailing)
         .buttonStyle(.plain)
@@ -39,10 +46,8 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
       
       if configuration.isExpanded {
         configuration.content
-          .disclosureGroupStyle(self)
+//          .disclosureGroupStyle(self)
       }
     }
   }
 }
-
-// TODO: The alignment is fucked up.

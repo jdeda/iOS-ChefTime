@@ -85,7 +85,7 @@ final class IngredientsListTests: XCTestCase {
     }
   }
   
-  func testScaleStepperButtonTapped() {
+  func testScaleStepperButtonTapped() async {
     let state: IngredientsListReducer.State = .init(
       ingredientSections: .init(uniqueElements: [
         .init(
@@ -164,8 +164,8 @@ final class IngredientsListTests: XCTestCase {
       }
     )
     
-    store.send(.scaleStepperButtonTapped(1))
-    store.send(.scaleStepperButtonTapped(2)) {
+    await store.send(.scaleStepperButtonTapped(1))
+    await store.send(.scaleStepperButtonTapped(2)) {
       $0.scale = 2
       
       $0.ingredientSections[0].ingredients[0].ingredient.amount = 2
@@ -196,7 +196,7 @@ final class IngredientsListTests: XCTestCase {
       $0.ingredientSections[2].ingredients[3].ingredientAmountString = "8.88"
     }
     
-    store.send(.scaleStepperButtonTapped(1)) {
+    await store.send(.scaleStepperButtonTapped(1)) {
       $0.ingredientSections = state.ingredientSections
       $0.scale = 1.0
     }

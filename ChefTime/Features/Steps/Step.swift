@@ -55,6 +55,7 @@ struct StepView: View {
         }
         
         
+        // Display the photos only if we are not hiding step images and it isn't empty, or we are uploading the first photo.
         let isHidingPhotosView = isHidingStepImages || (viewStore.photos.photos.isEmpty && (viewStore.photos.photoEditStatus != .addWhenEmpty || !viewStore.photos.photoEditInFlight))
         PhotosView(store: store.scope(
           state: \.photos,

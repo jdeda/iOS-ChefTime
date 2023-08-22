@@ -140,7 +140,6 @@ struct PhotosReducer: Reducer {
     case dismissPhotosPicker
     case applyPhotoEdit(PhotoEditStatus?, ImageData)
     case alert(PresentationAction<AlertAction>)
-    case setAlert(AlertState<AlertAction>)
     case photoParseError(PhotosError)
     case cancelPhotoEdit
   }
@@ -171,8 +170,8 @@ struct PhotosReducer: Reducer {
         // TODO: Checking if in flight here not super necessary.
         // TODO: what if the id is invalid or nil?
       case .replaceButtonTapped:
-        guard let id = state.selection else { return .none }
-        state.photoEditStatus = .replace(id)
+        guard let id = state.selection else { return .none } // Don't put an error just don't do anything.
+         state.photoEditStatus = .replace(id)
         state.photoPickerIsPresented = true
         return .none
         
@@ -181,7 +180,7 @@ struct PhotosReducer: Reducer {
           state.photoEditStatus = .addWhenEmpty
         }
         else {
-          guard let id = state.selection else { return .none }
+          guard let id = state.selection else { return .none } // Don't put an error just don't do anything.
           state.photoEditStatus = .add(id)
         }
         state.photoPickerIsPresented = true
@@ -197,12 +196,12 @@ struct PhotosReducer: Reducer {
           if state.photos.isEmpty {
             return nil
           }
-          else if i <= state.photos.endIndex {
+          else if i < state.photos.endIndex {
             return state.photos[i].id
           }
           else {
             var i = i
-            while i > state.photos.endIndex { i -= 1 }
+            while i >= state.photos.endIndex { i -= 1 }
             return state.photos[i].id
           }
         }()
@@ -211,14 +210,14 @@ struct PhotosReducer: Reducer {
       case let .photoPickerItem(item):
         state.photoPickerIsPresented = false
         guard let item else {
-          state.photoEditStatus = nil
+          state.photoEditStatus = nil  // // Don't put an error just don't do anything.
           return .none
         }
+        state.photoPickerItem = item
         state.photoEditInFlight = true
         return .run { [status = state.photoEditStatus] send in
           guard !Task.isCancelled else { return }
           let imageData = try await withTimeout(for: 10) {
-            try await Task.sleep(for: .seconds(3))
             guard let data = await photosClient.convertPhotoPickerItem(item),
                   let imageData = ImageData(id: .init(rawValue: uuid()), data: data)
             else { throw PhotosError.parseError }
@@ -230,13 +229,18 @@ struct PhotosReducer: Reducer {
           let photosError: PhotosError = {
             if let temp = error as? PhotosError, temp == .parseError  { return .parseError }
             else if let temp = error as? TimedOutError, temp == .timedOut { return .timeoutError }
-            else { return .generalError }
+            else { return .generalError } // This should be impossible to get to.
           }()
           await send(.photoParseError(photosError), animation: .default)
         }
         .cancellable(id: PhotosCancelID.photoEdit, cancelInFlight: true)
         
+        
+        
       case .dismissPhotosPicker:
+        /// This should not nil out the status. That would break the photo operation mechanism (replace/add).
+        /// The status should only nil'd in the .photoPickerItem throws which sends
+        /// .photParseError, or if it succeeds by sending .applyPhotoEdit.
         state.photoPickerIsPresented = false
         return .none
         
@@ -270,6 +274,7 @@ struct PhotosReducer: Reducer {
         case .none:
           break
         }
+        state.photoPickerItem = nil
         state.photoEditStatus = nil
         state.photoEditInFlight = false
         return .none
@@ -288,13 +293,10 @@ struct PhotosReducer: Reducer {
           }
         }
         
-      case let .setAlert(alert):
-        state.alert = alert
-        return .none
-        
       case let .photoParseError(error):
-        state.photoEditStatus = nil
         state.photoEditInFlight = false
+        state.photoEditStatus = nil
+        state.photoPickerItem = nil
         state.alert = {
           switch error {
           case .parseError: return .failedToParseImage
@@ -305,8 +307,9 @@ struct PhotosReducer: Reducer {
         return .none
         
       case .cancelPhotoEdit:
-        state.photoEditStatus = nil
         state.photoEditInFlight = false
+        state.photoEditStatus = nil
+        state.photoPickerItem = nil
         return .cancel(id: PhotosCancelID.photoEdit)
       }
     }
@@ -427,50 +430,54 @@ struct PhotosView_Previews: PreviewProvider {
 }
 
 
-private enum TimedOutError: Error, Equatable {
-  case timedOut
-}
-
-/// What if...we could call an operator on a task, called ".timeout", where given for: TimeInterval (say we provide seconds)
-/// and an operation that returns some result, after the provided time, cancel the task and throw a cancellation error...
-/// and...we need to be able to use clocks for this...
-
-///
-/// Execute an operation in the current task subject to a timeout.
-///
-/// - Parameters:
-///   - seconds: The duration in seconds `operation` is allowed to run before timing out.
-///   - operation: The async operation to perform.
-/// - Returns: Returns the result of `operation` if it completed in time.
-/// - Throws: Throws ``TimedOutError`` if the timeout expires before `operation` completes.
-///   If `operation` throws an error before the timeout expires, that error is propagated to the caller.
-private func withTimeout<R>(
-  for interval: TimeInterval,
-  operation: @escaping @Sendable () async throws -> R
-) async throws -> R {
-  return try await withThrowingTaskGroup(of: R.self) { group in
-    let deadline = Date(timeIntervalSinceNow: interval)
-    
-    // Start actual work.
-    group.addTask {
-      let result = try await operation()
-      try Task.checkCancellation()
+extension PhotosReducer {
+  
+  private enum TimedOutError: Error, Equatable {
+    case timedOut
+  }
+  
+  /// What if...we could call an operator on a task, called ".timeout", where given for: TimeInterval (say we provide seconds)
+  /// and an operation that returns some result, after the provided time, cancel the task and throw a cancellation error...
+  /// and...we need to be able to use clocks for this...
+  
+  ///
+  /// Execute an operation in the current task subject to a timeout.
+  ///
+  /// - Parameters:
+  ///   - seconds: The duration in seconds `operation` is allowed to run before timing out.
+  ///   - operation: The async operation to perform.
+  /// - Returns: Returns the result of `operation` if it completed in time.
+  /// - Throws: Throws ``TimedOutError`` if the timeout expires before `operation` completes.
+  ///   If `operation` throws an error before the timeout expires, that error is propagated to the caller.
+  private func withTimeout<R>(
+    for interval: TimeInterval,
+    operation: @escaping @Sendable () async throws -> R
+  ) async throws -> R {
+    return try await withThrowingTaskGroup(of: R.self) { group in
+      let deadline = Date(timeIntervalSinceNow: interval)
+      
+      // Start actual work.
+      group.addTask {
+        let result = try await operation()
+        try Task.checkCancellation()
+        return result
+      }
+      // Start timeout child task.
+      group.addTask {
+        let interval = deadline.timeIntervalSinceNow
+        if interval > 0 {
+//          try await Task.sleep(for: .nanoseconds(UInt64(interval * 1_000_000_000)))
+          try await clock.sleep(for: .nanoseconds(UInt64(interval * 1_000_000_000)))
+        }
+        try Task.checkCancellation()
+        
+        // We’ve reached the timeout.
+        throw TimedOutError.timedOut
+      }
+      // First finished child task wins, cancel the other task.
+      let result = try await group.next()!
+      group.cancelAll()
       return result
     }
-    // Start timeout child task.
-    group.addTask {
-      let interval = deadline.timeIntervalSinceNow
-      if interval > 0 {
-        try await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
-      }
-      try Task.checkCancellation()
-      
-      // We’ve reached the timeout.
-      throw TimedOutError.timedOut
-    }
-    // First finished child task wins, cancel the other task.
-    let result = try await group.next()!
-    group.cancelAll()
-    return result
   }
 }
