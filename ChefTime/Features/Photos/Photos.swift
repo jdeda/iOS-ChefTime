@@ -12,7 +12,7 @@ import Combine
 struct PhotosView: View {
   let store: StoreOf<PhotosReducer>
   @Environment(\.maxScreenWidth) var maxScreenWidth
-
+  
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
@@ -38,10 +38,7 @@ struct PhotosView: View {
           
           ImageSliderView(
             imageDatas: viewStore.photos,
-            selection: viewStore.binding(
-              get: \.selection,
-              send: { .photoSelectionChanged($0) }
-            )
+            selection: viewStore.$selection
           )
           .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
           .clipShape(RoundedRectangle(cornerRadius: 15))
@@ -102,14 +99,8 @@ struct PhotosView: View {
         // So we have to use the original view
       })
       .photosPicker(
-        isPresented: viewStore.binding(
-          get: { $0.photoPickerIsPresented },
-          send: { _ in .dismissPhotosPicker }
-        ),
-        selection: viewStore.binding(
-          get: \.photoPickerItem,
-          send: { .photoPickerItem($0) }
-        ),
+        isPresented: viewStore.$photoPickerIsPresented,
+        selection: viewStore.$photoPickerItem,
         matching: .images,
         preferredItemEncoding: .compatible,
         photoLibrary: .shared()
@@ -123,21 +114,19 @@ struct PhotosView: View {
 struct PhotosReducer: Reducer {
   struct State: Equatable {
     var photos: IdentifiedArrayOf<ImageData>
-    var selection: ImageData.ID?
-    var photoPickerItem: PhotosPickerItem? = nil
     var photoEditStatus: PhotoEditStatus? = nil
-    var photoPickerIsPresented: Bool = false
     var photoEditInFlight: Bool = false
+    @BindingState var photoPickerIsPresented: Bool = false
+    @BindingState var selection: ImageData.ID?
+    @BindingState var photoPickerItem: PhotosPickerItem? = nil
     @PresentationState var alert: AlertState<AlertAction>?
   }
   
-  enum Action: Equatable {
-    case photoSelectionChanged(ImageData.ID?)
+  enum Action: Equatable, BindableAction {
+    case binding(BindingAction<State>)
     case replaceButtonTapped
     case addButtonTapped
     case deleteButtonTapped
-    case photoPickerItem(PhotosPickerItem?)
-    case dismissPhotosPicker
     case applyPhotoEdit(PhotoEditStatus?, ImageData)
     case alert(PresentationAction<AlertAction>)
     case photoParseError(PhotosError)
@@ -160,61 +149,15 @@ struct PhotosReducer: Reducer {
   
   // TODO: Handle invalid IDs...
   var body: some ReducerOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .photoSelectionChanged(id):
-        if let id = id, state.photos.ids.contains(id) { state.selection = id }
-        else { state.selection = nil }
-        return .none
         
-        // TODO: Checking if in flight here not super necessary.
-        // TODO: what if the id is invalid or nil?
-      case .replaceButtonTapped:
-        guard let id = state.selection else { // Don't put an error just don't do anything.
-          return .none
-        }
-        state.photoEditStatus = .replace(id)
-        state.photoPickerIsPresented = true
-        return .none
-        
-      case .addButtonTapped:
-        if state.photos.isEmpty {
-          state.photoEditStatus = .addWhenEmpty
-        }
-        else {
-          guard let id = state.selection else { return .none } // Don't put an error just don't do anything.
-          state.photoEditStatus = .add(id)
-        }
-        state.photoPickerIsPresented = true
-        return .none
-        
-      case .deleteButtonTapped:
-        guard let id = state.selection,
-              let i = state.photos.index(id: id)
-        else {
-          return .none
-        }
-        
-        state.photos.remove(id: id)
-        state.selection = {
-          if state.photos.isEmpty {
-            return nil
-          }
-          else if i < state.photos.endIndex {
-            return state.photos[i].id
-          }
-          else {
-            var i = i
-            while i >= state.photos.endIndex { i -= 1 }
-            return state.photos[i].id
-          }
-        }()
-        return .none
-        
-      case let .photoPickerItem(item):
+      case .binding(\.$photoPickerItem):
         state.photoPickerIsPresented = false
-        guard let item else {
-          state.photoEditStatus = nil  // // Don't put an error just don't do anything.
+        guard let item = state.photoPickerItem else {
+          state.photoPickerItem = nil
+          state.photoEditStatus = nil
           return .none
         }
         state.photoPickerItem = item
@@ -239,13 +182,41 @@ struct PhotosReducer: Reducer {
         }
         .cancellable(id: PhotosCancelID.photoEdit, cancelInFlight: true)
         
+      case .binding:
+        return .none
         
+      case .replaceButtonTapped:
+        guard let id = state.selection else { return .none }
+        state.photoEditStatus = .replace(id)
+        state.photoPickerIsPresented = true
+        return .none
         
-      case .dismissPhotosPicker:
-        /// This should not nil out the status. That would break the photo operation mechanism (replace/add).
-        /// The status should only nil'd in the .photoPickerItem throws which sends
-        /// .photParseError, or if it succeeds by sending .applyPhotoEdit.
-        state.photoPickerIsPresented = false
+      case .addButtonTapped:
+        if state.photos.isEmpty { state.photoEditStatus = .addWhenEmpty }
+        else {
+          guard let id = state.selection else { return .none }
+          state.photoEditStatus = .add(id)
+        }
+        state.photoPickerIsPresented = true
+        return .none
+        
+      case .deleteButtonTapped:
+        guard let id = state.selection,
+              let i = state.photos.index(id: id)
+        else {
+          return .none
+        }
+        
+        state.photos.remove(id: id)
+        state.selection = {
+          if state.photos.isEmpty { return nil }
+          else if i < state.photos.endIndex { return state.photos[i].id }
+          else {
+            var i = i
+            while i >= state.photos.endIndex { i -= 1 }
+            return state.photos[i].id
+          }
+        }()
         return .none
         
       case let .applyPhotoEdit(status, imageData):
@@ -385,7 +356,7 @@ extension AlertState where Action == PhotosReducer.AlertAction {
 struct PhotosContextMenuPreview: View {
   let state: PhotosReducer.State
   @Environment(\.maxScreenWidth) var maxScreenWidth
-
+  
   var body: some View {
     VStack {
       if state.photos.isEmpty {
@@ -435,12 +406,8 @@ struct PhotosView_Previews: PreviewProvider {
 }
 
 
+// MARK: - Async Timeout Algorithm.
 extension PhotosReducer {
-  
-  private enum TimedOutError: Error, Equatable {
-    case timedOut
-  }
-  
   /// What if...we could call an operator on a task, called ".timeout", where given for: TimeInterval (say we provide seconds)
   /// and an operation that returns some result, after the provided time, cancel the task and throw a cancellation error...
   /// and...we need to be able to use clocks for this...
@@ -484,5 +451,9 @@ extension PhotosReducer {
       group.cancelAll()
       return result
     }
+  }
+  
+  private enum TimedOutError: Error, Equatable {
+    case timedOut
   }
 }

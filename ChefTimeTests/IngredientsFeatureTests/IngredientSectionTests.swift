@@ -10,18 +10,21 @@ final class IngredientSectionTests: XCTestCase {
   let ingredients: IdentifiedArrayOf<IngredientReducer.State> = [
     .init(
       id: .init(rawValue: UUID(1)),
-      focusedField: nil,
-      ingredient: .init(id: .init(rawValue: UUID(2)), name: "figs", amount: 4, measure: "lbs", isComplete: false), ingredientAmountString: "4"
+      ingredient: .init(id: .init(rawValue: UUID(2)), name: "figs", amount: 4, measure: "lbs", isComplete: false),
+      ingredientAmountString: "4",
+      focusedField: nil
     ),
     .init(
       id: .init(rawValue: UUID(3)),
-      focusedField: nil,
-      ingredient: .init(id: .init(rawValue: UUID(4)), name: "brown sugar", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1"
+      ingredient: .init(id: .init(rawValue: UUID(4)), name: "brown sugar", amount: 1, measure: "cup", isComplete: false),
+      ingredientAmountString: "1",
+      focusedField: nil
     ),
     .init(
       id: .init(rawValue: UUID(5)),
-      focusedField: nil,
-      ingredient: .init(id: .init(rawValue: UUID(6)), name: "butter", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1"
+      ingredient: .init(id: .init(rawValue: UUID(6)), name: "butter", amount: 1, measure: "cup", isComplete: false),
+      ingredientAmountString: "1",
+      focusedField: nil
     ),
   ]
   
@@ -166,8 +169,9 @@ final class IngredientSectionTests: XCTestCase {
         ingredients: [
           .init(
             id: .init(rawValue: UUID(42)),
-            focusedField: .name,
-            ingredient: .init(id: .init(rawValue: UUID(43))), ingredientAmountString: ""
+            ingredient: .init(id: .init(rawValue: UUID(43))),
+            ingredientAmountString: "",
+            focusedField: .name
           )
         ],
         isExpanded: true,
@@ -254,8 +258,9 @@ final class IngredientSectionTests: XCTestCase {
     await store.receive(.addIngredient, timeout: .microseconds(15)) {
       $0.ingredients.append(.init(
         id: .init(rawValue: UUID(0)),
-        focusedField: .name,
-        ingredient: .init(id: .init(rawValue: UUID(1))), ingredientAmountString: ""
+        ingredient: .init(id: .init(rawValue: UUID(1))),
+        ingredientAmountString: "",
+        focusedField: .name
       ))
       $0.focusedField = .row(.init(rawValue: UUID(0)))
     }
@@ -463,18 +468,21 @@ final class IngredientSectionTests: XCTestCase {
           ingredients: [
             .init(
               id: .init(rawValue: uuid()),
-              focusedField: nil,
-              ingredient: .init(id: .init(rawValue: uuid()), name: "figs", amount: 4, measure: "lbs", isComplete: false), ingredientAmountString: "4"
+              ingredient: .init(id: .init(rawValue: uuid()), name: "figs", amount: 4, measure: "lbs", isComplete: false),
+              ingredientAmountString: "4",
+              focusedField: nil
             ),
             .init(
               id: .init(rawValue: uuid()),
-              focusedField: nil,
-              ingredient: .init(id: .init(rawValue: uuid()), name: "brown sugar", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1"
+              ingredient: .init(id: .init(rawValue: uuid()), name: "brown sugar", amount: 1, measure: "cup", isComplete: false),
+              ingredientAmountString: "1",
+              focusedField: nil
             ),
             .init(
               id: .init(rawValue: uuid()),
-              focusedField: nil,
-              ingredient: .init(id: .init(rawValue: uuid()), name: "butter", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1"
+              ingredient: .init(id: .init(rawValue: uuid()), name: "butter", amount: 1, measure: "cup", isComplete: false),
+              ingredientAmountString: "1",
+              focusedField: nil
             ),
           ],
           isExpanded: false,
@@ -499,9 +507,9 @@ final class IngredientSectionTests: XCTestCase {
     await store.send(.ingredient(first.id, .delegate(.insertIngredient(.above)))) {
       $0.ingredients.insert(.init(
         id: .init(rawValue: UUID(7)),
-        focusedField: .name,
         ingredient: .init(id: .init(rawValue: UUID(8))),
-        ingredientAmountString: ""
+        ingredientAmountString: "",
+        focusedField: .name
       ), at: 0)
       $0.focusedField = .row(.init(rawValue: UUID(7)))
     }
@@ -516,8 +524,9 @@ final class IngredientSectionTests: XCTestCase {
       $0.ingredients[id: first.id]?.focusedField = nil
       $0.ingredients.insert(.init(
         id: .init(rawValue: UUID(9)),
-        focusedField: .name,
-        ingredient: .init(id: .init(rawValue: UUID(10))), ingredientAmountString: ""
+        ingredient: .init(id: .init(rawValue: UUID(10))),
+        ingredientAmountString: "",
+        focusedField: .name
       ), at: 1)
       $0.focusedField = .row(.init(rawValue: UUID(9)))
     }

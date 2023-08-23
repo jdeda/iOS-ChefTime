@@ -30,14 +30,7 @@ struct StepView: View {
           .fontWeight(.medium)
           .padding(.bottom, 1)
           
-          TextField(
-            "...",
-            text: viewStore.binding(
-              get: \.step.description,
-              send: { .stepDescriptionEdited($0) }
-            ),
-            axis: .vertical
-          )
+          TextField("...", text: viewStore.$step.description, axis: .vertical)
           .focused($focusedField, equals: .description)
           .toolbar {
             if viewStore.focusedField == .description {
@@ -99,7 +92,7 @@ struct StepReducer: Reducer {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var step: Recipe.StepSection.Step
+    @BindingState var step: Recipe.StepSection.Step
     @BindingState var focusedField: FocusField? = nil
     var photos: PhotosReducer.State
     
@@ -122,7 +115,6 @@ struct StepReducer: Reducer {
     case binding(BindingAction<State>)
     case delegate(DelegateAction)
     case photos(PhotosReducer.Action)
-    case stepDescriptionEdited(String)
     case keyboardDoneButtonTapped
     case photoPickerButtonTapped
   }
@@ -135,10 +127,6 @@ struct StepReducer: Reducer {
     Reduce { state, action in
       switch action {
       case .binding, .delegate, .photos:
-        return .none
-        
-      case let .stepDescriptionEdited(newDescription):
-        state.step.description = newDescription
         return .none
         
       case .keyboardDoneButtonTapped:

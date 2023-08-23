@@ -86,34 +86,29 @@ struct IngredientsListReducer: Reducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .ingredient(id, action):
+      case let .ingredient(id, .delegate(action)):
         switch action {
-        case let .delegate(action):
-          switch action {
-          case .deleteSectionButtonTapped:
-            state.ingredientSections.remove(id: id)
-            return .none
-            
-          case let .insertSection(aboveBelow):
-            guard let i = state.ingredientSections.index(id: id)
-            else { return .none }
-            state.ingredientSections[i].focusedField = nil
-            
-            let newSection = IngredientSectionReducer.State(
-              id: .init(rawValue: uuid()),
-              name: "",
-              ingredients: [],
-              isExpanded: true,
-              focusedField: .name
-            )
-            switch aboveBelow {
-            case .above: state.ingredientSections.insert(newSection, at: i)
-            case .below: state.ingredientSections.insert(newSection, at: i + 1)
-            }
-            state.focusedField = .row(newSection.id)
-            return .none
+        case .deleteSectionButtonTapped:
+          state.ingredientSections.remove(id: id)
+          return .none
+          
+        case let .insertSection(aboveBelow):
+          guard let i = state.ingredientSections.index(id: id)
+          else { return .none }
+          state.ingredientSections[i].focusedField = nil
+          
+          let newSection = IngredientSectionReducer.State(
+            id: .init(rawValue: uuid()),
+            name: "",
+            ingredients: [],
+            isExpanded: true,
+            focusedField: .name
+          )
+          switch aboveBelow {
+          case .above: state.ingredientSections.insert(newSection, at: i)
+          case .below: state.ingredientSections.insert(newSection, at: i + 1)
           }
-        default:
+          state.focusedField = .row(newSection.id)
           return .none
         }
         
@@ -121,7 +116,7 @@ struct IngredientsListReducer: Reducer {
         let oldScale = state.scale
         state.scale = newScale
         for i in state.ingredientSections.indices {
-          for j in state.ingredientSections[i].ingredients.indices { // TODO: Maybe do this with IDs and in parallel? :D
+          for j in state.ingredientSections[i].ingredients.indices {
             let ingredient = state.ingredientSections[i].ingredients[j]
             guard !ingredient.ingredientAmountString.isEmpty else { continue }
             let amount = (ingredient.ingredient.amount / oldScale) * newScale
@@ -158,7 +153,7 @@ struct IngredientsListReducer: Reducer {
         }
         return .none
         
-      case .binding:
+      case .binding, .ingredient:
         return .none
         
       }
@@ -242,9 +237,9 @@ struct IngredientList_Previews: PreviewProvider {
                   ingredients: .init(uniqueElements: (section.ingredients.map { ingredient in
                       .init(
                         id: .init(),
-                        focusedField: nil,
                         ingredient: ingredient,
-                        ingredientAmountString: String(ingredient.amount)
+                        ingredientAmountString: String(ingredient.amount),
+                        focusedField: nil
                       )
                   })),
                   isExpanded: true,

@@ -115,37 +115,32 @@ struct IngredientSectionReducer: Reducer  {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .ingredient(id, action):
+      case let .ingredient(id, .delegate(action)):
         switch action {
-        case let .delegate(action):
-          switch action {
-          case .tappedToDelete:
-            // TODO: Animation can be a bit clunky, fix.
-            if case let .row(currId) = state.focusedField, id == currId {
-              state.focusedField = nil
-            }
-            state.ingredients.remove(id: id)
-            return .none
-            
-          case let .insertIngredient(aboveBelow):
-            guard let i = state.ingredients.index(id: id)
-            else { return .none }
-            state.ingredients[id: id]?.focusedField = nil
-            let s = IngredientReducer.State.init(
-              id: .init(rawValue: uuid()),
-              focusedField: .name,
-              ingredient: .init(id: .init(rawValue: uuid())),
-              ingredientAmountString: ""
-            )
-            state.ingredients.insert(s, at: aboveBelow == .above ? i : i + 1)
-            state.focusedField = .row(s.id)
-            return .none
+        case .tappedToDelete:
+          // TODO: Animation can be a bit clunky, fix.
+          if case let .row(currId) = state.focusedField, id == currId {
+            state.focusedField = nil
           }
-        default:
+          state.ingredients.remove(id: id)
+          return .none
+          
+        case let .insertIngredient(aboveBelow):
+          guard let i = state.ingredients.index(id: id)
+          else { return .none }
+          state.ingredients[id: id]?.focusedField = nil
+          let s = IngredientReducer.State.init(
+            id: .init(rawValue: uuid()),
+            ingredient: .init(id: .init(rawValue: uuid())),
+            ingredientAmountString: "",
+            focusedField: .name
+          )
+          state.ingredients.insert(s, at: aboveBelow == .above ? i : i + 1)
+          state.focusedField = .row(s.id)
           return .none
         }
-        
-      case let .ingredientSectionNameEdited(newName):
+          
+        case let .ingredientSectionNameEdited(newName):
         if state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
@@ -188,9 +183,9 @@ struct IngredientSectionReducer: Reducer  {
       case .addIngredient:
         let s = IngredientReducer.State(
           id: .init(rawValue: uuid()),
-          focusedField: .name,
           ingredient: .init(id: .init(rawValue: uuid())),
-          ingredientAmountString: ""
+          ingredientAmountString: "",
+          focusedField: .name
         )
         state.ingredients.append(s)
         state.focusedField = .row(s.id)
@@ -208,7 +203,7 @@ struct IngredientSectionReducer: Reducer  {
         }
         return .none
         
-      case .delegate, .binding:
+      case .delegate, .binding, .ingredient:
         return .none
       }
     }
@@ -266,9 +261,9 @@ struct IngredientSection_Previews: PreviewProvider {
             ingredients: .init(uniqueElements: Recipe.longMock.ingredientSections.first!.ingredients.map {
               .init(
                 id: .init(),
-                focusedField: nil,
                 ingredient: $0,
-                ingredientAmountString: String($0.amount)
+                ingredientAmountString: String($0.amount),
+                focusedField: nil
               )
             }),
             isExpanded: true,

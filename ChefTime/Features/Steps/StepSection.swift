@@ -110,8 +110,7 @@ struct StepSectionReducer: Reducer  {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .step(id, action):
-        let action = (/StepReducer.Action.delegate).extract(from: action)
+      case let .step(id, .delegate(action)):
         switch action  {
         case .deleteButtonTapped:
           state.steps.remove(id: id)
@@ -128,10 +127,10 @@ struct StepSectionReducer: Reducer  {
           )
           state.steps.insert(newStep, at: aboveBelow == .above ? i : i + 1)
           return .none
-          
-        case .none:
-          return .none
         }
+        
+      case .step:
+        return .none
         
       case let .stepSectionNameEdited(newName):
         let oldName = state.name

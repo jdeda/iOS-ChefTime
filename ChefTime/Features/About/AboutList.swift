@@ -78,32 +78,27 @@ struct AboutListReducer: Reducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .aboutSection(id, action):
+      case let .aboutSection(id, .delegate(action)):
         switch action {
-        case let .delegate(action):
-          switch action {
-          case .deleteSectionButtonTapped:
-            if case .row = state.focusedField {
-              state.focusedField = nil
-            }
-            state.aboutSections.remove(id: id)
-            return .none
-            
-          case let .insertSection(aboveBelow):
-            // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
-            guard let i = state.aboutSections.index(id: id) else { return .none }
-            state.aboutSections[i].focusedField = nil
-            let newSection = AboutSectionReducer.State(
-              id: .init(rawValue: uuid()),
-              aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""),
-              isExpanded: true,
-              focusedField: .name
-            )
-            state.aboutSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
-            state.focusedField = .row(newSection.id)
-            return .none
+        case .deleteSectionButtonTapped:
+          if case .row = state.focusedField {
+            state.focusedField = nil
           }
-        default:
+          state.aboutSections.remove(id: id)
+          return .none
+          
+        case let .insertSection(aboveBelow):
+          // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
+          guard let i = state.aboutSections.index(id: id) else { return .none }
+          state.aboutSections[i].focusedField = nil
+          let newSection = AboutSectionReducer.State(
+            id: .init(rawValue: uuid()),
+            aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""),
+            isExpanded: true,
+            focusedField: .name
+          )
+          state.aboutSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
+          state.focusedField = .row(newSection.id)
           return .none
         }
         
@@ -130,7 +125,7 @@ struct AboutListReducer: Reducer {
         }
         return .none
         
-      case .binding:
+      case .binding, .aboutSection:
         return .none
       }
     }

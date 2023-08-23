@@ -96,10 +96,8 @@ struct StepListReducer: Reducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .stepSection(id, action):
+      case let .stepSection(id, .delegate(action)):
         switch action {
-        case let .delegate(action):
-          switch action {
           case .deleteSectionButtonTapped:
             if case .row = state.focusedField {
               state.focusedField = nil
@@ -122,9 +120,6 @@ struct StepListReducer: Reducer {
             state.focusedField = .row(newSection.id)
             return .none
           }
-        default:
-          return .none
-        }
         
       case .hideImagesToggled:
         return .run { send in
@@ -161,7 +156,7 @@ struct StepListReducer: Reducer {
         }
         return .none
         
-      case .binding:
+      case .binding, .stepSection:
         return .none
       }
     }

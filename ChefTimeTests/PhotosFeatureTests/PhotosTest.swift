@@ -36,22 +36,22 @@ final class PhotosTests: XCTestCase {
     }
     
     // User swipes right to select the second photo.
-    await store.send(.photoSelectionChanged(.init(rawValue: UUID(1)))) {
+    await store.send(.set(\.$selection, .init(rawValue: UUID(1)))) {
       $0.selection = .init(rawValue: UUID(1))
     }
     
     // User swipes right to select the third and last photo.
-    await store.send(.photoSelectionChanged(.init(rawValue: UUID(2)))) {
+    await store.send(.set(\.$selection, .init(rawValue: UUID(2)))) {
       $0.selection = .init(rawValue: UUID(2))
     }
     
     // User swipes left to select the second photo.
-    await store.send(.photoSelectionChanged(.init(rawValue: UUID(1)))) {
+    await store.send(.set(\.$selection, .init(rawValue: UUID(1)))) {
       $0.selection = .init(rawValue: UUID(1))
     }
     
     // User swipes right to select the first photo.
-    await store.send(.photoSelectionChanged(.init(rawValue: UUID(0)))) {
+    await store.send(.set(\.$selection, .init(rawValue: UUID(0)))) {
       $0.selection = .init(rawValue: UUID(0))
     }
   }
@@ -106,7 +106,7 @@ final class PhotosTests: XCTestCase {
     }
     
     // Select and accept no items:
-    await store.send(.photoPickerItem(nil)) {
+    await store.send(.binding(.set(\.$photoPickerItem, nil))) {
       $0.photoPickerItem = nil
       $0.photoEditStatus = nil
       $0.photoEditInFlight = false
@@ -121,7 +121,7 @@ final class PhotosTests: XCTestCase {
     
     // Pick some image, based on our photo test version dependency
     let firstPhotoID: ImageData.ID = .init(rawValue: UUID(0))
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem))) {
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem
       $0.photoEditInFlight = true
       $0.photoPickerIsPresented = false
@@ -144,7 +144,7 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = .add(firstPhotoID)
       $0.photoPickerIsPresented = true
     }
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem))) {
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem
       $0.photoPickerIsPresented = false
       $0.photoEditInFlight = true
@@ -164,7 +164,7 @@ final class PhotosTests: XCTestCase {
     }
     
     // Lets swipe forward to our first image and add another.
-    await store.send(.photoSelectionChanged(firstPhotoID)) {
+    await store.send(.binding(.set(\.$selection, firstPhotoID))) {
       $0.selection = firstPhotoID
     }
     
@@ -173,7 +173,7 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = .add(firstPhotoID)
       $0.photoPickerIsPresented = true
     }
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem))) {
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem
       $0.photoPickerIsPresented = false
       $0.photoEditInFlight = true
@@ -194,15 +194,15 @@ final class PhotosTests: XCTestCase {
     }
     
     // With our new photos, lets swipe to the very first image and then all the way to the end and add another.
-    await store.send(.photoSelectionChanged(secondPhotoID)) {
+    await store.send(.binding(.set(\.$selection, secondPhotoID))) {
       $0.selection = secondPhotoID
       XCTAssertTrue(store.state.photos.index(id: secondPhotoID) == 0)
     }
-    await store.send(.photoSelectionChanged(thirdPhotoID)) {
+    await store.send(.binding(.set(\.$selection, thirdPhotoID))) {
       $0.selection = thirdPhotoID
       XCTAssertTrue(store.state.photos.index(id: thirdPhotoID) == 1)
     }
-    await store.send(.photoSelectionChanged(firstPhotoID)) {
+    await store.send(.binding(.set(\.$selection, firstPhotoID))) {
       $0.selection = firstPhotoID
       XCTAssertTrue(store.state.photos.index(id: firstPhotoID) == 2)
     }
@@ -211,7 +211,7 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = .add(firstPhotoID)
       $0.photoPickerIsPresented = true
     }
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem))) {
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem
       $0.photoPickerIsPresented = false
       $0.photoEditInFlight = true
@@ -240,7 +240,7 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = .replace(fourthPhotoID)
       $0.photoPickerIsPresented = true
     }
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem2)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem2))) {
       $0.photoPickerIsPresented =  false
       $0.photoEditInFlight = true
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem2
@@ -259,7 +259,7 @@ final class PhotosTests: XCTestCase {
     }
     
     // Swipe the end of the in the list and replace that one.
-    await store.send(.photoSelectionChanged(firstPhotoID)) {
+    await store.send(.binding(.set(\.$selection, firstPhotoID))) {
       $0.selection = firstPhotoID
       XCTAssertTrue(store.state.photos.index(id: firstPhotoID) == 3)
     }
@@ -270,7 +270,7 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = .replace(firstPhotoID)
       $0.photoPickerIsPresented = true
     }
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem2)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem2))) {
       $0.photoPickerIsPresented =  false
       $0.photoEditInFlight = true
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem2
@@ -289,7 +289,7 @@ final class PhotosTests: XCTestCase {
     }
     
     // Swipe back and delete.
-    await store.send(.photoSelectionChanged(fourthPhotoReplacementID)) {
+    await store.send(.binding(.set(\.$selection, fourthPhotoReplacementID))) {
       $0.selection = fourthPhotoReplacementID
       XCTAssertTrue($0.photos.index(id: secondPhotoID) == 0)
       XCTAssertTrue($0.photos.index(id: thirdPhotoID) == 1)
@@ -313,7 +313,7 @@ final class PhotosTests: XCTestCase {
     }
     
     // Swipe back and delete.
-    await store.send(.photoSelectionChanged(secondPhotoID)) {
+    await store.send(.binding(.set(\.$selection, secondPhotoID))) {
       $0.selection = secondPhotoID
       XCTAssertTrue($0.photos.index(id: secondPhotoID) == 0)
       XCTAssertTrue($0.photos.index(id: thirdPhotoID) == 1)
@@ -337,9 +337,8 @@ final class PhotosTests: XCTestCase {
     }
     
     // Use taps dismiss
-    await store.send(.dismissPhotosPicker) {
+    await store.send(.binding(.set(\.$photoPickerIsPresented, false))) {
       $0.photoPickerIsPresented = false
-      // Note this does not set the status, read feature documentation for why.
     }
   }
   
@@ -385,7 +384,7 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = .addWhenEmpty
       $0.photoPickerIsPresented = true
     }
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem))) {
       $0.photoPickerIsPresented = false
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem
       $0.photoEditInFlight = true
@@ -454,7 +453,7 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = .addWhenEmpty
       $0.photoPickerIsPresented = true
     }
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem))) {
       $0.photoPickerIsPresented = false
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem
       $0.photoEditInFlight = true
@@ -476,7 +475,7 @@ final class PhotosTests: XCTestCase {
       $0.photoEditStatus = .addWhenEmpty
       $0.photoPickerIsPresented = true
     }
-    await store.send(.photoPickerItem(hypotheticallyHonestPhotosPickerItem)) {
+    await store.send(.binding(.set(\.$photoPickerItem, hypotheticallyHonestPhotosPickerItem))) {
       $0.photoPickerIsPresented = false
       $0.photoPickerItem = hypotheticallyHonestPhotosPickerItem
       $0.photoEditInFlight = true

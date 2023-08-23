@@ -54,8 +54,9 @@ final class IngredientsListTests: XCTestCase {
               ingredients: [
                 .init(
                   id: .init(rawValue: UUID(1)),
-                  focusedField: .name,
-                  ingredient: .init(id: .init(rawValue: UUID(2)), name: "oats", amount: 1, measure: "cup", isComplete: false), ingredientAmountString: "1.0"
+                  ingredient: .init(id: .init(rawValue: UUID(2)), name: "oats", amount: 1, measure: "cup", isComplete: false),
+                  ingredientAmountString: "1.0",
+                  focusedField: .name
                 )
               ],
               isExpanded: true,

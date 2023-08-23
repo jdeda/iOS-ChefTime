@@ -153,9 +153,9 @@ struct RecipeReducer: Reducer {
               ingredients: .init(uniqueElements: section.ingredients.map({ ingredient in
                   .init(
                     id: .init(),
-                    focusedField: nil,
                     ingredient: ingredient,
-                    ingredientAmountString: String(ingredient.amount)
+                    ingredientAmountString: String(ingredient.amount),
+                    focusedField: nil
                   )
               })),
               isExpanded: true,

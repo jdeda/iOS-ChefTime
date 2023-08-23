@@ -11,14 +11,7 @@ struct AboutSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        TextField(
-          "...",
-          text: viewStore.binding(
-            get: \.aboutSection.description,
-            send: { .aboutSectionDescriptionEdited($0) }
-          ),
-          axis: .vertical
-        )
+        TextField( "...", text: viewStore.$aboutSection.description, axis: .vertical)
         .focused($focusedField, equals: .description)
         .accentColor(.accentColor)
         .autocapitalization(.none)
@@ -93,7 +86,7 @@ struct AboutSectionReducer: Reducer  {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var aboutSection: Recipe.AboutSection
+    @BindingState var aboutSection: Recipe.AboutSection
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
     
@@ -113,7 +106,6 @@ struct AboutSectionReducer: Reducer  {
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case aboutSectionNameEdited(String)
-    case aboutSectionDescriptionEdited(String)
     case keyboardDoneButtonTapped
     case delegate(DelegateAction)
   }
@@ -147,10 +139,6 @@ struct AboutSectionReducer: Reducer  {
             return .none
           }
         }
-        
-      case let .aboutSectionDescriptionEdited(newDescription):
-        state.aboutSection.description = newDescription
-        return .none
         
       case .keyboardDoneButtonTapped:
         state.focusedField = nil
