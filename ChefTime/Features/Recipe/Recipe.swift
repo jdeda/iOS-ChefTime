@@ -15,11 +15,6 @@ import Tagged
 /// 2. Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
 
 // MARK: - Recipe Feature Animation Bugs
-/// - Step image deletion final photo transition is fugly
-/// - Photos delete final photo transition to base is kinda weird
-/// - About/Ingredient/Step feature context menu doesn't transition off, you get a big black hole
-/// - About/Ingredient/Step feature deletion is ugly, it lingers, ingredient kinda similar
-/// - TextFields get laggy AF <----- ----- ----- ----- ----- ----- ----- -----  BIG PROBLEM
 /// - Sometimes textfield highlight when focused just doesn't appear...
 /// - Spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
 
@@ -27,8 +22,16 @@ import Tagged
 /// 1. Ingredients still double insert  (sometimes) (refactor all debounces)
 /// 2. Focus state still breaks (sometimes)
 
-// TODO: Immediate Fixing
-/// 1. Step Deletion Animation FUGLY
+// MARK: - Haunting DisclosureGroup Animation Bugs:
+/// 1. Context menu doesn't transition off, you get a big black hole
+/// 2. Deletion is ugly, the elements that are deleted linger and do not transition properly
+/// 3. Add is ugly, the context menus linger and do not transition properly
+/// I think just any context menu transition is just completely broken.
+
+
+// TODO: Move all the autcorrection stuff into a dependency and possibly write a modifier that you can apply to all
+// your textfields to have, or maybe if really based, it just does it compeltely for you and you don't even have to
+// append that to any of your textfields
 
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
