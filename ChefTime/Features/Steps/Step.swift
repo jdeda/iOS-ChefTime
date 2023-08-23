@@ -31,25 +31,31 @@ struct StepView: View {
           .padding(.bottom, 1)
           
           TextField("...", text: viewStore.$step.description, axis: .vertical)
-          .focused($focusedField, equals: .description)
-          .toolbar {
-            if viewStore.focusedField == .description {
-              ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button {
-                  viewStore.send(.keyboardDoneButtonTapped)
-                } label: {
-                  Text("done")
+            .focused($focusedField, equals: .description)
+            .toolbar {
+              if viewStore.focusedField == .description {
+                ToolbarItemGroup(placement: .keyboard) {
+                  Spacer()
+                  Button {
+                    viewStore.send(.keyboardDoneButtonTapped)
+                  } label: {
+                    Text("done")
+                  }
+                  .accentColor(.primary)
                 }
-                .accentColor(.primary)
               }
             }
-          }
         }
         
-        
-        // Display the photos only if we are not hiding step images and it isn't empty, or we are uploading the first photo.
-        let isHidingPhotosView = isHidingStepImages || (viewStore.photos.photos.isEmpty && (viewStore.photos.photoEditStatus != .addWhenEmpty || !viewStore.photos.photoEditInFlight))
+        // Display the photos only if we are not hiding the photos
+        // and if we have photos or we are uploading the first photo.
+        let isHidingPhotosView: Bool = {
+          if isHidingStepImages { return true }
+          else if !viewStore.photos.photos.isEmpty { return false }
+          else {
+            return !(viewStore.photos.photoEditStatus == .addWhenEmpty && viewStore.photos.photoEditInFlight)
+          }
+        }()
         PhotosView(store: store.scope(
           state: \.photos,
           action: StepReducer.Action.photos
@@ -161,7 +167,7 @@ extension StepReducer {
 struct StepContextMenuPreview: View {
   let state: StepReducer.State
   let index: Int // Immutable index representing positon in list.
-    
+  
   var body: some View {
     VStack(alignment: .leading) {
       Text("Step \(index + 1)")

@@ -10,28 +10,25 @@ import Tagged
 ///   be in perfect position (i.e. it could lower a bit more to really show the textfield). This
 ///   may be because of padding issues
 
+// MARK: - Possible Improvements
+/// 1. Consider lazy rendering and  limit observation for performance
+/// 2. Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
+
 // MARK: - Recipe Feature Animation Bugs
 /// - Step image deletion final photo transition is fugly
 /// - Photos delete final photo transition to base is kinda weird
-/// - Photos sometimes delete just doesnt work and it gets stuck
 /// - About/Ingredient/Step feature context menu doesn't transition off, you get a big black hole
 /// - About/Ingredient/Step feature deletion is ugly, it lingers, ingredient kinda similar
 /// - TextFields get laggy AF <----- ----- ----- ----- ----- ----- ----- -----  BIG PROBLEM
 /// - Sometimes textfield highlight when focused just doesn't appear...
 /// - Spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
 
-// MARK: - Recipe Usability Issues
-/// 1. Tapping collapse button near other features i.e. ingredient / step can be crammed and its ease to mess up where you tap
-/// 2. Sometimes when you collapse the delay is a bit annoying because you may tap again because you think it should
-/// instantly tap but it doesnt, and the button isn't big enough neither is the impact area, the collapse animation should be much faster
-/// Apple already designed it very well
-/// 3. Ingredients still double insert  (sometimes) (refactor all debounces)
-/// 4. Focus state still breaks (sometimes)
+// MARK: - Haunting Bugs
+/// 1. Ingredients still double insert  (sometimes) (refactor all debounces)
+/// 2. Focus state still breaks (sometimes)
 
-
-// TODO: ingredient .next/return sometimes doesnt focus to new element
-// TODO: Consider lazy rendering and  limit observation for performance
-// TODO: Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
+// TODO: Immediate Fixing
+/// 1. Step Deletion Animation FUGLY
 
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
