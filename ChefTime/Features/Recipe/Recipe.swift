@@ -28,7 +28,6 @@ import Tagged
 /// 3. Add is ugly, the context menus linger and do not transition properly
 /// I think just any context menu transition is just completely broken.
 
-
 // TODO: Move all the autcorrection stuff into a dependency and possibly write a modifier that you can apply to all
 // your textfields to have, or maybe if really based, it just does it compeltely for you and you don't even have to
 // append that to any of your textfields
