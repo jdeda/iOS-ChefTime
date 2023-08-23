@@ -31,7 +31,6 @@ import Tagged
 
 // TODO: ingredient .next/return sometimes doesnt focus to new element
 // TODO: Consider lazy rendering and  limit observation for performance
-// TODO: Refactor bindings to new TCA
 // TODO: Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
 
 struct RecipeView: View {
@@ -42,18 +41,25 @@ struct RecipeView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStack {
         ScrollView {
-          PhotosView(store: store.scope(
-            state: \.photos,
-            action: RecipeReducer.Action.photos
-          ))
-          .opacity(!viewStore.isHidingImages ? 1.0 : 0.0)
-          .frame(
-            width: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0,
-            height: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0
-          )
-          .clipShape(RoundedRectangle(cornerRadius: 15))
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
+          ZStack {
+            PhotosView(store: store.scope(state: \.photos, action: RecipeReducer.Action.photos))
+            .opacity(!viewStore.isHidingImages ? 1.0 : 0.0)
+            .frame(
+              width: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0,
+              height: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
+            
+            // This allows the expansion toggle animation to work properly.
+            Color.clear
+              .contentShape(Rectangle())
+              .frame(width: maxScreenWidth.maxWidth, height: 0)
+              .clipShape(RoundedRectangle(cornerRadius: 15))
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+              .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
+          }
           
           AboutListView(store: store.scope(
             state: \.about,
