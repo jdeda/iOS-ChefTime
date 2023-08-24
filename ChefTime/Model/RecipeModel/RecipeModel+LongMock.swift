@@ -1,6 +1,9 @@
 import Foundation
 import Tagged
 
+// TODO: There are a LOT of force unwraps...
+// TODO: Put all of these into a JSON file then load them...
+
 extension Recipe {
   static let longMock = Recipe(
     id: .init(),

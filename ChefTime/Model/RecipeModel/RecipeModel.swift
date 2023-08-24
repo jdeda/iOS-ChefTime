@@ -3,6 +3,9 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
+/// Represents a recipe.
+/// Recipes have a name and contain several lists of information describing what
+/// the finished recipe looks like, any peritnent discussion about it, the ingredients, and steps.
 struct Recipe: Identifiable, Equatable, Codable {
   typealias ID = Tagged<Self, UUID>
   
@@ -56,8 +59,6 @@ struct Recipe: Identifiable, Equatable, Codable {
   }
 }
 
-// There are a LOT of force unwraps...
-// TODO: Put all of these into a JSON file then load them...
 extension Recipe {
   static let empty = Self(id: .init())
 }
