@@ -7,30 +7,26 @@ import Combine
 // but sometimes if you tap another row, the dupe goes away, this does not work all the time
 // this is all happening probably because we didn't nil out the focus state
 
-// TODO: Make sure all sections have a dismiss button
-// TODO: Sectin empty and pressed enter create element.
-// TODO: Fix this focus bug
-
 // MARK: - View
 struct StepSection: View {
   let store: StoreOf<StepSectionReducer>
   @FocusState private var focusedField: StepSectionReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
-        // TODO: Step view goes here.
+    WithViewStore(store, observe: { $0 }) { viewStore in
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         ForEachStore(store.scope(
           state: \.steps,
           action: StepSectionReducer.Action.step
         )) { childStore in
           // TODO: Move this into reducer and test.
-          let index = viewStore.steps.index(id: ViewStore(childStore).id) ?? 0
+          let id = ViewStore(childStore, observe: \.id).state
+          let index = viewStore.steps.index(id:id) ?? 0
           StepView(store: childStore, index: index)
             .accentColor(.accentColor)
+          if let lastId = viewStore.steps.last?.id, lastId != id {
+            Divider()
+          }
         }
       } label: {
         TextField(
@@ -42,15 +38,7 @@ struct StepSection: View {
           axis: .vertical
         )
         .focused($focusedField, equals: .name)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+        .textSubtitleStyle()
         .toolbar {
           if viewStore.focusedField == .name {
             ToolbarItemGroup(placement: .keyboard) {
@@ -64,7 +52,7 @@ struct StepSection: View {
           }
         }
       }
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
       .contextMenu {
@@ -93,21 +81,20 @@ struct StepSection: View {
 }
 
 // MARK: - Reducer
-struct StepSectionReducer: ReducerProtocol  {
+struct StepSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
     var name: String
     var steps: IdentifiedArrayOf<StepReducer.State>
-    var isExpanded: Bool
+    @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
   }
   
   enum Action: Equatable, BindableAction {
     case step(StepReducer.State.ID, StepReducer.Action)
     case binding(BindingAction<State>)
-    case isExpandedButtonToggled
     case stepSectionNameEdited(String)
     case addStep
     case keyboardDoneButtonTapped
@@ -119,17 +106,16 @@ struct StepSectionReducer: ReducerProtocol  {
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .step(id, action):
-        let action = (/StepReducer.Action.delegate).extract(from: action)
+      case let .step(id, .delegate(action)):
         switch action  {
         case .deleteButtonTapped:
           state.steps.remove(id: id)
           return .none
-
+          
         case let .insertButtonTapped(aboveBelow):
           // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
           guard let i = state.steps.index(id: id) else { return .none }
@@ -141,14 +127,9 @@ struct StepSectionReducer: ReducerProtocol  {
           )
           state.steps.insert(newStep, at: aboveBelow == .above ? i : i + 1)
           return .none
-          
-        case .none:
-          return .none
         }
         
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        state.focusedField = nil
+      case .step:
         return .none
         
       case let .stepSectionNameEdited(newName):
@@ -190,12 +171,19 @@ struct StepSectionReducer: ReducerProtocol  {
         
         
       case .addStep:
-        // TODO: ...
         state.steps.append(StepReducer.State(
           id: .init(rawValue: uuid()),
           step: .init(id: .init(rawValue: uuid()), description: ""),
           focusedField: .description
         ))
+        return .none
+        
+      case .binding(\.$isExpanded):
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          state.focusedField = nil
+        }
         return .none
         
       case .delegate, .binding:
@@ -227,23 +215,19 @@ extension StepSectionReducer {
 // MARK: - StepSectionContextMenuPreview
 private struct StepSectionContextMenuPreview: View {
   let state: StepSectionReducer.State
-  let maxW = UIScreen.main.bounds.width * 0.95
-  
+
   var body: some View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
       ForEach(state.steps.prefix(4)) { step in
-        StepContextMenuPreview(state: step)
+        let index = state.steps.index(id: step.id) ?? 0
+        StepContextMenuPreview(state: step, index: index)
+        Divider() // TODO: Dont render last divier
       }
     } label: {
-      Text(state.name.isEmpty  ? "Untitled About Section" : state.name)
+      TextField("Untitled About Section", text: .constant(state.name))
+        .textSubtitleStyle()
         .lineLimit(2)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-      
+        .disabled(true)
     }
     .accentColor(.primary)
   }
@@ -257,17 +241,14 @@ struct StepSection_Previews: PreviewProvider {
         StepSection(store: .init(
           initialState: .init(
             id: .init(),
-            name: Recipe.longMock.steps.first!.name,
-            steps: .init(uniqueElements: Recipe.longMock.steps.first!.steps.map({
+            name: Recipe.longMock.stepSections.first!.name,
+            steps: .init(uniqueElements: Recipe.longMock.stepSections.first!.steps.map({
               .init(id: .init(), step: $0)
             })),
             isExpanded: true,
             focusedField: nil
           ),
-          reducer: StepSectionReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: StepSectionReducer.init
         ))
         .padding()
       }

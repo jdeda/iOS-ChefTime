@@ -3,39 +3,17 @@ import ComposableArchitecture
 import Tagged
 import Combine
 
-// TODO: - Bug - if focused on a row, then collapse, then click a row again, dupe buttons appear...
-// but sometimes if you tap another row, the dupe goes away, this does not work all the time
-// this is all happening probably because we didn't nil out the focus state
-
-// TODO: Make sure all sections have a dismiss button
-// TODO: Sectin empty and pressed enter create element.
-// TODO: Fix this focus bug
-
 // MARK: - View
 struct AboutSection: View {
   let store: StoreOf<AboutSectionReducer>
   @FocusState private var focusedField: AboutSectionReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
-        TextField(
-          "...",
-          text: viewStore.binding(
-            get: \.aboutSection.description,
-            send: { .aboutSectionDescriptionEdited($0) }
-          ),
-          axis: .vertical
-        )
+    WithViewStore(store, observe: { $0 }) { viewStore in
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
+        TextField("...", text: viewStore.$aboutSection.description, axis: .vertical)
         .focused($focusedField, equals: .description)
-        .foregroundColor(.primary)
         .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
         .autocapitalization(.none)
         .autocorrectionDisabled()
         .toolbar {
@@ -51,7 +29,6 @@ struct AboutSection: View {
           }
         }
       } label: {
-        // TODO: An alert might feel nicer here to restore the DisclosureGroup collapse UX.
         TextField(
           "Untitled About Section",
           text: viewStore.binding(
@@ -61,15 +38,7 @@ struct AboutSection: View {
           axis: .vertical
         )
         .focused($focusedField, equals: .name)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+        .textSubtitleStyle()
         .toolbar {
           if viewStore.focusedField == .name {
             ToolbarItemGroup(placement: .keyboard) {
@@ -83,7 +52,7 @@ struct AboutSection: View {
           }
         }
       }
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
       .contextMenu {
@@ -98,7 +67,7 @@ struct AboutSection: View {
           Text("Insert Section Below")
         }
         Button(role: .destructive) {
-          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .easeIn(duration: 2.5))
         } label: {
           Text("Delete")
         }
@@ -112,13 +81,13 @@ struct AboutSection: View {
 }
 
 // MARK: - Reducer
-struct AboutSectionReducer: ReducerProtocol  {
+struct AboutSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var aboutSection: Recipe.AboutSection
-    var isExpanded: Bool
+    @BindingState var aboutSection: Recipe.AboutSection
+    @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
     
     init(
@@ -136,21 +105,15 @@ struct AboutSectionReducer: ReducerProtocol  {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case isExpandedButtonToggled
     case aboutSectionNameEdited(String)
-    case aboutSectionDescriptionEdited(String)
     case keyboardDoneButtonTapped
     case delegate(DelegateAction)
   }
     
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        state.focusedField = nil
-        return .none
         
       case let .aboutSectionNameEdited(newName):
         let oldName = state.aboutSection.name
@@ -177,12 +140,16 @@ struct AboutSectionReducer: ReducerProtocol  {
           }
         }
         
-      case let .aboutSectionDescriptionEdited(newDescription):
-        state.aboutSection.description = newDescription
-        return .none
-        
       case .keyboardDoneButtonTapped:
         state.focusedField = nil
+        return .none
+        
+      case .binding(\.$isExpanded):
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          state.focusedField = nil
+        }
         return .none
         
       case .delegate, .binding:
@@ -218,23 +185,12 @@ private struct AboutSectionContextMenuPreview: View {
     DisclosureGroup(isExpanded: .constant(state.isExpanded)) {
       Text(!state.aboutSection.description.isEmpty ? state.aboutSection.description : "...")
         .lineLimit(4)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
         .autocapitalization(.none)
         .autocorrectionDisabled()
     } label: {
-      Text(!state.aboutSection.name.isEmpty ? state.aboutSection.name : "Untitled About Section")
+      Text(!state.aboutSection.name.isEmpty ? state.aboutSection.name : "...")
         .lineLimit(2)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+        .textSubtitleStyle()
     }
     .accentColor(.primary)
   }
@@ -252,10 +208,7 @@ struct AboutSection_Previews: PreviewProvider {
             isExpanded: true,
             focusedField: nil
           ),
-          reducer: AboutSectionReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: AboutSectionReducer.init
         ))
         .padding()
       }
@@ -270,10 +223,7 @@ struct AboutSection_Previews: PreviewProvider {
             isExpanded: true,
             focusedField: nil
           ),
-          reducer: AboutSectionReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: AboutSectionReducer.init
         ))
         .padding()
       }
