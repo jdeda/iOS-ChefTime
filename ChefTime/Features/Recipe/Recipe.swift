@@ -27,6 +27,9 @@ import Tagged
 /// 2. Deletion is ugly, the elements that are deleted linger and do not transition properly
 /// 3. Add is ugly, the context menus linger and do not transition properly
 /// I think just any context menu transition is just completely broken.
+/// The TextField is the culprit of breaking context menus but I have found a way to fix it, you cannot
+/// just go set the UIPreviewTarget.background for an entire view root, you have to specifically create an entire new deleagte
+/// and handle all of the bullshit and nuances literally JUST to set the stupid ass background to clear.
 
 // TODO: Move all the autcorrection stuff into a dependency and possibly write a modifier that you can apply to all
 // your textfields to have, or maybe if really based, it just does it compeltely for you and you don't even have to

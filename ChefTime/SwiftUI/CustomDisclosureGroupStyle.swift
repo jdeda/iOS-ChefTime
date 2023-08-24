@@ -54,6 +54,7 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
     .contentShape(ContentShapeKinds.contextMenuPreview, RoundedRectangle(cornerRadius: 5))
   }
 }
+
 // TODO: Maybe its just UIPreviewParameters().backgroundColor = .clear?????????
 // let parameters = UIPreviewParameters()
 // parameters.backgroundColor = .clear
