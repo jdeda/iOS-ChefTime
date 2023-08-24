@@ -57,7 +57,7 @@ struct IngredientListView: View {
         }
         .accentColor(.primary)
         .synchronize(viewStore.$focusedField, $focusedField)
-        .disclosureGroupStyle(CustomDisclosureGroupStyle()) // TODO: Make sure this is standardized!
+        .disclosureGroupStyle(CustomDisclosureGroupStyle())
       }
     }
   }
