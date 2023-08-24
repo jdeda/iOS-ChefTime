@@ -43,12 +43,12 @@ final class AboutListTests: XCTestCase {
       UUID(0).uuidString
     )
     
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, false))) {
       $0.isExpanded = false
       $0.focusedField = nil
       $0.aboutSections[0].focusedField = nil
     }
-    await store.send(.isExpandedButtonToggled) {
+    await store.send(.binding(.set(\.$isExpanded, true))) {
       $0.isExpanded = true
     }
   }

@@ -15,25 +15,21 @@ struct IngredientSection: View {
   @FocusState private var focusedField: IngredientSectionReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.binding(
-        get: { $0.isExpanded },
-        send: { _ in .isExpandedButtonToggled }
-      )) {
+    WithViewStore(store, observe: { $0 }) { viewStore in
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         ForEachStore(store.scope(
           state: \.ingredients,
           action: IngredientSectionReducer.Action.ingredient
         )) { childStore in
-          // Must make sure there is only one keyboard item at a time...
-          // We could do it here...
-          // Or we could add a property for the child view, that is immutable?
-          // But that may not be very clear to understand.
+          let id = ViewStore(childStore, observe: \.id).state
           IngredientView(store: childStore)
             .onTapGesture {
-              viewStore.send(.rowTapped(ViewStore(childStore).id))
+              viewStore.send(.rowTapped(id))
             }
-            .focused($focusedField, equals: .row(ViewStore(childStore).id))
-          Divider()
+            .focused($focusedField, equals: .row(id))
+          if let lastId = viewStore.ingredients.last?.id, lastId != id {
+            Divider()
+          }
         }
       } label: {
         TextField(
@@ -44,16 +40,8 @@ struct IngredientSection: View {
           ),
           axis: .vertical
         )
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
-        .lineLimit(.max)
         .focused($focusedField, equals: .name)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
+        .textSubtitleStyle()
         .toolbar {
           if viewStore.focusedField == .name {
             ToolbarItemGroup(placement: .keyboard) {
@@ -67,7 +55,7 @@ struct IngredientSection: View {
           }
         }
       }
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
       .accentColor(.primary)
       .contextMenu {
@@ -96,27 +84,22 @@ struct IngredientSection: View {
 }
 
 // MARK: - Reducer
-struct IngredientSectionReducer: ReducerProtocol  {
+struct IngredientSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
     var name: String
     var ingredients: IdentifiedArrayOf<IngredientReducer.State>
-    var isExpanded: Bool
+    @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
   }
-  
-  // do i even need to test dependency in init?
-  // i'd say yes because ur gonna have to assert
-  // can i have two instance of dependencies?
   
   @Dependency(\.uuid) var uuid
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
-    case isExpandedButtonToggled
     case ingredientSectionNameEdited(String)
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
@@ -128,48 +111,36 @@ struct IngredientSectionReducer: ReducerProtocol  {
   
   private enum AddIngredientID: Hashable { case timer }
   
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .ingredient(id, action):
+      case let .ingredient(id, .delegate(action)):
         switch action {
-        case let .delegate(action):
-          switch action {
-          case .tappedToDelete:
-            // TODO: Animation can be a bit clunky, fix.
-            if case let .row(currId) = state.focusedField, id == currId {
-              state.focusedField = nil
-            }
-            state.ingredients.remove(id: id)
-            return .none
-            
-          case let .insertIngredient(aboveBelow):
-            guard let i = state.ingredients.index(id: id)
-            else { return .none }
-            state.ingredients[id: id]?.focusedField = nil
-            let s = IngredientReducer.State.init(
-              id: .init(rawValue: uuid()),
-              focusedField: .name,
-              ingredient: .init(id: .init(rawValue: uuid()))
-            )
-            state.ingredients.insert(s, at: aboveBelow == .above ? i : i + 1)
-            state.focusedField = .row(s.id)
-            return .none
+        case .tappedToDelete:
+          // TODO: Animation can be a bit clunky, fix.
+          if case let .row(currId) = state.focusedField, id == currId {
+            state.focusedField = nil
           }
-        default:
+          state.ingredients.remove(id: id)
+          return .none
+          
+        case let .insertIngredient(aboveBelow):
+          guard let i = state.ingredients.index(id: id)
+          else { return .none }
+          state.ingredients[id: id]?.focusedField = nil
+          let s = IngredientReducer.State.init(
+            id: .init(rawValue: uuid()),
+            ingredient: .init(id: .init(rawValue: uuid())),
+            ingredientAmountString: "",
+            focusedField: .name
+          )
+          state.ingredients.insert(s, at: aboveBelow == .above ? i : i + 1)
+          state.focusedField = .row(s.id)
           return .none
         }
-        
-      case .isExpandedButtonToggled:
-        state.isExpanded.toggle()
-        if case let .row(currId) = state.focusedField {
-          state.ingredients[id: currId]?.focusedField = nil
-        }
-        state.focusedField = nil
-        return .none
-        
-      case let .ingredientSectionNameEdited(newName):
+          
+        case let .ingredientSectionNameEdited(newName):
         if state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
@@ -212,14 +183,27 @@ struct IngredientSectionReducer: ReducerProtocol  {
       case .addIngredient:
         let s = IngredientReducer.State(
           id: .init(rawValue: uuid()),
-          focusedField: .name,
-          ingredient: .init(id: .init(rawValue: uuid()))
+          ingredient: .init(id: .init(rawValue: uuid())),
+          ingredientAmountString: "",
+          focusedField: .name
         )
         state.ingredients.append(s)
         state.focusedField = .row(s.id)
         return .none
         
-      case .delegate, .binding:
+        
+      case .binding(\.$isExpanded):
+        // If we just collapsed the list, nil out any potential focus state to prevent
+        // keyboard issues such as duplicate buttons
+        if !state.isExpanded {
+          if case let .row(currId) = state.focusedField {
+            state.ingredients[id: currId]?.focusedField = nil
+          }
+          state.focusedField = nil
+        }
+        return .none
+        
+      case .delegate, .binding, .ingredient:
         return .none
       }
     }
@@ -259,14 +243,8 @@ private struct IngredientSectionContextMenuPreview: View {
     } label: {
       Text(!state.name.isEmpty ? state.name : "Untitled Ingredient Section")
         .lineLimit(2)
-        .font(.title3)
-        .fontWeight(.bold)
-        .foregroundColor(.primary)
-        .accentColor(.accentColor)
-        .frame(alignment: .leading)
-        .multilineTextAlignment(.leading)
+        .textSubtitleStyle()
     }
-    .disclosureGroupStyle(CustomDisclosureGroupStyle())
     .accentColor(.primary)
   }
 }
@@ -283,9 +261,9 @@ struct IngredientSection_Previews: PreviewProvider {
             ingredients: .init(uniqueElements: Recipe.longMock.ingredientSections.first!.ingredients.map {
               .init(
                 id: .init(),
-                focusedField: nil,
                 ingredient: $0,
-                emptyIngredientAmountString: false
+                ingredientAmountString: String($0.amount),
+                focusedField: nil
               )
             }),
             isExpanded: true,

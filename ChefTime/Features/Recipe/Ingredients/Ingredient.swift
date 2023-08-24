@@ -9,7 +9,7 @@ struct IngredientView: View {
   @FocusState private var focusedField: IngredientReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store) { viewStore in
+    WithViewStore(store, observe: { $0 }) { viewStore in
       HStack(alignment: .top) {
         
         // Checkbox
@@ -21,14 +21,11 @@ struct IngredientView: View {
           .padding([.top], 2)
         
         // Name
-        // TODO: Sometimes editing another textfield moves text that shouldn't move whatsoever
         TextField(
           "...",
           text: viewStore.binding(
             get: \.ingredient.name,
-            send: {
-              .ingredientNameEdited($0)
-            }
+            send: { .ingredientNameEdited($0) }
           ),
           axis: .vertical
         )
@@ -36,42 +33,28 @@ struct IngredientView: View {
         .autocapitalization(.none)
         .autocorrectionDisabled()
         .focused($focusedField, equals: .name)
+        .onTapGesture { viewStore.send(.binding(.set(\.$focusedField, .name))) }
         
         Rectangle()
           .fill(.clear)
           .frame(width: 50)
         
         // Amount
-        // TODO: This NumberTextField still has bugs
-        //  1. fixed size means the row refreshes in a ugly way
-        //  2. typing invalid text still refreshes in a ugly way,
-        //     but this should be impossible from a device perspective
-        TextField(
-          "...",
-          text: viewStore.binding(
-            get: \.ingredientAmountString,
-            send: { .ingredientAmountEdited($0) }
-          )
-        )
-        .keyboardType(.decimalPad)
-        .numbersOnly(viewStore.binding(
-          get: \.ingredientAmountString,
-          send: { .ingredientAmountEdited($0) }
-        ), includeDecimal: true)
-        .submitLabel(.next)
-        .fixedSize()
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
-        .focused($focusedField, equals: .amount)
+        TextField("...", text: viewStore.$ingredientAmountString)
+          .keyboardType(.decimalPad)
+          .numbersOnly(viewStore.$ingredientAmountString, includeDecimal: true)
+          .submitLabel(.next)
+          .fixedSize()
+          .autocapitalization(.none)
+          .autocorrectionDisabled()
+          .focused($focusedField, equals: .amount)
+          .onTapGesture { viewStore.send(.binding(.set(\.$focusedField, .amount))) }
         
         // Measurement
-        TextField(
-          "...",
-          text: viewStore.binding(
-            get: \.ingredient.measure,
-            send: { .ingredientMeasureEdited($0) }
-          )
-        )
+        TextField("...", text: viewStore.binding(
+          get: { $0.ingredient.measure },
+          send: { .ingredientMeasureEdited($0) }
+        ))
         .fixedSize()
         .submitLabel(.next)
         .autocapitalization(.none)
@@ -80,11 +63,10 @@ struct IngredientView: View {
         .onSubmit {
           viewStore.send(.delegate(.insertIngredient(.below)), animation: .default)
         }
+        .onTapGesture { viewStore.send(.binding(.set(\.$focusedField, .measure))) }
         
       }
-      // TODO: Perhaps all .syncs should remove the .onAppear
-      // and add a .onAppear reducer action case
-      .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+      .synchronize(viewStore.$focusedField, $focusedField)
       .foregroundColor(viewStore.ingredient.isComplete ? .secondary : .primary)
       .toolbar {
         if viewStore.focusedField != nil {
@@ -117,56 +99,19 @@ struct IngredientView: View {
 }
 
 // MARK: - Reducer
-struct IngredientReducer: ReducerProtocol {
+struct IngredientReducer: Reducer {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
+    var ingredient: Recipe.IngredientSection.Ingredient
+    @BindingState var ingredientAmountString: String
     @BindingState var focusedField: FocusField? = nil
-    
-    private var _ingredient: Recipe.IngredientSection.Ingredient
-    var ingredient: Recipe.IngredientSection.Ingredient {
-      get {
-        _ingredient
-      }
-      set {
-        _ingredient = newValue
-        _ingredientAmountString = String(newValue.amount)
-      }
-    }
-    
-    // The ingredient.amount is really derived from the
-    // ingredientAmountString and both should be synchronized.
-    private var _ingredientAmountString: String
-    var ingredientAmountString: String {
-      get {
-        _ingredientAmountString
-      }
-      set {
-        if let amount = Double(newValue) {
-          _ingredientAmountString = newValue
-          ingredient.amount = amount
-        }
-      }
-    }
-    
-    init(
-      id: ID,
-      focusedField: FocusField? = nil,
-      ingredient: Recipe.IngredientSection.Ingredient,
-      emptyIngredientAmountString: Bool = false
-    ) {
-      self.id = id
-      self.focusedField = focusedField
-      self._ingredient = ingredient
-      self._ingredientAmountString = emptyIngredientAmountString ? "" : String(ingredient.amount)
-    }
   }
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case ingredientNameEdited(String)
-    case ingredientAmountEdited(String)
     case ingredientMeasureEdited(String)
     case isCompleteButtonToggled
     case keyboardDoneButtonTapped
@@ -177,7 +122,7 @@ struct IngredientReducer: ReducerProtocol {
   @Dependency(\.continuousClock) var clock
   
   private enum IngredientNameEditedID: Hashable { case timer }
-
+  
   /// The textfields have the following mechanism:
   /// According the the following rules:
   /// 1. Name
@@ -195,12 +140,21 @@ struct IngredientReducer: ReducerProtocol {
   ///   2. else, update name
   ///   3. on submit (trailing newline), insert below
   ///   4. user may tap done to dismiss and stop editing or next to insert below
-  var body: some ReducerProtocolOf<Self> {
+  var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
         
-      case .binding:
+      case .binding(\.$ingredientAmountString):
+        if state.ingredientAmountString == "" {
+          state.ingredient.amount = 0
+        }
+        else if let amount = Double(state.ingredientAmountString) {
+          state.ingredient.amount = amount
+        }
+        else {
+          state.ingredientAmountString = String(state.ingredient.amount)
+        }
         return .none
         
       case let .ingredientNameEdited(newName):
@@ -231,13 +185,6 @@ struct IngredientReducer: ReducerProtocol {
           state.focusedField = .amount
           return .none
         }
-        
-      case let .ingredientAmountEdited(newAmountString):
-        if let amount = Double(newAmountString) {
-          state.ingredient.amount = amount
-          state.ingredientAmountString = newAmountString
-        }
-        return .none
         
       case let .ingredientMeasureEdited(newMeasure):
         state.ingredient.measure = newMeasure
@@ -274,7 +221,8 @@ struct IngredientReducer: ReducerProtocol {
         case .none:
           return .none
         }
-      case .delegate:
+        
+      case .delegate, .binding:
         return .none
       }
     }
@@ -332,7 +280,6 @@ private extension View {
 // MARK: - IngredientContextMenuPreview
 struct IngredientContextMenuPreview: View {
   let state: IngredientReducer.State
-  let maxW: CGFloat = UIScreen.main.bounds.width * 0.90
   
   var body: some View {
     HStack(alignment: .top) {
@@ -367,14 +314,16 @@ struct IngredientContextMenuPreview: View {
 
 // MARK: - Previews
 struct IngredientView_Previews: PreviewProvider {
+  static let ingredient = Recipe.longMock.ingredientSections.first!.ingredients.first!
   static var previews: some View {
     NavigationStack {
       ScrollView {
         IngredientView(store: .init(
           initialState: .init(
             id: .init(),
-            focusedField: nil,
-            ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!
+            ingredient: ingredient,
+            ingredientAmountString: String(ingredient.amount),
+            focusedField: nil
           ),
           reducer: IngredientReducer.init
         ))
