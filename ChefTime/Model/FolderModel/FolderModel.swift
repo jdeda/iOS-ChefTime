@@ -9,6 +9,6 @@ struct Folder: Identifiable, Equatable, Codable {
   
   let id: ID
   var name: String = ""
-  var folders: IdentifiedArrayOf<Self>? = []
+  var folders: IdentifiedArrayOf<Self> = []
   var recipes: IdentifiedArrayOf<Recipe> = []
 }

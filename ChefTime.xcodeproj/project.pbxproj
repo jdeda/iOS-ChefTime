@@ -25,6 +25,7 @@
 		975CB55C2A8E9C980049BA07 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 975CB55B2A8E9C980049BA07 /* ComposableArchitecture */; };
 		975F47C22A6AD3BF0016BB95 /* Text+ViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975F47C12A6AD3BF0016BB95 /* Text+ViewModifier.swift */; };
 		975F47C42A6B06FC0016BB95 /* ImageDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975F47C32A6B06FC0016BB95 /* ImageDataModel.swift */; };
+		9760CBAF2A9D1AC90077A8F9 /* Folders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9760CBAE2A9D1AC90077A8F9 /* Folders.swift */; };
 		9770F0122A61A94400602986 /* PhotosTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9770F0112A61A94400602986 /* PhotosTest.swift */; };
 		977633D62A4F77C9009FD90C /* Binding+RemoveDuplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */; };
 		977633D82A51B8FA009FD90C /* RecipeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D72A51B8F9009FD90C /* RecipeModel.swift */; };
@@ -84,6 +85,7 @@
 		975A4EEE2A44C23800C9509A /* Ingredient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ingredient.swift; sourceTree = "<group>"; };
 		975F47C12A6AD3BF0016BB95 /* Text+ViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Text+ViewModifier.swift"; sourceTree = "<group>"; };
 		975F47C32A6B06FC0016BB95 /* ImageDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataModel.swift; sourceTree = "<group>"; };
+		9760CBAE2A9D1AC90077A8F9 /* Folders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folders.swift; sourceTree = "<group>"; };
 		9770F0112A61A94400602986 /* PhotosTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosTest.swift; sourceTree = "<group>"; };
 		977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+RemoveDuplicates.swift"; sourceTree = "<group>"; };
 		977633D72A51B8F9009FD90C /* RecipeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeModel.swift; sourceTree = "<group>"; };
@@ -170,7 +172,8 @@
 			isa = PBXGroup;
 			children = (
 				975A4EFA2A44C3A200C9509A /* App */,
-				97DE5BC62A97C8BD00BBE455 /* Folders */,
+				9760CBAD2A9D1ABC0077A8F9 /* Folders */,
+				97DE5BC62A97C8BD00BBE455 /* Folder */,
 				975A4EFB2A44C3AA00C9509A /* Recipe */,
 				9712FB5E2A4393B100E5E227 /* Photos */,
 			);
@@ -255,6 +258,14 @@
 				97AD13D22A2E74E9002FCE30 /* Model.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		9760CBAD2A9D1ABC0077A8F9 /* Folders */ = {
+			isa = PBXGroup;
+			children = (
+				9760CBAE2A9D1AC90077A8F9 /* Folders.swift */,
+			);
+			path = Folders;
 			sourceTree = "<group>";
 		};
 		9770F00D2A61A86F00602986 /* IngredientsFeatureTests */ = {
@@ -360,12 +371,12 @@
 			path = Steps;
 			sourceTree = "<group>";
 		};
-		97DE5BC62A97C8BD00BBE455 /* Folders */ = {
+		97DE5BC62A97C8BD00BBE455 /* Folder */ = {
 			isa = PBXGroup;
 			children = (
 				971334C12A97D54300743A49 /* Folder.swift */,
 			);
-			path = Folders;
+			path = Folder;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -521,6 +532,7 @@
 				972605202A7576C4008BC180 /* RecipeModel+GiantMock.swift in Sources */,
 				971334C02A97CC7900743A49 /* FolderModel+Mock.swift in Sources */,
 				975F47C22A6AD3BF0016BB95 /* Text+ViewModifier.swift in Sources */,
+				9760CBAF2A9D1AC90077A8F9 /* Folders.swift in Sources */,
 				975A4EEF2A44C23800C9509A /* Ingredient.swift in Sources */,
 				97EE97302A6853F6001AA88B /* Step.swift in Sources */,
 				9712FB622A43A13800E5E227 /* Photos.swift in Sources */,

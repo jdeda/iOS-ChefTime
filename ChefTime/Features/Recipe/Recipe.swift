@@ -41,10 +41,9 @@ struct RecipeView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      NavigationStack {
-        ScrollView {
-          ZStack {
-            PhotosView(store: store.scope(state: \.photos, action: RecipeReducer.Action.photos))
+      ScrollView {
+        ZStack {
+          PhotosView(store: store.scope(state: \.photos, action: RecipeReducer.Action.photos))
             .opacity(!viewStore.isHidingImages ? 1.0 : 0.0)
             .frame(
               width: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0,
@@ -53,73 +52,72 @@ struct RecipeView: View {
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
             .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
-            
-            // This allows the expansion toggle animation to work properly.
-            Color.clear
-              .contentShape(Rectangle())
-              .frame(width: maxScreenWidth.maxWidth, height: 0)
-              .clipShape(RoundedRectangle(cornerRadius: 15))
-              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-              .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
-          }
           
-          AboutListView(store: store.scope(
-            state: \.about,
-            action: RecipeReducer.Action.about
-          ))
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          
-          if !viewStore.about.isExpanded {
-            Divider()
-              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          }
-
-          IngredientListView(store: store.scope(
-            state: \.ingredients,
-            action: RecipeReducer.Action.ingredients
-          ))
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-
-          if !viewStore.ingredients.isExpanded {
-            Divider()
-              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          }
-
-          StepListView(store: store.scope(
-            state: \.steps,
-            action: RecipeReducer.Action.steps
-          ))
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          
-          Spacer()
+          // This allows the expansion toggle animation to work properly.
+          Color.clear
+            .contentShape(Rectangle())
+            .frame(width: maxScreenWidth.maxWidth, height: 0)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
         }
-        .navigationTitle(viewStore.binding(
-          get:  { !$0.recipe.name.isEmpty ? $0.recipe.name : "Untitled Recipe" },
-          send: { .recipeNameEdited($0) }
+        
+        AboutListView(store: store.scope(
+          state: \.about,
+          action: RecipeReducer.Action.about
         ))
-        .toolbar {
-          ToolbarItemGroup(placement: .primaryAction) {
-            Menu {
-              Button {
-                viewStore.send(.setExpansionButtonTapped(true), animation: .default)
-              } label: {
-                Label("Expand All", systemImage: "arrow.up.backward.and.arrow.down.forward")
-              }
-              Button {
-                viewStore.send(.setExpansionButtonTapped(false), animation: .default)
-              } label: {
-                Label("Collapse All", systemImage: "arrow.down.forward.and.arrow.up.backward")
-              }
-              Button {
-                viewStore.send(.toggleHideImages, animation: .default)
-              } label: {
-                Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
-              }
+        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        
+        if !viewStore.about.isExpanded {
+          Divider()
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        }
+        
+        IngredientListView(store: store.scope(
+          state: \.ingredients,
+          action: RecipeReducer.Action.ingredients
+        ))
+        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        
+        if !viewStore.ingredients.isExpanded {
+          Divider()
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        }
+        
+        StepListView(store: store.scope(
+          state: \.steps,
+          action: RecipeReducer.Action.steps
+        ))
+        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        
+        Spacer()
+      }
+      .navigationTitle(viewStore.binding(
+        get:  { !$0.recipe.name.isEmpty ? $0.recipe.name : "Untitled Recipe" },
+        send: { .recipeNameEdited($0) }
+      ))
+      .toolbar {
+        ToolbarItemGroup(placement: .primaryAction) {
+          Menu {
+            Button {
+              viewStore.send(.setExpansionButtonTapped(true), animation: .default)
             } label: {
-              Image(systemName: "ellipsis.circle")
+              Label("Expand All", systemImage: "arrow.up.backward.and.arrow.down.forward")
             }
-            .foregroundColor(.primary)
+            Button {
+              viewStore.send(.setExpansionButtonTapped(false), animation: .default)
+            } label: {
+              Label("Collapse All", systemImage: "arrow.down.forward.and.arrow.up.backward")
+            }
+            Button {
+              viewStore.send(.toggleHideImages, animation: .default)
+            } label: {
+              Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
+            }
+          } label: {
+            Image(systemName: "ellipsis.circle")
           }
+          .foregroundColor(.primary)
         }
       }
     }
@@ -220,7 +218,7 @@ struct RecipeReducer: Reducer {
         
       case let .setExpansionButtonTapped(isExpanded):
         // TODO: May need to worry about focus state
-
+        
         // Collapse all about sections
         state.about.isExpanded = isExpanded
         state.about.aboutSections.ids.forEach {
@@ -288,14 +286,16 @@ extension EnvironmentValues {
 // MARK: - Previews
 struct RecipeView_Previews: PreviewProvider {
   static var previews: some View {
-    RecipeView(store: .init(
-      initialState: RecipeReducer.State(
-        recipe: .longMock
-      ),
-      reducer: RecipeReducer.init,
-      withDependencies: { _ in
-        // TODO:
-      }
-    ))
+    NavigationStack {
+      RecipeView(store: .init(
+        initialState: RecipeReducer.State(
+          recipe: .longMock
+        ),
+        reducer: RecipeReducer.init,
+        withDependencies: { _ in
+          // TODO:
+        }
+      ))
+    }
   }
 }

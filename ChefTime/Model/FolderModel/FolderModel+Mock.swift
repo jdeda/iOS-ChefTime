@@ -22,12 +22,27 @@ extension Folder {
   static let longMock = Self(
     id: .init(),
     name: "My Best Recipes",
-    folders: .init(uniqueElements: (1...10).map(generateFolder)),
+    folders: .init(uniqueElements: (1...5).map(generateFolder)),
     recipes: .init(uniqueElements: (1...10).map(generateRecipe))
   )
 }
 
+// MARK: - LongMock
+extension Folder {
+  static let giantMock: [Self] = (1...10).map(generateDeepFolder)
+}
+
+
 // MARK: - Mock Helpers
+private func generateDeepFolder(_ num: Int) -> Folder {
+  .init(
+    id: .init(),
+    name: "Folder No. \(num)",
+    folders: .init(uniqueElements: (1...5).map(generateFolder)),
+    recipes: .init(uniqueElements: (1...10).map(generateRecipe))
+  )
+}
+
 private func generateFolder(_ num: Int) -> Folder {
   .init(
     id: .init(),
