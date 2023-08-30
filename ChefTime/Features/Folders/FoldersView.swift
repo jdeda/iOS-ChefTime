@@ -17,11 +17,10 @@ struct FoldersView: View {
           switch viewStore.displayMode {
           case .list:
             ForEach(viewStore.folders) { folder in
-              HStack(alignment: .center) {
+              HStack {
                 Image(systemName: "folder")
                   .foregroundColor(.accentColor)
                 Text(folder.name)
-                  .foregroundColor(Color(light: .black, dark: .white))
                 Spacer()
                 Text("\(folder.recipes.count)")
                   .foregroundColor(Color(UIColor.systemGray))
