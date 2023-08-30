@@ -11,9 +11,30 @@ struct FoldersView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
-        ScrollView {
-          DisclosureGroup(isExpanded: viewStore.$foldersIsExpanded) {
+      //      NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
+      List {
+        Section {
+          switch viewStore.displayMode {
+          case .list:
+            ForEach(viewStore.folders) { folder in
+              HStack(alignment: .center) {
+                Image(systemName: "folder")
+                  .foregroundColor(.accentColor)
+                Text(folder.name)
+                  .foregroundColor(Color(light: .black, dark: .white))
+                Spacer()
+                Text("\(folder.recipes.count)")
+                  .foregroundColor(Color(UIColor.systemGray))
+                Image(systemName: "chevron.right")
+                  .foregroundColor(Color(UIColor.systemGray3))
+                  .fontWeight(.bold)
+                  .font(.caption)
+                  .frame(alignment: .top)
+              }
+              .padding(1)
+            }
+            
+          case .grid:
             LazyVGrid(columns: columns, spacing: 10) {
               ForEach(viewStore.folders) { folder in
                 FolderItemView(
@@ -21,7 +42,6 @@ struct FoldersView: View {
                   isEditing: viewStore.isEditing,
                   isSelected: viewStore.selection.contains(folder.id)
                 )
-                
                 .onTapGesture {
                   if viewStore.isEditing {
                     viewStore.send(.folderSelectionTapped(folder.id), animation: .default)
@@ -35,43 +55,41 @@ struct FoldersView: View {
             .animation(.default, value: viewStore.folders.count)
             .listSectionSeparator(.hidden)
             .listRowSeparator(.hidden)
-          } label: {
-            Text("User Folders")
-              .textTitleStyle()
-            Spacer()
           }
-                    .accentColor(.primary)
-          .disclosureGroupStyle(CustomDisclosureGroupStyle())
-          .padding(.horizontal, 20)
+        } header: {
+          Text("User")
         }
-        .background(Color(uiColor: .systemGray6))
-        .listStyle(.plain)
-        .navigationTitle(viewStore.navigationTitle)
-        .toolbar { toolbar(viewStore: viewStore) }
-        .searchable(
-          text: .constant(""),
-          placement: .navigationBarDrawer(displayMode: .always)
-        )
-        .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
-        .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
-      } destination: { state in
-        switch state {
-        case .folder:
-          CaseLet(
-            /FoldersReducer.PathReducer.State.folder,
-             action: FoldersReducer.PathReducer.Action.folder
-          ) {
-            FolderView(store: $0)
-          }
-        case .recipe:
-          CaseLet(
-            /FoldersReducer.PathReducer.State.recipe,
-             action: FoldersReducer.PathReducer.Action.recipe
-          ) {
-            RecipeView(store: $0)
-          }
-        }
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
+        .listSectionSeparator(.hidden)
       }
+      .listStyle(.sidebar)
+      .navigationTitle(viewStore.navigationTitle)
+      .toolbar { toolbar(viewStore: viewStore) }
+      .searchable(
+        text: .constant(""),
+        placement: .navigationBarDrawer(displayMode: .always)
+      )
+      .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
+      .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
+      //      } destination: { state in
+      //        switch state {
+      //        case .folder:
+      //          CaseLet(
+      //            /FoldersReducer.PathReducer.State.folder,
+      //             action: FoldersReducer.PathReducer.Action.folder
+      //          ) {
+      //            FolderView(store: $0)
+      //          }
+      //        case .recipe:
+      //          CaseLet(
+      //            /FoldersReducer.PathReducer.State.recipe,
+      //             action: FoldersReducer.PathReducer.Action.recipe
+      //          ) {
+      //            RecipeView(store: $0)
+      //          }
+      //        }
+      //      }
     }
   }
 }
@@ -146,11 +164,11 @@ extension FoldersView {
 // MARK: - Preview
 struct FoldersView_Previews: PreviewProvider {
   static var previews: some View {
-    //    NavigationStack {
-    FoldersView(store: .init(
-      initialState: .init(folders: .init(uniqueElements: Folder.longMock.folders)),
-      reducer: FoldersReducer.init
-    ))
-    //    }
+    NavigationStack {
+      FoldersView(store: .init(
+        initialState: .init(folders: .init(uniqueElements: Folder.longMock.folders)),
+        reducer: FoldersReducer.init
+      ))
+    }
   }
 }

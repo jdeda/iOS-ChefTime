@@ -7,7 +7,8 @@ struct FoldersReducer: Reducer {
     var path = StackState<PathReducer.State>()
     var systemFolders: IdentifiedArrayOf<Folder> = []
     var folders: IdentifiedArrayOf<Folder>
-    var isHidingFolderImages: Bool = false
+    var isHidingFolderImages: Bool = true
+    var displayMode: DisplayMode = .list
     @BindingState var systemFoldersIsExpanded = true
     @BindingState var foldersIsExpanded = true
     @BindingState var isEditing = false
@@ -163,6 +164,13 @@ extension FoldersReducer {
   enum AlertAction: Equatable {
     case cancelButtonTapped
     case confirmDeleteButtonTapped
+  }
+}
+
+extension FoldersReducer {
+  enum DisplayMode: Equatable {
+    case list
+    case grid
   }
 }
 
