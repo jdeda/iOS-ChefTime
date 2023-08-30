@@ -29,6 +29,7 @@ struct FoldersReducer: Reducer {
     case doneButtonTapped
     case selectAllButtonTapped
     case hideImagesButtonTapped
+    case displayModeButtonTapped
     case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
     case folderSelectionTapped(Folder.ID)
@@ -57,6 +58,15 @@ struct FoldersReducer: Reducer {
         
       case .hideImagesButtonTapped:
         state.isHidingFolderImages.toggle()
+        return .none
+        
+      case .displayModeButtonTapped:
+        switch state.displayMode {
+        case .list:
+          state.displayMode = .grid
+        case .grid:
+          state.displayMode = .list
+        }
         return .none
         
       case .moveSelectedButtonTapped:

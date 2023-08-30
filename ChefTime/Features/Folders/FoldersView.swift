@@ -13,9 +13,9 @@ struct FoldersView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       //      NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
       List {
-        Section {
-          switch viewStore.displayMode {
-          case .list:
+        switch viewStore.displayMode {
+        case .list:
+          Section {
             ForEach(viewStore.folders) { folder in
               HStack {
                 Image(systemName: "folder")
@@ -32,8 +32,11 @@ struct FoldersView: View {
               }
               .padding(1)
             }
-            
-          case .grid:
+          } header: {
+            Text("User")
+          }
+        case .grid:
+          Section {
             LazyVGrid(columns: columns, spacing: 10) {
               ForEach(viewStore.folders) { folder in
                 FolderItemView(
@@ -54,13 +57,14 @@ struct FoldersView: View {
             .animation(.default, value: viewStore.folders.count)
             .listSectionSeparator(.hidden)
             .listRowSeparator(.hidden)
+          } header: {
+            Text("User")
           }
-        } header: {
-          Text("User")
+          .listRowBackground(Color.clear)
+          .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
+          .listSectionSeparator(.hidden)
+          
         }
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
-        .listSectionSeparator(.hidden)
       }
       .listStyle(.sidebar)
       .navigationTitle(viewStore.navigationTitle)
@@ -133,6 +137,16 @@ extension FoldersView {
             viewStore.send(.hideImagesButtonTapped, animation: .default)
           } label: {
             Label(viewStore.isHidingFolderImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
+          }
+          Button {
+            viewStore.send(.displayModeButtonTapped, animation: .default)
+          } label: {
+            switch viewStore.displayMode {
+            case .list:
+              Label("View as Grid", systemImage: "square.grid.2x2")
+            case .grid:
+              Label("View as List", systemImage: "list.bullet")
+            }
           }
         } label: {
           Image(systemName: "ellipsis.circle")
