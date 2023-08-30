@@ -3,18 +3,25 @@ import SwiftUI
 struct FolderItemView: View {
   let folder: Folder
   let isEditing: Bool
-  let width: CGFloat
   let isSelected: Bool
-  
   @Environment(\.isHidingFolderImages) var isHidingFolderImages
   
   var body: some View {
     VStack {
       Group {
         if isHidingFolderImages {
-          Image(systemName: "folder")
-            .resizable()
-            .scaledToFill()
+          ZStack {
+            ImageData(
+              id: .init(),
+              data: (try? Data(contentsOf: Bundle.main.url(forResource: "folder_light", withExtension: "png")!))!
+            )!.image
+              .resizable()
+              .scaledToFill()
+              .padding()
+          }
+          .background(.blue.opacity(0.15))
+          .accentColor(.accentColor)
+          .clipShape(RoundedRectangle(cornerRadius: 15))
         }
         else {
           if let image = folder.recipes.first?.imageData.first?.image {
@@ -27,12 +34,10 @@ struct FolderItemView: View {
               Image(systemName: "photo.stack")
                 .resizable()
                 .scaledToFit()
-                .frame(width: width, height: width)
                 .clipped()
                 .foregroundColor(Color(uiColor: .systemGray4))
                 .padding()
             }
-            .frame(width: width, height: width)
             .background(Color(uiColor: .systemGray6))
             .accentColor(.accentColor)
             .clipShape(RoundedRectangle(cornerRadius: 15))
@@ -40,7 +45,6 @@ struct FolderItemView: View {
         }
       }
       .scaledToFit()
-      .frame(width: width, height: width)
       .clipShape(RoundedRectangle(cornerRadius: 15))
       .overlay(alignment: .bottom) {
         if isEditing {
@@ -88,6 +92,6 @@ struct FolderItemView: View {
 
 struct FolderItemView_Previews: PreviewProvider {
   static var previews: some View {
-    FolderItemView(folder: Folder.shortMock, isEditing: true, width: 250, isSelected: true)
+    FolderItemView(folder: Folder.shortMock, isEditing: true, isSelected: true)
   }
 }
