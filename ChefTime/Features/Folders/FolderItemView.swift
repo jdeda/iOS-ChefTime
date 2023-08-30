@@ -84,6 +84,7 @@ struct FolderItemView: View {
       Text("\(folder.recipes.count) recipes")
         .lineLimit(2)
         .font(.body)
+        .foregroundColor(.secondary)
       Spacer()
     }
   }

@@ -11,4 +11,14 @@ struct Folder: Identifiable, Equatable, Codable {
   var name: String = ""
   var folders: IdentifiedArrayOf<Self> = []
   var recipes: IdentifiedArrayOf<Recipe> = []
+  var folderType: FolderType = .user
+}
+
+extension Folder {
+  enum FolderType: Equatable, Codable {
+    case systemAll
+    case systemStandard
+    case systemRecentlyDeleted
+    case user
+  }
 }

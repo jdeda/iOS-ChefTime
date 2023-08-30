@@ -13,32 +13,38 @@ struct FoldersView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       //      NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
       List {
-        switch viewStore.displayMode {
-        case .list:
-          Section {
-            ForEach(viewStore.folders) { folder in
-              HStack {
-                Image(systemName: "folder")
-                  .foregroundColor(.accentColor)
-                Text(folder.name)
-                Spacer()
-                Text("\(folder.recipes.count)")
-                  .foregroundColor(Color(UIColor.systemGray))
-                Image(systemName: "chevron.right")
-                  .foregroundColor(Color(UIColor.systemGray3))
-                  .fontWeight(.bold)
-                  .font(.caption)
-                  .frame(alignment: .top)
+        Section {
+          LazyVGrid(columns: columns, spacing: 10) {
+            FolderItemView(folder: viewStore.systemAllFolder, isEditing: false, isSelected: false)
+              .onTapGesture {
+                viewStore.send(.systemFolderTapped(.systemAllFolder), animation: .default)
               }
-              .padding(1)
-            }
-          } header: {
-            Text("User")
+            
+            FolderItemView(folder: viewStore.systemStandardFolder, isEditing: false, isSelected: false)
+              .onTapGesture {
+                viewStore.send(.systemFolderTapped(.systemStandardFolder), animation: .default)
+              }
+            
+            FolderItemView(folder: viewStore.systemRecentlyDeletedFolder, isEditing: false, isSelected: false)
+              .onTapGesture {
+                viewStore.send(.systemFolderTapped(.systemRecentlyDeletedFolder), animation: .default)
+              }
           }
-        case .grid:
+          .animation(.default, value: viewStore.userFolders.count)
+          .listSectionSeparator(.hidden)
+          .listRowSeparator(.hidden)
+        } header: {
+          Text("System")
+            .textSubtitleStyle()
+        }
+        .textCase(nil)
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
+        .listSectionSeparator(.hidden)
+        
           Section {
             LazyVGrid(columns: columns, spacing: 10) {
-              ForEach(viewStore.folders) { folder in
+              ForEach(viewStore.userFolders) { folder in
                 FolderItemView(
                   folder: folder,
                   isEditing: viewStore.isEditing,
@@ -54,18 +60,18 @@ struct FoldersView: View {
                 }
               }
             }
-            .animation(.default, value: viewStore.folders.count)
+            .animation(.default, value: viewStore.userFolders.count)
             .listSectionSeparator(.hidden)
             .listRowSeparator(.hidden)
           } header: {
             Text("User")
+              .textSubtitleStyle()
           }
+          .textCase(nil)
           .listRowBackground(Color.clear)
           .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
           .listSectionSeparator(.hidden)
-          
         }
-      }
       .listStyle(.sidebar)
       .navigationTitle(viewStore.navigationTitle)
       .toolbar { toolbar(viewStore: viewStore) }
@@ -138,16 +144,6 @@ extension FoldersView {
           } label: {
             Label(viewStore.isHidingFolderImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
           }
-          Button {
-            viewStore.send(.displayModeButtonTapped, animation: .default)
-          } label: {
-            switch viewStore.displayMode {
-            case .list:
-              Label("View as Grid", systemImage: "square.grid.2x2")
-            case .grid:
-              Label("View as List", systemImage: "list.bullet")
-            }
-          }
         } label: {
           Image(systemName: "ellipsis.circle")
         }
@@ -161,7 +157,7 @@ extension FoldersView {
           Image(systemName: "folder.badge.plus")
         }
         Spacer()
-        Text("\(viewStore.folders.count) folders")
+        Text("\(viewStore.userFolders.count) folders")
         Spacer()
         Button {
           //          viewStore.send(.newRecipeButtonTapped, animation: .default)
@@ -179,7 +175,7 @@ struct FoldersView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
       FoldersView(store: .init(
-        initialState: .init(folders: .init(uniqueElements: Folder.longMock.folders)),
+        initialState: .init(userFolders: .init(uniqueElements: Folder.longMock.folders)),
         reducer: FoldersReducer.init
       ))
     }

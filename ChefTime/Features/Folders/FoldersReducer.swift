@@ -5,10 +5,11 @@ import SwiftUI
 struct FoldersReducer: Reducer {
   struct State: Equatable {
     var path = StackState<PathReducer.State>()
-    var systemFolders: IdentifiedArrayOf<Folder> = []
-    var folders: IdentifiedArrayOf<Folder>
-    var isHidingFolderImages: Bool = true
-    var displayMode: DisplayMode = .list
+    var systemAllFolder = Folder(id: .init(), name: "All", folderType: .systemAll)
+    var systemStandardFolder = Folder(id: .init(), name: "Recipes", folderType: .systemStandard)
+    var systemRecentlyDeletedFolder = Folder(id: .init(), name: "Recently Deleted", folderType: .systemRecentlyDeleted)
+    var userFolders: IdentifiedArrayOf<Folder>
+    var isHidingFolderImages: Bool = false
     @BindingState var systemFoldersIsExpanded = true
     @BindingState var foldersIsExpanded = true
     @BindingState var isEditing = false
@@ -16,12 +17,14 @@ struct FoldersReducer: Reducer {
     @PresentationState var alert: AlertState<AlertAction>?
     
     var hasSelectedAll: Bool {
-      selection.count == folders.count
+      selection.count == userFolders.count
     }
     
     var navigationTitle: String {
       isEditing && selection.count > 0 ? "\(selection.count) Selected": "Folders"
     }
+    
+    
   }
   
   enum Action: Equatable, BindableAction {
@@ -29,9 +32,9 @@ struct FoldersReducer: Reducer {
     case doneButtonTapped
     case selectAllButtonTapped
     case hideImagesButtonTapped
-    case displayModeButtonTapped
     case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
+    case systemFolderTapped(Folder.FolderType)
     case folderSelectionTapped(Folder.ID)
     case folderTapped(Folder.ID)
     case path(StackAction<PathReducer.State, PathReducer.Action>)
@@ -53,20 +56,11 @@ struct FoldersReducer: Reducer {
         return .none
         
       case .selectAllButtonTapped:
-        state.selection = state.hasSelectedAll ? [] : .init(state.folders.map(\.id))
+        state.selection = state.hasSelectedAll ? [] : .init(state.userFolders.map(\.id))
         return .none
         
       case .hideImagesButtonTapped:
         state.isHidingFolderImages.toggle()
-        return .none
-        
-      case .displayModeButtonTapped:
-        switch state.displayMode {
-        case .list:
-          state.displayMode = .grid
-        case .grid:
-          state.displayMode = .list
-        }
         return .none
         
       case .moveSelectedButtonTapped:
@@ -76,8 +70,21 @@ struct FoldersReducer: Reducer {
         state.alert = .delete
         return .none
         
+      case let .systemFolderTapped(folderType):
+        if let newPathElement: PathReducer.State = {
+          switch folderType {
+          case .systemAll: return .folder(.init(folder: state.systemStandardFolder))
+          case .systemStandard: return .folder(.init(folder: state.systemStandardFolder))
+          case .systemRecentlyDeleted: return .folder(.init(folder: state.systemRecentlyDeletedFolder))
+          case .user: return nil
+          }
+        }() {
+          state.path.append(newPathElement)
+        }
+        return .none
+        
       case let .folderSelectionTapped(id):
-        guard state.folders[id: id] != nil else { return .none }
+        guard state.userFolders[id: id] != nil else { return .none }
         if state.selection.contains(id) {
           state.selection.remove(id)
         }
@@ -87,7 +94,7 @@ struct FoldersReducer: Reducer {
         return .none
         
       case let .folderTapped(id):
-        guard let folder = state.folders[id: id] else { return .none }
+        guard let folder = state.userFolders[id: id] else { return .none }
         state.path.append(.folder(.init(folder: folder)))
         return .none
         
@@ -127,7 +134,7 @@ struct FoldersReducer: Reducer {
           return .none
           
         case .confirmDeleteButtonTapped:
-          state.folders = state.folders.filter({
+          state.userFolders = state.userFolders.filter({
             !state.selection.contains($0.id)
           })
           return .none
@@ -177,13 +184,6 @@ extension FoldersReducer {
   }
 }
 
-extension FoldersReducer {
-  enum DisplayMode: Equatable {
-    case list
-    case grid
-  }
-}
-
 extension AlertState where Action == FoldersReducer.AlertAction {
   static let delete = Self(
     title: {
@@ -207,7 +207,9 @@ struct Previews_FoldersReducer_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
       FoldersView(store: .init(
-        initialState: .init(folders: .init(uniqueElements: Folder.longMock.folders)),
+        initialState: .init(
+          userFolders: .init(uniqueElements: Folder.longMock.folders)
+        ),
         reducer: FoldersReducer.init
       ))
     }
