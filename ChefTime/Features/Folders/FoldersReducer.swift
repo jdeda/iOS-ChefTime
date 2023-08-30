@@ -5,8 +5,11 @@ import SwiftUI
 struct FoldersReducer: Reducer {
   struct State: Equatable {
     var path = StackState<PathReducer.State>()
+    var systemFolders: IdentifiedArrayOf<Folder> = []
     var folders: IdentifiedArrayOf<Folder>
     var isHidingFolderImages: Bool = true
+    @BindingState var systemFoldersIsExpanded = false
+    @BindingState var foldersIsExpanded = false
     @BindingState var isEditing = false
     @BindingState var selection = Set<Folder.ID>()
     @PresentationState var alert: AlertState<AlertAction>?
@@ -114,7 +117,7 @@ struct FoldersReducer: Reducer {
           
         case .confirmDeleteButtonTapped:
           state.folders = state.folders.filter({
-            state.selection.contains($0.id)
+            !state.selection.contains($0.id)
           })
           return .none
         }
