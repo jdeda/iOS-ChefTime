@@ -7,9 +7,9 @@ struct FoldersReducer: Reducer {
     var path = StackState<PathReducer.State>()
     var systemFolders: IdentifiedArrayOf<Folder> = []
     var folders: IdentifiedArrayOf<Folder>
-    var isHidingFolderImages: Bool = true
-    @BindingState var systemFoldersIsExpanded = false
-    @BindingState var foldersIsExpanded = false
+    var isHidingFolderImages: Bool = false
+    @BindingState var systemFoldersIsExpanded = true
+    @BindingState var foldersIsExpanded = true
     @BindingState var isEditing = false
     @BindingState var selection = Set<Folder.ID>()
     @PresentationState var alert: AlertState<AlertAction>?
