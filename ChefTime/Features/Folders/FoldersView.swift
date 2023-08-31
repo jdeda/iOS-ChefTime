@@ -11,37 +11,37 @@ struct FoldersView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      //      NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
-      List {
-        Section {
-          LazyVGrid(columns: columns, spacing: 10) {
-            FolderItemView(folder: viewStore.systemAllFolder, isEditing: false, isSelected: false)
-              .onTapGesture {
-                viewStore.send(.systemFolderTapped(.systemAllFolder), animation: .default)
-              }
-            
-            FolderItemView(folder: viewStore.systemStandardFolder, isEditing: false, isSelected: false)
-              .onTapGesture {
-                viewStore.send(.systemFolderTapped(.systemStandardFolder), animation: .default)
-              }
-            
-            FolderItemView(folder: viewStore.systemRecentlyDeletedFolder, isEditing: false, isSelected: false)
-              .onTapGesture {
-                viewStore.send(.systemFolderTapped(.systemRecentlyDeletedFolder), animation: .default)
-              }
+      NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
+        List {
+          Section {
+            LazyVGrid(columns: columns, spacing: 10) {
+              FolderItemView(folder: viewStore.systemAllFolder, isEditing: false, isSelected: false)
+                .onTapGesture {
+                  viewStore.send(.systemFolderTapped(.systemAll), animation: .default)
+                }
+              
+              FolderItemView(folder: viewStore.systemStandardFolder, isEditing: false, isSelected: false)
+                .onTapGesture {
+                  viewStore.send(.systemFolderTapped(.systemStandard), animation: .default)
+                }
+              
+              FolderItemView(folder: viewStore.systemRecentlyDeletedFolder, isEditing: false, isSelected: false)
+                .onTapGesture {
+                  viewStore.send(.systemFolderTapped(.systemRecentlyDeleted), animation: .default)
+                }
+            }
+            .animation(.default, value: viewStore.userFolders.count)
+            .listSectionSeparator(.hidden)
+            .listRowSeparator(.hidden)
+          } header: {
+            Text("System")
+              .textSubtitleStyle()
           }
-          .animation(.default, value: viewStore.userFolders.count)
+          .textCase(nil)
+          .listRowBackground(Color.clear)
+          .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
           .listSectionSeparator(.hidden)
-          .listRowSeparator(.hidden)
-        } header: {
-          Text("System")
-            .textSubtitleStyle()
-        }
-        .textCase(nil)
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
-        .listSectionSeparator(.hidden)
-        
+                    
           Section {
             LazyVGrid(columns: columns, spacing: 10) {
               ForEach(viewStore.userFolders) { folder in
@@ -72,33 +72,33 @@ struct FoldersView: View {
           .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
           .listSectionSeparator(.hidden)
         }
-      .listStyle(.sidebar)
-      .navigationTitle(viewStore.navigationTitle)
-      .toolbar { toolbar(viewStore: viewStore) }
-      .searchable(
-        text: .constant(""),
-        placement: .navigationBarDrawer(displayMode: .always)
-      )
-      .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
-      .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
-      //      } destination: { state in
-      //        switch state {
-      //        case .folder:
-      //          CaseLet(
-      //            /FoldersReducer.PathReducer.State.folder,
-      //             action: FoldersReducer.PathReducer.Action.folder
-      //          ) {
-      //            FolderView(store: $0)
-      //          }
-      //        case .recipe:
-      //          CaseLet(
-      //            /FoldersReducer.PathReducer.State.recipe,
-      //             action: FoldersReducer.PathReducer.Action.recipe
-      //          ) {
-      //            RecipeView(store: $0)
-      //          }
-      //        }
-      //      }
+        .listStyle(.sidebar)
+        .navigationTitle(viewStore.navigationTitle)
+        .toolbar { toolbar(viewStore: viewStore) }
+        .searchable(
+          text: .constant(""),
+          placement: .navigationBarDrawer(displayMode: .always)
+        )
+        .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
+        .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
+      } destination: { state in
+        switch state {
+        case .folder:
+          CaseLet(
+            /FoldersReducer.PathReducer.State.folder,
+             action: FoldersReducer.PathReducer.Action.folder
+          ) {
+            FolderView(store: $0)
+          }
+        case .recipe:
+          CaseLet(
+            /FoldersReducer.PathReducer.State.recipe,
+             action: FoldersReducer.PathReducer.Action.recipe
+          ) {
+            RecipeView(store: $0)
+          }
+        }
+      }
     }
   }
 }
