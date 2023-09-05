@@ -44,19 +44,16 @@ struct FoldersReducer: Reducer {
     case binding(BindingAction<State>)
   }
   
-  
   @Dependency(\.database) var database
   @Dependency(\.uuid) var uuid
+  
   var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
       case .task:
         return .run { send in
-          var recipes = [Recipe]()
-          for await recipe in database.fetchAllRecipes() {
-            recipes.append(recipe)
-          }
+          let recipes = await database.fetchAllRecipes().reduce(into: [], { $0.append($1) } )
           let folder = Folder(
             id: .init(rawValue: uuid()),
             name: "Blue Apron",

@@ -11,3 +11,8 @@ struct ChefTimeApp: App {
     }
   }
 }
+
+/// 1. Settings
+/// 2. Folders
+///   - Folders
+///   - Recipes
