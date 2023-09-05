@@ -4,7 +4,7 @@ struct AppView: View {
   var body: some View {
     NavigationStack {
       FoldersView(store: .init(
-        initialState: .init(userFolders: .init(uniqueElements: Folder.longMock.folders)),
+        initialState: .init(),
         reducer: FoldersReducer.init
       ))
     }

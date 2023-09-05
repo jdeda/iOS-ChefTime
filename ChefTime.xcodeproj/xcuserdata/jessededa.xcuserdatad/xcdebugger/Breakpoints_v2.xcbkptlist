@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "3ABE5B99-90B6-424D-B672-D8D81E095EE1"
+            uuid = "D60BBEDE-017D-4E71-BF14-51F5ECCB6682"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChefTimeTests/RecipeMockGenerator/RecipeMockGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "37"
-            endingLineNumber = "37"
-            landmarkName = "writeRecipeToDisk(_:)"
+            startingLineNumber = "14"
+            endingLineNumber = "14"
+            landmarkName = "testIO()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

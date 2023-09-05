@@ -8,7 +8,7 @@ struct FoldersReducer: Reducer {
     var systemAllFolder = Folder(id: .init(), name: "All", folderType: .systemAll)
     var systemStandardFolder = Folder(id: .init(), name: "Recipes", folderType: .systemStandard)
     var systemRecentlyDeletedFolder = Folder(id: .init(), name: "Recently Deleted", folderType: .systemRecentlyDeleted)
-    var userFolders: IdentifiedArrayOf<Folder>
+    var userFolders: IdentifiedArrayOf<Folder> = []
     var isHidingFolderImages: Bool = false
     @BindingState var systemFoldersIsExpanded = true
     @BindingState var foldersIsExpanded = true
@@ -28,6 +28,8 @@ struct FoldersReducer: Reducer {
   }
   
   enum Action: Equatable, BindableAction {
+    case task
+    case loadFolderSuccess(Folder)
     case selectFoldersButtonTapped
     case doneButtonTapped
     case selectAllButtonTapped
@@ -42,10 +44,34 @@ struct FoldersReducer: Reducer {
     case binding(BindingAction<State>)
   }
   
+  
+  @Dependency(\.database) var database
+  @Dependency(\.uuid) var uuid
   var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
+      case .task:
+        return .run { send in
+          var recipes = [Recipe]()
+          for await recipe in database.fetchAllRecipes() {
+            recipes.append(recipe)
+          }
+          let folder = Folder(
+            id: .init(rawValue: uuid()),
+            name: "Blue Apron",
+            folders: [],
+            recipes: .init(uniqueElements: recipes),
+            folderType: .user
+          )
+          await send(.loadFolderSuccess(folder), animation: .default)
+        }
+        
+        // TODO: Make sure you check the unique folder types for this...
+      case let .loadFolderSuccess(folder):
+        state.userFolders.append(folder)
+        return .none
+        
       case .selectFoldersButtonTapped:
         state.isEditing = true
         return .none

@@ -79,6 +79,9 @@ struct FoldersView: View {
           text: .constant(""),
           placement: .navigationBarDrawer(displayMode: .always)
         )
+        .task {
+          await viewStore.send(.task).finish()
+        }
         .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
         .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
       } destination: { state in
@@ -179,5 +182,69 @@ struct FoldersView_Previews: PreviewProvider {
         reducer: FoldersReducer.init
       ))
     }
+  }
+}
+
+
+struct Database {
+  let fetchAllRecipes: @Sendable () -> AsyncStream<Recipe>
+}
+
+extension Database: DependencyKey {
+  static let liveValue = Self.live
+}
+
+extension DependencyValues {
+  var database: Database {
+    get { self[Database.self] }
+    set { self[Database.self] = newValue}
+  }
+}
+
+extension Database {
+  static let live = Self(
+    fetchAllRecipes: {
+      .init { continuation in
+        let task = Task {
+          await withTaskGroup(of: Void.self) { taskGroup in
+            for num in 1...26 {
+              taskGroup.addTask {
+                let io = ReadWriteIO(fileName: "recipe_\(num < 10 ? "0\(num)" : "\(num)")", fileExtension: ".json")
+                let recipe = io.readRecipeFromDisk()
+                continuation.yield(recipe)
+              }
+            }
+          }
+          continuation.finish()
+        }
+        continuation.onTermination = { _  in
+          task.cancel()
+        }
+      }
+    }
+  )
+}
+
+// MARK: - ReadWriteIO
+struct ReadWriteIO {
+  let fileName: String
+  let fileExtension: String
+  
+  var fileURL: URL {
+    Bundle.main.url(forResource: fileName, withExtension: fileExtension)!
+  }
+  
+  func writeRecipeToDisk(_ recipe: Recipe) {
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = .prettyPrinted
+    let data = try! encoder.encode(recipe)
+    try! data.write(to: fileURL, options: .atomic)
+  }
+  
+  func readRecipeFromDisk() -> Recipe {
+    let data = try! Data(contentsOf: fileURL)
+    let decoder = JSONDecoder()
+    let recipe = try! decoder.decode(Recipe.self, from: data)
+    return recipe
   }
 }

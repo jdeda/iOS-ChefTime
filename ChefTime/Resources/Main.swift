@@ -5,9 +5,9 @@ import XCTestDynamicOverlay
 struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
-      //      if _XCTIsTesting {
+      //            if _XCTIsTesting {
       AppView()
-      //      }
+      //            }
     }
   }
 }

@@ -9,10 +9,7 @@ struct FolderItemView: View {
   var body: some View {
     VStack {
       ZStack {
-        ImageData(
-          id: .init(),
-          data: (try? Data(contentsOf: Bundle.main.url(forResource: "folder_light", withExtension: "png")!))!
-        )!.image
+        Image(systemName: "folder.fill")
           .resizable()
           .scaledToFill()
           .padding()
