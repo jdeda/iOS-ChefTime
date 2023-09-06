@@ -13,34 +13,34 @@ struct FoldersView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
         List {
-          Section {
-            LazyVGrid(columns: columns, spacing: 10) {
-              FolderItemView(folder: viewStore.systemAllFolder, isEditing: false, isSelected: false)
-                .onTapGesture {
-                  viewStore.send(.systemFolderTapped(.systemAll), animation: .default)
-                }
-              
-              FolderItemView(folder: viewStore.systemStandardFolder, isEditing: false, isSelected: false)
-                .onTapGesture {
-                  viewStore.send(.systemFolderTapped(.systemStandard), animation: .default)
-                }
-              
-              FolderItemView(folder: viewStore.systemRecentlyDeletedFolder, isEditing: false, isSelected: false)
-                .onTapGesture {
-                  viewStore.send(.systemFolderTapped(.systemRecentlyDeleted), animation: .default)
-                }
-            }
-            .animation(.default, value: viewStore.userFolders.count)
-            .listSectionSeparator(.hidden)
-            .listRowSeparator(.hidden)
-          } header: {
-            Text("System")
-              .textSubtitleStyle()
-          }
-          .textCase(nil)
-          .listRowBackground(Color.clear)
-          .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
-          .listSectionSeparator(.hidden)
+//          Section {
+//            LazyVGrid(columns: columns, spacing: 10) {
+//              FolderItemView(folder: viewStore.systemAllFolder, isEditing: false, isSelected: false)
+//                .onTapGesture {
+//                  viewStore.send(.systemFolderTapped(.systemAll), animation: .default)
+//                }
+//              
+//              FolderItemView(folder: viewStore.systemStandardFolder, isEditing: false, isSelected: false)
+//                .onTapGesture {
+//                  viewStore.send(.systemFolderTapped(.systemStandard), animation: .default)
+//                }
+//              
+//              FolderItemView(folder: viewStore.systemRecentlyDeletedFolder, isEditing: false, isSelected: false)
+//                .onTapGesture {
+//                  viewStore.send(.systemFolderTapped(.systemRecentlyDeleted), animation: .default)
+//                }
+//            }
+//            .animation(.default, value: viewStore.userFolders.count)
+//            .listSectionSeparator(.hidden)
+//            .listRowSeparator(.hidden)
+//          } header: {
+//            Text("System")
+//              .textSubtitleStyle()
+//          }
+//          .textCase(nil)
+//          .listRowBackground(Color.clear)
+//          .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
+//          .listSectionSeparator(.hidden)
                     
           Section {
             LazyVGrid(columns: columns, spacing: 10) {
@@ -50,6 +50,7 @@ struct FoldersView: View {
                   isEditing: viewStore.isEditing,
                   isSelected: viewStore.selection.contains(folder.id)
                 )
+//                .clipShape(RoundedRectangle(radius: 15))
                 .onTapGesture {
                   if viewStore.isEditing {
                     viewStore.send(.folderSelectionTapped(folder.id), animation: .default)
@@ -80,7 +81,9 @@ struct FoldersView: View {
           placement: .navigationBarDrawer(displayMode: .always)
         )
         .task {
-          await viewStore.send(.task).finish()
+          if viewStore.userFolders.isEmpty {
+            await viewStore.send(.task).finish()
+          }
         }
         .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
         .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
@@ -178,16 +181,16 @@ struct FoldersView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
       FoldersView(store: .init(
-        initialState: .init(userFolders: .init(uniqueElements: Folder.longMock.folders)),
+        initialState: .init(),
         reducer: FoldersReducer.init
       ))
     }
   }
 }
 
-
+// MARK: - Temporary DB
 struct Database {
-  let fetchAllRecipes: @Sendable () -> AsyncStream<Recipe>
+  let fetchAllFolders: @Sendable () -> AsyncStream<Folder>
 }
 
 extension Database: DependencyKey {
@@ -203,18 +206,26 @@ extension DependencyValues {
 
 extension Database {
   static let live = Self(
-    fetchAllRecipes: {
+    fetchAllFolders: {
       .init { continuation in
         let task = Task {
-          await withTaskGroup(of: Void.self) { taskGroup in
-            for num in 1...26 {
-              taskGroup.addTask {
-                let io = ReadWriteIO(fileName: "recipe_\(num < 10 ? "0\(num)" : "\(num)")", fileExtension: ".json")
-                let recipe = io.readRecipeFromDisk()
-                continuation.yield(recipe)
-              }
-            }
+          var rootURL = URL(string: "/Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Resources/JSON/user")!
+          guard let contents = try? FileManager.default.contentsOfDirectory(
+            at: rootURL,
+            includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
+            options: .skipsHiddenFiles
+          )
+          else {
+            continuation.finish()
+            return
           }
+          
+          for url in contents {
+            guard let folder = await fetchFolder(at: url)
+            else { continue }
+            continuation.yield(folder)
+          }
+          
           continuation.finish()
         }
         continuation.onTermination = { _  in
@@ -247,4 +258,39 @@ struct ReadWriteIO {
     let recipe = try! decoder.decode(Recipe.self, from: data)
     return recipe
   }
+}
+
+/// Assume directory is a user folder.
+private func fetchFolder(at directoryURL: URL) async -> Folder? {
+  guard let contents = try? FileManager.default.contentsOfDirectory(
+    at: directoryURL,
+    includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
+    options: .skipsHiddenFiles
+  )
+  else { return nil }
+  
+  var folder = Folder(id: .init(), name: directoryURL.lastPathComponent, folderType: .user)
+  for url in contents {
+    if url.hasDirectoryPath {
+      guard let childFolder = await fetchFolder(at: url)
+      else { continue }
+      folder.folders.append(childFolder)
+    }
+    else if url.pathExtension.lowercased() == "json" {
+      guard let recipe = await fetchRecipe(at: url)
+      else { continue }
+      folder.recipes.append(recipe)
+    }
+    else {
+      continue
+    }
+  }
+  return folder
+}
+
+private func fetchRecipe(at url: URL) async -> Recipe? {
+  guard let data = try? Data(contentsOf: url),
+        let recipe = try? JSONDecoder().decode(Recipe.self, from: data)
+  else { return nil }
+  return recipe
 }

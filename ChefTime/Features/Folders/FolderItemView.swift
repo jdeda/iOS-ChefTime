@@ -5,42 +5,38 @@ struct FolderItemView: View {
   let isEditing: Bool
   let isSelected: Bool
   @Environment(\.isHidingFolderImages) var isHidingFolderImages
-  
+  @Environment(\.maxScreenWidth) var maxScreenWidth
+//  var width: CGFloat {
+//    maxScreenWidth.maxWidth * 0.475
+//  }
+//
   var body: some View {
     VStack {
-      ZStack {
+      ZStack(alignment: .center) {
         Image(systemName: "folder.fill")
           .resizable()
-          .scaledToFill()
+          .scaledToFit()
           .padding()
           .background(.blue.opacity(0.15))
-          .accentColor(.accentColor)
+          .foregroundColor(.accentColor)
+          .background(Color.accentColor.opacity(0.1))
           .clipShape(RoundedRectangle(cornerRadius: 15))
           .opacity(isHidingFolderImages ? 1.0 : 0.0)
-        
-        ZStack {
-          if let image = folder.recipes.first?.imageData.first?.image {
-            image
+    
+        Rectangle()
+          .fill(.clear)
+          .aspectRatio(1, contentMode: .fit)
+          .overlay {
+            (folder.recipes.first?.imageData.first?.image ?? Image(systemName: "photo.stack"))
               .resizable()
               .scaledToFill()
+              .foregroundColor(Color(uiColor: .systemGray4))
+              .background(Color(uiColor: .systemGray6))
+              .accentColor(.accentColor)
           }
-          else {
-            VStack {
-              Image(systemName: "photo.stack")
-                .resizable()
-                .scaledToFit()
-                .clipped()
-                .foregroundColor(Color(uiColor: .systemGray4))
-                .padding()
-            }
-            .background(Color(uiColor: .systemGray6))
-            .accentColor(.accentColor)
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-          }
-        }
-        .opacity(!isHidingFolderImages ? 1.0 : 0.0)
+          .clipped()
+          .opacity(!isHidingFolderImages ? 1.0 : 0.0)
       }
-      .scaledToFit()
       .clipShape(RoundedRectangle(cornerRadius: 15))
       .overlay(alignment: .bottom) {
         if isEditing {
@@ -49,7 +45,7 @@ struct FolderItemView: View {
             if isSelected {
               ZStack(alignment: .bottom) {
                 RoundedRectangle(cornerRadius: 15)
-                  .stroke(Color.accentColor, lineWidth: 5)
+                  .strokeBorder(Color.accentColor, lineWidth: 5)
                 
                 Circle()
                   .fill(.primary)

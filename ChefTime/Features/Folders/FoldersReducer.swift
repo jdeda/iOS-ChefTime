@@ -53,15 +53,9 @@ struct FoldersReducer: Reducer {
       switch action {
       case .task:
         return .run { send in
-          let recipes = await database.fetchAllRecipes().reduce(into: [], { $0.append($1) } )
-          let folder = Folder(
-            id: .init(rawValue: uuid()),
-            name: "Blue Apron",
-            folders: [],
-            recipes: .init(uniqueElements: recipes),
-            folderType: .user
-          )
-          await send(.loadFolderSuccess(folder), animation: .default)
+          for await folder in database.fetchAllFolders() {
+            await send(.loadFolderSuccess(folder), animation: .default)
+          }
         }
         
         // TODO: Make sure you check the unique folder types for this...
