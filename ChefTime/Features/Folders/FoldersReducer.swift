@@ -1,48 +1,24 @@
 import ComposableArchitecture
 import SwiftUI
+import Tagged
 
 // MARK: - Reducer
 struct FoldersReducer: Reducer {
   struct State: Equatable {
     var path = StackState<PathReducer.State>()
-    var systemAllFolder: FolderGridItemReducer.State
-    var systemStandardFolder: FolderGridItemReducer.State
-    var systemRecentlyDeletedFolder: FolderGridItemReducer.State
-    var userFolders: IdentifiedArrayOf<FolderGridItemReducer.State> = []
+    var systemFoldersSection: FolderSectionReducer.State = .system
+    var userFoldersSection: FolderSectionReducer.State = .user
     var isHidingFolderImages: Bool = false
-    @BindingState var systemFoldersIsExpanded = true
-    @BindingState var foldersIsExpanded = true
     @BindingState var isEditing = false
-    @BindingState var selection = Set<FolderGridItemReducer.State.ID>()
     @PresentationState var alert: AlertState<AlertAction>?
     
     var hasSelectedAll: Bool {
-      selection.count == userFolders.count
+      userFoldersSection.selection.count == userFoldersSection.folders.count
     }
     
     var navigationTitle: String {
-      isEditing && selection.count > 0 ? "\(selection.count) Selected": "Folders"
-    }
-    
-    init(
-      path: StackState<PathReducer.State> = .init(),
-      isHidingFolderImages: Bool = false,
-      systemFoldersIsExpanded: Bool = true,
-      foldersIsExpanded: Bool = true,
-      isEditing: Bool = false,
-      alert: AlertState<AlertAction>? = nil
-    ) {
-      @Dependency(\.uuid) var uuid
-      self.path = path
-      self.isHidingFolderImages = isHidingFolderImages
-      self.systemFoldersIsExpanded = systemFoldersIsExpanded
-      self.foldersIsExpanded = foldersIsExpanded
-      self.isEditing = isEditing
-      self.alert = alert
-      self.systemAllFolder = .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), folderType: .systemAll))
-      self.systemStandardFolder = .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), folderType: .systemStandard))
-      self.systemRecentlyDeletedFolder = .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), folderType: .systemRecentlyDeleted))
-      self.userFolders = []
+      let value = isEditing && userFoldersSection.selection.count > 0
+      return value ? "\(userFoldersSection.selection.count) Selected": "Folders"
     }
   }
   
@@ -55,11 +31,8 @@ struct FoldersReducer: Reducer {
     case hideImagesButtonTapped
     case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
-    case folderSelectionTapped(FolderGridItemReducer.State.ID)
-    case userFolder(FolderGridItemReducer.State.ID, FolderGridItemReducer.Action)
-    case systemAllFolder(FolderGridItemReducer.Action)
-    case systemStandardFolder(FolderGridItemReducer.Action)
-    case systemRecentlyDeletedFolder(FolderGridItemReducer.Action)
+    case userFoldersSection(FolderSectionReducer.Action)
+    case systemFoldersSection(FolderSectionReducer.Action)
     case path(StackAction<PathReducer.State, PathReducer.Action>)
     case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
@@ -68,20 +41,35 @@ struct FoldersReducer: Reducer {
   @Dependency(\.database) var database
   @Dependency(\.uuid) var uuid
   
-  var body: some ReducerOf<Self> {
+  var body: some Reducer<FoldersReducer.State, FoldersReducer.Action> {
     BindingReducer()
-    Reduce { state, action in
+    Reduce<FoldersReducer.State, FoldersReducer.Action> { state, action in
       switch action {
       case .task:
+        guard state.userFoldersSection.folders.isEmpty else { return .none }
         return .run { send in
           for await folder in database.fetchAllFolders() {
             await send(.loadFolderSuccess(folder), animation: .default)
           }
         }
         
-        // TODO: Make sure you check the unique folder types for this...
+        // MARK: - Assuming we have our systemFoldersSection setup correctly
       case let .loadFolderSuccess(folder):
-        state.userFolders.append(.init(id: .init(rawValue: uuid()), folder: folder))
+        switch folder.folderType {
+        case .systemAll:
+          break
+        case .systemStandard:
+          state.systemFoldersSection.folders[1].folder.folders.append(folder)
+          break
+        case .systemRecentlyDeleted:
+          state.systemFoldersSection.folders[2].folder.folders.append(folder)
+          break
+        case .user:
+          guard let i = state.systemFoldersSection.folders.firstIndex(where: { $0.folder.folderType == .user })
+          else { break }
+          state.systemFoldersSection.folders[i].folder.folders.append(folder)
+          break
+        }
         return .none
         
       case .selectFoldersButtonTapped:
@@ -90,11 +78,13 @@ struct FoldersReducer: Reducer {
         
       case .doneButtonTapped:
         state.isEditing = false
-        state.selection = []
+        state.userFoldersSection.selection = []
         return .none
         
       case .selectAllButtonTapped:
-        state.selection = state.hasSelectedAll ? [] : .init(state.userFolders.map(\.id))
+        state.userFoldersSection.selection = .init(
+          state.hasSelectedAll ? [] : state.userFoldersSection.folders.map(\.id)
+        )
         return .none
         
       case .hideImagesButtonTapped:
@@ -108,49 +98,11 @@ struct FoldersReducer: Reducer {
         state.alert = .delete
         return .none
         
-      case let .folderSelectionTapped(id):
-        guard state.userFolders[id: id] != nil else { return .none }
-        if state.selection.contains(id) {
-          state.selection.remove(id)
-        }
-        else {
-          state.selection.insert(id)
-        }
+      case let .userFoldersSection(action):
         return .none
         
-        
-      case let .userFolder(id, .delegate(action)):
+      case let .systemFoldersSection(action):
         return .none
-        
-      case let .systemAllFolder(.delegate(action)):
-        return .none
-        
-      case let .systemStandardFolder(.delegate(action)):
-        return .none
-        
-      case let .systemRecentlyDeletedFolder(.delegate(action)):
-        return .none
-        
-      case .userFolder, .systemAllFolder, .systemStandardFolder, .systemRecentlyDeletedFolder:
-        return .none
-        
-//      case let .systemFolderTapped(folderType):
-//        if let newPathElement: PathReducer.State = {
-//          switch folderType {
-//          case .systemAll: return .folder(.init(folder: state.systemStandardFolder.folder))
-//          case .systemStandard: return .folder(.init(folder: state.systemStandardFolder.folder))
-//          case .systemRecentlyDeleted: return .folder(.init(folder: state.systemRecentlyDeletedFolder.folder))
-//          case .user: return nil
-//          }
-//        }() {
-//          state.path.append(newPathElement)
-//        }
-//        return .none
-//
-//      case let .folderTapped(id):
-//        guard let folder = state.userFolders[id: id] else { return .none }
-//        state.path.append(.folder(.init(folder: folder.folder)))
-//        return .none
         
       case .binding:
         return .none
@@ -188,9 +140,9 @@ struct FoldersReducer: Reducer {
           return .none
           
         case .confirmDeleteButtonTapped:
-          state.userFolders = state.userFolders.filter({
-            !state.selection.contains($0.id)
-          })
+          //          state.userFolders = state.userFolders.filter({
+          //            !state.selection.contains($0.id)
+          //          })
           return .none
         }
         
@@ -205,24 +157,17 @@ struct FoldersReducer: Reducer {
     .forEach(\.path, action: /Action.path) {
       PathReducer()
     }
-    .forEach(\.userFolders, action: /Action.userFolder) {
-      FolderGridItemReducer()
+    Scope(state: \.systemFoldersSection, action: /Action.systemFoldersSection) {
+      FolderSectionReducer()
     }
-    
-    Scope(state: \.systemAllFolder, action: /Action.systemAllFolder) {
-      FolderGridItemReducer()
-    }
-    
-    Scope(state: \.systemStandardFolder, action: /Action.systemStandardFolder) {
-      FolderGridItemReducer()
-    }
-    
-    Scope(state: \.systemRecentlyDeletedFolder, action: /Action.systemRecentlyDeletedFolder) {
-      FolderGridItemReducer()
+    Scope(state: \.userFoldersSection, action: /Action.userFoldersSection) {
+      FolderSectionReducer()
     }
   }
 }
 
+
+// MARK: - PathReducer
 extension FoldersReducer {
   struct PathReducer: Reducer {
     enum State: Equatable {
@@ -246,6 +191,7 @@ extension FoldersReducer {
   }
 }
 
+// MARK: - AlertAction
 extension FoldersReducer {
   enum AlertAction: Equatable {
     case cancelButtonTapped
@@ -253,6 +199,7 @@ extension FoldersReducer {
   }
 }
 
+// MARK: - AlertState
 extension AlertState where Action == FoldersReducer.AlertAction {
   static let delete = Self(
     title: {
@@ -272,6 +219,25 @@ extension AlertState where Action == FoldersReducer.AlertAction {
   )
 }
 
+// MARK: - FolderSectionReducer.State instances
+extension FolderSectionReducer.State {
+  static let system: Self = {
+    @Dependency(\.uuid) var uuid
+    return Self(
+      folders: [
+        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "All", folderType: .systemAll)),
+        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Standard", folderType: .systemStandard)),
+        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Recently Deleted", folderType: .systemRecentlyDeleted))
+      ],
+      title: "System"
+    )
+  }()
+  
+  static let user = Self(folders: [], title: "user")
+}
+
+
+// MARK: - Previews
 struct Previews_FoldersReducer_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
@@ -282,3 +248,4 @@ struct Previews_FoldersReducer_Previews: PreviewProvider {
     }
   }
 }
+

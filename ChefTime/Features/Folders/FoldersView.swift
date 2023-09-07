@@ -39,100 +39,42 @@ struct FoldersView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
         List {
-          Section {
-            LazyVGrid(columns: columns, spacing: 10) {
-              FolderGridItemView(
-                store: store.scope(
-                  state: \.systemAllFolder,
-                  action: FoldersReducer.Action.systemAllFolder
-                ),
-                isEditing: false,
-                isSelected: false
-              )
-              FolderGridItemView(
-                store: store.scope(
-                  state: \.systemStandardFolder,
-                  action: FoldersReducer.Action.systemStandardFolder
-                ),
-                isEditing: false,
-                isSelected: false
-              )
-              FolderGridItemView(
-                store: store.scope(
-                  state: \.systemRecentlyDeletedFolder,
-                  action: FoldersReducer.Action.systemRecentlyDeletedFolder
-                ),
-                isEditing: false,
-                isSelected: false
-              )
-            }
-            .animation(.default, value: viewStore.userFolders.count)
-            .listSectionSeparator(.hidden)
-            .listRowSeparator(.hidden)
-          } header: {
-            Text("System")
-              .textSubtitleStyle()
-          }
-          .textCase(nil)
-          .listRowBackground(Color.clear)
-          .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
-          .listSectionSeparator(.hidden)
+          FolderSectionView(store: store.scope(
+            state: \.systemFoldersSection,
+            action: FoldersReducer.Action.systemFoldersSection
+          ))
           
-          Section {
-            LazyVGrid(columns: columns, spacing: 10) {
-              ForEachStore(store.scope(
-                state: \.userFolders,
-                action: FoldersReducer.Action.userFolder
-              )) { childStore in
-                FolderGridItemView(
-                  store: childStore,
-                  isEditing: viewStore.isEditing,
-                  isSelected: viewStore.selection.contains(ViewStore(childStore, observe: \.id).state)
-                )
-              }
-            }
+          FolderSectionView(store: store.scope(
+            state: \.userFoldersSection,
+            action: FoldersReducer.Action.userFoldersSection
+          ))
+        }
+        .listStyle(.sidebar)
+        .navigationTitle(viewStore.navigationTitle)
+        .toolbar { toolbar(viewStore: viewStore) }
+        .searchable(
+          text: .constant(""),
+          placement: .navigationBarDrawer(displayMode: .always)
+        )
+        .task { await viewStore.send(.task).finish() }
+        .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
+        .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
+      } destination: { state in
+        switch state {
+        case .folder:
+          CaseLet(
+            /FoldersReducer.PathReducer.State.folder,
+             action: FoldersReducer.PathReducer.Action.folder
+          ) {
+            FolderView(store: $0)
           }
-          .animation(.default, value: viewStore.userFolders.count)
-          .listSectionSeparator(.hidden)
-          .listRowSeparator(.hidden)
-        } header: {
-          Text("User")
-            .textSubtitleStyle()
-        }
-        .textCase(nil)
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
-        .listSectionSeparator(.hidden)
-      }
-      .listStyle(.sidebar)
-      .navigationTitle(viewStore.navigationTitle)
-      .toolbar { toolbar(viewStore: viewStore) }
-      .searchable(
-        text: .constant(""),
-        placement: .navigationBarDrawer(displayMode: .always)
-      )
-      .task {
-        if viewStore.userFolders.isEmpty {
-          await viewStore.send(.task).finish()
-        }
-      }
-      .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
-      .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
-    } destination: { state in
-      switch state {
-      case .folder:
-        CaseLet(
-          /FoldersReducer.PathReducer.State.folder,
-           action: FoldersReducer.PathReducer.Action.folder
-        ) {
-          FolderView(store: $0)
-        }
-      case .recipe:
-        CaseLet(
-          /FoldersReducer.PathReducer.State.recipe,
-           action: FoldersReducer.PathReducer.Action.recipe
-        ) {
-          RecipeView(store: $0)
+        case .recipe:
+          CaseLet(
+            /FoldersReducer.PathReducer.State.recipe,
+             action: FoldersReducer.PathReducer.Action.recipe
+          ) {
+            RecipeView(store: $0)
+          }
         }
       }
     }
@@ -159,12 +101,12 @@ extension FoldersView {
         Button("Move") {
           viewStore.send(.moveSelectedButtonTapped, animation: .default)
         }
-        .disabled(viewStore.selection.isEmpty)
+        .disabled(viewStore.userFoldersSection.selection.isEmpty)
         Spacer()
         Button("Delete") {
           viewStore.send(.deleteSelectedButtonTapped, animation: .default)
         }
-        .disabled(viewStore.selection.isEmpty)
+        .disabled(viewStore.userFoldersSection.selection.isEmpty)
       }
     }
     else {
@@ -188,12 +130,13 @@ extension FoldersView {
       
       ToolbarItemGroup(placement: .bottomBar) {
         Button {
-          //          viewStore.send(.newFolderButtonTapped, animation: .default)
+          //                    viewStore.send(.newFolderButtonTapped, animation: .default)
         } label: {
           Image(systemName: "folder.badge.plus")
         }
         Spacer()
-        Text("\(viewStore.userFolders.count) folders")
+        // TODO: Update this count when all the folders are fetched properly
+        Text("\(viewStore.userFoldersSection.folders.count) folders")
         Spacer()
         Button {
           //          viewStore.send(.newRecipeButtonTapped, animation: .default)
@@ -216,111 +159,4 @@ struct FoldersView_Previews: PreviewProvider {
       ))
     }
   }
-}
-
-// MARK: - Temporary DB
-struct Database {
-  let fetchAllFolders: @Sendable () -> AsyncStream<Folder>
-}
-
-extension Database: DependencyKey {
-  static let liveValue = Self.live
-}
-
-extension DependencyValues {
-  var database: Database {
-    get { self[Database.self] }
-    set { self[Database.self] = newValue}
-  }
-}
-
-extension Database {
-  static let live = Self(
-    fetchAllFolders: {
-      .init { continuation in
-        let task = Task {
-          var rootURL = URL(string: "/Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Resources/JSON/user")!
-          guard let contents = try? FileManager.default.contentsOfDirectory(
-            at: rootURL,
-            includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
-            options: .skipsHiddenFiles
-          )
-          else {
-            continuation.finish()
-            return
-          }
-          
-          for url in contents {
-            guard let folder = await fetchFolder(at: url)
-            else { continue }
-            continuation.yield(folder)
-          }
-          
-          continuation.finish()
-        }
-        continuation.onTermination = { _  in
-          task.cancel()
-        }
-      }
-    }
-  )
-}
-
-// MARK: - ReadWriteIO
-struct ReadWriteIO {
-  let fileName: String
-  let fileExtension: String
-  
-  var fileURL: URL {
-    Bundle.main.url(forResource: fileName, withExtension: fileExtension)!
-  }
-  
-  func writeRecipeToDisk(_ recipe: Recipe) {
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = .prettyPrinted
-    let data = try! encoder.encode(recipe)
-    try! data.write(to: fileURL, options: .atomic)
-  }
-  
-  func readRecipeFromDisk() -> Recipe {
-    let data = try! Data(contentsOf: fileURL)
-    let decoder = JSONDecoder()
-    let recipe = try! decoder.decode(Recipe.self, from: data)
-    return recipe
-  }
-}
-
-/// Assume directory is a user folder.
-private func fetchFolder(at directoryURL: URL) async -> Folder? {
-  guard let contents = try? FileManager.default.contentsOfDirectory(
-    at: directoryURL,
-    includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
-    options: .skipsHiddenFiles
-  )
-  else { return nil }
-  
-  var folder = Folder(id: .init(), name: directoryURL.lastPathComponent, folderType: .user)
-  for url in contents {
-    if url.hasDirectoryPath {
-      guard let childFolder = await fetchFolder(at: url)
-      else { continue }
-      folder.folders.append(childFolder)
-    }
-    else if url.pathExtension.lowercased() == "json" {
-      guard let recipe = await fetchRecipe(at: url)
-      else { continue }
-      folder.recipes.append(recipe)
-    }
-    else {
-      continue
-    }
-  }
-  return folder
-}
-
-private func fetchRecipe(at url: URL) async -> Recipe? {
-  guard let data = try? Data(contentsOf: url),
-        let recipe = try? JSONDecoder().decode(Recipe.self, from: data)
-  else { return nil }
-  return recipe
 }

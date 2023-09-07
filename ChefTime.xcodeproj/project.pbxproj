@@ -15,7 +15,6 @@
 		971334BE2A97CBDD00743A49 /* FolderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971334BD2A97CBDD00743A49 /* FolderModel.swift */; };
 		971334C02A97CC7900743A49 /* FolderModel+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971334BF2A97CC7900743A49 /* FolderModel+Mock.swift */; };
 		971334C22A97D54300743A49 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971334C12A97D54300743A49 /* Folder.swift */; };
-		9718863D2AA023DF001942B7 /* FoldersDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9718863C2AA023DF001942B7 /* FoldersDemoView.swift */; };
 		971886472AA0DB60001942B7 /* RecipeMockGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971886462AA0DB60001942B7 /* RecipeMockGenerator.swift */; };
 		972440052A4CD623002E3AAF /* View+Synchronize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972440042A4CD623002E3AAF /* View+Synchronize.swift */; };
 		9726051C2A7576B6008BC180 /* RecipeModel+LongMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9726051B2A7576B6008BC180 /* RecipeModel+LongMock.swift */; };
@@ -38,6 +37,8 @@
 		979ED97D2A5F47A000CF2B5F /* IngredientListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 979ED97C2A5F47A000CF2B5F /* IngredientListTests.swift */; };
 		979F80832A5DE43000E3B152 /* IngredientSectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 979F80822A5DE43000E3B152 /* IngredientSectionTests.swift */; };
 		97AB36A92AA90D0E001CB9F4 /* FolderGridItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB36A82AA90D0E001CB9F4 /* FolderGridItem.swift */; };
+		97AB36B02AAA0283001CB9F4 /* FolderSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB36AF2AAA0283001CB9F4 /* FolderSectionView.swift */; };
+		97AB36B42AAA087B001CB9F4 /* DB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB36B32AAA087B001CB9F4 /* DB.swift */; };
 		97AD13B82A2E7392002FCE30 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B72A2E7392002FCE30 /* Main.swift */; };
 		97AD13BC2A2E7394002FCE30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BB2A2E7394002FCE30 /* Assets.xcassets */; };
 		97AD13BF2A2E7394002FCE30 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BE2A2E7394002FCE30 /* Preview Assets.xcassets */; };
@@ -121,7 +122,6 @@
 		971334BD2A97CBDD00743A49 /* FolderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderModel.swift; sourceTree = "<group>"; };
 		971334BF2A97CC7900743A49 /* FolderModel+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FolderModel+Mock.swift"; sourceTree = "<group>"; };
 		971334C12A97D54300743A49 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
-		9718863C2AA023DF001942B7 /* FoldersDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersDemoView.swift; sourceTree = "<group>"; };
 		971886462AA0DB60001942B7 /* RecipeMockGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeMockGenerator.swift; sourceTree = "<group>"; };
 		971A3B5B2A40FD71009F8002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		972440042A4CD623002E3AAF /* View+Synchronize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Synchronize.swift"; sourceTree = "<group>"; };
@@ -146,6 +146,8 @@
 		979F80812A5DE08600E3B152 /* ChefTime.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChefTime.xctestplan; sourceTree = "<group>"; };
 		979F80822A5DE43000E3B152 /* IngredientSectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSectionTests.swift; sourceTree = "<group>"; };
 		97AB36A82AA90D0E001CB9F4 /* FolderGridItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderGridItem.swift; sourceTree = "<group>"; };
+		97AB36AF2AAA0283001CB9F4 /* FolderSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderSectionView.swift; sourceTree = "<group>"; };
+		97AB36B32AAA087B001CB9F4 /* DB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DB.swift; sourceTree = "<group>"; };
 		97AD13B42A2E7392002FCE30 /* ChefTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChefTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AD13B72A2E7392002FCE30 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		97AD13BB2A2E7394002FCE30 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -273,6 +275,8 @@
 			children = (
 				975A4EFA2A44C3A200C9509A /* App */,
 				9760CBAD2A9D1ABC0077A8F9 /* Folders */,
+				97AB36B12AAA0829001CB9F4 /* FolderSection */,
+				97AB36B22AAA084F001CB9F4 /* FolderGridItem */,
 				97DE5BC62A97C8BD00BBE455 /* Folder */,
 				975A4EFB2A44C3AA00C9509A /* Recipe */,
 				9712FB5E2A4393B100E5E227 /* Photos */,
@@ -286,6 +290,7 @@
 				97D8CCFE2A55EED60031E760 /* PhotosClient.swift */,
 				97F9C5022A9D66610053CAB5 /* HidingImages.swift */,
 				97F9C5062A9D66A60053CAB5 /* MaxScreenWidth.swift */,
+				97AB36B32AAA087B001CB9F4 /* DB.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -366,10 +371,8 @@
 		9760CBAD2A9D1ABC0077A8F9 /* Folders */ = {
 			isa = PBXGroup;
 			children = (
-				9760CBAE2A9D1AC90077A8F9 /* FoldersReducer.swift */,
 				97EF38F42A9E3D7600DF4D86 /* FoldersView.swift */,
-				9718863C2AA023DF001942B7 /* FoldersDemoView.swift */,
-				97AB36A82AA90D0E001CB9F4 /* FolderGridItem.swift */,
+				9760CBAE2A9D1AC90077A8F9 /* FoldersReducer.swift */,
 			);
 			path = Folders;
 			sourceTree = "<group>";
@@ -410,6 +413,22 @@
 				9770F00D2A61A86F00602986 /* IngredientsFeatureTests */,
 			);
 			path = ChefTimeTests;
+			sourceTree = "<group>";
+		};
+		97AB36B12AAA0829001CB9F4 /* FolderSection */ = {
+			isa = PBXGroup;
+			children = (
+				97AB36AF2AAA0283001CB9F4 /* FolderSectionView.swift */,
+			);
+			path = FolderSection;
+			sourceTree = "<group>";
+		};
+		97AB36B22AAA084F001CB9F4 /* FolderGridItem */ = {
+			isa = PBXGroup;
+			children = (
+				97AB36A82AA90D0E001CB9F4 /* FolderGridItem.swift */,
+			);
+			path = FolderGridItem;
 			sourceTree = "<group>";
 		};
 		97AD13AB2A2E7392002FCE30 = {
@@ -806,7 +825,6 @@
 				977633D62A4F77C9009FD90C /* Binding+RemoveDuplicates.swift in Sources */,
 				97AD13D32A2E74E9002FCE30 /* Model.swift in Sources */,
 				971334BE2A97CBDD00743A49 /* FolderModel.swift in Sources */,
-				9718863D2AA023DF001942B7 /* FoldersDemoView.swift in Sources */,
 				972440052A4CD623002E3AAF /* View+Synchronize.swift in Sources */,
 				9782405B2A3B410000CAC459 /* IngredientList.swift in Sources */,
 				977633DC2A51C987009FD90C /* AboutList.swift in Sources */,
@@ -830,9 +848,11 @@
 				975F47C22A6AD3BF0016BB95 /* Text+ViewModifier.swift in Sources */,
 				9760CBAF2A9D1AC90077A8F9 /* FoldersReducer.swift in Sources */,
 				975A4EEF2A44C23800C9509A /* Ingredient.swift in Sources */,
+				97AB36B02AAA0283001CB9F4 /* FolderSectionView.swift in Sources */,
 				97EE97302A6853F6001AA88B /* Step.swift in Sources */,
 				9712FB622A43A13800E5E227 /* Photos.swift in Sources */,
 				971334C22A97D54300743A49 /* Folder.swift in Sources */,
+				97AB36B42AAA087B001CB9F4 /* DB.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
