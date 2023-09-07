@@ -1,7 +1,33 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: - View
+
+/// How to simply this feature?
+/// 1. Break sections into their own features...
+///   - This means you must do the following:
+///     1. make the system folders an array
+///     2. delete all the boilerplate for having separate instances
+///     3. just assume when working with the array you have those three values in a specific order, and or just check the element folderType,
+///      yes its a bit dangerous, but you have to be a moron to forget these rules
+
+/// Folder Types
+///   1. System
+///   ///   any of these, you cannot:
+///           - delete this folder
+///         - rename this folder
+///         - move this folder
+///     1. All
+///         - editing actually edits other folders simealtaneiously
+///         - if i add when in the root it automatically adds to the standard
+///     2. Standard
+///          - behaves just like a user folder, with the exception of the root not being able to delete,rename/move
+///     3. Recently Deleted
+///     - cannot do anything but scroll and recover the recipe
+///     - cannot have folders
+///   2. User
+///     You can do anything
+
+/// MARK: - View
 struct FoldersView: View {
   let store: StoreOf<FoldersReducer>
   let columns: [GridItem] = [.init(spacing: 20), .init(spacing: 20)]
@@ -13,96 +39,100 @@ struct FoldersView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
         List {
-//          Section {
-//            LazyVGrid(columns: columns, spacing: 10) {
-//              FolderItemView(folder: viewStore.systemAllFolder, isEditing: false, isSelected: false)
-//                .onTapGesture {
-//                  viewStore.send(.systemFolderTapped(.systemAll), animation: .default)
-//                }
-//              
-//              FolderItemView(folder: viewStore.systemStandardFolder, isEditing: false, isSelected: false)
-//                .onTapGesture {
-//                  viewStore.send(.systemFolderTapped(.systemStandard), animation: .default)
-//                }
-//              
-//              FolderItemView(folder: viewStore.systemRecentlyDeletedFolder, isEditing: false, isSelected: false)
-//                .onTapGesture {
-//                  viewStore.send(.systemFolderTapped(.systemRecentlyDeleted), animation: .default)
-//                }
-//            }
-//            .animation(.default, value: viewStore.userFolders.count)
-//            .listSectionSeparator(.hidden)
-//            .listRowSeparator(.hidden)
-//          } header: {
-//            Text("System")
-//              .textSubtitleStyle()
-//          }
-//          .textCase(nil)
-//          .listRowBackground(Color.clear)
-//          .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
-//          .listSectionSeparator(.hidden)
-                    
           Section {
             LazyVGrid(columns: columns, spacing: 10) {
-              ForEach(viewStore.userFolders) { folder in
-                FolderItemView(
-                  folder: folder,
-                  isEditing: viewStore.isEditing,
-                  isSelected: viewStore.selection.contains(folder.id)
-                )
-//                .clipShape(RoundedRectangle(radius: 15))
-                .onTapGesture {
-                  if viewStore.isEditing {
-                    viewStore.send(.folderSelectionTapped(folder.id), animation: .default)
-                  }
-                  else {
-                    viewStore.send(.folderTapped(folder.id), animation: .default)
-                  }
-                }
-              }
+              FolderGridItemView(
+                store: store.scope(
+                  state: \.systemAllFolder,
+                  action: FoldersReducer.Action.systemAllFolder
+                ),
+                isEditing: false,
+                isSelected: false
+              )
+              FolderGridItemView(
+                store: store.scope(
+                  state: \.systemStandardFolder,
+                  action: FoldersReducer.Action.systemStandardFolder
+                ),
+                isEditing: false,
+                isSelected: false
+              )
+              FolderGridItemView(
+                store: store.scope(
+                  state: \.systemRecentlyDeletedFolder,
+                  action: FoldersReducer.Action.systemRecentlyDeletedFolder
+                ),
+                isEditing: false,
+                isSelected: false
+              )
             }
             .animation(.default, value: viewStore.userFolders.count)
             .listSectionSeparator(.hidden)
             .listRowSeparator(.hidden)
           } header: {
-            Text("User")
+            Text("System")
               .textSubtitleStyle()
           }
           .textCase(nil)
           .listRowBackground(Color.clear)
           .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
           .listSectionSeparator(.hidden)
+          
+          Section {
+            LazyVGrid(columns: columns, spacing: 10) {
+              ForEachStore(store.scope(
+                state: \.userFolders,
+                action: FoldersReducer.Action.userFolder
+              )) { childStore in
+                FolderGridItemView(
+                  store: childStore,
+                  isEditing: viewStore.isEditing,
+                  isSelected: viewStore.selection.contains(ViewStore(childStore, observe: \.id).state)
+                )
+              }
+            }
+          }
+          .animation(.default, value: viewStore.userFolders.count)
+          .listSectionSeparator(.hidden)
+          .listRowSeparator(.hidden)
+        } header: {
+          Text("User")
+            .textSubtitleStyle()
         }
-        .listStyle(.sidebar)
-        .navigationTitle(viewStore.navigationTitle)
-        .toolbar { toolbar(viewStore: viewStore) }
-        .searchable(
-          text: .constant(""),
-          placement: .navigationBarDrawer(displayMode: .always)
-        )
-        .task {
-          if viewStore.userFolders.isEmpty {
-            await viewStore.send(.task).finish()
-          }
+        .textCase(nil)
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
+        .listSectionSeparator(.hidden)
+      }
+      .listStyle(.sidebar)
+      .navigationTitle(viewStore.navigationTitle)
+      .toolbar { toolbar(viewStore: viewStore) }
+      .searchable(
+        text: .constant(""),
+        placement: .navigationBarDrawer(displayMode: .always)
+      )
+      .task {
+        if viewStore.userFolders.isEmpty {
+          await viewStore.send(.task).finish()
         }
-        .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
-        .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
-      } destination: { state in
-        switch state {
-        case .folder:
-          CaseLet(
-            /FoldersReducer.PathReducer.State.folder,
-             action: FoldersReducer.PathReducer.Action.folder
-          ) {
-            FolderView(store: $0)
-          }
-        case .recipe:
-          CaseLet(
-            /FoldersReducer.PathReducer.State.recipe,
-             action: FoldersReducer.PathReducer.Action.recipe
-          ) {
-            RecipeView(store: $0)
-          }
+      }
+      .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
+      .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
+    } destination: { state in
+      switch state {
+      case .folder:
+        CaseLet(
+          /FoldersReducer.PathReducer.State.folder,
+           action: FoldersReducer.PathReducer.Action.folder
+        ) {
+          FolderView(store: $0)
+        }
+      case .recipe:
+        CaseLet(
+          /FoldersReducer.PathReducer.State.recipe,
+           action: FoldersReducer.PathReducer.Action.recipe
+        ) {
+          RecipeView(store: $0)
         }
       }
     }

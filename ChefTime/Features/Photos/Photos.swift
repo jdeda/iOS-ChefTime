@@ -26,7 +26,7 @@ struct PhotosView: View {
               .clipped()
               .foregroundColor(Color(uiColor: .systemGray4))
               .padding()
-            Text("Add Images")
+            Text(viewStore.supportSinglePhotoOnly ? "Add Image" : "Add Images")
               .fontWeight(.bold)
               .foregroundColor(Color(uiColor: .systemGray4))
           }
@@ -76,7 +76,15 @@ struct PhotosView: View {
           .disabled(viewStore.photoEditInFlight)
         }
         
-        if !viewStore.photoEditInFlight {
+        
+        let addButtonIsShowing: Bool = {
+          if viewStore.photoEditInFlight { return false }
+          if viewStore.supportSinglePhotoOnly {
+            return viewStore.photos.count < 1
+          }
+          else { return true }
+        }()
+        if addButtonIsShowing {
           Button {
             viewStore.send(.addButtonTapped, animation: .default)
           } label: {
@@ -84,7 +92,7 @@ struct PhotosView: View {
           }
           .disabled(viewStore.photoEditInFlight)
         }
-        
+                   
         if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
           Button(role: .destructive) {
             viewStore.send(.deleteButtonTapped, animation: .default)
@@ -114,6 +122,7 @@ struct PhotosView: View {
 struct PhotosReducer: Reducer {
   struct State: Equatable {
     var photos: IdentifiedArrayOf<ImageData>
+    let supportSinglePhotoOnly: Bool
     var photoEditStatus: PhotoEditStatus? = nil
     var photoEditInFlight: Bool = false
     @BindingState var photoPickerIsPresented: Bool = false
@@ -395,6 +404,7 @@ struct PhotosView_Previews: PreviewProvider {
         PhotosView(store: .init(
           initialState: .init(
             photos: .init(Recipe.longMock.imageData.prefix(0)),
+            supportSinglePhotoOnly: false,
             selection: Recipe.longMock.imageData.first?.id
           ),
           reducer: PhotosReducer.init
