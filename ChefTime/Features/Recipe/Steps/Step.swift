@@ -113,7 +113,7 @@ struct StepReducer: Reducer {
       self.focusedField = focusedField
       self.photos = .init(
         photos: step.imageData,
-        supportSinglePhotoOnly: false,
+        disableContextMenu: false,
         selection: step.imageData.first?.id
       )
     }

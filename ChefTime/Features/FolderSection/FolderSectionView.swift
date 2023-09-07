@@ -8,7 +8,7 @@ struct FolderSectionView: View {
   @Environment(\.isHidingFolderImages) private var isHidingFolderImages
   private var width: CGFloat { maxScreenWidth.maxWidth * 0.40 }
   private let columns: [GridItem] = [.init(spacing: 20), .init(spacing: 20)]
-
+//  private let columns: [GridItem] = [.init(spacing: 20)]
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
@@ -75,7 +75,7 @@ struct FolderSectionReducer: Reducer {
 // MARK: - Preview
 struct FolderSectionView_Previews: PreviewProvider {
   static var previews: some View {
-    List {
+    ScrollView {
       FolderSectionView(store: .init(
         initialState: .init(
           folders: .init(uniqueElements: Folder.longMock.folders.map { .init(id: .init(), folder: $0) }),
@@ -84,7 +84,7 @@ struct FolderSectionView_Previews: PreviewProvider {
         reducer: FolderSectionReducer.init
       ))
     }
-    .listStyle(.sidebar)
+//    .listStyle(.sidebar)
   }
 }
 

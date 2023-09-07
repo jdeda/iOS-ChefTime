@@ -8,6 +8,22 @@ import Combine
 // TODO: Maybe change order of adding a photo to next rather than inplace.
 // TODO: Fix transition animation from 0 images to 1+ images
 
+
+extension Image {
+    @warn_unqualified_access
+    func square() -> some View {
+        Rectangle()
+            .aspectRatio(1, contentMode: .fit)
+            .overlay(
+                self
+                    .resizable()
+                    .scaledToFill()
+            )
+            .clipShape(Rectangle())
+    }
+}
+
+
 // MARK: - View
 struct PhotosView: View {
   let store: StoreOf<PhotosReducer>
@@ -20,7 +36,7 @@ struct PhotosView: View {
         ZStack {
           VStack {
             Image(systemName: "photo.stack")
-              .resizable()
+              .square()
               .scaledToFit()
               .frame(width: 75, height: 75)
               .clipped()
@@ -59,52 +75,53 @@ struct PhotosView: View {
       }
       .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
       .clipShape(RoundedRectangle(cornerRadius: 15))
-      .contextMenu(menuItems: {
-        if viewStore.photoEditInFlight {
-          Button {
-            viewStore.send(.cancelPhotoEdit, animation: .default)
-          } label: {
-            Text("Cancel")
-          }
-        }
-        if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
-          Button {
-            viewStore.send(.replaceButtonTapped, animation: .default)
-          } label: {
-            Text("Replace")
-          }
-          .disabled(viewStore.photoEditInFlight)
-        }
-        
-        
-        let addButtonIsShowing: Bool = {
-          if viewStore.photoEditInFlight { return false }
-          if viewStore.supportSinglePhotoOnly {
-            return viewStore.photos.count < 1
-          }
-          else { return true }
-        }()
-        if addButtonIsShowing {
-          Button {
-            viewStore.send(.addButtonTapped, animation: .default)
-          } label: {
-            Text("Add")
-          }
-          .disabled(viewStore.photoEditInFlight)
-        }
-                   
-        if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
-          Button(role: .destructive) {
-            viewStore.send(.deleteButtonTapped, animation: .default)
-          } label: {
-            Text("Delete")
-          }
-          .disabled(viewStore.photoEditInFlight)
-        }
-      }, preview: {
-        PhotosView(store: store)
-        // TODO: The context menu preview version of this view won't update in real-time...
-        // So we have to use the original view
+      .if(!viewStore.disableContextMenu, transform: {
+          $0.contextMenu(menuItems: {
+            if viewStore.photoEditInFlight {
+              Button {
+                viewStore.send(.cancelPhotoEdit, animation: .default)
+              } label: {
+                Text("Cancel")
+              }
+            }
+            if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
+              Button {
+                viewStore.send(.replaceButtonTapped, animation: .default)
+              } label: {
+                Text("Replace")
+              }
+              .disabled(viewStore.photoEditInFlight)
+            }
+            
+            let addButtonIsShowing: Bool = {
+              if viewStore.photoEditInFlight { return false }
+              if viewStore.supportSinglePhotoOnly {
+                return viewStore.photos.count < 1
+              }
+              else { return true }
+            }()
+            if addButtonIsShowing {
+              Button {
+                viewStore.send(.addButtonTapped, animation: .default)
+              } label: {
+                Text("Add")
+              }
+              .disabled(viewStore.photoEditInFlight)
+            }
+            
+            if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
+              Button(role: .destructive) {
+                viewStore.send(.deleteButtonTapped, animation: .default)
+              } label: {
+                Text("Delete")
+              }
+              .disabled(viewStore.photoEditInFlight)
+            }
+          }, preview: {
+            PhotosView(store: store)
+            // TODO: The context menu preview version of this view won't update in real-time...
+            // So we have to use the original view
+          })
       })
       .photosPicker(
         isPresented: viewStore.$photoPickerIsPresented,
@@ -118,17 +135,59 @@ struct PhotosView: View {
   }
 }
 
+// MARK: - CONDITONAL VIEWMODIFIER USE WITH EXTREME CAUTION.
+/// This modifier is being used strictly for the context menu problem where we want to hide it or not.
+/// Please do not use this anywhere else. Conditional view modifiers are notoriously buggy
+/// because the the way SwiftUI animates. Use with extreme caution.
+private extension View {
+    /// Applies the given transform if the given condition evaluates to `true`.
+    /// - Parameters:
+    ///   - condition: The condition to evaluate.
+    ///   - transform: The transform to apply to the source `View`.
+    /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
+    @ViewBuilder func `if`<Content: View>(_ condition: @autoclosure () -> Bool, transform: (Self) -> Content) -> some View {
+        if condition() {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
+
 // MARK: - Reducer
 struct PhotosReducer: Reducer {
   struct State: Equatable {
     var photos: IdentifiedArrayOf<ImageData>
     let supportSinglePhotoOnly: Bool
+    let disableContextMenu: Bool
     var photoEditStatus: PhotoEditStatus? = nil
     var photoEditInFlight: Bool = false
     @BindingState var photoPickerIsPresented: Bool = false
     @BindingState var selection: ImageData.ID?
     @BindingState var photoPickerItem: PhotosPickerItem? = nil
     @PresentationState var alert: AlertState<AlertAction>?
+    
+    init(
+      photos: IdentifiedArrayOf<ImageData>,
+      supportSinglePhotoOnly: Bool = false,
+      disableContextMenu: Bool = false,
+      photoEditStatus: PhotoEditStatus? = nil,
+      photoEditInFlight: Bool = false,
+      photoPickerIsPresented: Bool = false,
+      selection: ImageData.ID? = nil,
+      photoPickerItem: PhotosPickerItem? = nil,
+      alert: AlertState<AlertAction>? = nil
+    ) {
+      self.photos = photos
+      self.supportSinglePhotoOnly = supportSinglePhotoOnly
+      self.disableContextMenu = disableContextMenu
+      self.photoEditStatus = photoEditStatus
+      self.photoEditInFlight = photoEditInFlight
+      self.photoPickerIsPresented = photoPickerIsPresented
+      self.selection = selection
+      self.photoPickerItem = photoPickerItem
+      self.alert =   alert
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -173,6 +232,7 @@ struct PhotosReducer: Reducer {
         state.photoEditInFlight = true
         return .run { [status = state.photoEditStatus] send in
           guard !Task.isCancelled else { return }
+          try await Task.sleep(for: .seconds(5))
           let imageData = try await withTimeout(for: 10) {
             guard let data = await photosClient.convertPhotoPickerItem(item),
                   let imageData = ImageData(id: .init(rawValue: uuid()), data: data)
@@ -403,8 +463,9 @@ struct PhotosView_Previews: PreviewProvider {
       ScrollView {
         PhotosView(store: .init(
           initialState: .init(
-            photos: .init(Recipe.longMock.imageData.prefix(0)),
+            photos: .init(Recipe.longMock.imageData.prefix(3)),
             supportSinglePhotoOnly: false,
+            disableContextMenu: false,
             selection: Recipe.longMock.imageData.first?.id
           ),
           reducer: PhotosReducer.init

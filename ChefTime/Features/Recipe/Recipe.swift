@@ -138,7 +138,7 @@ struct RecipeReducer: Reducer {
       self.recipe = recipe
       self.photos = .init(
         photos: recipe.imageData,
-        supportSinglePhotoOnly: false,
+        disableContextMenu: false,
         selection: recipe.imageData.first?.id
       )
       self.about = .init(

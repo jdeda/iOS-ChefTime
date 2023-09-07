@@ -233,7 +233,7 @@ extension FolderSectionReducer.State {
     )
   }()
   
-  static let user = Self(folders: [], title: "user")
+  static let user = Self(folders: [], title: "User")
 }
 
 

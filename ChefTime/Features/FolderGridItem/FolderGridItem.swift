@@ -2,6 +2,9 @@ import ComposableArchitecture
 import SwiftUI
 import Tagged
 
+// TODO: ContextMenu for the PhotosView should be disabled and relegated to this feature.
+// TODO: The PhotosView needs adjusting for adaptable resizing...as wel as the rectangle aspect ratio trick
+
 // MARK: - View
 struct FolderGridItemView: View {
   let store: StoreOf<FolderGridItemReducer>
@@ -52,31 +55,63 @@ struct FolderGridItemView: View {
           .lineLimit(2)
           .font(.body)
           .foregroundColor(.secondary)
-        Spacer()
       }
       .clipShape(RoundedRectangle(cornerRadius: 15))
+      .compositingGroup()
       .contextMenu {
-        Button {
-          viewStore.send(.rename, animation: .default)
-        } label: {
-          Text("Rename")
+        if viewStore.photos.photoEditInFlight {
+          Button {
+            viewStore.send(.photos(.cancelPhotoEdit), animation: .default)
+          } label: {
+            Text("Cancel Image Upload")
+          }
         }
-        Button {
-          viewStore.send(.delegate(.move), animation: .default)
-        } label: {
-          Text("Move")
+        else {
+          Menu {
+            if viewStore.photos.photos.count == 1 {
+              Button {
+                viewStore.send(.photos(.addButtonTapped), animation: .default)
+              } label: {
+                Text("Replace Image")
+              }
+              Button(role: .destructive) {
+                viewStore.send(.photos(.deleteButtonTapped), animation: .default)
+              } label: {
+                Text("Delete Image")
+              }
+            }
+            else {
+              Button {
+                viewStore.send(.photos(.addButtonTapped), animation: .default)
+              } label: {
+                Text("Add Image")
+              }
+            }
+          } label: {
+            Text("Edit Image")
+          }
+          Button {
+            viewStore.send(.rename, animation: .default)
+          } label: {
+            Text("Rename")
+          }
+          Button {
+            viewStore.send(.delegate(.move), animation: .default)
+          } label: {
+            Text("Move")
+          }
+          Button(role: .destructive) {
+            viewStore.send(.delegate(.delete), animation: .default)
+          } label: {
+            Text("Delete")
+          }
         }
-        Button(role: .destructive) {
-          viewStore.send(.delegate(.delete), animation: .default)
-        } label: {
-          Text("Delete")
-        }
-        
       } preview: {
         FolderGridItemView(store: store, isEditing: isEditing, isSelected: isSelected)
           .disabled(true)
           .frame(minHeight: 200)
       }
+      
     }
   }
 }
@@ -98,7 +133,8 @@ struct FolderGridItemReducer: Reducer {
       self.folder = folder
       self.photos = .init(
         photos: .init(uniqueElements: (folder.imageData != nil) ? [folder.imageData!] : []),
-        supportSinglePhotoOnly: true
+        supportSinglePhotoOnly: true,
+        disableContextMenu: true
       )
     }
   }
