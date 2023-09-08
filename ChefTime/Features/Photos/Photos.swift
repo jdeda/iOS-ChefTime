@@ -37,7 +37,6 @@ struct PhotosView: View {
           VStack {
             Image(systemName: "photo.stack")
               .square()
-              .scaledToFit()
               .frame(width: 75, height: 75)
               .clipped()
               .foregroundColor(Color(uiColor: .systemGray4))
