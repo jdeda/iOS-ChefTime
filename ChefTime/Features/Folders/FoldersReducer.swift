@@ -66,6 +66,9 @@ struct FoldersReducer: Reducer {
               let imageData = folder.imageData {
             state.systemFoldersSection.folders[1].photos.photos = [imageData]
           }
+          // TODO: - Temporary and extremely dangerous.
+          state.systemFoldersSection.folders[0].folder.imageData = folder.recipes[2].imageData.first!
+          state.systemFoldersSection.folders[0].photos.photos = [folder.recipes[2].imageData.first!]
           break
         case .systemRecentlyDeleted:
           state.systemFoldersSection.folders[2].folder = folder
@@ -90,11 +93,6 @@ struct FoldersReducer: Reducer {
 
         let flattenedRecipes = flattenAllRecipes(folder)
         state.systemFoldersSection.folders[0].folder.recipes.append(contentsOf: flattenedRecipes)
-        if (state.systemFoldersSection.folders[0].folder.imageData == nil),
-            let imageData = folder.imageData {
-          state.systemFoldersSection.folders[0].folder.imageData = imageData
-          state.systemFoldersSection.folders[0].photos.photos = [imageData]
-        }
         return .none
         
       case .selectFoldersButtonTapped:

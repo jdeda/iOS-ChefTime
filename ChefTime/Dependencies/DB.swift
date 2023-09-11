@@ -39,6 +39,7 @@ extension Database {
             else { continue }
             if folder.name.lowercased() == "recently deleted" {
               folder.folderType = .systemRecentlyDeleted
+              folder.imageData = folder.recipes[3].imageData.first
             }
             if folder.name.lowercased() == "standard" {
               folder.folderType = .systemStandard
