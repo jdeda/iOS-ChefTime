@@ -93,10 +93,12 @@ private func fetchFolder(at directoryURL: URL) async -> Folder? {
       guard let recipe = await fetchRecipe(at: url)
       else { continue }
       folder.recipes.append(recipe)
+      folder.name = folder.name.capitalized
+      if folder.imageData == nil {
+        folder.imageData = recipe.imageData.first
+      }
     }
-    else {
-      continue
-    }
+    else { continue }
   }
   return folder
 }

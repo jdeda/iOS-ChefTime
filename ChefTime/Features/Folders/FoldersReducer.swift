@@ -65,9 +65,7 @@ struct FoldersReducer: Reducer {
           state.systemFoldersSection.folders[2].folder.folders.append(folder)
           break
         case .user:
-          guard let i = state.systemFoldersSection.folders.firstIndex(where: { $0.folder.folderType == .user })
-          else { break }
-          state.systemFoldersSection.folders[i].folder.folders.append(folder)
+          state.userFoldersSection.folders.append(.init(id: .init(), folder: folder))
           break
         }
         return .none
@@ -98,10 +96,17 @@ struct FoldersReducer: Reducer {
         state.alert = .delete
         return .none
         
-      case let .userFoldersSection(action):
+      case let .userFoldersSection(.delegate(action)):
+        switch action {
+        case let .folderTapped(id):
+          guard let folder = state.userFoldersSection.folders[id: id]?.folder
+          else { return .none }
+          state.path.append(.folder(.init(folder: folder)))
+          return .none
+        }
         return .none
         
-      case let .systemFoldersSection(action):
+      case let .systemFoldersSection(.delegate(action)):
         return .none
         
       case .binding:
@@ -150,7 +155,7 @@ struct FoldersReducer: Reducer {
         state.alert = nil
         return .none
         
-      case .alert:
+      case .alert, .systemFoldersSection, .userFoldersSection:
         return .none
       }
     }

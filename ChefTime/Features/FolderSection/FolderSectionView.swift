@@ -17,12 +17,15 @@ struct FolderSectionView: View {
             state: \.folders,
             action: FolderSectionReducer.Action.folders
           )) { childStore in
+            let id = ViewStore(childStore, observe: \.id).state
             FolderGridItemView(
               store: childStore,
               isEditing: viewStore.isEditing,
-              isSelected: viewStore.selection.contains(ViewStore(childStore, observe: \.id).state)
+              isSelected: viewStore.selection.contains(id)
             )
-            .tag(ViewStore(childStore, observe: \.id).state)
+            .onTapGesture {
+              viewStore.send(.delegate(.folderTapped(id)), animation: .default)
+            }
           }
         }
         .animation(.default, value: viewStore.folders.count)
@@ -31,6 +34,7 @@ struct FolderSectionView: View {
           .textSubtitleStyle()
         Spacer()
       }
+      .accentColor(.primary)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
     }
   }
@@ -49,6 +53,7 @@ struct FolderSectionReducer: Reducer {
   enum Action: Equatable, BindableAction {
     case folders(FolderGridItemReducer.State.ID, FolderGridItemReducer.Action)
     case binding(BindingAction<State>)
+    case delegate(DelegateAction)
   }
   
   var body: some ReducerOf<Self> {
@@ -58,7 +63,7 @@ struct FolderSectionReducer: Reducer {
       case let .folders(id, .delegate(action)):
         return .none
         
-      case .folders, .binding:
+      case .folders, .binding, .delegate:
         return .none
       }
     }
@@ -66,6 +71,12 @@ struct FolderSectionReducer: Reducer {
       FolderGridItemReducer()
     }
     
+  }
+}
+
+extension FolderSectionReducer {
+  enum DelegateAction: Equatable {
+    case folderTapped(FolderGridItemReducer.State.ID)
   }
 }
 
