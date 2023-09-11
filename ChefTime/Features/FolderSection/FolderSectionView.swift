@@ -8,11 +8,10 @@ struct FolderSectionView: View {
   @Environment(\.isHidingFolderImages) private var isHidingFolderImages
   private var width: CGFloat { maxScreenWidth.maxWidth * 0.40 }
   private let columns: [GridItem] = [.init(spacing: 20), .init(spacing: 20)]
-//  private let columns: [GridItem] = [.init(spacing: 20)]
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      Section {
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         LazyVGrid(columns: columns, spacing: 10) {
           ForEachStore(store.scope(
             state: \.folders,
@@ -23,19 +22,16 @@ struct FolderSectionView: View {
               isEditing: viewStore.isEditing,
               isSelected: viewStore.selection.contains(ViewStore(childStore, observe: \.id).state)
             )
+            .tag(ViewStore(childStore, observe: \.id).state)
           }
         }
         .animation(.default, value: viewStore.folders.count)
-        .listSectionSeparator(.hidden)
-        .listRowSeparator(.hidden)
-      } header: {
+      } label: {
         Text(viewStore.title)
           .textSubtitleStyle()
+        Spacer()
       }
-      .textCase(nil)
-      .listRowBackground(Color.clear)
-      .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0))
-      .listSectionSeparator(.hidden)
+      .disclosureGroupStyle(CustomDisclosureGroupStyle())
     }
   }
 }
@@ -47,6 +43,7 @@ struct FolderSectionReducer: Reducer {
     let title: String
     var isEditing: Bool = false
     @BindingState var selection = Set<FolderGridItemReducer.State.ID>()
+    @BindingState var isExpanded: Bool = true
   }
   
   enum Action: Equatable, BindableAction {

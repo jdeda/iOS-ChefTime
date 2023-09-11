@@ -38,18 +38,22 @@ struct FoldersView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
-        List {
+        ScrollView {
           FolderSectionView(store: store.scope(
             state: \.systemFoldersSection,
             action: FoldersReducer.Action.systemFoldersSection
           ))
+          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+          
+          Divider()
+            .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
           
           FolderSectionView(store: store.scope(
             state: \.userFoldersSection,
             action: FoldersReducer.Action.userFoldersSection
           ))
+          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
         }
-        .listStyle(.sidebar)
         .navigationTitle(viewStore.navigationTitle)
         .toolbar { toolbar(viewStore: viewStore) }
         .searchable(

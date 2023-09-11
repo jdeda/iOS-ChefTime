@@ -15,6 +15,7 @@ struct FolderGridItemView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         PhotosView(store: store.scope(state: \.photos, action: FolderGridItemReducer.Action.photos))
+//          .border(.red)
           .overlay(alignment: .bottom) {
             if isEditing {
               ZStack(alignment: .bottom) {
@@ -23,7 +24,7 @@ struct FolderGridItemView: View {
                   ZStack(alignment: .bottom) {
                     RoundedRectangle(cornerRadius: 15)
                       .strokeBorder(Color.accentColor, lineWidth: 5)
-                    
+
                     Circle()
                       .fill(.primary)
                       .colorInvert()
@@ -57,7 +58,6 @@ struct FolderGridItemView: View {
           .foregroundColor(.secondary)
       }
       .clipShape(RoundedRectangle(cornerRadius: 15))
-      .compositingGroup()
       .contextMenu {
         if viewStore.photos.photoEditInFlight {
           Button {
@@ -184,6 +184,7 @@ struct FolderGridItemView_Previews: PreviewProvider {
         isEditing: false,
         isSelected: false
       )
+//      .frame(width: 50, height: 50)
       .padding(50)
     }
   }
