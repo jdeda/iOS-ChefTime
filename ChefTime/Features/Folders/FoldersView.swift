@@ -131,10 +131,9 @@ extension FoldersView {
         }
         .accentColor(.primary)
       }
-      
       ToolbarItemGroup(placement: .bottomBar) {
         Button {
-          //                    viewStore.send(.newFolderButtonTapped, animation: .default)
+          viewStore.send(.newFolderButtonTapped, animation: .default)
         } label: {
           Image(systemName: "folder.badge.plus")
         }
@@ -143,7 +142,7 @@ extension FoldersView {
         Text("\(viewStore.userFoldersSection.folders.count) folders")
         Spacer()
         Button {
-          //          viewStore.send(.newRecipeButtonTapped, animation: .default)
+          viewStore.send(.newRecipeButtonTapped, animation: .default)
         } label: {
           Image(systemName: "square.and.pencil")
           

@@ -22,9 +22,11 @@ extension Database {
     fetchAllFolders: {
       .init { continuation in
         let task = Task {
-          var rootURL = URL(string: "/Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Resources/JSON/user")!
+          
+          // Fetch all system folders.
+          var rootSystemURL = URL(string: "/Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Resources/JSON/system")!
           guard let contents = try? FileManager.default.contentsOfDirectory(
-            at: rootURL,
+            at: rootSystemURL,
             includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
             options: .skipsHiddenFiles
           )
@@ -32,7 +34,29 @@ extension Database {
             continuation.finish()
             return
           }
+          for url in contents {
+            guard var folder = await fetchFolder(at: url)
+            else { continue }
+            if folder.name.lowercased() == "recently deleted" {
+              folder.folderType = .systemRecentlyDeleted
+            }
+            if folder.name.lowercased() == "standard" {
+              folder.folderType = .systemStandard
+            }
+            continuation.yield(folder)
+          }
           
+          // Fetch all user folders.
+          var rootUserURL = URL(string: "/Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Resources/JSON/user")!
+          guard let contents = try? FileManager.default.contentsOfDirectory(
+            at: rootUserURL,
+            includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
+            options: .skipsHiddenFiles
+          )
+          else {
+            continuation.finish()
+            return
+          }
           for url in contents {
             guard let folder = await fetchFolder(at: url)
             else { continue }
@@ -85,8 +109,12 @@ private func fetchFolder(at directoryURL: URL) async -> Folder? {
   var folder = Folder(id: .init(), name: directoryURL.lastPathComponent, folderType: .user)
   for url in contents {
     if url.hasDirectoryPath {
-      guard let childFolder = await fetchFolder(at: url)
+      guard var childFolder = await fetchFolder(at: url)
       else { continue }
+      
+      if folder.imageData == nil {
+        folder.imageData = childFolder.imageData
+      }
       folder.folders.append(childFolder)
     }
     else if url.pathExtension.lowercased() == "json" {
@@ -99,6 +127,15 @@ private func fetchFolder(at directoryURL: URL) async -> Folder? {
       }
     }
     else { continue }
+  }
+  if folder.name.lowercased() == "standard" {
+    
+  }
+  folder.name = folder.name.capitalized
+  if folder.imageData == nil {
+    if let imageData = folder.recipes.first(where: { $0.imageData.first != nil })?.imageData.first {
+      folder.imageData = imageData
+    }
   }
   return folder
 }

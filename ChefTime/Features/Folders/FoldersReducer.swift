@@ -31,6 +31,8 @@ struct FoldersReducer: Reducer {
     case hideImagesButtonTapped
     case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
+    case newFolderButtonTapped
+    case newRecipeButtonTapped
     case userFoldersSection(FolderSectionReducer.Action)
     case systemFoldersSection(FolderSectionReducer.Action)
     case path(StackAction<PathReducer.State, PathReducer.Action>)
@@ -59,14 +61,39 @@ struct FoldersReducer: Reducer {
         case .systemAll:
           break
         case .systemStandard:
-          state.systemFoldersSection.folders[1].folder.folders.append(folder)
+          state.systemFoldersSection.folders[1].folder = folder
+          if (state.systemFoldersSection.folders[1].folder.imageData != nil),
+              let imageData = folder.imageData {
+            state.systemFoldersSection.folders[1].photos.photos = [imageData]
+          }
           break
         case .systemRecentlyDeleted:
-          state.systemFoldersSection.folders[2].folder.folders.append(folder)
+          state.systemFoldersSection.folders[2].folder = folder
+          if (state.systemFoldersSection.folders[2].folder.imageData != nil),
+              let imageData = folder.imageData {
+            state.systemFoldersSection.folders[2].photos.photos = [imageData]
+          }
           break
         case .user:
           state.userFoldersSection.folders.append(.init(id: .init(), folder: folder))
           break
+        }
+        
+        // Append the to the all folder.
+        func flattenAllRecipes(_ folder: Folder) -> [Recipe] {
+          var result: [Recipe] = folder.recipes.elements
+          for folder in folder.folders {
+            result += flattenAllRecipes(folder)
+          }
+          return result
+        }
+
+        let flattenedRecipes = flattenAllRecipes(folder)
+        state.systemFoldersSection.folders[0].folder.recipes.append(contentsOf: flattenedRecipes)
+        if (state.systemFoldersSection.folders[0].folder.imageData == nil),
+            let imageData = folder.imageData {
+          state.systemFoldersSection.folders[0].folder.imageData = imageData
+          state.systemFoldersSection.folders[0].photos.photos = [imageData]
         }
         return .none
         
@@ -96,6 +123,25 @@ struct FoldersReducer: Reducer {
         state.alert = .delete
         return .none
         
+      case .newFolderButtonTapped:
+        let newFolder = FolderGridItemReducer.State(
+          id: .init(rawValue: uuid()),
+          folder: .init(
+            id: .init(rawValue: uuid()),
+            name: "New Untitled Folder",
+            folderType: .user
+          )
+        )
+        state.userFoldersSection.folders.append(newFolder)
+        state.path.append(.folder(.init(folder: newFolder.folder)))
+        return .none
+        
+      case .newRecipeButtonTapped:
+        let newRecipe = Recipe(id: .init(rawValue: uuid()), name: "New Untitled Recipe")
+        state.systemFoldersSection.folders[1].folder.recipes.append(newRecipe)
+        state.path.append(.recipe(.init(recipe: newRecipe)))
+        return .none
+        
       case let .userFoldersSection(.delegate(action)):
         switch action {
         case let .folderTapped(id):
@@ -104,11 +150,15 @@ struct FoldersReducer: Reducer {
           state.path.append(.folder(.init(folder: folder)))
           return .none
         }
-        return .none
         
       case let .systemFoldersSection(.delegate(action)):
-        return .none
-        
+        switch action {
+        case let .folderTapped(id):
+          guard let folder = state.systemFoldersSection.folders[id: id]?.folder
+          else { return .none }
+          state.path.append(.folder(.init(folder: folder)))
+          return .none
+        }
       case .binding:
         return .none
         

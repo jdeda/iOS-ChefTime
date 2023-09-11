@@ -31,7 +31,7 @@ struct FolderSectionView: View {
         .animation(.default, value: viewStore.folders.count)
       } label: {
         Text(viewStore.title)
-          .textSubtitleStyle()
+          .textTitleStyle()
         Spacer()
       }
       .accentColor(.primary)
