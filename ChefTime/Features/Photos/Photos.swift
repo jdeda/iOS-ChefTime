@@ -8,6 +8,23 @@ import Combine
 // TODO: Maybe change order of adding a photo to next rather than inplace.
 // TODO: Fix transition animation from 0 images to 1+ images
 
+
+extension Image {
+  @warn_unqualified_access
+  func square() -> some View {
+    Rectangle()
+      .fill(.clear)
+      .aspectRatio(1, contentMode: .fit)
+      .overlay(
+        self
+          .resizable()
+          .scaledToFill()
+      )
+      .clipShape(Rectangle())
+  }
+}
+
+
 // MARK: - View
 struct PhotosView: View {
   let store: StoreOf<PhotosReducer>
@@ -19,18 +36,25 @@ struct PhotosView: View {
       ZStack {
         ZStack {
           VStack {
-            Image(systemName: "photo.stack")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 75, height: 75)
-              .clipped()
+            Rectangle()
+              .fill(.clear)
+              .aspectRatio(1, contentMode: .fit)
+              .overlay(
+                Image(systemName: "photo.stack")
+                  .resizable()
+                  .scaledToFill()
+                  .padding()
+              )
+              .clipShape(Rectangle())
+
               .foregroundColor(Color(uiColor: .systemGray4))
               .padding()
-            Text("Add Images")
-              .fontWeight(.bold)
-              .foregroundColor(Color(uiColor: .systemGray4))
+//            Text(viewStore.supportSinglePhotoOnly ? "Add Image" : "Add Images")
+//              .fontWeight(.bold)
+//              .foregroundColor(Color(uiColor: .systemGray4))
+//              .padding(.bottom)
           }
-          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
+//          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
           .background(Color(uiColor: .systemGray6))
           .accentColor(.accentColor)
           .clipShape(RoundedRectangle(cornerRadius: 15))
@@ -40,7 +64,7 @@ struct PhotosView: View {
             imageDatas: viewStore.photos,
             selection: viewStore.$selection
           )
-          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
+//          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
           .clipShape(RoundedRectangle(cornerRadius: 15))
           .opacity(!viewStore.photos.isEmpty ? 1.0 : 0.0 )
         }
@@ -57,55 +81,83 @@ struct PhotosView: View {
         Color.clear
           .contentShape(Rectangle())
       }
-      .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
+//      .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
       .clipShape(RoundedRectangle(cornerRadius: 15))
-      .contextMenu(menuItems: {
-        if viewStore.photoEditInFlight {
-          Button {
-            viewStore.send(.cancelPhotoEdit, animation: .default)
-          } label: {
-            Text("Cancel")
+      .if(!viewStore.disableContextMenu, transform: {
+        $0.contextMenu(menuItems: {
+          if viewStore.photoEditInFlight {
+            Button {
+              viewStore.send(.cancelPhotoEdit, animation: .default)
+            } label: {
+              Text("Cancel")
+            }
           }
-        }
-        if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
-          Button {
-            viewStore.send(.replaceButtonTapped, animation: .default)
-          } label: {
-            Text("Replace")
+          if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
+            Button {
+              viewStore.send(.replaceButtonTapped, animation: .default)
+            } label: {
+              Text("Replace")
+            }
+            .disabled(viewStore.photoEditInFlight)
           }
-          .disabled(viewStore.photoEditInFlight)
-        }
-        
-        if !viewStore.photoEditInFlight {
-          Button {
-            viewStore.send(.addButtonTapped, animation: .default)
-          } label: {
-            Text("Add")
+          
+          let addButtonIsShowing: Bool = {
+            if viewStore.photoEditInFlight { return false }
+            if viewStore.supportSinglePhotoOnly {
+              return viewStore.photos.count < 1
+            }
+            else { return true }
+          }()
+          if addButtonIsShowing {
+            Button {
+              viewStore.send(.addButtonTapped, animation: .default)
+            } label: {
+              Text("Add")
+            }
+            .disabled(viewStore.photoEditInFlight)
           }
-          .disabled(viewStore.photoEditInFlight)
-        }
-        
-        if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
-          Button(role: .destructive) {
-            viewStore.send(.deleteButtonTapped, animation: .default)
-          } label: {
-            Text("Delete")
+          
+          if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
+            Button(role: .destructive) {
+              viewStore.send(.deleteButtonTapped, animation: .default)
+            } label: {
+              Text("Delete")
+            }
+            .disabled(viewStore.photoEditInFlight)
           }
-          .disabled(viewStore.photoEditInFlight)
-        }
-      }, preview: {
-        PhotosView(store: store)
-        // TODO: The context menu preview version of this view won't update in real-time...
-        // So we have to use the original view
+        }, preview: {
+          PhotosView(store: store)
+          // TODO: The context menu preview version of this view won't update in real-time...
+          // So we have to use the original view
+        })
       })
-      .photosPicker(
-        isPresented: viewStore.$photoPickerIsPresented,
-        selection: viewStore.$photoPickerItem,
-        matching: .images,
-        preferredItemEncoding: .compatible,
-        photoLibrary: .shared()
-      )
-      .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
+        .photosPicker(
+          isPresented: viewStore.$photoPickerIsPresented,
+          selection: viewStore.$photoPickerItem,
+          matching: .images,
+          preferredItemEncoding: .compatible,
+          photoLibrary: .shared()
+        )
+          .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
+    }
+  }
+}
+
+// MARK: - CONDITONAL VIEWMODIFIER USE WITH EXTREME CAUTION.
+/// This modifier is being used strictly for the context menu problem where we want to hide it or not.
+/// Please do not use this anywhere else. Conditional view modifiers are notoriously buggy
+/// because the the way SwiftUI animates. Use with extreme caution.
+private extension View {
+  /// Applies the given transform if the given condition evaluates to `true`.
+  /// - Parameters:
+  ///   - condition: The condition to evaluate.
+  ///   - transform: The transform to apply to the source `View`.
+  /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
+  @ViewBuilder func `if`<Content: View>(_ condition: @autoclosure () -> Bool, transform: (Self) -> Content) -> some View {
+    if condition() {
+      transform(self)
+    } else {
+      self
     }
   }
 }
@@ -114,12 +166,36 @@ struct PhotosView: View {
 struct PhotosReducer: Reducer {
   struct State: Equatable {
     var photos: IdentifiedArrayOf<ImageData>
+    let supportSinglePhotoOnly: Bool
+    let disableContextMenu: Bool
     var photoEditStatus: PhotoEditStatus? = nil
     var photoEditInFlight: Bool = false
     @BindingState var photoPickerIsPresented: Bool = false
     @BindingState var selection: ImageData.ID?
     @BindingState var photoPickerItem: PhotosPickerItem? = nil
     @PresentationState var alert: AlertState<AlertAction>?
+    
+    init(
+      photos: IdentifiedArrayOf<ImageData>,
+      supportSinglePhotoOnly: Bool = false,
+      disableContextMenu: Bool = false,
+      photoEditStatus: PhotoEditStatus? = nil,
+      photoEditInFlight: Bool = false,
+      photoPickerIsPresented: Bool = false,
+      selection: ImageData.ID? = nil,
+      photoPickerItem: PhotosPickerItem? = nil,
+      alert: AlertState<AlertAction>? = nil
+    ) {
+      self.photos = photos
+      self.supportSinglePhotoOnly = supportSinglePhotoOnly
+      self.disableContextMenu = disableContextMenu
+      self.photoEditStatus = photoEditStatus
+      self.photoEditInFlight = photoEditInFlight
+      self.photoPickerIsPresented = photoPickerIsPresented
+      self.selection = selection
+      self.photoPickerItem = photoPickerItem
+      self.alert =   alert
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -395,10 +471,13 @@ struct PhotosView_Previews: PreviewProvider {
         PhotosView(store: .init(
           initialState: .init(
             photos: .init(Recipe.longMock.imageData.prefix(0)),
+            supportSinglePhotoOnly: false,
+            disableContextMenu: false,
             selection: Recipe.longMock.imageData.first?.id
           ),
           reducer: PhotosReducer.init
         ))
+//        .frame(width: 150, height: 150)
       }
       .padding()
     }

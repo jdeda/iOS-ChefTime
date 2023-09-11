@@ -173,18 +173,6 @@ extension StepListReducer {
   }
 }
 
-// MARK: - Environment isHidingStepImages value
-extension Bool: EnvironmentKey {
-  public static let defaultValue: Self = false
-}
-extension EnvironmentValues {
-  var isHidingStepImages: Bool {
-    get { self[Bool.self] }
-    set { self[Bool.self] = newValue }
-  }
-}
-
-
 // MARK: - Previews
 struct StepList_Previews: PreviewProvider {
   static var previews: some View {

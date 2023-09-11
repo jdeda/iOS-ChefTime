@@ -10,21 +10,18 @@ struct ImageSliderView: View {
   
   var body: some View {
     TabView(selection: $selection) {
-      ForEach(imageDatas) { imageData in
+      ForEach(Array(zip(imageDatas.indices, imageDatas)), id: \.0) { index, imageData in
         imageData.image
-          .resizable()
-          .scaledToFill()
-          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
-          .clipShape(RoundedRectangle(cornerRadius: 15))
+          .square()
+          .clipShape((RoundedRectangle(cornerRadius: 15)))
           .tag(Optional(imageData.id))
       }
     }
     .tabViewStyle(PageTabViewStyle())
     .indexViewStyle(PageIndexViewStyle())
-    .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
-    .clipShape(RoundedRectangle(cornerRadius: 15))
     .tabViewStyle(PageTabViewStyle())
     .indexViewStyle(PageIndexViewStyle())
+    .clipShape((RoundedRectangle(cornerRadius: 15)))
   }
 }
 
@@ -44,6 +41,7 @@ struct ImageSliderView_Previews: PreviewProvider {
         imageDatas: imageDatas,
         selection: $selection
       )
+      .frame(width: 350, height: 350)
     }
   }
 }

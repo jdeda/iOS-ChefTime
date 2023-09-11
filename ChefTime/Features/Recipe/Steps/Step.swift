@@ -47,6 +47,7 @@ struct StepView: View {
             }
         }
         
+        // TODO: This value doesn't work right :(
         // Display the photos only if we are not hiding the photos
         // and if we have photos or we are uploading the first photo.
         let isHidingPhotosView: Bool = {
@@ -112,6 +113,7 @@ struct StepReducer: Reducer {
       self.focusedField = focusedField
       self.photos = .init(
         photos: step.imageData,
+        disableContextMenu: false,
         selection: step.imageData.first?.id
       )
     }
