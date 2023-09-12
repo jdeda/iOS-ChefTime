@@ -21,5 +21,14 @@ extension Folder {
     case systemStandard
     case systemRecentlyDeleted
     case user
+    
+    var isSystem: Bool {
+      switch self {
+      case .systemAll, .systemStandard, .systemRecentlyDeleted:
+        return true
+      case .user:
+        return false
+      }
+    }
   }
 }

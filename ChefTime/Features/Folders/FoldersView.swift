@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
+// TODO: Add a scroll to feature when expanding/collapsing
 
 /// How to simply this feature?
 /// 1. Break sections into their own features...
@@ -33,36 +34,56 @@ struct FoldersView: View {
   let columns: [GridItem] = [.init(spacing: 20), .init(spacing: 20)]
   @Environment(\.maxScreenWidth) var maxScreenWidth
   @Environment(\.isHidingFolderImages) var isHidingFolderImages
-  var width: CGFloat { maxScreenWidth.maxWidth * 0.40 }
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
-        ScrollView {
-          FolderSectionView(store: store.scope(
-            state: \.systemFoldersSection,
-            action: FoldersReducer.Action.systemFoldersSection
-          ))
-          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          
-          Divider()
+        ScrollViewReader { proxy in
+          ScrollView {
+            
+            // System Folders.
+            FolderSectionView(
+              store: store.scope(
+                state: \.systemFoldersSection,
+                action: FoldersReducer.Action.systemFoldersSection
+              ),
+              isEditing: viewStore.isEditing
+            )
             .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+            .opacity(viewStore.isEditing ? 0.0 : 1.0)
+            .frame(maxHeight: viewStore.isEditing ? 0 : .infinity)
+            .id(1)
+            
+            // User Folders.
+            FolderSectionView(
+              store: store.scope(
+                state: \.userFoldersSection,
+                action: FoldersReducer.Action.userFoldersSection
+              ),
+              isEditing: viewStore.isEditing
+            )
+            .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+            .opacity(viewStore.userFoldersSection.folders.isEmpty ? 0.0 : 1.0)
+            .frame(height: viewStore.userFoldersSection.folders.isEmpty ? 0 : .infinity)
+            .id(2)
+          }
           
-          FolderSectionView(store: store.scope(
-            state: \.userFoldersSection,
-            action: FoldersReducer.Action.userFoldersSection
-          ))
-          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+          .navigationTitle(viewStore.navigationTitle)
+          .toolbar { toolbar(viewStore: viewStore) }
+          .searchable(
+            text: .constant(""),
+            placement: .navigationBarDrawer(displayMode: .always)
+          )
+          .onChange(of: viewStore.scrollViewIndex) { newScrollViewIndex in
+            withAnimation {
+              proxy.scrollTo(newScrollViewIndex, anchor: .center)
+            }
+          }
+          .task { await viewStore.send(.task).finish() }
+          .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
+          .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
         }
-        .navigationTitle(viewStore.navigationTitle)
-        .toolbar { toolbar(viewStore: viewStore) }
-        .searchable(
-          text: .constant(""),
-          placement: .navigationBarDrawer(displayMode: .always)
-        )
-        .task { await viewStore.send(.task).finish() }
-        .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
-        .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
+        .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
       } destination: { state in
         switch state {
         case .folder:
@@ -93,12 +114,14 @@ extension FoldersView {
         Button("Done") {
           viewStore.send(.doneButtonTapped, animation: .default)
         }
+        .accentColor(.yellow)
       }
       
       ToolbarItemGroup(placement: .navigationBarLeading) {
         Button(viewStore.hasSelectedAll ? "Deselect All" : "Select All") {
           viewStore.send(.selectAllButtonTapped, animation: .default)
         }
+        .accentColor(.yellow)
       }
       
       ToolbarItemGroup(placement: .bottomBar) {
@@ -106,11 +129,13 @@ extension FoldersView {
           viewStore.send(.moveSelectedButtonTapped, animation: .default)
         }
         .disabled(viewStore.userFoldersSection.selection.isEmpty)
+        .accentColor(.yellow)
         Spacer()
         Button("Delete") {
           viewStore.send(.deleteSelectedButtonTapped, animation: .default)
         }
         .disabled(viewStore.userFoldersSection.selection.isEmpty)
+        .accentColor(.yellow)
       }
     }
     else {
@@ -129,7 +154,7 @@ extension FoldersView {
         } label: {
           Image(systemName: "ellipsis.circle")
         }
-        .accentColor(.primary)
+        .accentColor(.yellow)
       }
       ToolbarItemGroup(placement: .bottomBar) {
         Button {
@@ -137,6 +162,7 @@ extension FoldersView {
         } label: {
           Image(systemName: "folder.badge.plus")
         }
+        .accentColor(.yellow)
         Spacer()
         // TODO: Update this count when all the folders are fetched properly
         Text("\(viewStore.userFoldersSection.folders.count) folders")
@@ -145,8 +171,8 @@ extension FoldersView {
           viewStore.send(.newRecipeButtonTapped, animation: .default)
         } label: {
           Image(systemName: "square.and.pencil")
-          
         }
+        .accentColor(.yellow)
       }
     }
   }

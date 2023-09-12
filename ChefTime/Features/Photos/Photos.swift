@@ -33,112 +33,117 @@ struct PhotosView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      ZStack {
-        ZStack {
-          VStack {
-            Rectangle()
-              .fill(.clear)
-              .aspectRatio(1, contentMode: .fit)
-              .overlay(
-                Image(systemName: "photo.stack")
-                  .resizable()
-                  .scaledToFill()
-                  .padding()
-              )
-              .clipShape(Rectangle())
-
-              .foregroundColor(Color(uiColor: .systemGray4))
-              .padding()
-//            Text(viewStore.supportSinglePhotoOnly ? "Add Image" : "Add Images")
-//              .fontWeight(.bold)
-//              .foregroundColor(Color(uiColor: .systemGray4))
-//              .padding(.bottom)
-          }
-//          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
-          .background(Color(uiColor: .systemGray6))
-          .accentColor(.accentColor)
-          .clipShape(RoundedRectangle(cornerRadius: 15))
-          .opacity(viewStore.photos.isEmpty ? 1.0 : 0.0)
-          
-          ImageSliderView(
-            imageDatas: viewStore.photos,
-            selection: viewStore.$selection
-          )
-//          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
-          .clipShape(RoundedRectangle(cornerRadius: 15))
-          .opacity(!viewStore.photos.isEmpty ? 1.0 : 0.0 )
-        }
-        .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0)
+      Rectangle()
+        .fill(.clear)
+        .aspectRatio(1.0, contentMode: .fit)
         .overlay {
-          if viewStore.photoEditInFlight {
-            ProgressView()
+          ZStack {
+            ZStack {
+              VStack {
+                Rectangle()
+                  .fill(.clear)
+                  .aspectRatio(1, contentMode: .fit)
+                  .overlay(
+                    Image(systemName: "photo.stack")
+                      .resizable()
+                      .scaledToFill()
+                      .padding()
+                  )
+                  .clipShape(Rectangle())
+                
+                  .foregroundColor(Color(uiColor: .systemGray4))
+                  .padding()
+                //            Text(viewStore.supportSinglePhotoOnly ? "Add Image" : "Add Images")
+                //              .fontWeight(.bold)
+                //              .foregroundColor(Color(uiColor: .systemGray4))
+                //              .padding(.bottom)
+              }
+              //          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
+              .background(Color(uiColor: .systemGray6))
+              .accentColor(.accentColor)
+              .clipShape(RoundedRectangle(cornerRadius: 15))
+              .opacity(viewStore.photos.isEmpty ? 1.0 : 0.0)
+              
+              ImageSliderView(
+                imageDatas: viewStore.photos,
+                selection: viewStore.$selection
+              )
+              //          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
+              .clipShape(RoundedRectangle(cornerRadius: 15))
+              .opacity(!viewStore.photos.isEmpty ? 1.0 : 0.0 )
+            }
+            .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0)
+            .overlay {
+              if viewStore.photoEditInFlight {
+                ProgressView()
+              }
+            }
+            .disabled(viewStore.photoEditInFlight)
+            
+            // This allows the ability to disable all the actual logic when
+            // a photo edit is in flight but bring the context menu to cancel.
+            Color.clear
+              .contentShape(Rectangle())
           }
+          //      .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
+          .clipShape(RoundedRectangle(cornerRadius: 15))
+          .if(!viewStore.disableContextMenu, transform: {
+            $0.contextMenu(menuItems: {
+              if viewStore.photoEditInFlight {
+                Button {
+                  viewStore.send(.cancelPhotoEdit, animation: .default)
+                } label: {
+                  Text("Cancel")
+                }
+              }
+              if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
+                Button {
+                  viewStore.send(.replaceButtonTapped, animation: .default)
+                } label: {
+                  Text("Replace")
+                }
+                .disabled(viewStore.photoEditInFlight)
+              }
+              
+              let addButtonIsShowing: Bool = {
+                if viewStore.photoEditInFlight { return false }
+                if viewStore.supportSinglePhotoOnly {
+                  return viewStore.photos.count < 1
+                }
+                else { return true }
+              }()
+              if addButtonIsShowing {
+                Button {
+                  viewStore.send(.addButtonTapped, animation: .default)
+                } label: {
+                  Text("Add")
+                }
+                .disabled(viewStore.photoEditInFlight)
+              }
+              
+              if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
+                Button(role: .destructive) {
+                  viewStore.send(.deleteButtonTapped, animation: .default)
+                } label: {
+                  Text("Delete")
+                }
+                .disabled(viewStore.photoEditInFlight)
+              }
+            }, preview: {
+              PhotosView(store: store)
+              // TODO: The context menu preview version of this view won't update in real-time...
+              // So we have to use the original view
+            })
+          })
+            .photosPicker(
+              isPresented: viewStore.$photoPickerIsPresented,
+              selection: viewStore.$photoPickerItem,
+              matching: .images,
+              preferredItemEncoding: .compatible,
+              photoLibrary: .shared()
+            )
+              .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
         }
-        .disabled(viewStore.photoEditInFlight)
-        
-        // This allows the ability to disable all the actual logic when
-        // a photo edit is in flight but bring the context menu to cancel.
-        Color.clear
-          .contentShape(Rectangle())
-      }
-//      .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
-      .clipShape(RoundedRectangle(cornerRadius: 15))
-      .if(!viewStore.disableContextMenu, transform: {
-        $0.contextMenu(menuItems: {
-          if viewStore.photoEditInFlight {
-            Button {
-              viewStore.send(.cancelPhotoEdit, animation: .default)
-            } label: {
-              Text("Cancel")
-            }
-          }
-          if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
-            Button {
-              viewStore.send(.replaceButtonTapped, animation: .default)
-            } label: {
-              Text("Replace")
-            }
-            .disabled(viewStore.photoEditInFlight)
-          }
-          
-          let addButtonIsShowing: Bool = {
-            if viewStore.photoEditInFlight { return false }
-            if viewStore.supportSinglePhotoOnly {
-              return viewStore.photos.count < 1
-            }
-            else { return true }
-          }()
-          if addButtonIsShowing {
-            Button {
-              viewStore.send(.addButtonTapped, animation: .default)
-            } label: {
-              Text("Add")
-            }
-            .disabled(viewStore.photoEditInFlight)
-          }
-          
-          if !viewStore.photoEditInFlight && !viewStore.photos.isEmpty {
-            Button(role: .destructive) {
-              viewStore.send(.deleteButtonTapped, animation: .default)
-            } label: {
-              Text("Delete")
-            }
-            .disabled(viewStore.photoEditInFlight)
-          }
-        }, preview: {
-          PhotosView(store: store)
-          // TODO: The context menu preview version of this view won't update in real-time...
-          // So we have to use the original view
-        })
-      })
-        .photosPicker(
-          isPresented: viewStore.$photoPickerIsPresented,
-          selection: viewStore.$photoPickerItem,
-          matching: .images,
-          preferredItemEncoding: .compatible,
-          photoLibrary: .shared()
-        )
-          .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
     }
   }
 }
@@ -262,7 +267,9 @@ struct PhotosReducer: Reducer {
         return .none
         
       case .replaceButtonTapped:
-        guard let id = state.selection else { return .none }
+        guard let id = state.selection else {
+          return .none
+        }
         state.photoEditStatus = .replace(id)
         state.photoPickerIsPresented = true
         return .none

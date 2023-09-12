@@ -10,12 +10,19 @@ struct FolderGridItemView: View {
   let store: StoreOf<FolderGridItemReducer>
   let isEditing: Bool
   let isSelected: Bool
+  @Environment(\.isHidingFolderImages) var isHidingFolderImages
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
-        PhotosView(store: store.scope(state: \.photos, action: FolderGridItemReducer.Action.photos))
-//          .border(.red)
+        ZStack {
+          PhotosView(store: store.scope(state: \.photos, action: FolderGridItemReducer.Action.photos))
+            .opacity(isHidingFolderImages ? 0.0 : 1.0)
+
+          PhotosView(store: .init(initialState: .init(photos: .init()), reducer: {}))
+            .disabled(true)
+            .opacity(!isHidingFolderImages ? 0.0 : 1.0)
+        }
           .overlay(alignment: .bottom) {
             if isEditing {
               ZStack(alignment: .bottom) {
@@ -24,7 +31,7 @@ struct FolderGridItemView: View {
                   ZStack(alignment: .bottom) {
                     RoundedRectangle(cornerRadius: 15)
                       .strokeBorder(Color.accentColor, lineWidth: 5)
-
+                    
                     Circle()
                       .fill(.primary)
                       .colorInvert()
@@ -57,6 +64,7 @@ struct FolderGridItemView: View {
           .font(.body)
           .foregroundColor(.secondary)
       }
+      .background(Color.primary.colorInvert())
       .clipShape(RoundedRectangle(cornerRadius: 15))
       .contextMenu {
         if viewStore.photos.photoEditInFlight {
@@ -70,7 +78,7 @@ struct FolderGridItemView: View {
           Menu {
             if viewStore.photos.photos.count == 1 {
               Button {
-                viewStore.send(.photos(.addButtonTapped), animation: .default)
+                viewStore.send(.photos(.replaceButtonTapped), animation: .default)
               } label: {
                 Text("Replace Image")
               }
@@ -90,28 +98,25 @@ struct FolderGridItemView: View {
           } label: {
             Text("Edit Image")
           }
-          Button {
-            viewStore.send(.rename, animation: .default)
-          } label: {
-            Text("Rename")
-          }
-          Button {
-            viewStore.send(.delegate(.move), animation: .default)
-          } label: {
-            Text("Move")
-          }
-          Button(role: .destructive) {
-            viewStore.send(.delegate(.delete), animation: .default)
-          } label: {
-            Text("Delete")
+          if !viewStore.folder.folderType.isSystem {
+            Button {
+              viewStore.send(.rename, animation: .default)
+            } label: {
+              Text("Rename")
+            }
+            Button {
+              viewStore.send(.delegate(.move), animation: .default)
+            } label: {
+              Text("Move")
+            }
+            Button(role: .destructive) {
+              viewStore.send(.delegate(.delete), animation: .default)
+            } label: {
+              Text("Delete")
+            }
           }
         }
-      } preview: {
-        FolderGridItemView(store: store, isEditing: isEditing, isSelected: isSelected)
-          .disabled(true)
-          .frame(minHeight: 200)
-      }
-      
+      } 
     }
   }
 }
@@ -136,6 +141,7 @@ struct FolderGridItemReducer: Reducer {
         supportSinglePhotoOnly: true,
         disableContextMenu: true
       )
+      self.photos.selection = self.photos.photos.first?.id
     }
   }
   
@@ -184,7 +190,7 @@ struct FolderGridItemView_Previews: PreviewProvider {
         isEditing: false,
         isSelected: false
       )
-//      .frame(width: 50, height: 50)
+      //      .frame(width: 50, height: 50)
       .padding(50)
     }
   }

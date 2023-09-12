@@ -9,7 +9,7 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
     generator.prepare()
     return generator
   }()
-
+  
   func makeBody(configuration: Configuration) -> some View {
     VStack {
       HStack(alignment: .center) {
@@ -29,7 +29,7 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
                 inFlight = false
               }
             }
-
+            
             await setInFlight()
             try await Task.sleep(for: .milliseconds(250))
             await toggleExpanded()
@@ -46,10 +46,10 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
       }
       .contentShape(Rectangle())
       .padding([.bottom], 5)
-
-      if configuration.isExpanded {
-          configuration.content
-      }
+      
+      configuration.content
+        .frame(maxHeight: configuration.isExpanded ? .infinity : 0)
+        .opacity(configuration.isExpanded ? 1.0 : 0)
     }
     .contentShape(ContentShapeKinds.contextMenuPreview, RoundedRectangle(cornerRadius: 5))
   }
@@ -90,7 +90,7 @@ extension View {
 struct PreviewContextViewModifier<M: View, P: View, H: View, D: View>: ViewModifier {
   let menu: PreviewContextMenu<M, P, H, D>
   @Environment(\.presentationMode) var mode
-
+  
   @State var isActive: Bool = false
   
   func body(content: Content) -> some View {

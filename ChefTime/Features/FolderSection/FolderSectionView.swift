@@ -4,14 +4,20 @@ import ComposableArchitecture
 // MARK: - View
 struct FolderSectionView: View {
   let store: StoreOf<FolderSectionReducer>
-  @Environment(\.maxScreenWidth) private var maxScreenWidth
   @Environment(\.isHidingFolderImages) private var isHidingFolderImages
-  private var width: CGFloat { maxScreenWidth.maxWidth * 0.40 }
-  private let columns: [GridItem] = [.init(spacing: 20), .init(spacing: 20)]
+  let isEditing: Bool
+  
+  private let columns: [GridItem] = [
+    .init(spacing: 20, alignment: .top),
+    .init(spacing: 20, alignment: .top)
+  ]
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
+      DisclosureGroup(isExpanded: viewStore.binding(
+        get: \.isExpanded,
+        send: { .binding(.set(\.$isExpanded, isEditing ? viewStore.isExpanded : $0)) }
+      )) {
         LazyVGrid(columns: columns, spacing: 10) {
           ForEachStore(store.scope(
             state: \.folders,
@@ -20,11 +26,22 @@ struct FolderSectionView: View {
             let id = ViewStore(childStore, observe: \.id).state
             FolderGridItemView(
               store: childStore,
-              isEditing: viewStore.isEditing,
+              isEditing: isEditing,
               isSelected: viewStore.selection.contains(id)
             )
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxHeight: viewStore.isExpanded ? .infinity : 0.0)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .opacity(viewStore.isExpanded ? 1.0 : 0.0)
             .onTapGesture {
-              viewStore.send(.delegate(.folderTapped(id)), animation: .default)
+              if isEditing {
+                if !ViewStore(childStore, observe: \.folder.folderType.isSystem).state {
+                  viewStore.send(.folderSelected(id), animation: .default)
+                }
+              }
+              else {
+                viewStore.send(.delegate(.folderTapped(id)), animation: .default)
+              }
             }
           }
         }
@@ -34,7 +51,7 @@ struct FolderSectionView: View {
           .textTitleStyle()
         Spacer()
       }
-      .accentColor(.primary)
+      .accentColor(.yellow)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
     }
   }
@@ -43,14 +60,14 @@ struct FolderSectionView: View {
 // MARK: - Reducer
 struct FolderSectionReducer: Reducer {
   struct State: Equatable {
-    var folders: IdentifiedArrayOf<FolderGridItemReducer.State> = []
     let title: String
-    var isEditing: Bool = false
-    @BindingState var selection = Set<FolderGridItemReducer.State.ID>()
+    var folders: IdentifiedArrayOf<FolderGridItemReducer.State> = []
     @BindingState var isExpanded: Bool = true
+    @BindingState var selection = Set<FolderGridItemReducer.State.ID>()
   }
   
   enum Action: Equatable, BindableAction {
+    case folderSelected(FolderGridItemReducer.State.ID)
     case folders(FolderGridItemReducer.State.ID, FolderGridItemReducer.Action)
     case binding(BindingAction<State>)
     case delegate(DelegateAction)
@@ -60,11 +77,30 @@ struct FolderSectionReducer: Reducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
+        
+      case let .folderSelected(id):
+        if state.selection.contains(id) {
+          state.selection.remove(id)
+        }
+        else {
+          state.selection.insert(id)
+        }
+        
+        return .none
       case let .folders(id, .delegate(action)):
+        switch action {
+          
+        case .move:
+          return .none
+          
+        case .delete:
+          state.folders.remove(id: id)
+        }
         return .none
         
       case .folders, .binding, .delegate:
         return .none
+        
       }
     }
     .forEach(\.folders, action: /Action.folders) {
@@ -74,6 +110,7 @@ struct FolderSectionReducer: Reducer {
   }
 }
 
+// MARK: - DelegateAction
 extension FolderSectionReducer {
   enum DelegateAction: Equatable {
     case folderTapped(FolderGridItemReducer.State.ID)
@@ -84,15 +121,17 @@ extension FolderSectionReducer {
 struct FolderSectionView_Previews: PreviewProvider {
   static var previews: some View {
     ScrollView {
-      FolderSectionView(store: .init(
-        initialState: .init(
-          folders: .init(uniqueElements: Folder.longMock.folders.map { .init(id: .init(), folder: $0) }),
-          title: "My Folder Section"
+      FolderSectionView(
+        store: .init(
+          initialState: .init(
+            title: "My Folder Section", folders: .init(uniqueElements: Folder.longMock.folders.map { .init(id: .init(), folder: $0) })
+          ),
+          reducer: FolderSectionReducer.init
         ),
-        reducer: FolderSectionReducer.init
-      ))
+        isEditing: false
+      )
+      .padding(20)
     }
-//    .listStyle(.sidebar)
   }
 }
 

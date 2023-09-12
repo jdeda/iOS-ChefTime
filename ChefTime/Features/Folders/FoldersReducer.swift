@@ -6,6 +6,7 @@ import Tagged
 struct FoldersReducer: Reducer {
   struct State: Equatable {
     var path = StackState<PathReducer.State>()
+    var scrollViewIndex: Int = 1
     var systemFoldersSection: FolderSectionReducer.State = .system
     var userFoldersSection: FolderSectionReducer.State = .user
     var isHidingFolderImages: Bool = false
@@ -63,18 +64,21 @@ struct FoldersReducer: Reducer {
         case .systemStandard:
           state.systemFoldersSection.folders[1].folder = folder
           if (state.systemFoldersSection.folders[1].folder.imageData != nil),
-              let imageData = folder.imageData {
+             let imageData = folder.imageData {
             state.systemFoldersSection.folders[1].photos.photos = [imageData]
+            state.systemFoldersSection.folders[1].photos.selection = imageData.id
           }
           // TODO: - Temporary and extremely dangerous.
           state.systemFoldersSection.folders[0].folder.imageData = folder.recipes[2].imageData.first!
           state.systemFoldersSection.folders[0].photos.photos = [folder.recipes[2].imageData.first!]
+          state.systemFoldersSection.folders[0].photos.selection = folder.recipes[2].imageData.first!.id
           break
         case .systemRecentlyDeleted:
           state.systemFoldersSection.folders[2].folder = folder
           if (state.systemFoldersSection.folders[2].folder.imageData != nil),
-              let imageData = folder.imageData {
+             let imageData = folder.imageData {
             state.systemFoldersSection.folders[2].photos.photos = [imageData]
+            state.systemFoldersSection.folders[2].photos.selection = imageData.id
           }
           break
         case .user:
@@ -90,18 +94,23 @@ struct FoldersReducer: Reducer {
           }
           return result
         }
-
+        
         let flattenedRecipes = flattenAllRecipes(folder)
         state.systemFoldersSection.folders[0].folder.recipes.append(contentsOf: flattenedRecipes)
         return .none
         
       case .selectFoldersButtonTapped:
         state.isEditing = true
+        state.systemFoldersSection.isExpanded = false
+        state.userFoldersSection.isExpanded = true
+//        state.scrollViewIndex = 1
         return .none
         
       case .doneButtonTapped:
         state.isEditing = false
+        state.systemFoldersSection.isExpanded = true
         state.userFoldersSection.selection = []
+//        state.scrollViewIndex = 1
         return .none
         
       case .selectAllButtonTapped:
@@ -183,7 +192,26 @@ struct FoldersReducer: Reducer {
         case .element:
           return .none
           
-        default:
+          /// We would like to add a feature, that, when we back out of a drilldown on a folder or recipe, and we deem those states as "empty",
+          /// we just instantly delete them. This keeps the user's UI and state clean, and does some tedious work for them. So let see what we can do.
+          ///
+          /// Ok.
+          ///
+          /// Well, we have two ways to approach this.
+          ///
+          /// First, we could use the stack, where, we inspect if the element popped is a folder or recipe, and if
+          /// we deem that state as "empty", we can pop it off our stack, notify our DB to delete, and watch as the entire app reacts to this change.
+          /// Now, there are certainly some bugs that could come along to this. Assuming our DB is actor isolated, we will have guarentee that there are
+          /// no possible concurrent mutations. However, we do not have a guarentee for deterministic execution. This means that effects that were run into the system
+          /// could execute in any order, and anyone query the database and back it up, blocking us from reacting as quickly as we could, and if that was long enough
+          /// for the user to start messing around with state, it is possible that we could end up invalidating the action we sent in the first place, which was to delete an element,
+          /// and even, the other actions the user sent in could end up creating an invalid DB scheme, meaning, we have now mutated our DB into a state that does not
+          /// reflect the one we actually intended based off our actions. So now it looks like we have three more very significant issues, reaction speed, determinism,
+          /// and preserving a valid DB. Well with all that said, we could see our second option.
+          ///
+          /// Second, we could
+          ///
+        case .popFrom, .push:
           return .none
         }
         
@@ -193,9 +221,9 @@ struct FoldersReducer: Reducer {
           return .none
           
         case .confirmDeleteButtonTapped:
-          //          state.userFolders = state.userFolders.filter({
-          //            !state.selection.contains($0.id)
-          //          })
+          state.userFoldersSection.folders = state.userFoldersSection.folders.filter {
+            !state.userFoldersSection.selection.contains($0.id)
+          }
           return .none
         }
         
@@ -218,7 +246,6 @@ struct FoldersReducer: Reducer {
     }
   }
 }
-
 
 // MARK: - PathReducer
 extension FoldersReducer {
@@ -277,18 +304,16 @@ extension FolderSectionReducer.State {
   static let system: Self = {
     @Dependency(\.uuid) var uuid
     return Self(
-      folders: [
+      title: "System", folders: [
         .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "All", folderType: .systemAll)),
         .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Standard", folderType: .systemStandard)),
         .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Recently Deleted", folderType: .systemRecentlyDeleted))
-      ],
-      title: "System"
+      ]
     )
   }()
   
-  static let user = Self(folders: [], title: "User")
+  static let user = Self(title: "User", folders: [])
 }
-
 
 // MARK: - Previews
 struct Previews_FoldersReducer_Previews: PreviewProvider {
