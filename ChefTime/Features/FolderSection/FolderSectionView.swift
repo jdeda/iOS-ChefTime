@@ -50,7 +50,7 @@ struct FolderSectionView: View {
         Text(viewStore.title)
           .textTitleStyle()
         Spacer()
-      }
+      }      
       .accentColor(.yellow)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
     }
@@ -87,20 +87,20 @@ struct FolderSectionReducer: Reducer {
         }
         
         return .none
+        
       case let .folders(id, .delegate(action)):
         switch action {
-          
         case .move:
-          return .none
-          
+          break
         case .delete:
           state.folders.remove(id: id)
+          break
         }
         return .none
         
+        
       case .folders, .binding, .delegate:
         return .none
-        
       }
     }
     .forEach(\.folders, action: /Action.folders) {
@@ -134,4 +134,3 @@ struct FolderSectionView_Previews: PreviewProvider {
     }
   }
 }
-

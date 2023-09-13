@@ -7,6 +7,9 @@ struct ChefTimeApp: App {
     WindowGroup {
       //            if _XCTIsTesting {
       AppView()
+        .onAppear {
+          UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
+        }
       //            }
     }
   }
