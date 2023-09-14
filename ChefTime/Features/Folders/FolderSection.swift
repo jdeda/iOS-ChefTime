@@ -4,14 +4,10 @@ import ComposableArchitecture
 // MARK: - View
 struct FolderSectionView: View {
   let store: StoreOf<FolderSectionReducer>
-  @Environment(\.isHidingImages) private var isHidingImages
   let isEditing: Bool
-  
-  private let columns: [GridItem] = [
-    .init(spacing: 20, alignment: .top),
-    .init(spacing: 20, alignment: .top)
-  ]
-  
+  private let columns = Array(repeating: GridItem(spacing: 20, alignment: .top), count: 2)
+  @Environment(\.isHidingImages) private var isHidingImages
+
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
@@ -30,7 +26,7 @@ struct FolderSectionView: View {
               isSelected: viewStore.selection.contains(id)
             )
             .fixedSize(horizontal: false, vertical: true)
-            .frame(maxHeight: viewStore.isExpanded ? .infinity : 0.0)
+            .frame(maxHeight: viewStore.isExpanded ? .infinity : 0.0, alignment: .top)
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .opacity(viewStore.isExpanded ? 1.0 : 0.0)
             .onTapGesture {

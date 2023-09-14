@@ -37,6 +37,7 @@ struct FoldersReducer: Reducer {
     case systemFoldersSection(FolderSectionReducer.Action)
     case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
+    case delegate(DelegateAction)
   }
   
   @Dependency(\.database) var database
@@ -138,12 +139,12 @@ struct FoldersReducer: Reducer {
           )
         )
         state.userFoldersSection.folders.append(newFolder)
-        return .none
+        return .send(.delegate(.addNewFolderButtonTappedDidComplete(newFolder.id)), animation: .default)
         
       case .newRecipeButtonTapped:
         let newRecipe = Recipe(id: .init(rawValue: uuid()), name: "New Untitled Recipe")
         state.systemFoldersSection.folders[1].folder.recipes.append(newRecipe)
-        return .none
+        return .send(.delegate(.addNewRecipeButtonTappedDidComplete(newRecipe.id)), animation: .default)
         
       case let .userFoldersSection(.delegate(action)):
         switch action {
@@ -172,6 +173,7 @@ struct FoldersReducer: Reducer {
           state.userFoldersSection.folders = state.userFoldersSection.folders.filter {
             !state.userFoldersSection.selection.contains($0.id)
           }
+          state.userFoldersSection.selection = []
           return .none
         }
         
@@ -179,7 +181,7 @@ struct FoldersReducer: Reducer {
         state.alert = nil
         return .none
         
-      case .alert, .systemFoldersSection, .userFoldersSection:
+      case .alert, .systemFoldersSection, .userFoldersSection, .delegate:
         return .none
       }
     }
@@ -191,6 +193,15 @@ struct FoldersReducer: Reducer {
     }
   }
 }
+
+// MARK: - AlertAction
+extension FoldersReducer {
+  enum DelegateAction: Equatable {
+    case addNewFolderButtonTappedDidComplete(FolderGridItemReducer.State.ID)
+    case addNewRecipeButtonTappedDidComplete(Recipe.ID)
+  }
+}
+
 
 // MARK: - AlertAction
 extension FoldersReducer {

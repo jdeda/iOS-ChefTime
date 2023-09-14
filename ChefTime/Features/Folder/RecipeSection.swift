@@ -26,7 +26,7 @@ struct RecipeSectionView: View {
               isSelected: viewStore.selection.contains(id)
             )
             .fixedSize(horizontal: false, vertical: true)
-            .frame(maxHeight: viewStore.isExpanded ? .infinity : 0.0)
+            .frame(maxHeight: viewStore.isExpanded ? .infinity : 0.0, alignment: .top)
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .opacity(viewStore.isExpanded ? 1.0 : 0.0)
             .onTapGesture {

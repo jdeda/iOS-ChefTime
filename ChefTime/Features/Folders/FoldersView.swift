@@ -4,7 +4,6 @@ import ComposableArchitecture
 /// MARK: - View
 struct FoldersView: View {
   let store: StoreOf<FoldersReducer>
-  let columns: [GridItem] = [.init(spacing: 20), .init(spacing: 20)]
   @Environment(\.maxScreenWidth) var maxScreenWidth
   @Environment(\.isHidingImages) var isHidingImages
   
