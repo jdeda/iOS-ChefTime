@@ -97,15 +97,19 @@ extension FolderView {
     else {
       ToolbarItemGroup(placement: .primaryAction) {
         Menu {
-          Button {
-            viewStore.send(.selectFoldersButtonTapped, animation: .default)
-          } label: {
-            Label("Select Folders", systemImage: "checkmark.circle")
+          if !viewStore.folders.folders.isEmpty {
+            Button {
+              viewStore.send(.selectFoldersButtonTapped, animation: .default)
+            } label: {
+              Label("Select Folders", systemImage: "checkmark.circle")
+            }
           }
-          Button {
-            viewStore.send(.selectRecipesButtonTapped, animation: .default)
-          } label: {
-            Label("Select Recipes", systemImage: "checkmark.circle")
+          if !viewStore.recipes.recipes.isEmpty {
+            Button {
+              viewStore.send(.selectRecipesButtonTapped, animation: .default)
+            } label: {
+              Label("Select Recipes", systemImage: "checkmark.circle")
+            }
           }
           Button {
             viewStore.send(.toggleHideImagesButtonTapped, animation: .default)

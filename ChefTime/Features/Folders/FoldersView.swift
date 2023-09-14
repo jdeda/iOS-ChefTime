@@ -94,10 +94,12 @@ extension FoldersView {
     else {
       ToolbarItemGroup(placement: .primaryAction) {
         Menu {
-          Button {
-            viewStore.send(.selectFoldersButtonTapped, animation: .default)
-          } label: {
-            Label("Select Folders", systemImage: "checkmark.circle")
+          if !viewStore.userFoldersSection.folders.isEmpty {
+            Button {
+              viewStore.send(.selectFoldersButtonTapped, animation: .default)
+            } label: {
+              Label("Select Folders", systemImage: "checkmark.circle")
+            }
           }
           Button {
             viewStore.send(.hideImagesButtonTapped, animation: .default)
