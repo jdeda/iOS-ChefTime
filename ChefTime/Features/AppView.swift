@@ -49,32 +49,58 @@ struct AppReducer: Reducer {
     }
     Reduce { state, action in
       switch action {
+
+        // Folder taps into a folder.
+      case let .path(.element(id: pathID, action: .folder(.folders(.delegate(.folderTapped(id)))))):
+        guard let element = state.path[id: pathID],
+              case let .folder(folderState) = element,
+              let folder = folderState.folders.folders[id: id]
+        else { return .none }
+        return navigateToFolder(state: &state, folder: folder)
         
-      case let .path(.element(id: id, action: .folder(action))):
-        return .none
+        // Folder taps into a recipe.
+      case let .path(.element(id: pathID, action: .folder(.recipes(.delegate(.recipeTapped(id)))))):
+        guard let element = state.path[id: pathID],
+              case let .folder(folderState) = element,
+              let recipe = folderState.recipes.recipes[id: id]
+        else { return .none }
+        return navigateToRecipe(state: &state, recipe: .init(recipe: recipe.recipe))
+
+        // Folder creates a new folder.
+      case let .path(.element(id: pathID, action: .folder(.delegate(.addNewFolderButtonTappedDidComplete(id))))):
+        guard let element = state.path[id: pathID],
+              case let .folder(folderState) = element,
+              let folder = folderState.folders.folders[id: id]
+        else { return .none }
+        return navigateToFolder(state: &state, folder: folder)
         
-      case let .path(.element(id: id, action: .recipe(action))):
-        return .none
-        
-        // Folders.UserFolders tapped a folder.
+        // Folder creates a new recipe.
+      case let .path(.element(id: pathID, action: .folder(.delegate(.addNewRecipeButtonTappedDidComplete(id))))):
+        guard let element = state.path[id: pathID],
+              case let .folder(folderState) = element,
+              let recipe = folderState.recipes.recipes[id: id]
+        else { return .none }
+        return navigateToRecipe(state: &state, recipe: .init(recipe: recipe.recipe))
+  
+        // Folders.UserFolders taps into a folder.
       case let .folders(.userFoldersSection(.delegate(.folderTapped(id)))):
         guard let folder = state.folders.userFoldersSection.folders[id: id]
         else { return .none }
         return navigateToFolder(state: &state, folder: folder)
         
-        // Folders.SystemFolders tapped a folder
+        // Folders.SystemFolders taps into a folder
       case let .folders(.systemFoldersSection(.delegate(.folderTapped(id)))):
         guard let folder = state.folders.systemFoldersSection.folders[id: id]
         else { return .none }
         return navigateToFolder(state: &state, folder: folder)
         
-        // Folders created a new folder (can only create a user folder)
+        // Folders creates a new folder (can only create a user folder)
       case let .folders(.delegate(.addNewFolderButtonTappedDidComplete(id))):
         guard let folder = state.folders.userFoldersSection.folders[id: id]
         else { return .none }
         return navigateToFolder(state: &state, folder: folder)
         
-        // Folders created a new folder (will only add one to the standard folder)
+        // Folders creates a new folder (will only add one to the standard folder)
       case let .folders(.delegate(.addNewRecipeButtonTappedDidComplete(id))):
         guard let recipe = state.folders.systemFoldersSection.folders[1].folder.recipes[id: id]
         else { return .none }

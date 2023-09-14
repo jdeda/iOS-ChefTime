@@ -7,222 +7,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "31946DCC-743B-415D-8539-F421B0C4A5BE"
+            uuid = "31FA0246-0BE7-4452-BAF6-805F53B959BF"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChefTime/Features/Photos/Photos.swift"
+            filePath = "ChefTime/Features/Folder/FolderReducer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "270"
-            endingLineNumber = "270"
-            landmarkName = "body"
-            landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "31946DCC-743B-415D-8539-F421B0C4A5BE - 36dc3ee44af552cd"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "270"
-                  endingLineNumber = "270"
-                  offsetFromSymbolStart = "2589">
-               </Location>
-               <Location
-                  uuid = "31946DCC-743B-415D-8539-F421B0C4A5BE - 36dc3ee44af552cd"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "270"
-                  endingLineNumber = "270"
-                  offsetFromSymbolStart = "2681">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "61908176-29BC-4E62-89E0-C8169828E6CD"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChefTime/Features/Photos/Photos.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "278"
-            endingLineNumber = "278"
-            landmarkName = "body"
-            landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "61908176-29BC-4E62-89E0-C8169828E6CD - 36dc3ee44af551d5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "278"
-                  endingLineNumber = "278"
-                  offsetFromSymbolStart = "3641">
-               </Location>
-               <Location
-                  uuid = "61908176-29BC-4E62-89E0-C8169828E6CD - 36dc3ee44af551d5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "278"
-                  endingLineNumber = "278"
-                  offsetFromSymbolStart = "3733">
-               </Location>
-               <Location
-                  uuid = "61908176-29BC-4E62-89E0-C8169828E6CD - 36dc3ee44af551d5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "278"
-                  endingLineNumber = "278"
-                  offsetFromSymbolStart = "2947">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B49E0EAE-7AA8-43E2-B428-489A66B91C94"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChefTime/Features/Photos/Photos.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "273"
-            endingLineNumber = "273"
-            landmarkName = "body"
-            landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "B49E0EAE-7AA8-43E2-B428-489A66B91C94 - 36dc3ee44af5516a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "273"
-                  endingLineNumber = "273"
-                  offsetFromSymbolStart = "2900">
-               </Location>
-               <Location
-                  uuid = "B49E0EAE-7AA8-43E2-B428-489A66B91C94 - 36dc3ee44af5516a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "273"
-                  endingLineNumber = "273"
-                  offsetFromSymbolStart = "2761">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "DA948E40-A84D-422A-946C-91846ED00C63"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChefTime/Features/Photos/Photos.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "271"
-            endingLineNumber = "271"
-            landmarkName = "body"
-            landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "DA948E40-A84D-422A-946C-91846ED00C63 - 36dc3ee44af552ac"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "271"
-                  endingLineNumber = "271"
-                  offsetFromSymbolStart = "2761">
-               </Location>
-               <Location
-                  uuid = "DA948E40-A84D-422A-946C-91846ED00C63 - 36dc3ee44af552ac"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (inout ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.PhotosReducer.Action&gt; in ChefTime.PhotosReducer.body.getter : some"
-                  moduleName = "ChefTime"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Photos/Photos.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "271"
-                  endingLineNumber = "271"
-                  offsetFromSymbolStart = "2699">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7612E96E-8DCF-4A38-805D-D84683767F19"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChefTime/Features/Photos/Photos.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "306"
-            endingLineNumber = "306"
+            startingLineNumber = "109"
+            endingLineNumber = "109"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -230,47 +23,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "399773AB-B4A3-4568-B403-D154D8ABACE5"
+            uuid = "FBC2BAA7-1987-4DC9-9C3A-A84F75E9DD76"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChefTime/Features/Photos/Photos.swift"
+            filePath = "ChefTime/Features/Folder/FolderReducer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "238"
-            endingLineNumber = "238"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "FA8006ED-93A9-4FD0-9A40-ECD849AC24F0"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChefTime/Features/Photos/Photos.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "247"
-            endingLineNumber = "247"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A6F7DE6B-9CB3-494B-82A1-3DDDB24A0443"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChefTime/Features/Folders/FoldersView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "16"
-            endingLineNumber = "16"
+            startingLineNumber = "114"
+            endingLineNumber = "114"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>

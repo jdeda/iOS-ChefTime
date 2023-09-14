@@ -19,7 +19,7 @@ struct FolderView: View {
               state: \.folders,
               action: FolderReducer.Action.folders
             ),
-            isEditing: isHidingFolders
+            isEditing: !isHidingFolders && viewStore.isEditing == .folders
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
           .opacity(isHidingFolders ? 0.0 : 1.0)
@@ -34,7 +34,7 @@ struct FolderView: View {
               state: \.recipes,
               action: FolderReducer.Action.recipes
             ),
-            isEditing: isHidingRecipes
+            isEditing: !isHidingRecipes && viewStore.isEditing == .recipes
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
           .opacity(isHidingRecipes ? 0.0 : 1.0)

@@ -34,7 +34,7 @@ struct RecipeSectionView: View {
                 viewStore.send(.recipeSelected(id), animation: .default)
               }
               else {
-                viewStore.send(.delegate(.folderTapped(id)), animation: .default)
+                viewStore.send(.delegate(.recipeTapped(id)), animation: .default)
               }
             }
           }
@@ -107,7 +107,7 @@ struct RecipeSectionReducer: Reducer {
 // MARK: - DelegateAction
 extension RecipeSectionReducer {
   enum DelegateAction: Equatable {
-    case folderTapped(RecipeGridItemReducer.State.ID)
+    case recipeTapped(RecipeGridItemReducer.State.ID)
   }
 }
 

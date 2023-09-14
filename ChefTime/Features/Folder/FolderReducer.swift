@@ -51,6 +51,7 @@ struct FolderReducer: Reducer {
     case recipes(RecipeSectionReducer.Action)
     case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
+    case delegate(DelegateAction)
   }
   
   @Dependency(\.database) var database
@@ -105,25 +106,16 @@ struct FolderReducer: Reducer {
         return .none
         
       case .newFolderButtonTapped:
-        state.folders.folders.append(.init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "New Untitled Folder")))
-        // TODO: Navigate
-        return .none
+        let id = FolderGridItemReducer.State.ID(rawValue: uuid())
+        state.folders.folders.append(.init(id: id, folder: .init(id: .init(rawValue: uuid()), name: "New Untitled Folder")))
+        return .send(.delegate(.addNewFolderButtonTappedDidComplete(id)), animation: .default)
         
       case .newRecipeButtonTapped:
-        state.recipes.recipes.append(.init(id: .init(rawValue: uuid()), recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
-        // TODO: Navigate
-        return .none
-        
+        let id = RecipeGridItemReducer.State.ID(rawValue: uuid())
+        state.recipes.recipes.append(.init(id: id, recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
+        return .send(.delegate(.addNewRecipeButtonTappedDidComplete(id)), animation: .default)
+
       case let .folders(.delegate(action)):
-        switch action {
-          
-        case let .folderTapped(id):
-          // TODO: Navigate
-          return .none
-        }
-        return .none
-        
-      case let .recipes(.delegate(action)):
         switch action {
           
         case let .folderTapped(id):
@@ -153,7 +145,7 @@ struct FolderReducer: Reducer {
         state.alert = nil
         return .none
         
-      case .binding, .folders, .recipes, .alert:
+      case .binding, .folders, .recipes, .alert, .delegate:
         return .none
       }
     }
@@ -163,6 +155,14 @@ struct FolderReducer: Reducer {
     Scope(state: \.recipes, action: /Action.recipes) {
       RecipeSectionReducer()
     }
+  }
+}
+
+// MARK: - DelegateAction
+extension FolderReducer {
+  enum DelegateAction: Equatable {
+    case addNewFolderButtonTappedDidComplete(FolderGridItemReducer.State.ID)
+    case addNewRecipeButtonTappedDidComplete(RecipeGridItemReducer.State.ID)
   }
 }
 
