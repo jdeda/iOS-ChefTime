@@ -1,39 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-
-// TODO: Add a scroll to feature when expanding/collapsing
-
-
-/// 1. Reusable code
-///     1. i dont have to boilerplate 1000 lines of code in my case
-///     2. i only have to test one thing instead of two in my case, i mean yes it becomes more complicated here
-
-/// How to simply this feature?
-/// 1. Break sections into their own features...
-///   - This means you must do the following:
-///     1. make the system folders an array
-///     2. delete all the boilerplate for having separate instances
-///     3. just assume when working with the array you have those three values in a specific order, and or just check the element folderType,
-///      yes its a bit dangerous, but you have to be a moron to forget these rules
-
-/// Folder Types
-///   1. System
-///   ///   any of these, you cannot:
-///           - delete this folder
-///         - rename this folder
-///         - move this folder
-///     1. All
-///         - editing actually edits other folders simealtaneiously
-///         - if i add when in the root it automatically adds to the standard
-///     2. Standard
-///          - behaves just like a user folder, with the exception of the root not being able to delete,rename/move
-///     3. Recently Deleted
-///     - cannot do anything but scroll and recover the recipe
-///     - cannot have folders
-///   2. User
-///     You can do anything
-
 /// MARK: - View
 struct FoldersView: View {
   let store: StoreOf<FoldersReducer>
@@ -43,71 +10,52 @@ struct FoldersView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
-        ScrollViewReader { proxy in
-          ScrollView {
-            
-            // System Folders.
-            FolderSectionView(
-              store: store.scope(
-                state: \.systemFoldersSection,
-                action: FoldersReducer.Action.systemFoldersSection
-              ),
-              isEditing: viewStore.isEditing
-            )
-            .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-            .opacity(viewStore.isEditing ? 0.0 : 1.0)
-            .frame(maxHeight: viewStore.isEditing ? 0 : .infinity)
-            .id(1)
-            
-            // User Folders.
-            FolderSectionView(
-              store: store.scope(
-                state: \.userFoldersSection,
-                action: FoldersReducer.Action.userFoldersSection
-              ),
-              isEditing: viewStore.isEditing
-            )
-            .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-            .opacity(viewStore.userFoldersSection.folders.isEmpty ? 0.0 : 1.0)
-            .frame(height: viewStore.userFoldersSection.folders.isEmpty ? 0 : .infinity)
-            .id(2)
-          }
+      ScrollViewReader { proxy in
+        ScrollView {
           
-          .navigationTitle(viewStore.navigationTitle)
-          .toolbar { toolbar(viewStore: viewStore) }
-          .searchable(
-            text: .constant(""),
-            placement: .navigationBarDrawer(displayMode: .always)
+          // System Folders.
+          FolderSectionView(
+            store: store.scope(
+              state: \.systemFoldersSection,
+              action: FoldersReducer.Action.systemFoldersSection
+            ),
+            isEditing: viewStore.isEditing
           )
-          .onChange(of: viewStore.scrollViewIndex) { newScrollViewIndex in
-            withAnimation {
-              proxy.scrollTo(newScrollViewIndex, anchor: .center)
-            }
-          }
-          .task { await viewStore.send(.task).finish() }
-          .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
-          .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
+          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+          .opacity(viewStore.isEditing ? 0.0 : 1.0)
+          .frame(maxHeight: viewStore.isEditing ? 0 : .infinity)
+          .id(1)
+          
+          // User Folders.
+          FolderSectionView(
+            store: store.scope(
+              state: \.userFoldersSection,
+              action: FoldersReducer.Action.userFoldersSection
+            ),
+            isEditing: viewStore.isEditing
+          )
+          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+          .opacity(viewStore.userFoldersSection.folders.isEmpty ? 0.0 : 1.0)
+          .frame(height: viewStore.userFoldersSection.folders.isEmpty ? 0 : .infinity)
+          .id(2)
         }
-        .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
-      } destination: { state in
-        switch state {
-        case .folder:
-          CaseLet(
-            /FoldersReducer.PathReducer.State.folder,
-             action: FoldersReducer.PathReducer.Action.folder
-          ) {
-            FolderView(store: $0)
-          }
-        case .recipe:
-          CaseLet(
-            /FoldersReducer.PathReducer.State.recipe,
-             action: FoldersReducer.PathReducer.Action.recipe
-          ) {
-            RecipeView(store: $0)
+        
+        .navigationTitle(viewStore.navigationTitle)
+        .toolbar { toolbar(viewStore: viewStore) }
+        .searchable(
+          text: .constant(""),
+          placement: .navigationBarDrawer(displayMode: .always)
+        )
+        .onChange(of: viewStore.scrollViewIndex) { newScrollViewIndex in
+          withAnimation {
+            proxy.scrollTo(newScrollViewIndex, anchor: .center)
           }
         }
+        .task { await viewStore.send(.task).finish() }
+        .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
+        .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
       }
+      .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
     }
   }
 }

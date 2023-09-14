@@ -5,7 +5,6 @@ import Tagged
 // MARK: - Reducer
 struct FoldersReducer: Reducer {
   struct State: Equatable {
-    var path = StackState<PathReducer.State>()
     var scrollViewIndex: Int = 1
     var systemFoldersSection: FolderSectionReducer.State = .system
     var userFoldersSection: FolderSectionReducer.State = .user
@@ -36,7 +35,6 @@ struct FoldersReducer: Reducer {
     case newRecipeButtonTapped
     case userFoldersSection(FolderSectionReducer.Action)
     case systemFoldersSection(FolderSectionReducer.Action)
-    case path(StackAction<PathReducer.State, PathReducer.Action>)
     case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
   }
@@ -103,14 +101,14 @@ struct FoldersReducer: Reducer {
         state.isEditing = true
         state.systemFoldersSection.isExpanded = false
         state.userFoldersSection.isExpanded = true
-//        state.scrollViewIndex = 1
+        //        state.scrollViewIndex = 1
         return .none
         
       case .doneButtonTapped:
         state.isEditing = false
         state.systemFoldersSection.isExpanded = true
         state.userFoldersSection.selection = []
-//        state.scrollViewIndex = 1
+        //        state.scrollViewIndex = 1
         return .none
         
       case .selectAllButtonTapped:
@@ -140,13 +138,11 @@ struct FoldersReducer: Reducer {
           )
         )
         state.userFoldersSection.folders.append(newFolder)
-        state.path.append(.folder(.init(folder: newFolder.folder)))
         return .none
         
       case .newRecipeButtonTapped:
         let newRecipe = Recipe(id: .init(rawValue: uuid()), name: "New Untitled Recipe")
         state.systemFoldersSection.folders[1].folder.recipes.append(newRecipe)
-        state.path.append(.recipe(.init(recipe: newRecipe)))
         return .none
         
       case let .userFoldersSection(.delegate(action)):
@@ -154,7 +150,6 @@ struct FoldersReducer: Reducer {
         case let .folderTapped(id):
           guard let folder = state.userFoldersSection.folders[id: id]?.folder
           else { return .none }
-          state.path.append(.folder(.init(folder: folder)))
           return .none
         }
         
@@ -163,57 +158,10 @@ struct FoldersReducer: Reducer {
         case let .folderTapped(id):
           guard let folder = state.systemFoldersSection.folders[id: id]?.folder
           else { return .none }
-          state.path.append(.folder(.init(folder: folder)))
           return .none
         }
       case .binding:
         return .none
-        
-        
-      case let .path(action):
-        switch action {
-        case let .element(id: stackID, action: .folder(.delegate(action))):
-          switch action {
-          case let .folderTapped(folderID):
-            guard case let .folder(folder) = state.path[id: stackID],
-                  let childFolder = folder.folder.folders[id: folderID]
-            else { return .none }
-            state.path.append(.folder(.init(folder: childFolder)))
-            return .none
-            
-          case let .recipeTapped(recipeID):
-            guard case let .folder(folder) = state.path[id: stackID],
-                  let recipe = folder.folder.recipes[id: recipeID]
-            else { return .none }
-            state.path.append(.recipe(.init(recipe: recipe)))
-            return .none
-          }
-          
-        case .element:
-          return .none
-          
-          /// We would like to add a feature, that, when we back out of a drilldown on a folder or recipe, and we deem those states as "empty",
-          /// we just instantly delete them. This keeps the user's UI and state clean, and does some tedious work for them. So let see what we can do.
-          ///
-          /// Ok.
-          ///
-          /// Well, we have two ways to approach this.
-          ///
-          /// First, we could use the stack, where, we inspect if the element popped is a folder or recipe, and if
-          /// we deem that state as "empty", we can pop it off our stack, notify our DB to delete, and watch as the entire app reacts to this change.
-          /// Now, there are certainly some bugs that could come along to this. Assuming our DB is actor isolated, we will have guarentee that there are
-          /// no possible concurrent mutations. However, we do not have a guarentee for deterministic execution. This means that effects that were run into the system
-          /// could execute in any order, and anyone query the database and back it up, blocking us from reacting as quickly as we could, and if that was long enough
-          /// for the user to start messing around with state, it is possible that we could end up invalidating the action we sent in the first place, which was to delete an element,
-          /// and even, the other actions the user sent in could end up creating an invalid DB scheme, meaning, we have now mutated our DB into a state that does not
-          /// reflect the one we actually intended based off our actions. So now it looks like we have three more very significant issues, reaction speed, determinism,
-          /// and preserving a valid DB. Well with all that said, we could see our second option.
-          ///
-          /// Second, we could
-          ///
-        case .popFrom, .push:
-          return .none
-        }
         
       case let .alert(.presented(action)):
         switch action {
@@ -235,38 +183,11 @@ struct FoldersReducer: Reducer {
         return .none
       }
     }
-    .forEach(\.path, action: /Action.path) {
-      PathReducer()
-    }
     Scope(state: \.systemFoldersSection, action: /Action.systemFoldersSection) {
       FolderSectionReducer()
     }
     Scope(state: \.userFoldersSection, action: /Action.userFoldersSection) {
       FolderSectionReducer()
-    }
-  }
-}
-
-// MARK: - PathReducer
-extension FoldersReducer {
-  struct PathReducer: Reducer {
-    enum State: Equatable {
-      case folder(FolderReducer.State)
-      case recipe(RecipeReducer.State)
-    }
-    
-    enum Action: Equatable {
-      case folder(FolderReducer.Action)
-      case recipe(RecipeReducer.Action)
-    }
-    
-    var body: some ReducerOf<Self> {
-      Scope(state: /State.folder, action: /Action.folder) {
-        FolderReducer()
-      }
-      Scope(state: /State.recipe, action: /Action.recipe) {
-        RecipeReducer()
-      }
     }
   }
 }

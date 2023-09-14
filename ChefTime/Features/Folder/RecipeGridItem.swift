@@ -4,8 +4,8 @@ import Tagged
 
 
 // MARK: - View
-struct GridElementView: View {
-  let store: StoreOf<GridElementReducer>
+struct RecipeGridItemView: View {
+  let store: StoreOf<RecipeGridItemReducer>
   let isEditing: Bool
   let isSelected: Bool
   @Environment(\.isHidingFolderImages) var isHidingFolderImages
@@ -14,7 +14,7 @@ struct GridElementView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
-          PhotosView(store: store.scope(state: \.gridElement.photos, action: GridElementReducer.Action.photos))
+          PhotosView(store: store.scope(state: \.photos, action: RecipeGridItemReducer.Action.photos))
             .opacity(isHidingFolderImages ? 0.0 : 1.0)
           
           PhotosView(store: .init(initialState: .init(photos: .init()), reducer: {}))
@@ -53,90 +53,42 @@ struct GridElementView: View {
           }
         }
         
-        Text(viewStore.gridElement.title)
+        Text(viewStore.recipe.name)
           .lineLimit(2)
           .font(.title3)
           .fontWeight(.bold)
-        Text(viewStore.gridElement.description)
+        Text("Created 8/13/23")
           .lineLimit(2)
           .font(.body)
           .foregroundColor(.secondary)
       }
       .background(Color.primary.colorInvert())
       .clipShape(RoundedRectangle(cornerRadius: 15))
+      
       .alert(
-        store: store.scope(state: \.$destination, action: GridElementReducer.Action.destination),
-        state: /GridElementReducer.DestinationReducer.State.alert,
-        action: GridElementReducer.DestinationReducer.Action.alert
+        store: store.scope(state: \.$destination, action: RecipeGridItemReducer.Action.destination),
+        state: /RecipeGridItemReducer.DestinationReducer.State.alert,
+        action: RecipeGridItemReducer.DestinationReducer.Action.alert
       )
       .alert("Rename", isPresented: viewStore.binding(
         get: { $0.destination == .renameAlert },
         send: { _ in .destination(.dismiss) }
       )) {
-        RenameAlert(name: viewStore.gridElement.title) {
+        RenameAlert(name: viewStore.recipe.name) {
           viewStore.send(.renameAcceptButtonTapped($0), animation: .default)
         }
       }
-      .contextMenu { _contextMenu(viewStore) }
-    }
-  }
-}
-
-extension GridElementView {
-  @ViewBuilder
-  func _contextMenu(_ viewStore: ViewStoreOf<GridElementReducer>) -> some View {
-    if viewStore.gridElement.photos.photoEditInFlight &&
-        viewStore.gridElement.allowedContextMenuActions.contains(.photos) {
-      Button {
-        viewStore.send(.photos(.cancelPhotoEdit), animation: .default)
-      } label: {
-        Text("Cancel Image Upload")
-      }
-    }
-    else {
-      if viewStore.gridElement.allowedContextMenuActions.contains(.photos) {
-        Menu {
-          if viewStore.gridElement.photos.photos.count == 1 {
-            Button {
-              viewStore.send(.photos(.replaceButtonTapped), animation: .default)
-            } label: {
-              Text("Replace Image")
-            }
-            Button(role: .destructive) {
-              viewStore.send(.photos(.deleteButtonTapped), animation: .default)
-            } label: {
-              Text("Delete Image")
-            }
-          }
-          else {
-            Button {
-              viewStore.send(.photos(.addButtonTapped), animation: .default)
-            } label: {
-              Text("Add Image")
-            }
-          }
-        } label: {
-          Text("Edit Image")
-        }
-      }
-      
-      if viewStore.gridElement.allowedContextMenuActions.contains(.rename) {
+      .contextMenu {
         Button {
           viewStore.send(.renameButtonTapped, animation: .default)
         } label: {
           Text("Rename")
         }
-      }
-      
-      if viewStore.gridElement.allowedContextMenuActions.contains(.move) {
         Button {
           viewStore.send(.delegate(.move), animation: .default)
         } label: {
           Text("Move")
         }
-      }
-      
-      if viewStore.gridElement.allowedContextMenuActions.contains(.delete) {
         Button(role: .destructive) {
           viewStore.send(.deleteButtonTapped, animation: .default)
         } label: {
@@ -147,50 +99,29 @@ extension GridElementView {
   }
 }
 
-struct GridElement: Identifiable, Equatable {
-  typealias ID = Tagged<Self, UUID>
-  
-  let id: ID
-  var title: String
-  var description: String
-  var photos: PhotosReducer.State
-  var allowedContextMenuActions = Set(AllowedContextMenuActions.allCases)
-  
-  enum AllowedContextMenuActions: Equatable, Hashable, CaseIterable {
-    case share
-    case photos
-    case rename
-    case move
-    case delete
-  }
-}
-
-extension GridElement {
-  static let mock = Self.init(
-    id: .init(),
-    title: Recipe.shortMock.name,
-    description: "3/4/12",
-    photos: .init(photos: Recipe.shortMock.imageData),
-    allowedContextMenuActions: .init(AllowedContextMenuActions.allCases)
-  )
-}
-
 // MARK: - Reducer
-struct GridElementReducer: Reducer {
+struct RecipeGridItemReducer: Reducer {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var gridElement: GridElement
+    var recipe: Recipe
+    var photos: PhotosReducer.State
     @PresentationState var destination: DestinationReducer.State?
     
     init(
       id: ID,
-      gridElement: GridElement,
+      recipe: Recipe,
       destination: DestinationReducer.State? = nil
     ) {
       self.id = id
-      self.gridElement = gridElement
+      self.recipe = recipe
+      self.photos = .init(
+        photos: .init(uniqueElements: (recipe.imageData.first != nil) ? [recipe.imageData.first!] : []),
+        supportSinglePhotoOnly: true,
+        disableContextMenu: true
+      )
+      self.photos.selection = self.photos.photos.first?.id
       self.destination = destination
     }
   }
@@ -223,8 +154,8 @@ struct GridElementReducer: Reducer {
         state.destination = .renameAlert
         return .none
         
-      case let .renameAcceptButtonTapped(newTitle):
-        state.gridElement.title = newTitle
+      case let .renameAcceptButtonTapped(newName):
+        state.recipe.name = newName
         state.destination = nil
         return .none
         
@@ -245,13 +176,13 @@ struct GridElementReducer: Reducer {
     .ifLet(\.$destination, action: /Action.destination) {
       DestinationReducer()
     }
-    Scope(state: \.gridElement.photos, action: /Action.photos) {
+    Scope(state: \.photos, action: /Action.photos) {
       PhotosReducer()
     }
   }
 }
 
-extension GridElementReducer {
+extension RecipeGridItemReducer {
   struct DestinationReducer: Reducer {
     enum State: Equatable {
       case alert(AlertState<AlertAction>)
@@ -270,7 +201,7 @@ extension GridElementReducer {
 }
 
 // MARK: - DelegateAction
-extension GridElementReducer {
+extension RecipeGridItemReducer {
   enum DelegateAction: Equatable {
     case move
     case delete
@@ -278,14 +209,14 @@ extension GridElementReducer {
 }
 
 // MARK: - AlertAction
-extension GridElementReducer {
+extension RecipeGridItemReducer {
   enum AlertAction: Equatable {
     case confirmDeleteButtonTapped
   }
 }
 
 // MARK: - AlertState
-extension AlertState where Action == GridElementReducer.AlertAction {
+extension AlertState where Action == RecipeGridItemReducer.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")
@@ -299,7 +230,7 @@ extension AlertState where Action == GridElementReducer.AlertAction {
       }
     },
     message: {
-      TextState("Are you sure you want to delete this folder?")
+      TextState("Are you sure you want to delete this recipe?")
     }
   )
 }
@@ -340,17 +271,18 @@ private struct RenameAlert: View {
 }
 
 // MARK: - Preview
-struct GridElementView_Previews: PreviewProvider {
+struct RecipeGridItemView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      GridElementView(
+      RecipeGridItemView(
         store: .init(
-          initialState: .init(id: .init(), gridElement: .mock),
-          reducer: GridElementReducer.init
+          initialState: .init(id: .init(), recipe: .shortMock),
+          reducer: RecipeGridItemReducer.init
         ),
         isEditing: false,
         isSelected: false
       )
+      //      .frame(width: 50, height: 50)
       .padding(50)
       .onAppear {
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)

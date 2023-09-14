@@ -29,7 +29,7 @@ struct FolderGridItemView: View {
                 ZStack(alignment: .bottom) {
                   RoundedRectangle(cornerRadius: 15)
                     .strokeBorder(Color.accentColor, lineWidth: 5)
-
+                  
                   Circle()
                     .fill(.primary)
                     .colorInvert()
@@ -64,7 +64,7 @@ struct FolderGridItemView: View {
       }
       .background(Color.primary.colorInvert())
       .clipShape(RoundedRectangle(cornerRadius: 15))
-
+      
       .alert(
         store: store.scope(state: \.$destination, action: FolderGridItemReducer.Action.destination),
         state: /FolderGridItemReducer.DestinationReducer.State.alert,
@@ -159,7 +159,7 @@ struct FolderGridItemReducer: Reducer {
       self.destination = destination
     }
   }
-    
+  
   enum Action: Equatable, BindableAction {
     case deleteButtonTapped
     case replacePreviewImage
@@ -195,13 +195,13 @@ struct FolderGridItemReducer: Reducer {
         
       case .destination(.presented(.alert(.confirmDeleteButtonTapped))):
         state.destination = nil
-          return .run { send in
-            // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
-            // However, this bug seems to happen because you are returning an action in the .presented.
-            // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
-            await dismiss()
-            await send(.delegate(.delete))
-          }
+        return .run { send in
+          // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
+          // However, this bug seems to happen because you are returning an action in the .presented.
+          // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
+          await dismiss()
+          await send(.delegate(.delete))
+        }
         
       case .binding, .photos, .delegate, .destination:
         return .none
