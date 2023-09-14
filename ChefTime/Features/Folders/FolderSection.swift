@@ -4,7 +4,7 @@ import ComposableArchitecture
 // MARK: - View
 struct FolderSectionView: View {
   let store: StoreOf<FolderSectionReducer>
-  @Environment(\.isHidingFolderImages) private var isHidingFolderImages
+  @Environment(\.isHidingImages) private var isHidingImages
   let isEditing: Bool
   
   private let columns: [GridItem] = [
@@ -48,7 +48,7 @@ struct FolderSectionView: View {
         Text(viewStore.title)
           .textTitleStyle()
         Spacer()
-      }      
+      }
       .accentColor(.yellow)
       .disclosureGroupStyle(CustomDisclosureGroupStyle())
     }

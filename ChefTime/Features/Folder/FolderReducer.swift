@@ -6,18 +6,27 @@ import Tagged
 struct FolderReducer: Reducer {
   struct State: Equatable {
     var scrollViewIndex: Int = 1
+    var name: String
     var folders: FolderSectionReducer.State
     var recipes: RecipeSectionReducer.State
-    var isHidingFolderImages: Bool = false
+    var isHidingImages: Bool = false
     var isEditing: Section? = nil
     @PresentationState var alert: AlertState<AlertAction>?
     
     var hasSelectedAll: Bool {
-      false
+      switch self.isEditing {
+      case .folders: return folders.selection.count == folders.folders.count
+      case .recipes: return recipes.selection.count == recipes.recipes.count
+      case .none: return false
+      }
     }
     
     var navigationTitle: String {
-      "yay"
+      switch self.isEditing {
+      case .folders: return hasSelectedAll ? "\(folders.selection.count) Folders Selected" : name
+      case .recipes: return hasSelectedAll ? "\(recipes.selection.count) Recipes Selected" : name
+      case .none: return name
+      }
     }
   }
   
@@ -27,7 +36,7 @@ struct FolderReducer: Reducer {
   }
   
   enum Action: Equatable, BindableAction {
-    case hideImagesButtonTapped
+    case toggleHideImagesButtonTapped
     case selectFoldersButtonTapped
     case selectRecipesButtonTapped
     case doneButtonTapped
@@ -51,40 +60,97 @@ struct FolderReducer: Reducer {
     BindingReducer()
     Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
       switch action {
-      case .hideImagesButtonTapped:
+      case .toggleHideImagesButtonTapped:
+        state.isHidingImages.toggle()
         return .none
         
       case .selectFoldersButtonTapped:
+        state.isEditing = .folders
+        state.folders.isExpanded = true
+        state.recipes.isExpanded = false
         return .none
         
       case .selectRecipesButtonTapped:
+        state.isEditing = .recipes
+        state.folders.isExpanded = false
+        state.recipes.isExpanded = true
         return .none
         
       case .doneButtonTapped:
+        state.isEditing = nil
+        state.folders.selection = []
+        state.recipes.selection = []
+        state.folders.isExpanded = true
+        state.recipes.isExpanded = true
         return .none
         
       case .selectAllButtonTapped:
+        switch state.isEditing {
+        case .folders:
+          state.folders.selection = .init(state.hasSelectedAll ? [] : state.folders.folders.map(\.id))
+          break
+        case .recipes:
+          state.recipes.selection = .init(state.hasSelectedAll ? [] : state.recipes.recipes.map(\.id))
+          break
+        case .none:
+          break
+        }
         return .none
         
       case .moveSelectedButtonTapped:
         return .none
         
       case .deleteSelectedButtonTapped:
+        state.alert = .delete
         return .none
         
       case .newFolderButtonTapped:
+        state.folders.folders.append(.init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "New Untitled Folder")))
+        // TODO: Navigate
         return .none
         
       case .newRecipeButtonTapped:
+        state.recipes.recipes.append(.init(id: .init(rawValue: uuid()), recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
+        // TODO: Navigate
         return .none
         
       case let .folders(.delegate(action)):
+        switch action {
+          
+        case let .folderTapped(id):
+          // TODO: Navigate
+          return .none
+        }
         return .none
         
       case let .recipes(.delegate(action)):
+        switch action {
+          
+        case let .folderTapped(id):
+          // TODO: Navigate
+          return .none
+        }
         return .none
         
       case let .alert(.presented(action)):
+        switch action {
+        case .confirmDeleteSelectedButtonTapped:
+          switch state.isEditing {
+            case .folders:
+              state.folders.folders = state.folders.folders.filter { !state.folders.selection.contains($0.id) }
+              break
+            case .recipes:
+              state.recipes.recipes = state.recipes.recipes.filter { !state.recipes.selection.contains($0.id) }
+              break
+            case .none:
+              break
+          }
+          return .none
+        }
+        
+        
+      case .alert(.dismiss):
+        state.alert = nil
         return .none
         
       case .binding, .folders, .recipes, .alert:
@@ -127,8 +193,7 @@ extension FolderReducer {
 // MARK: - AlertAction
 extension FolderReducer {
   enum AlertAction: Equatable {
-    case cancelButtonTapped
-    case confirmDeleteButtonTapped
+    case confirmDeleteSelectedButtonTapped
   }
 }
 
@@ -139,10 +204,10 @@ extension AlertState where Action == FolderReducer.AlertAction {
       TextState("Delete")
     },
     actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteButtonTapped) {
+      ButtonState(role: .destructive, action: .confirmDeleteSelectedButtonTapped) {
         TextState("Yes")
       }
-      ButtonState(role: .cancel, action: .cancelButtonTapped) {
+      ButtonState(role: .cancel) {
         TextState("No")
       }
     },
@@ -159,10 +224,11 @@ struct Previews_FolderReducer_Previews: PreviewProvider {
       let folder  = FolderGridItemReducer.State(id: .init(), folder: Folder.longMock)
       FolderView(store: .init(
         initialState: .init(
-          folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.map {
+          name: Folder.longMock.name,
+          folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.prefix(3).map {
             .init(id: .init(), folder: $0)
           })),
-          recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.map {
+          recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.prefix(3).map {
             .init(id: .init(), recipe: $0)
           }))
         ),

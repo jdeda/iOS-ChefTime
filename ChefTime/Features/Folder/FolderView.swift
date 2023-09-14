@@ -5,8 +5,8 @@ import ComposableArchitecture
 struct FolderView: View {
   let store: StoreOf<FolderReducer>
   let columns: [GridItem] = [.init(spacing: 20), .init(spacing: 20)]
-  @Environment(\.maxScreenWidth) var maxScreenWidth
-  @Environment(\.isHidingFolderImages) var isHidingFolderImages
+  @Environment(\.maxScreenWidth) private var maxScreenWidth
+  @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
@@ -14,29 +14,33 @@ struct FolderView: View {
         ScrollView {
           
           // Folders
+          let isHidingFolders = viewStore.isEditing == .recipes || viewStore.folders.folders.isEmpty
           FolderSectionView(
             store: store.scope(
               state: \.folders,
               action: FolderReducer.Action.folders
             ),
-            isEditing: viewStore.isEditing == .folders
+            isEditing: isHidingFolders
           )
-          //          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          //          .opacity(viewStore.isEditing ? 0.0 : 1.0)
-          //          .frame(maxHeight: viewStore.isEditing ? 0 : .infinity)
+          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+          .opacity(isHidingFolders ? 0.0 : 1.0)
+          .frame(maxHeight: isHidingFolders ? 0 : .infinity)
+          .disabled(isHidingFolders)
           .id(1)
           
           // Recipes.
+          let isHidingRecipes = viewStore.isEditing == .folders || viewStore.recipes.recipes.isEmpty
           RecipeSectionView(
             store: store.scope(
               state: \.recipes,
               action: FolderReducer.Action.recipes
             ),
-            isEditing: viewStore.isEditing == .recipes
+            isEditing: isHidingRecipes
           )
-          //          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          //          .opacity(viewStore.userFoldersSection.folders.isEmpty ? 0.0 : 1.0)
-          //          .frame(height: viewStore.recipes.isEmpty ? 0 : .infinity)
+          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+          .opacity(isHidingRecipes ? 0.0 : 1.0)
+          .frame(maxHeight: isHidingRecipes ? 0 : .infinity)
+          .disabled(isHidingRecipes)
           .id(2)
         }
         
@@ -51,7 +55,7 @@ struct FolderView: View {
             proxy.scrollTo(newScrollViewIndex, anchor: .center)
           }
         }
-        .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
+        .environment(\.isHidingImages, viewStore.isHidingImages)
         .alert(store: store.scope(state: \.$alert, action: FolderReducer.Action.alert))
       }
       .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
@@ -100,9 +104,14 @@ extension FolderView {
             Label("Select Folders", systemImage: "checkmark.circle")
           }
           Button {
-            viewStore.send(.hideImagesButtonTapped, animation: .default)
+            viewStore.send(.selectRecipesButtonTapped, animation: .default)
           } label: {
-            Label(viewStore.isHidingFolderImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
+            Label("Select Recipes", systemImage: "checkmark.circle")
+          }
+          Button {
+            viewStore.send(.toggleHideImagesButtonTapped, animation: .default)
+          } label: {
+            Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
           }
         } label: {
           Image(systemName: "ellipsis.circle")
@@ -118,7 +127,7 @@ extension FolderView {
         .accentColor(.yellow)
         Spacer()
         // TODO: Update this count when all the folders are fetched properly
-        Text("\(viewStore.folders.folders.count) folders * \(viewStore.recipes.recipes.count) recipes")
+        Text("\(viewStore.folders.folders.count) folders • \(viewStore.recipes.recipes.count) recipes")
         Spacer()
         Button {
           viewStore.send(.newRecipeButtonTapped, animation: .default)
@@ -138,10 +147,11 @@ struct FolderView_Previews: PreviewProvider {
       let folder  = FolderGridItemReducer.State(id: .init(), folder: Folder.longMock)
       FolderView(store: .init(
         initialState: .init(
-          folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.map {
+          name: Folder.longMock.name,
+          folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.prefix(3).map {
             .init(id: .init(), folder: $0)
           })),
-          recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.map {
+          recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.prefix(3).map {
             .init(id: .init(), recipe: $0)
           }))
         ),

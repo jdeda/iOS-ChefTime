@@ -37,7 +37,7 @@ import Tagged
 
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
-  @Environment(\.maxScreenWidth) var maxScreenWidth
+  @Environment(\.maxScreenWidth) private var maxScreenWidth
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in

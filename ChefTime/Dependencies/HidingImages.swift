@@ -14,7 +14,7 @@ extension EnvironmentValues {
 
 // Environment value used for hiding folder images inside a folder or folders view
 extension EnvironmentValues {
-  var isHidingFolderImages: Bool {
+  var isHidingImages: Bool {
     get { self[Bool.self] }
     set { self[Bool.self] = newValue }
   }

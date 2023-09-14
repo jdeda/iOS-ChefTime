@@ -6,10 +6,13 @@ struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
       //            if _XCTIsTesting {
-      AppView()
-        .onAppear {
-          UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
-        }
+      AppView(store: .init(
+        initialState: .init(),
+        reducer: AppReducer.init
+      ))
+      .onAppear {
+        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
+      }
       //            }
     }
   }

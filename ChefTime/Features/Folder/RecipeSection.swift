@@ -6,7 +6,7 @@ struct RecipeSectionView: View {
   let store: StoreOf<RecipeSectionReducer>
   let isEditing: Bool
   private let columns = Array(repeating: GridItem(spacing: 20, alignment: .top), count: 2)
-  @Environment(\.isHidingFolderImages) private var isHidingFolderImages
+  @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in

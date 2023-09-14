@@ -8,18 +8,18 @@ struct RecipeGridItemView: View {
   let store: StoreOf<RecipeGridItemReducer>
   let isEditing: Bool
   let isSelected: Bool
-  @Environment(\.isHidingFolderImages) var isHidingFolderImages
+  @Environment(\.isHidingImages) var isHidingImages
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
           PhotosView(store: store.scope(state: \.photos, action: RecipeGridItemReducer.Action.photos))
-            .opacity(isHidingFolderImages ? 0.0 : 1.0)
+            .opacity(isHidingImages ? 0.0 : 1.0)
           
           PhotosView(store: .init(initialState: .init(photos: .init()), reducer: {}))
             .disabled(true)
-            .opacity(!isHidingFolderImages ? 0.0 : 1.0)
+            .opacity(!isHidingImages ? 0.0 : 1.0)
         }
         .overlay(alignment: .bottom) {
           if isEditing {

@@ -8,7 +8,7 @@ struct FoldersReducer: Reducer {
     var scrollViewIndex: Int = 1
     var systemFoldersSection: FolderSectionReducer.State = .system
     var userFoldersSection: FolderSectionReducer.State = .user
-    var isHidingFolderImages: Bool = false
+    var isHidingImages: Bool = false
     @BindingState var isEditing = false
     @PresentationState var alert: AlertState<AlertAction>?
     
@@ -118,7 +118,7 @@ struct FoldersReducer: Reducer {
         return .none
         
       case .hideImagesButtonTapped:
-        state.isHidingFolderImages.toggle()
+        state.isHidingImages.toggle()
         return .none
         
       case .moveSelectedButtonTapped:

@@ -6,7 +6,7 @@ struct FoldersView: View {
   let store: StoreOf<FoldersReducer>
   let columns: [GridItem] = [.init(spacing: 20), .init(spacing: 20)]
   @Environment(\.maxScreenWidth) var maxScreenWidth
-  @Environment(\.isHidingFolderImages) var isHidingFolderImages
+  @Environment(\.isHidingImages) var isHidingImages
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
@@ -52,7 +52,7 @@ struct FoldersView: View {
           }
         }
         .task { await viewStore.send(.task).finish() }
-        .environment(\.isHidingFolderImages, viewStore.isHidingFolderImages)
+        .environment(\.isHidingImages, viewStore.isHidingImages)
         .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
       }
       .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
@@ -103,7 +103,7 @@ extension FoldersView {
           Button {
             viewStore.send(.hideImagesButtonTapped, animation: .default)
           } label: {
-            Label(viewStore.isHidingFolderImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
+            Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
           }
         } label: {
           Image(systemName: "ellipsis.circle")
