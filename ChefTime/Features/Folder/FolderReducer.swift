@@ -114,7 +114,7 @@ struct FolderReducer: Reducer {
         let id = RecipeGridItemReducer.State.ID(rawValue: uuid())
         state.recipes.recipes.append(.init(id: id, recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
         return .send(.delegate(.addNewRecipeButtonTappedDidComplete(id)), animation: .default)
-
+        
       case let .folders(.delegate(action)):
         switch action {
           
@@ -128,14 +128,14 @@ struct FolderReducer: Reducer {
         switch action {
         case .confirmDeleteSelectedButtonTapped:
           switch state.isEditing {
-            case .folders:
-              state.folders.folders = state.folders.folders.filter { !state.folders.selection.contains($0.id) }
-              break
-            case .recipes:
-              state.recipes.recipes = state.recipes.recipes.filter { !state.recipes.selection.contains($0.id) }
-              break
-            case .none:
-              break
+          case .folders:
+            state.folders.folders = state.folders.folders.filter { !state.folders.selection.contains($0.id) }
+            break
+          case .recipes:
+            state.recipes.recipes = state.recipes.recipes.filter { !state.recipes.selection.contains($0.id) }
+            break
+          case .none:
+            break
           }
           return .none
         }
