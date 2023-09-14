@@ -35,9 +35,7 @@ struct FolderSectionView: View {
             .opacity(viewStore.isExpanded ? 1.0 : 0.0)
             .onTapGesture {
               if isEditing {
-                if !ViewStore(childStore, observe: \.folder.folderType.isSystem).state {
-                  viewStore.send(.folderSelected(id), animation: .default)
-                }
+                viewStore.send(.folderSelected(id), animation: .default)
               }
               else {
                 viewStore.send(.delegate(.folderTapped(id)), animation: .default)

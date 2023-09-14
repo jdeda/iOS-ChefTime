@@ -2,12 +2,10 @@ import ComposableArchitecture
 import SwiftUI
 import Tagged
 
-// TODO: ContextMenu for the PhotosView should be disabled and relegated to this feature.
-// TODO: The PhotosView needs adjusting for adaptable resizing...as wel as the rectangle aspect ratio trick
 
 // MARK: - View
-struct FolderGridItemView: View {
-  let store: StoreOf<FolderGridItemReducer>
+struct GridElementView: View {
+  let store: StoreOf<GridElementReducer>
   let isEditing: Bool
   let isSelected: Bool
   @Environment(\.isHidingFolderImages) var isHidingFolderImages
@@ -16,7 +14,7 @@ struct FolderGridItemView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
-          PhotosView(store: store.scope(state: \.photos, action: FolderGridItemReducer.Action.photos))
+          PhotosView(store: store.scope(state: \.gridElement.photos, action: GridElementReducer.Action.photos))
             .opacity(isHidingFolderImages ? 0.0 : 1.0)
           
           PhotosView(store: .init(initialState: .init(photos: .init()), reducer: {}))
@@ -31,7 +29,7 @@ struct FolderGridItemView: View {
                 ZStack(alignment: .bottom) {
                   RoundedRectangle(cornerRadius: 15)
                     .strokeBorder(Color.accentColor, lineWidth: 5)
-
+                  
                   Circle()
                     .fill(.primary)
                     .colorInvert()
@@ -55,113 +53,148 @@ struct FolderGridItemView: View {
           }
         }
         
-        Text(viewStore.folder.name)
+        Text(viewStore.gridElement.title)
           .lineLimit(2)
           .font(.title3)
           .fontWeight(.bold)
-        Text("\(viewStore.folder.recipes.count) recipes")
+        Text(viewStore.gridElement.description)
           .lineLimit(2)
           .font(.body)
           .foregroundColor(.secondary)
       }
       .background(Color.primary.colorInvert())
       .clipShape(RoundedRectangle(cornerRadius: 15))
-
       .alert(
-        store: store.scope(state: \.$destination, action: FolderGridItemReducer.Action.destination),
-        state: /FolderGridItemReducer.DestinationReducer.State.alert,
-        action: FolderGridItemReducer.DestinationReducer.Action.alert
+        store: store.scope(state: \.$destination, action: GridElementReducer.Action.destination),
+        state: /GridElementReducer.DestinationReducer.State.alert,
+        action: GridElementReducer.DestinationReducer.Action.alert
       )
       .alert("Rename", isPresented: viewStore.binding(
         get: { $0.destination == .renameAlert },
         send: { _ in .destination(.dismiss) }
       )) {
-        RenameAlert(name: viewStore.folder.name) {
+        RenameAlert(name: viewStore.gridElement.title) {
           viewStore.send(.renameAcceptButtonTapped($0), animation: .default)
         }
       }
-      .contextMenu {
-        if viewStore.photos.photoEditInFlight {
-          Button {
-            viewStore.send(.photos(.cancelPhotoEdit), animation: .default)
-          } label: {
-            Text("Cancel Image Upload")
-          }
-        }
-        else {
-          Menu {
-            if viewStore.photos.photos.count == 1 {
-              Button {
-                viewStore.send(.photos(.replaceButtonTapped), animation: .default)
-              } label: {
-                Text("Replace Image")
-              }
-              Button(role: .destructive) {
-                viewStore.send(.photos(.deleteButtonTapped), animation: .default)
-              } label: {
-                Text("Delete Image")
-              }
-            }
-            else {
-              Button {
-                viewStore.send(.photos(.addButtonTapped), animation: .default)
-              } label: {
-                Text("Add Image")
-              }
-            }
-          } label: {
-            Text("Edit Image")
-          }
-          if !viewStore.folder.folderType.isSystem {
+      .contextMenu { _contextMenu(viewStore) }
+    }
+  }
+}
+
+extension GridElementView {
+  @ViewBuilder
+  func _contextMenu(_ viewStore: ViewStoreOf<GridElementReducer>) -> some View {
+    if viewStore.gridElement.photos.photoEditInFlight &&
+        viewStore.gridElement.allowedContextMenuActions.contains(.photos) {
+      Button {
+        viewStore.send(.photos(.cancelPhotoEdit), animation: .default)
+      } label: {
+        Text("Cancel Image Upload")
+      }
+    }
+    else {
+      if viewStore.gridElement.allowedContextMenuActions.contains(.photos) {
+        Menu {
+          if viewStore.gridElement.photos.photos.count == 1 {
             Button {
-              viewStore.send(.renameButtonTapped, animation: .default)
+              viewStore.send(.photos(.replaceButtonTapped), animation: .default)
             } label: {
-              Text("Rename")
-            }
-            Button {
-              viewStore.send(.delegate(.move), animation: .default)
-            } label: {
-              Text("Move")
+              Text("Replace Image")
             }
             Button(role: .destructive) {
-              viewStore.send(.deleteButtonTapped, animation: .default)
+              viewStore.send(.photos(.deleteButtonTapped), animation: .default)
             } label: {
-              Text("Delete")
+              Text("Delete Image")
             }
           }
+          else {
+            Button {
+              viewStore.send(.photos(.addButtonTapped), animation: .default)
+            } label: {
+              Text("Add Image")
+            }
+          }
+        } label: {
+          Text("Edit Image")
+        }
+      }
+      
+      if viewStore.gridElement.allowedContextMenuActions.contains(.rename) {
+        Button {
+          viewStore.send(.renameButtonTapped, animation: .default)
+        } label: {
+          Text("Rename")
+        }
+      }
+      
+      if viewStore.gridElement.allowedContextMenuActions.contains(.move) {
+        Button {
+          viewStore.send(.delegate(.move), animation: .default)
+        } label: {
+          Text("Move")
+        }
+      }
+      
+      if viewStore.gridElement.allowedContextMenuActions.contains(.delete) {
+        Button(role: .destructive) {
+          viewStore.send(.deleteButtonTapped, animation: .default)
+        } label: {
+          Text("Delete")
         }
       }
     }
   }
 }
 
+struct GridElement: Identifiable, Equatable {
+  typealias ID = Tagged<Self, UUID>
+  
+  let id: ID
+  var title: String
+  var description: String
+  var photos: PhotosReducer.State
+  var allowedContextMenuActions = Set(AllowedContextMenuActions.allCases)
+  
+  enum AllowedContextMenuActions: Equatable, Hashable, CaseIterable {
+    case share
+    case photos
+    case rename
+    case move
+    case delete
+  }
+}
+
+extension GridElement {
+  static let mock = Self.init(
+    id: .init(),
+    title: Recipe.shortMock.name,
+    description: "3/4/12",
+    photos: .init(photos: Recipe.shortMock.imageData),
+    allowedContextMenuActions: .init(AllowedContextMenuActions.allCases)
+  )
+}
+
 // MARK: - Reducer
-struct FolderGridItemReducer: Reducer {
+struct GridElementReducer: Reducer {
   struct State: Equatable, Identifiable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
-    var folder: Folder
-    var photos: PhotosReducer.State
+    var gridElement: GridElement
     @PresentationState var destination: DestinationReducer.State?
     
     init(
       id: ID,
-      folder: Folder,
+      gridElement: GridElement,
       destination: DestinationReducer.State? = nil
     ) {
       self.id = id
-      self.folder = folder
-      self.photos = .init(
-        photos: .init(uniqueElements: (folder.imageData != nil) ? [folder.imageData!] : []),
-        supportSinglePhotoOnly: true,
-        disableContextMenu: true
-      )
-      self.photos.selection = self.photos.photos.first?.id
+      self.gridElement = gridElement
       self.destination = destination
     }
   }
-    
+  
   enum Action: Equatable, BindableAction {
     case deleteButtonTapped
     case replacePreviewImage
@@ -190,20 +223,20 @@ struct FolderGridItemReducer: Reducer {
         state.destination = .renameAlert
         return .none
         
-      case let .renameAcceptButtonTapped(newName):
-        state.folder.name = newName
+      case let .renameAcceptButtonTapped(newTitle):
+        state.gridElement.title = newTitle
         state.destination = nil
         return .none
         
       case .destination(.presented(.alert(.confirmDeleteButtonTapped))):
         state.destination = nil
-          return .run { send in
-            // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
-            // However, this bug seems to happen because you are returning an action in the .presented.
-            // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
-            await dismiss()
-            await send(.delegate(.delete))
-          }
+        return .run { send in
+          // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
+          // However, this bug seems to happen because you are returning an action in the .presented.
+          // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
+          await dismiss()
+          await send(.delegate(.delete))
+        }
         
       case .binding, .photos, .delegate, .destination:
         return .none
@@ -212,13 +245,13 @@ struct FolderGridItemReducer: Reducer {
     .ifLet(\.$destination, action: /Action.destination) {
       DestinationReducer()
     }
-    Scope(state: \.photos, action: /Action.photos) {
+    Scope(state: \.gridElement.photos, action: /Action.photos) {
       PhotosReducer()
     }
   }
 }
 
-extension FolderGridItemReducer {
+extension GridElementReducer {
   struct DestinationReducer: Reducer {
     enum State: Equatable {
       case alert(AlertState<AlertAction>)
@@ -237,7 +270,7 @@ extension FolderGridItemReducer {
 }
 
 // MARK: - DelegateAction
-extension FolderGridItemReducer {
+extension GridElementReducer {
   enum DelegateAction: Equatable {
     case move
     case delete
@@ -245,14 +278,14 @@ extension FolderGridItemReducer {
 }
 
 // MARK: - AlertAction
-extension FolderGridItemReducer {
+extension GridElementReducer {
   enum AlertAction: Equatable {
     case confirmDeleteButtonTapped
   }
 }
 
 // MARK: - AlertState
-extension AlertState where Action == FolderGridItemReducer.AlertAction {
+extension AlertState where Action == GridElementReducer.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")
@@ -306,20 +339,18 @@ private struct RenameAlert: View {
   }
 }
 
-
 // MARK: - Preview
-struct FolderGridItemView_Previews: PreviewProvider {
+struct GridElementView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      FolderGridItemView(
+      GridElementView(
         store: .init(
-          initialState: .init(id: .init(), folder: .shortMock),
-          reducer: FolderGridItemReducer.init
+          initialState: .init(id: .init(), gridElement: .mock),
+          reducer: GridElementReducer.init
         ),
         isEditing: false,
         isSelected: false
       )
-      //      .frame(width: 50, height: 50)
       .padding(50)
       .onAppear {
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)

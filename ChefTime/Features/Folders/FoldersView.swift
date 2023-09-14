@@ -1,7 +1,13 @@
 import SwiftUI
 import ComposableArchitecture
 
+
 // TODO: Add a scroll to feature when expanding/collapsing
+
+
+/// 1. Reusable code
+///     1. i dont have to boilerplate 1000 lines of code in my case
+///     2. i only have to test one thing instead of two in my case, i mean yes it becomes more complicated here
 
 /// How to simply this feature?
 /// 1. Break sections into their own features...

@@ -12,83 +12,8 @@ struct FolderView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       ScrollView {
-        Section {
-          DisclosureGroup(isExpanded: viewStore.$foldersIsExpanded) {
-            LazyVGrid(columns: columns, spacing: 10) {
-              ForEach(viewStore.folder.folders) { folder in
-                let image = folder.recipes.first?.imageData.first?.image ?? Image(systemName: "folder")
-                GridItemView(
-                  image: image,
-                  title: folder.name,
-                  subTitle: "Foo"
-                )
-                .onTapGesture { viewStore.send(.delegate(.folderTapped(folder.id))) }
-              }
-            }
-          } label: {
-            Text("Folders")
-              .textTitleStyle()
-            Spacer()
-          }
-          .accentColor(.primary)
-          .disclosureGroupStyle(CustomDisclosureGroupStyle())
-        }
-        .padding(.horizontal)
         
-        // Recipes.
-        Section {
-          DisclosureGroup(isExpanded: viewStore.$recipesIsExpanded) {
-            LazyVGrid(columns: columns, spacing: 10) {
-              ForEach(viewStore.folder.recipes) { recipe in
-                let image = recipe.imageData.first?.image ?? Image(systemName: "folder")
-                GridItemView(
-                  image: image,
-                  title: recipe.name,
-                  subTitle: "Foo"
-                )
-                .onTapGesture { viewStore.send(.delegate(.recipeTapped(recipe.id))) }
-              }
-            }
-          } label: {
-            Text("Recipes")
-              .textTitleStyle()
-            Spacer()
-          }
-          .disclosureGroupStyle(CustomDisclosureGroupStyle())
-          .accentColor(.primary)
-        }
-        .padding(.horizontal)
       }
-      .navigationTitle(viewStore.folder.name)
-      .searchable(
-        text: .constant(""),
-        placement: .navigationBarDrawer(displayMode: .always)
-      )
-    }
-  }
-  
-  struct GridItemView: View {
-    let width = UIScreen.main.bounds.width * 0.40
-    let image: Image
-    let title: String
-    let subTitle: String
-    
-    var body: some View {
-      VStack {
-        self.image
-          .resizable()
-          .frame(width: width, height: width)
-          .clipShape(RoundedRectangle(cornerRadius: 15))
-        Text(self.title)
-          .lineLimit(2)
-          .font(.title3)
-          .fontWeight(.bold)
-        Text(self.subTitle)
-          .lineLimit(2)
-          .font(.body)
-        Spacer()
-      }
-      .frame(maxWidth: width)
     }
   }
 }
