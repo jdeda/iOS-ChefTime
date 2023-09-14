@@ -43,11 +43,11 @@ struct AppReducer: Reducer {
   
   @Dependency(\.uuid) var uuid
   
-  var body: some ReducerOf<Self> {
+  var body: some Reducer<AppReducer.State, AppReducer.Action> {
     Scope(state: \.folders, action: /Action.folders) {
       FoldersReducer()
     }
-    Reduce { state, action in
+    Reduce<AppReducer.State, AppReducer.Action> { state, action in
       switch action {
         
         // Folder taps into a folder.
@@ -89,6 +89,26 @@ struct AppReducer: Reducer {
         guard let recipe = state.folders.systemFoldersSection.folders[1].folder.recipes[id: id]
         else { return .none }
         return navigateToRecipe(state: &state, recipe: .init(recipe: recipe))
+        
+
+      case let .path(.popFrom(id: id)):
+        switch state.path[id: id] {
+        case let .folder(folder):
+          let isEmpty = folder.folders.folders.isEmpty && folder.recipes.recipes.isEmpty
+          // TODO: Delete this folder because it is empty, and propagate all changes to its elders
+          return .none
+          
+        case let .recipe(recipe):
+          let isEmpty = recipe.photos.photos.isEmpty &&
+          recipe.about.aboutSections.isEmpty &&
+          recipe.ingredients.ingredientSections.isEmpty &&
+          recipe.steps.stepSections.isEmpty
+          // TODO: Delete this recipe because it is empty, and propagate all changes to its elders
+          return .none
+          
+        case .none:
+          return .none
+        }
         
       case .path, .folders:
         return .none
