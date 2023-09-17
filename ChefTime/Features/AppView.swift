@@ -100,9 +100,9 @@ struct AppReducer: Reducer {
           
         case let .recipe(recipe):
           let isEmpty = recipe.photos.photos.isEmpty &&
-          recipe.about.aboutSections.isEmpty &&
-          recipe.ingredients.ingredientSections.isEmpty &&
-          recipe.steps.stepSections.isEmpty
+          recipe.about?.aboutSections.isEmpty ?? false  &&
+          recipe.ingredients?.ingredientSections.isEmpty ?? false &&
+          recipe.steps?.stepSections.isEmpty ?? false
           // TODO: Delete this recipe because it is empty, and propagate all changes to its elders
           return .none
           

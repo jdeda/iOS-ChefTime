@@ -67,9 +67,9 @@ struct IngredientListView: View {
 struct IngredientsListReducer: Reducer {
   struct State: Equatable {
     
-    var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State>
+    var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State> = []
     var scale: Double = 1.0
-    @BindingState var isExpanded: Bool
+    @BindingState var isExpanded: Bool = true
     @BindingState var focusedField: FocusField? = nil
   }
   

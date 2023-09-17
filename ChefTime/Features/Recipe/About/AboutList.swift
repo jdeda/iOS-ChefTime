@@ -61,8 +61,8 @@ struct AboutListView: View {
 // MARK: - AboutListReducer
 struct AboutListReducer: Reducer {
   struct State: Equatable {
-    var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State>
-    @BindingState var isExpanded: Bool
+    var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State> = []
+    @BindingState var isExpanded: Bool = true
     @BindingState var focusedField: FocusField? = nil
   }
   

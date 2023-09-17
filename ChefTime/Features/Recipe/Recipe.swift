@@ -42,6 +42,8 @@ struct RecipeView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       ScrollView {
+        
+        // PhotosView
         ZStack {
           PhotosView(store: store.scope(state: \.photos, action: RecipeReducer.Action.photos))
             .opacity(!viewStore.isHidingImages ? 1.0 : 0.0)
@@ -62,36 +64,51 @@ struct RecipeView: View {
             .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
         }
         
-        AboutListView(store: store.scope(
+        // AboutListView
+        IfLetStore(store.scope(
           state: \.about,
           action: RecipeReducer.Action.about
-        ))
-        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-        
-        if !viewStore.about.isExpanded {
-          Divider()
-            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        )) {
+          AboutListView(store: $0)
+          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          
+          if !(viewStore.about?.isExpanded ?? false) {
+            Divider()
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          }
         }
         
-        IngredientListView(store: store.scope(
+        // IngredientListView
+        IfLetStore(store.scope(
           state: \.ingredients,
           action: RecipeReducer.Action.ingredients
-        ))
-        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-        
-        if !viewStore.ingredients.isExpanded {
-          Divider()
-            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        )) {
+          IngredientListView(store: $0)
+          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          
+          if !(viewStore.ingredients?.isExpanded ?? false) {
+            Divider()
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          }
         }
         
-        StepListView(store: store.scope(
+        // StepListView
+        IfLetStore(store.scope(
           state: \.steps,
           action: RecipeReducer.Action.steps
-        ))
-        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        )) {
+          StepListView(store: $0)
+          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          
+          if !(viewStore.steps?.isExpanded ?? false) {
+            Divider()
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          }
+        }
         
         Spacer()
       }
+      .alert(store: store.scope(state: \.$alert, action: RecipeReducer.Action.alert))
       .navigationTitle(viewStore.binding(
         get:  { !$0.recipe.name.isEmpty ? $0.recipe.name : "Untitled Recipe" },
         send: { .recipeNameEdited($0) }
@@ -99,20 +116,44 @@ struct RecipeView: View {
       .toolbar {
         ToolbarItemGroup(placement: .primaryAction) {
           Menu {
-            Button {
-              viewStore.send(.setExpansionButtonTapped(true), animation: .default)
+            Menu {
+              Button {
+                viewStore.send(.setExpansionButtonTapped(true), animation: .default)
+              } label: {
+                Label("Expand All", systemImage: "arrow.up.backward.and.arrow.down.forward")
+              }
+              Button {
+                viewStore.send(.setExpansionButtonTapped(false), animation: .default)
+              } label: {
+                Label("Collapse All", systemImage: "arrow.down.forward.and.arrow.up.backward")
+              }
+              Button {
+                viewStore.send(.toggleHideImages, animation: .default)
+              } label: {
+                Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
+              }
             } label: {
-              Label("Expand All", systemImage: "arrow.up.backward.and.arrow.down.forward")
+              Label("Edit Visibility", systemImage: "eyeglasses")
             }
-            Button {
-              viewStore.send(.setExpansionButtonTapped(false), animation: .default)
+
+            Menu {
+              Button {
+                viewStore.send(.editSectionButtonTapped(.about, viewStore.about == nil ? .add : .delete), animation: .default)
+              } label: {
+                Label(viewStore.about == nil ? "Add About" : "Delete About", systemImage: "text.alignleft")
+              }
+              Button {
+                viewStore.send(.editSectionButtonTapped(.ingredients, viewStore.ingredients == nil ? .add : .delete), animation: .default)
+              } label: {
+                Label(viewStore.ingredients == nil ? "Add Ingredients" : "Delete Ingredients", systemImage: "checklist")
+              }
+              Button {
+                viewStore.send(.editSectionButtonTapped(.steps, viewStore.steps == nil ? .add : .delete), animation: .default)
+              } label: {
+                Label(viewStore.steps == nil ? "Add Steps" : "Delete Steps", systemImage: "list.number")
+              }
             } label: {
-              Label("Collapse All", systemImage: "arrow.down.forward.and.arrow.up.backward")
-            }
-            Button {
-              viewStore.send(.toggleHideImages, animation: .default)
-            } label: {
-              Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
+              Label("Edit Sections", systemImage: "line.3.horizontal")
             }
           } label: {
             Image(systemName: "ellipsis.circle")
@@ -128,10 +169,11 @@ struct RecipeReducer: Reducer {
   struct State: Equatable {
     var recipe: Recipe
     var photos: PhotosReducer.State
-    var about: AboutListReducer.State
-    var ingredients: IngredientsListReducer.State
-    var steps: StepListReducer.State
+    var about: AboutListReducer.State?
+    var ingredients: IngredientsListReducer.State?
+    var steps: StepListReducer.State?
     var isHidingImages: Bool
+    @PresentationState var alert: AlertState<AlertAction>?
     
     init(recipe: Recipe) {
       @Dependency(\.uuid) var uuid
@@ -201,6 +243,8 @@ struct RecipeReducer: Reducer {
     case recipeNameEdited(String)
     case toggleHideImages
     case setExpansionButtonTapped(Bool)
+    case editSectionButtonTapped(Section, SectionEditAction)
+    case alert(PresentationAction<AlertAction>)
   }
   
   var body: some ReducerOf<Self> {
@@ -221,37 +265,144 @@ struct RecipeReducer: Reducer {
         // TODO: May need to worry about focus state
         
         // Collapse all about sections
-        state.about.isExpanded = isExpanded
-        state.about.aboutSections.ids.forEach {
-          state.about.aboutSections[id: $0]?.isExpanded = isExpanded
+        state.about?.isExpanded = isExpanded
+        state.about?.aboutSections.ids.forEach {
+          state.about?.aboutSections[id: $0]?.isExpanded = isExpanded
         }
         
         // Collapse all ingredient sections
-        state.ingredients.isExpanded = isExpanded
-        state.ingredients.ingredientSections.ids.forEach {
-          state.ingredients.ingredientSections[id: $0]?.isExpanded = isExpanded
+        state.ingredients?.isExpanded = isExpanded
+        state.ingredients?.ingredientSections.ids.forEach {
+          state.ingredients?.ingredientSections[id: $0]?.isExpanded = isExpanded
         }
         
         // Collapse all step sections
-        state.steps.isExpanded = isExpanded
-        state.steps.stepSections.ids.forEach {
-          state.steps.stepSections[id: $0]?.isExpanded = isExpanded
+        state.steps?.isExpanded = isExpanded
+        state.steps?.stepSections.ids.forEach {
+          state.steps?.stepSections[id: $0]?.isExpanded = isExpanded
         }
+        return .none
+        
+      case let .editSectionButtonTapped(section, action):
+        switch action {
+        case .delete:
+          switch section {
+          case .about: state.alert = .deleteAbout
+          case .ingredients: state.alert = .deleteIngredients
+          case .steps: state.alert = .deleteSteps
+          }
+          return .none
+          
+        case .add:
+          switch section {
+          case .about: state.about = .init()
+          case .ingredients: state.ingredients = .init()
+          case .steps: state.steps = .init()
+          }
+          return .none
+        }
+        
+      case let .alert(.presented(.confirmDeleteSectionButtonTapped(section))):
+        switch section {
+        case .about: state.about = nil
+        case .ingredients: state.ingredients = nil
+        case .steps: state.steps = nil
+        }
+        state.alert = nil
+        return .none
+
+      case .alert(.dismiss):
+        state.alert = nil
+        return .none
+
+      case .alert:
         return .none
       }
     }
+    .ifLet(\.about, action: /Action.about) {
+      AboutListReducer()
+    }
+    .ifLet(\.ingredients, action: /Action.ingredients) {
+      IngredientsListReducer()
+    }
+    .ifLet(\.steps, action: /Action.steps) {
+      StepListReducer()
+    }
+    
     Scope(state: \.photos, action: /Action.photos) {
       PhotosReducer()
     }
-    Scope(state: \.about, action: /Action.about) {
-      AboutListReducer()
+  }
+}
+
+extension RecipeReducer {
+  enum AlertAction: Equatable {
+    case confirmDeleteSectionButtonTapped(Section)
+  }
+}
+
+
+extension AlertState where Action == RecipeReducer.AlertAction {
+  static let deleteAbout = Self(
+    title: {
+      TextState("Delete About")
+    },
+    actions: {
+      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.about)){
+        TextState("Delete")
+      }
+      ButtonState(role: .cancel) {
+        TextState("Cancel")
+      }
+    },
+    message: {
+      TextState("Are you sure you want to delete this section? All subsections will be deleted.")
     }
-    Scope(state: \.ingredients, action: /Action.ingredients) {
-      IngredientsListReducer()
+  )
+  static let deleteIngredients = Self(
+    title: {
+      TextState("Delete Ingredients")
+    },
+    actions: {
+      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.ingredients)){
+        TextState("Delete")
+      }
+      ButtonState(role: .cancel) {
+        TextState("Cancel")
+      }
+    },
+    message: {
+      TextState("Are you sure you want to delete this section? All subsections will be deleted.")
     }
-    Scope(state: \.steps, action: /Action.steps) {
-      StepListReducer()
+  )
+  static let deleteSteps = Self(
+    title: {
+      TextState("Delete Steps")
+    },
+    actions: {
+      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.steps)){
+        TextState("Delete")
+      }
+      ButtonState(role: .cancel) {
+        TextState("Cancel")
+      }
+    },
+    message: {
+      TextState("Are you sure you want to delete this section? All subsections will be deleted.")
     }
+  )
+}
+
+extension RecipeReducer {
+  enum Section: Equatable {
+    case about
+    case ingredients
+    case steps
+  }
+  
+  enum SectionEditAction: Equatable {
+    case add
+    case delete
   }
 }
 
@@ -261,7 +412,7 @@ struct RecipeView_Previews: PreviewProvider {
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          recipe: .longMock
+          recipe: .empty
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in

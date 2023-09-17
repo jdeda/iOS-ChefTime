@@ -73,8 +73,8 @@ struct StepListView: View {
 // MARK: - StepListReducer
 struct StepListReducer: Reducer {
   struct State: Equatable {
-    var stepSections: IdentifiedArrayOf<StepSectionReducer.State>
-    @BindingState var isExpanded: Bool
+    var stepSections: IdentifiedArrayOf<StepSectionReducer.State> = []
+    @BindingState var isExpanded: Bool = true
     @BindingState var isHidingStepImages: Bool = false
     @BindingState var focusedField: FocusField? = nil
   }
