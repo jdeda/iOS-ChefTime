@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CoreAboutSection" representedClassName="CoreAboutSection" syncable="YES" codeGenerationType="class">
+        <attribute name="body" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="aboutSections" inverseEntity="CoreRecipe"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CoreImageData" representedClassName="CoreImageData" syncable="YES" codeGenerationType="class">
+        <attribute name="data" optional="YES" attributeType="Binary"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="imageData" inverseEntity="CoreRecipe"/>
+        <relationship name="step" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreStep" inverseName="imageData" inverseEntity="CoreStep"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CoreIngredient" representedClassName="CoreIngredient" syncable="YES" codeGenerationType="class">
+        <attribute name="amount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="measure" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="ingredientSection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreIngredientSection" inverseName="ingredients" inverseEntity="CoreIngredientSection"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CoreIngredientSection" representedClassName="CoreIngredientSection" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="ingredients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreIngredient" inverseName="ingredientSection" inverseEntity="CoreIngredient"/>
+        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="ingredientSections" inverseEntity="CoreRecipe"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CoreRecipe" representedClassName="CoreRecipe" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="aboutSections" toMany="YES" deletionRule="Nullify" destinationEntity="CoreAboutSection" inverseName="recipe" inverseEntity="CoreAboutSection"/>
+        <relationship name="imageData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreImageData" inverseName="recipe" inverseEntity="CoreImageData"/>
+        <relationship name="ingredientSections" toMany="YES" deletionRule="Nullify" destinationEntity="CoreIngredientSection" inverseName="recipe" inverseEntity="CoreIngredientSection"/>
+        <relationship name="stepSections" toMany="YES" deletionRule="Nullify" destinationEntity="CoreStepSection" inverseName="recipe" inverseEntity="CoreStepSection"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CoreStep" representedClassName="CoreStep" syncable="YES" codeGenerationType="class">
+        <attribute name="body" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="imageData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreImageData" inverseName="step" inverseEntity="CoreImageData"/>
+        <relationship name="stepSection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreStepSection" inverseName="steps" inverseEntity="CoreStepSection"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CoreStepSection" representedClassName="CoreStepSection" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="stepSections" inverseEntity="CoreRecipe"/>
+        <relationship name="steps" toMany="YES" deletionRule="Nullify" destinationEntity="CoreStep" inverseName="stepSection" inverseEntity="CoreStep"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+</model>

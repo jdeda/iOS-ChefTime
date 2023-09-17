@@ -54,7 +54,6 @@ struct FolderReducer: Reducer {
     case delegate(DelegateAction)
   }
   
-  @Dependency(\.database) var database
   @Dependency(\.uuid) var uuid
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {

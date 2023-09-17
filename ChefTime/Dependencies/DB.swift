@@ -2,22 +2,22 @@ import ComposableArchitecture
 import Foundation
 
 // MARK: - Temporary DB
-struct Database {
+struct DatabaseTemp {
   let fetchAllFolders: @Sendable () -> AsyncStream<Folder>
 }
 
-extension Database: DependencyKey {
+extension DatabaseTemp: DependencyKey {
   static let liveValue = Self.live
 }
 
 extension DependencyValues {
-  var database: Database {
-    get { self[Database.self] }
-    set { self[Database.self] = newValue}
+  var databaseTemp: DatabaseTemp {
+    get { self[DatabaseTemp.self] }
+    set { self[DatabaseTemp.self] = newValue}
   }
 }
 
-extension Database {
+extension DatabaseTemp {
   static let live = Self(
     fetchAllFolders: {
       .init { continuation in
