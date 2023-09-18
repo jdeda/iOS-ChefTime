@@ -412,7 +412,7 @@ struct RecipeView_Previews: PreviewProvider {
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          recipe: .empty
+          recipe: .longMock
         ),
         reducer: RecipeReducer.init,
         withDependencies: { _ in

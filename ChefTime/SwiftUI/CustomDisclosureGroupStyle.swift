@@ -47,9 +47,12 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
       .contentShape(Rectangle())
       .padding([.bottom], 5)
       
-      configuration.content
-        .frame(maxHeight: configuration.isExpanded ? .infinity : 0)
-        .opacity(configuration.isExpanded ? 1.0 : 0)
+      if configuration.isExpanded {
+        configuration.content
+//          .frame(maxHeight: configuration.isExpanded ? .infinity : 0)
+//          .opacity(configuration.isExpanded ? 1.0 : 0)
+
+      }
     }
     .contentShape(ContentShapeKinds.contextMenuPreview, RoundedRectangle(cornerRadius: 5))
   }
