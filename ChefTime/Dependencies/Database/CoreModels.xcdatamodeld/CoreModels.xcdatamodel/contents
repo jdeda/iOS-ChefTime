@@ -36,7 +36,7 @@
     <entity name="CoreIngredientSection" representedClassName="CoreIngredientSection" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="ingredients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CoreIngredient" inverseName="ingredientSection" inverseEntity="CoreIngredient"/>
+        <relationship name="ingredients" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CoreIngredient" inverseName="ingredientSection" inverseEntity="CoreIngredient"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="ingredientSections" inverseEntity="CoreRecipe"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -47,10 +47,10 @@
     <entity name="CoreRecipe" representedClassName="CoreRecipe" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="aboutSections" toMany="YES" deletionRule="Nullify" destinationEntity="CoreAboutSection" inverseName="recipe" inverseEntity="CoreAboutSection"/>
-        <relationship name="imageData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreImageData" inverseName="recipe" inverseEntity="CoreImageData"/>
-        <relationship name="ingredientSections" toMany="YES" deletionRule="Nullify" destinationEntity="CoreIngredientSection" inverseName="recipe" inverseEntity="CoreIngredientSection"/>
-        <relationship name="stepSections" toMany="YES" deletionRule="Nullify" destinationEntity="CoreStepSection" inverseName="recipe" inverseEntity="CoreStepSection"/>
+        <relationship name="aboutSections" toMany="YES" deletionRule="Cascade" destinationEntity="CoreAboutSection" inverseName="recipe" inverseEntity="CoreAboutSection"/>
+        <relationship name="imageData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CoreImageData" inverseName="recipe" inverseEntity="CoreImageData"/>
+        <relationship name="ingredientSections" toMany="YES" deletionRule="Cascade" destinationEntity="CoreIngredientSection" inverseName="recipe" inverseEntity="CoreIngredientSection"/>
+        <relationship name="stepSections" toMany="YES" deletionRule="Cascade" destinationEntity="CoreStepSection" inverseName="recipe" inverseEntity="CoreStepSection"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -72,7 +72,7 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="stepSections" inverseEntity="CoreRecipe"/>
-        <relationship name="steps" toMany="YES" deletionRule="Nullify" destinationEntity="CoreStep" inverseName="stepSection" inverseEntity="CoreStep"/>
+        <relationship name="steps" toMany="YES" deletionRule="Cascade" destinationEntity="CoreStep" inverseName="stepSection" inverseEntity="CoreStep"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
