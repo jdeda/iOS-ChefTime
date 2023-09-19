@@ -2,7 +2,7 @@ import Foundation
 import ComposableArchitecture
 
 struct Database {
-  let fetchAllFolders: () -> AsyncStream<Folder>
+  let fetchUser: @Sendable () async -> User?
 }
 
 extension Database: DependencyKey {

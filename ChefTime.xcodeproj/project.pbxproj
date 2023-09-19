@@ -95,6 +95,9 @@
 		97B17C2C2AB8BC84009B6378 /* recipe_27.json in Resources */ = {isa = PBXBuildFile; fileRef = 97B17C042AB8BC84009B6378 /* recipe_27.json */; };
 		97B17C2D2AB8BC84009B6378 /* recipe_30.json in Resources */ = {isa = PBXBuildFile; fileRef = 97B17C052AB8BC84009B6378 /* recipe_30.json */; };
 		97B17C2F2AB8BDBC009B6378 /* Database+Live.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */; };
+		97B17C332AB8DA77009B6378 /* CoreDataClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C322AB8DA77009B6378 /* CoreDataClient.swift */; };
+		97B17C352AB8F761009B6378 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C342AB8F761009B6378 /* UserModel.swift */; };
+		97B17C942AB91FC8009B6378 /* CoreDataClient+Convert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C932AB91FC8009B6378 /* CoreDataClient+Convert.swift */; };
 		97B62F312A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B62F302A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift */; };
 		97C04E682A40AA0D00EB7D6D /* burger_bun_01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E622A40AA0C00EB7D6D /* burger_bun_01.jpg */; };
 		97C04E692A40AA0D00EB7D6D /* burger_bun_02.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E632A40AA0D00EB7D6D /* burger_bun_02.jpg */; };
@@ -212,6 +215,9 @@
 		97B17C042AB8BC84009B6378 /* recipe_27.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recipe_27.json; sourceTree = "<group>"; };
 		97B17C052AB8BC84009B6378 /* recipe_30.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recipe_30.json; sourceTree = "<group>"; };
 		97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Database+Live.swift"; sourceTree = "<group>"; };
+		97B17C322AB8DA77009B6378 /* CoreDataClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataClient.swift; sourceTree = "<group>"; };
+		97B17C342AB8F761009B6378 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
+		97B17C932AB91FC8009B6378 /* CoreDataClient+Convert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreDataClient+Convert.swift"; sourceTree = "<group>"; };
 		97B62F302A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDisclosureGroupStyle.swift; sourceTree = "<group>"; };
 		97C04E622A40AA0C00EB7D6D /* burger_bun_01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_01.jpg; sourceTree = "<group>"; };
 		97C04E632A40AA0D00EB7D6D /* burger_bun_02.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_02.jpg; sourceTree = "<group>"; };
@@ -371,6 +377,7 @@
 				9726051A2A75769B008BC180 /* RecipeModel */,
 				975F47C32A6B06FC0016BB95 /* ImageDataModel.swift */,
 				97AD13D22A2E74E9002FCE30 /* Model.swift */,
+				97B17C342AB8F761009B6378 /* UserModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -480,6 +487,8 @@
 				97B17BCC2AB7713A009B6378 /* Database.swift */,
 				97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */,
 				97B17BCE2AB7714F009B6378 /* CoreModels.xcdatamodeld */,
+				97B17C322AB8DA77009B6378 /* CoreDataClient.swift */,
+				97B17C932AB91FC8009B6378 /* CoreDataClient+Convert.swift */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -835,6 +844,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97B17C332AB8DA77009B6378 /* CoreDataClient.swift in Sources */,
 				975A4EED2A44C23300C9509A /* IngredientSection.swift in Sources */,
 				977633D82A51B8FA009FD90C /* RecipeModel.swift in Sources */,
 				97EE972E2A6853C9001AA88B /* StepSection.swift in Sources */,
@@ -844,6 +854,8 @@
 				972440052A4CD623002E3AAF /* View+Synchronize.swift in Sources */,
 				9782405B2A3B410000CAC459 /* IngredientList.swift in Sources */,
 				977633DC2A51C987009FD90C /* AboutList.swift in Sources */,
+				97B17C942AB91FC8009B6378 /* CoreDataClient+Convert.swift in Sources */,
+				97B17C352AB8F761009B6378 /* UserModel.swift in Sources */,
 				9704A1902AB3421C00E826BB /* FolderReducer.swift in Sources */,
 				97F9C5072A9D66A60053CAB5 /* MaxScreenWidth.swift in Sources */,
 				97B62F312A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift in Sources */,

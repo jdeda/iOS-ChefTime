@@ -16,7 +16,7 @@ struct Folder: Identifiable, Equatable, Codable {
 }
 
 extension Folder {
-  enum FolderType: Equatable, Codable {
+  enum FolderType: Equatable, Codable, CaseIterable {
     case systemAll
     case systemStandard
     case systemRecentlyDeleted
