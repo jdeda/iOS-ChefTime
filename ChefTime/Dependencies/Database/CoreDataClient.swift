@@ -17,21 +17,7 @@ struct CoreDataClient {
     guard let response = try? container.viewContext.fetch(request),
           let user = response.first
     else { return nil }
-    return nil
-//    let request = NSFetchRequest<CoreUser>(entityName: "CoreUser")
-//    guard let response = try? container.viewContext.fetch(request)
-//    else { return nil }
-//    return response.compactMap { coreTodo in
-//      guard let id = coreTodo.id,
-//            let description = coreTodo.body
-//      else { return nil }
-//      return Todo(
-//        id: .init(id),
-//        description: description,
-//        isComplete: coreTodo.isComplete
-//      )
-//    }
-//    .sorted(by: { $0.id.rawValue.uuidString > $1.id.rawValue.uuidString })
+    return user.toUser()
   }
 }
 

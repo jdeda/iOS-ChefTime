@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CoreAboutSection" representedClassName="CoreAboutSection" syncable="YES" codeGenerationType="class">
-        <attribute name="body" optional="YES" attributeType="String"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="body" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="aboutSections" inverseEntity="CoreRecipe"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -12,12 +12,14 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CoreFolder" representedClassName="CoreFolder" syncable="YES" codeGenerationType="class">
-        <attribute name="folderType" optional="YES" attributeType="String"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="folderType" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
         <relationship name="folders" toMany="YES" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="folders" inverseEntity="CoreFolder"/>
         <relationship name="imageData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CoreImageData" inverseName="folder" inverseEntity="CoreImageData"/>
         <relationship name="recipes" toMany="YES" deletionRule="Cascade" destinationEntity="CoreRecipe" inverseName="folder" inverseEntity="CoreRecipe"/>
+        <relationship name="userSystemFolders" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreUser" inverseName="systemFolders" inverseEntity="CoreUser"/>
+        <relationship name="userUserFolders" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreUser" inverseName="userFolders" inverseEntity="CoreUser"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -25,8 +27,8 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CoreImageData" representedClassName="CoreImageData" syncable="YES" codeGenerationType="class">
-        <attribute name="data" optional="YES" attributeType="Binary"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="data" attributeType="Binary"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreFolder" inverseName="imageData" inverseEntity="CoreFolder"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="imageData" inverseEntity="CoreRecipe"/>
         <relationship name="step" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreStep" inverseName="imageData" inverseEntity="CoreStep"/>
@@ -37,10 +39,10 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CoreIngredient" representedClassName="CoreIngredient" syncable="YES" codeGenerationType="class">
-        <attribute name="amount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="measure" optional="YES" attributeType="String"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="amount" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="measure" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
         <relationship name="ingredientSection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreIngredientSection" inverseName="ingredients" inverseEntity="CoreIngredientSection"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -49,9 +51,9 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CoreIngredientSection" representedClassName="CoreIngredientSection" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="ingredients" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CoreIngredient" inverseName="ingredientSection" inverseEntity="CoreIngredient"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
+        <relationship name="ingredients" toMany="YES" deletionRule="Cascade" destinationEntity="CoreIngredient" inverseName="ingredientSection" inverseEntity="CoreIngredient"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="ingredientSections" inverseEntity="CoreRecipe"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -60,11 +62,11 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CoreRecipe" representedClassName="CoreRecipe" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
         <relationship name="aboutSections" toMany="YES" deletionRule="Cascade" destinationEntity="CoreAboutSection" inverseName="recipe" inverseEntity="CoreAboutSection"/>
         <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreFolder" inverseName="recipes" inverseEntity="CoreFolder"/>
-        <relationship name="imageData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CoreImageData" inverseName="recipe" inverseEntity="CoreImageData"/>
+        <relationship name="imageData" toMany="YES" deletionRule="Cascade" destinationEntity="CoreImageData" inverseName="recipe" inverseEntity="CoreImageData"/>
         <relationship name="ingredientSections" toMany="YES" deletionRule="Cascade" destinationEntity="CoreIngredientSection" inverseName="recipe" inverseEntity="CoreIngredientSection"/>
         <relationship name="stepSections" toMany="YES" deletionRule="Cascade" destinationEntity="CoreStepSection" inverseName="recipe" inverseEntity="CoreStepSection"/>
         <uniquenessConstraints>
@@ -74,9 +76,9 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CoreStep" representedClassName="CoreStep" syncable="YES" codeGenerationType="class">
-        <attribute name="body" optional="YES" attributeType="String"/>
+        <attribute name="body" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
-        <relationship name="imageData" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CoreImageData" inverseName="step" inverseEntity="CoreImageData"/>
+        <relationship name="imageData" toMany="YES" deletionRule="Cascade" destinationEntity="CoreImageData" inverseName="step" inverseEntity="CoreImageData"/>
         <relationship name="stepSection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreStepSection" inverseName="steps" inverseEntity="CoreStepSection"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -85,8 +87,8 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CoreStepSection" representedClassName="CoreStepSection" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreRecipe" inverseName="stepSections" inverseEntity="CoreRecipe"/>
         <relationship name="steps" toMany="YES" deletionRule="Cascade" destinationEntity="CoreStep" inverseName="stepSection" inverseEntity="CoreStep"/>
         <uniquenessConstraints>
@@ -96,9 +98,9 @@
         </uniquenessConstraints>
     </entity>
     <entity name="CoreUser" representedClassName="CoreUser" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <relationship name="systemFolders" toMany="YES" deletionRule="Cascade" destinationEntity="CoreFolder"/>
-        <relationship name="userFolders" toMany="YES" deletionRule="Cascade" destinationEntity="CoreFolder"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="systemFolders" toMany="YES" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="userSystemFolders" inverseEntity="CoreFolder"/>
+        <relationship name="userFolders" toMany="YES" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="userUserFolders" inverseEntity="CoreFolder"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
