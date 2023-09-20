@@ -1,6 +1,9 @@
 import SwiftUI
 import ComposableArchitecture
 
+/// Let's see how we can refactor our code and add features to handle persistence and synchronization of destinations in the stack.
+/// First, we want to synchronize any changes that occur in the destination to be interecepted so that we may update our real state.
+
 // MARK: - View
 struct AppView: View {
   let store: StoreOf<AppReducer>
@@ -8,7 +11,10 @@ struct AppView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStackStore(store.scope(state: \.path, action: AppReducer.Action.path)) {
-        FoldersView(store: store.scope(state: \.folders, action: AppReducer.Action.folders))
+        FoldersView(store: store.scope(
+          state: \.folders,
+          action: AppReducer.Action.folders
+        ))
       } destination: { state in
         switch state {
         case .folder:
@@ -33,15 +39,20 @@ struct AppView: View {
 struct AppReducer: Reducer {
   struct State: Equatable {
     var path = StackState<PathReducer.State>()
+    var user: User? = nil
     var folders = FoldersReducer.State()
   }
   
   enum Action: Equatable {
+    case task
+    case fetchUserSuccess(User)
+    case saveUser
     case path(StackAction<PathReducer.State, PathReducer.Action>)
     case folders(FoldersReducer.Action)
   }
   
   @Dependency(\.uuid) var uuid
+  @Dependency(\.database) var db
   
   var body: some Reducer<AppReducer.State, AppReducer.Action> {
     Scope(state: \.folders, action: /Action.folders) {
@@ -50,45 +61,81 @@ struct AppReducer: Reducer {
     Reduce<AppReducer.State, AppReducer.Action> { state, action in
       switch action {
         
+      case .task:
+        guard state.user != nil else { return .none }
+        return .run { send in
+          guard let user = await db.fetchUser()
+          else { return }
+          await send(.fetchUserSuccess(user), animation: .default)
+        }
+        
+      case let .fetchUserSuccess(user):
+        state.user = user
+        let systemSection = FolderSectionReducer.State(
+          title: "Folders",
+          folders: .init(uniqueElements: user.systemFolders.map { .init(id: .init(rawValue: uuid()), folder: $0) })
+        )
+        let userSection = FolderSectionReducer.State(
+          title: "Folders",
+          folders: .init(uniqueElements: user.userFolders.map { .init(id: .init(rawValue: uuid()), folder: $0) })
+        )
+        state.folders = .init(systemFoldersSection: systemSection, userFoldersSection: userSection)
+        return .none
+        
+      case .saveUser:
+        guard let user = state.user
+        else { return .none }
+        return .run { _ in
+          await db.updateUser(user)
+        }
+        
         // Folder taps into a folder.
       case let .path(.element(id: pathID, action: .folder(.folders(.delegate(.folderTapped(id)))))):
         return folderNavigateToFolder(state: &state, pathID: pathID, id: id)
+        // TODO: Propagate all changes from this path element to all its elders
         
         // Folder taps into a recipe.
       case let .path(.element(id: pathID, action: .folder(.recipes(.delegate(.recipeTapped(id)))))):
         return folderNavigateToRecipe(state: &state, pathID: pathID, id: id)
+        // TODO: Propagate all changes from this path element to all its elders
         
         // Folder creates a new folder.
       case let .path(.element(id: pathID, action: .folder(.delegate(.addNewFolderButtonTappedDidComplete(id))))):
         return folderNavigateToFolder(state: &state, pathID: pathID, id: id)
+        // TODO: Propagate all changes from this path element to all its elders
         
         // Folder creates a new recipe.
       case let .path(.element(id: pathID, action: .folder(.delegate(.addNewRecipeButtonTappedDidComplete(id))))):
         return folderNavigateToRecipe(state: &state, pathID: pathID, id: id)
+        // TODO: Propagate all changes from this path element to all its elders
         
         // Folders.UserFolders taps into a folder.
       case let .folders(.userFoldersSection(.delegate(.folderTapped(id)))):
         guard let folder = state.folders.userFoldersSection.folders[id: id]
         else { return .none }
         return navigateToFolder(state: &state, folder: folder)
+        // TODO: Propagate all changes from this path element to all its elders
         
         // Folders.SystemFolders taps into a folder
       case let .folders(.systemFoldersSection(.delegate(.folderTapped(id)))):
         guard let folder = state.folders.systemFoldersSection.folders[id: id]
         else { return .none }
         return navigateToFolder(state: &state, folder: folder)
+        // TODO: Propagate all changes from this path element to all its elders
         
         // Folders creates a new folder (can only create a user folder)
       case let .folders(.delegate(.addNewFolderButtonTappedDidComplete(id))):
         guard let folder = state.folders.userFoldersSection.folders[id: id]
         else { return .none }
         return navigateToFolder(state: &state, folder: folder)
+        // TODO: Propagate all changes from this path element to all its elders
         
-        // Folders creates a new folder (will only add one to the standard folder)
+        // Folders creates a new recipe (will only add one to the standard folder)
       case let .folders(.delegate(.addNewRecipeButtonTappedDidComplete(id))):
         guard let recipe = state.folders.systemFoldersSection.folders[1].folder.recipes[id: id]
         else { return .none }
         return navigateToRecipe(state: &state, recipe: .init(recipe: recipe))
+        // TODO: Propagate all changes from this path element to all its elders
         
 
       case let .path(.popFrom(id: id)):
@@ -140,19 +187,29 @@ private extension AppReducer {
     return .none
   }
   
-  func folderNavigateToFolder(state: inout State, pathID: StackElementID, id: FolderGridItemReducer.State.ID) -> Effect<Action> {
+  func folderNavigateToFolder(
+    state: inout State,
+    pathID: StackElementID,
+    id: FolderGridItemReducer.State.ID
+  ) -> Effect<Action> {
     guard let element = state.path[id: pathID],
           case let .folder(folderState) = element,
           let folder = folderState.folders.folders[id: id]
     else { return .none }
+    
     return navigateToFolder(state: &state, folder: folder)
   }
   
-  func folderNavigateToRecipe(state: inout State, pathID: StackElementID, id: RecipeGridItemReducer.State.ID) -> Effect<Action> {
+  func folderNavigateToRecipe(
+    state: inout State,
+    pathID: StackElementID,
+    id: RecipeGridItemReducer.State.ID
+  ) -> Effect<Action> {
     guard let element = state.path[id: pathID],
           case let .folder(folderState) = element,
           let recipe = folderState.recipes.recipes[id: id]
     else { return .none }
+    
     return navigateToRecipe(state: &state, recipe: .init(recipe: recipe.recipe))
   }
 }
@@ -173,6 +230,11 @@ extension AppReducer {
     var body: some ReducerOf<Self> {
       Scope(state: /State.folder, action: /Action.folder) {
         FolderReducer()
+//          .onChange(of: \.folders) { old, new in
+//            Reduce { state, action in
+////              .send(.delegate(.standupUpdated(newValue)))
+//            }
+//          }
       }
       Scope(state: /State.recipe, action: /Action.recipe) {
         RecipeReducer()

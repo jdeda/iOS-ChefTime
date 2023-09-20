@@ -23,8 +23,8 @@ struct FoldersReducer: Reducer {
   }
   
   enum Action: Equatable, BindableAction {
-    case task
-    case loadFolderSuccess(Folder)
+//    case task
+//    case loadFolderSuccess(Folder)
     case selectFoldersButtonTapped
     case doneButtonTapped
     case selectAllButtonTapped
@@ -40,63 +40,64 @@ struct FoldersReducer: Reducer {
     case delegate(DelegateAction)
   }
   
-  @Dependency(\.databaseTemp) var database
+  @Dependency(\.database) var db
+  @Dependency(\.databaseTemp) var databaseTemp
   @Dependency(\.uuid) var uuid
   
   var body: some Reducer<FoldersReducer.State, FoldersReducer.Action> {
     BindingReducer()
     Reduce<FoldersReducer.State, FoldersReducer.Action> { state, action in
       switch action {
-      case .task:
-        guard state.userFoldersSection.folders.isEmpty else { return .none }
-        return .run { send in
-          for await folder in database.fetchAllFolders() {
-            await send(.loadFolderSuccess(folder), animation: .default)
-          }
-        }
-        
-        // MARK: - Assuming we have our systemFoldersSection setup correctly
-      case let .loadFolderSuccess(folder):
-        switch folder.folderType {
-        case .systemAll:
-          break
-        case .systemStandard:
-          state.systemFoldersSection.folders[1].folder = folder
-          if (state.systemFoldersSection.folders[1].folder.imageData != nil),
-             let imageData = folder.imageData {
-            state.systemFoldersSection.folders[1].photos.photos = [imageData]
-            state.systemFoldersSection.folders[1].photos.selection = imageData.id
-          }
-          // TODO: - Temporary and extremely dangerous.
-          state.systemFoldersSection.folders[0].folder.imageData = folder.recipes[2].imageData.first!
-          state.systemFoldersSection.folders[0].photos.photos = [folder.recipes[2].imageData.first!]
-          state.systemFoldersSection.folders[0].photos.selection = folder.recipes[2].imageData.first!.id
-          break
-        case .systemRecentlyDeleted:
-          state.systemFoldersSection.folders[2].folder = folder
-          if (state.systemFoldersSection.folders[2].folder.imageData != nil),
-             let imageData = folder.imageData {
-            state.systemFoldersSection.folders[2].photos.photos = [imageData]
-            state.systemFoldersSection.folders[2].photos.selection = imageData.id
-          }
-          break
-        case .user:
-          state.userFoldersSection.folders.append(.init(id: .init(), folder: folder))
-          break
-        }
-        
-        // Append the to the all folder.
-        func flattenAllRecipes(_ folder: Folder) -> [Recipe] {
-          var result: [Recipe] = folder.recipes.elements
-          for folder in folder.folders {
-            result += flattenAllRecipes(folder)
-          }
-          return result
-        }
-        
-        let flattenedRecipes = flattenAllRecipes(folder)
-        state.systemFoldersSection.folders[0].folder.recipes.append(contentsOf: flattenedRecipes)
-        return .none
+//      case .task:
+//        guard state.userFoldersSection.folders.isEmpty else { return .none }
+//        return .run { send in
+//          for await folder in databaseTemp.fetchAllFolders() {
+//            await send(.loadFolderSuccess(folder), animation: .default)
+//          }
+//        }
+//
+//        // MARK: - Assuming we have our systemFoldersSection setup correctly
+//      case let .loadFolderSuccess(folder):
+//        switch folder.folderType {
+//        case .systemAll:
+//          break
+//        case .systemStandard:
+//          state.systemFoldersSection.folders[1].folder = folder
+//          if (state.systemFoldersSection.folders[1].folder.imageData != nil),
+//             let imageData = folder.imageData {
+//            state.systemFoldersSection.folders[1].photos.photos = [imageData]
+//            state.systemFoldersSection.folders[1].photos.selection = imageData.id
+//          }
+//          // TODO: - Temporary and extremely dangerous.
+//          state.systemFoldersSection.folders[0].folder.imageData = folder.recipes[2].imageData.first!
+//          state.systemFoldersSection.folders[0].photos.photos = [folder.recipes[2].imageData.first!]
+//          state.systemFoldersSection.folders[0].photos.selection = folder.recipes[2].imageData.first!.id
+//          break
+//        case .systemRecentlyDeleted:
+//          state.systemFoldersSection.folders[2].folder = folder
+//          if (state.systemFoldersSection.folders[2].folder.imageData != nil),
+//             let imageData = folder.imageData {
+//            state.systemFoldersSection.folders[2].photos.photos = [imageData]
+//            state.systemFoldersSection.folders[2].photos.selection = imageData.id
+//          }
+//          break
+//        case .user:
+//          state.userFoldersSection.folders.append(.init(id: .init(), folder: folder))
+//          break
+//        }
+//
+//        // Append the to the all folder.
+//        func flattenAllRecipes(_ folder: Folder) -> [Recipe] {
+//          var result: [Recipe] = folder.recipes.elements
+//          for folder in folder.folders {
+//            result += flattenAllRecipes(folder)
+//          }
+//          return result
+//        }
+//
+//        let flattenedRecipes = flattenAllRecipes(folder)
+//        state.systemFoldersSection.folders[0].folder.recipes.append(contentsOf: flattenedRecipes)
+//        return .none
         
       case .selectFoldersButtonTapped:
         state.isEditing = true

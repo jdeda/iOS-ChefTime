@@ -24,6 +24,7 @@
 		9726051C2A7576B6008BC180 /* RecipeModel+LongMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9726051B2A7576B6008BC180 /* RecipeModel+LongMock.swift */; };
 		9726051E2A7576BD008BC180 /* RecipeModel+ShortMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9726051D2A7576BD008BC180 /* RecipeModel+ShortMock.swift */; };
 		972605202A7576C4008BC180 /* RecipeModel+GiantMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9726051F2A7576C4008BC180 /* RecipeModel+GiantMock.swift */; };
+		972BE3FE2AB9EDA400C71EAA /* CoreDataClient+ConvertModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972BE3FD2AB9EDA400C71EAA /* CoreDataClient+ConvertModel.swift */; };
 		9745FCF52AB21D71008CF16F /* FolderGridItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9745FCF42AB21D71008CF16F /* FolderGridItem.swift */; };
 		97590E462A61816500EBC604 /* AboutListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97590E452A61816500EBC604 /* AboutListTests.swift */; };
 		975A4EED2A44C23300C9509A /* IngredientSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEC2A44C23300C9509A /* IngredientSection.swift */; };
@@ -97,7 +98,7 @@
 		97B17C2F2AB8BDBC009B6378 /* Database+Live.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */; };
 		97B17C332AB8DA77009B6378 /* CoreDataClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C322AB8DA77009B6378 /* CoreDataClient.swift */; };
 		97B17C352AB8F761009B6378 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C342AB8F761009B6378 /* UserModel.swift */; };
-		97B17C942AB91FC8009B6378 /* CoreDataClient+Convert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C932AB91FC8009B6378 /* CoreDataClient+Convert.swift */; };
+		97B17C942AB91FC8009B6378 /* CoreDataClient+ConvertCoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B17C932AB91FC8009B6378 /* CoreDataClient+ConvertCoreModel.swift */; };
 		97B62F312A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B62F302A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift */; };
 		97C04E682A40AA0D00EB7D6D /* burger_bun_01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E622A40AA0C00EB7D6D /* burger_bun_01.jpg */; };
 		97C04E692A40AA0D00EB7D6D /* burger_bun_02.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E632A40AA0D00EB7D6D /* burger_bun_02.jpg */; };
@@ -143,6 +144,7 @@
 		9726051B2A7576B6008BC180 /* RecipeModel+LongMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipeModel+LongMock.swift"; sourceTree = "<group>"; };
 		9726051D2A7576BD008BC180 /* RecipeModel+ShortMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipeModel+ShortMock.swift"; sourceTree = "<group>"; };
 		9726051F2A7576C4008BC180 /* RecipeModel+GiantMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipeModel+GiantMock.swift"; sourceTree = "<group>"; };
+		972BE3FD2AB9EDA400C71EAA /* CoreDataClient+ConvertModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreDataClient+ConvertModel.swift"; sourceTree = "<group>"; };
 		9745FCF42AB21D71008CF16F /* FolderGridItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderGridItem.swift; sourceTree = "<group>"; };
 		97590E452A61816500EBC604 /* AboutListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutListTests.swift; sourceTree = "<group>"; };
 		975A4EEC2A44C23300C9509A /* IngredientSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSection.swift; sourceTree = "<group>"; };
@@ -217,7 +219,7 @@
 		97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Database+Live.swift"; sourceTree = "<group>"; };
 		97B17C322AB8DA77009B6378 /* CoreDataClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataClient.swift; sourceTree = "<group>"; };
 		97B17C342AB8F761009B6378 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
-		97B17C932AB91FC8009B6378 /* CoreDataClient+Convert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreDataClient+Convert.swift"; sourceTree = "<group>"; };
+		97B17C932AB91FC8009B6378 /* CoreDataClient+ConvertCoreModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreDataClient+ConvertCoreModel.swift"; sourceTree = "<group>"; };
 		97B62F302A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDisclosureGroupStyle.swift; sourceTree = "<group>"; };
 		97C04E622A40AA0C00EB7D6D /* burger_bun_01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_01.jpg; sourceTree = "<group>"; };
 		97C04E632A40AA0D00EB7D6D /* burger_bun_02.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_02.jpg; sourceTree = "<group>"; };
@@ -488,7 +490,8 @@
 				97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */,
 				97B17BCE2AB7714F009B6378 /* CoreModels.xcdatamodeld */,
 				97B17C322AB8DA77009B6378 /* CoreDataClient.swift */,
-				97B17C932AB91FC8009B6378 /* CoreDataClient+Convert.swift */,
+				97B17C932AB91FC8009B6378 /* CoreDataClient+ConvertCoreModel.swift */,
+				972BE3FD2AB9EDA400C71EAA /* CoreDataClient+ConvertModel.swift */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -854,13 +857,14 @@
 				972440052A4CD623002E3AAF /* View+Synchronize.swift in Sources */,
 				9782405B2A3B410000CAC459 /* IngredientList.swift in Sources */,
 				977633DC2A51C987009FD90C /* AboutList.swift in Sources */,
-				97B17C942AB91FC8009B6378 /* CoreDataClient+Convert.swift in Sources */,
+				97B17C942AB91FC8009B6378 /* CoreDataClient+ConvertCoreModel.swift in Sources */,
 				97B17C352AB8F761009B6378 /* UserModel.swift in Sources */,
 				9704A1902AB3421C00E826BB /* FolderReducer.swift in Sources */,
 				97F9C5072A9D66A60053CAB5 /* MaxScreenWidth.swift in Sources */,
 				97B62F312A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift in Sources */,
 				9704A18A2AB33D3200E826BB /* RecipeGridItem.swift in Sources */,
 				97F9C5032A9D66610053CAB5 /* HidingImages.swift in Sources */,
+				972BE3FE2AB9EDA400C71EAA /* CoreDataClient+ConvertModel.swift in Sources */,
 				9726051C2A7576B6008BC180 /* RecipeModel+LongMock.swift in Sources */,
 				9726051E2A7576BD008BC180 /* RecipeModel+ShortMock.swift in Sources */,
 				9704A1922AB3557800E826BB /* AppView.swift in Sources */,

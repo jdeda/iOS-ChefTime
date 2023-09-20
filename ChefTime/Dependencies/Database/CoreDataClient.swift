@@ -19,6 +19,16 @@ struct CoreDataClient {
     else { return nil }
     return user.toUser()
   }
+  
+  func updateUser(_ user: User) async -> Void {
+    let request = CoreUser.fetchRequest()
+    request.predicate = .init(format: "id == %@", user.id.rawValue.uuidString)
+    guard let response = try? container.viewContext.fetch(request),
+          let coreUser = response.first
+    else { return }
+    coreUser.systemFolders = .init(array: user.systemFolders.compactMap { $0.toCoreFolder(container.viewContext) })
+    coreUser.userFolders = .init(array: user.userFolders.compactMap { $0.toCoreFolder(container.viewContext) })
+  }
 }
 
 // MARK: - CoreDataPersistenceContainer

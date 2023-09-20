@@ -50,7 +50,7 @@ struct FoldersView: View {
             proxy.scrollTo(newScrollViewIndex, anchor: .center)
           }
         }
-        .task { await viewStore.send(.task).finish() }
+//        .task { await viewStore.send(.task).finish() }
         .environment(\.isHidingImages, viewStore.isHidingImages)
         .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
       }

@@ -2,13 +2,68 @@ import ComposableArchitecture
 import SwiftUI
 import Tagged
 
+/// Right now in our app, we are mixing many differnt layers of types.
+/// Our FolderReducer is not powered whatsoever by a Folder. Instead, it is powered by several other pieces of data.
+/// We need to have a more complex state representation here to create child features easily.
+/// Yet I believe here is where a weakness of TCA lies.
+/// We cannot derive values on the fly. Well, not easily. We must have the exact type for the state of the child feature.
+///
+/// Anway, we have a CoreModel <--> Model <--> ViewModel
+/// This is a lot of conversion logic and copying. This is inefficient and very burdemsome.
+
+//extension FolderReducer {
+//  struct FolderViewModel {
+//    var name: String {
+//      didSet {
+//        folder.name = name
+//      }
+//    }
+//    var folders: FolderSectionReducer.State {
+//      didSet {
+//        folder.folders = .init(uniqueElements: folders.folders.map(\.folder))
+//      }
+//    }
+//    var recipes: RecipeSectionReducer.State {
+//      didSet {
+//        folder.recipes = .init(uniqueElements: recipes.recipes.map(\.recipe))
+//      }
+//    }
+//
+//    var folder: Folder
+//  }
+//}
+
+// MARK: - Not sure what is a good pattern for naming this.
+/// Our challenge is we have three layers of models:
+/// 1. Model -- the model we think immediately and care about persistence
+/// 2. ViewModel -- this is the view's extrapolation of the model to make the view work. by work i mean represent a state
+/// that allows the view and state amangement architecture work. using the model for example may not be descriptive
+/// or usable -- i.e. i have a complex view with complex state, an array of recipes to work on isn't going to cut it
+///
+/// so the question would arise: do we need to synchronize the state of the view that represents a model, to an instance of that model?
+/// well you'd probably consider it. that way we are synchronized. if the view shows us our folder or recipe looks different and we did work, then
+/// our db better reflect that! and if something changed in our db, then our view better reflect that!
+///
+extension FolderReducer {
+  struct FolderModel {
+    var name: String
+    var folders: FolderSectionReducer.State
+    var recipes: RecipeSectionReducer.State
+  }
+}
+
+
+
 // MARK: - Reducer
 struct FolderReducer: Reducer {
   struct State: Equatable {
     var scrollViewIndex: Int = 1
+    // MARK: - ISOLATE BEGIN
     var name: String
     var folders: FolderSectionReducer.State
     var recipes: RecipeSectionReducer.State
+    // MARK: - ISOLATE BEGIN
+    
     var isHidingImages: Bool = false
     var isEditing: Section? = nil
     @PresentationState var alert: AlertState<AlertAction>?

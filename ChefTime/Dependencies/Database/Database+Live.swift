@@ -8,6 +8,9 @@ extension Database {
     return Self(
       fetchUser: {
         return await db.fetchUser()
+      },
+      updateUser: { user in
+        return await db.updateUser(user)
       }
     )
   }()

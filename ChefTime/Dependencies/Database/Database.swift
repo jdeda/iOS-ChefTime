@@ -3,6 +3,7 @@ import ComposableArchitecture
 
 struct Database {
   let fetchUser: @Sendable () async -> User?
+  let updateUser: @Sendable (User) async -> Void
 }
 
 extension Database: DependencyKey {
