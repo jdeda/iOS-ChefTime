@@ -20,6 +20,7 @@
 		971334C02A97CC7900743A49 /* FolderModel+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971334BF2A97CC7900743A49 /* FolderModel+Mock.swift */; };
 		971334C22A97D54300743A49 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971334C12A97D54300743A49 /* FolderView.swift */; };
 		971886472AA0DB60001942B7 /* RecipeMockGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971886462AA0DB60001942B7 /* RecipeMockGenerator.swift */; };
+		971D71D72ABE356300026152 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971D71D62ABE356300026152 /* AppReducer.swift */; };
 		972440052A4CD623002E3AAF /* View+Synchronize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972440042A4CD623002E3AAF /* View+Synchronize.swift */; };
 		9726051C2A7576B6008BC180 /* RecipeModel+LongMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9726051B2A7576B6008BC180 /* RecipeModel+LongMock.swift */; };
 		9726051E2A7576BD008BC180 /* RecipeModel+ShortMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9726051D2A7576BD008BC180 /* RecipeModel+ShortMock.swift */; };
@@ -140,6 +141,7 @@
 		971334C12A97D54300743A49 /* FolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderView.swift; sourceTree = "<group>"; };
 		971886462AA0DB60001942B7 /* RecipeMockGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeMockGenerator.swift; sourceTree = "<group>"; };
 		971A3B5B2A40FD71009F8002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		971D71D62ABE356300026152 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
 		972440042A4CD623002E3AAF /* View+Synchronize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Synchronize.swift"; sourceTree = "<group>"; };
 		9726051B2A7576B6008BC180 /* RecipeModel+LongMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipeModel+LongMock.swift"; sourceTree = "<group>"; };
 		9726051D2A7576BD008BC180 /* RecipeModel+ShortMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipeModel+ShortMock.swift"; sourceTree = "<group>"; };
@@ -283,6 +285,15 @@
 			path = RecipeMockGenerator;
 			sourceTree = "<group>";
 		};
+		971D71D52ABE355C00026152 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				9704A1912AB3557800E826BB /* AppView.swift */,
+				971D71D62ABE356300026152 /* AppReducer.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
 		9726051A2A75769B008BC180 /* RecipeModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -297,7 +308,7 @@
 		975A4EF22A44C30500C9509A /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				9704A1912AB3557800E826BB /* AppView.swift */,
+				971D71D52ABE355C00026152 /* App */,
 				9760CBAD2A9D1ABC0077A8F9 /* Folders */,
 				97DE5BC62A97C8BD00BBE455 /* Folder */,
 				975A4EFB2A44C3AA00C9509A /* Recipe */,
@@ -855,6 +866,7 @@
 				97AD13D32A2E74E9002FCE30 /* Model.swift in Sources */,
 				971334BE2A97CBDD00743A49 /* FolderModel.swift in Sources */,
 				972440052A4CD623002E3AAF /* View+Synchronize.swift in Sources */,
+				971D71D72ABE356300026152 /* AppReducer.swift in Sources */,
 				9782405B2A3B410000CAC459 /* IngredientList.swift in Sources */,
 				977633DC2A51C987009FD90C /* AboutList.swift in Sources */,
 				97B17C942AB91FC8009B6378 /* CoreDataClient+ConvertCoreModel.swift in Sources */,
