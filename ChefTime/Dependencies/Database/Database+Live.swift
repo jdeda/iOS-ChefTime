@@ -11,6 +11,12 @@ extension Database {
       },
       updateUser: { user in
         return await db.updateUser(user)
+      },
+      updateRecipe: { recipe in
+        return await db.updateRecipe(recipe)
+      },
+      updateFolder: { folder in
+        return await db.updateFolder(folder)
       }
     )
   }()

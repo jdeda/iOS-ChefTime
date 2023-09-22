@@ -245,6 +245,7 @@ struct RecipeReducer: Reducer {
     case setExpansionButtonTapped(Bool)
     case editSectionButtonTapped(Section, SectionEditAction)
     case alert(PresentationAction<AlertAction>)
+    case delegate(DelegateAction)
   }
   
   var body: some ReducerOf<Self> {
@@ -315,10 +316,15 @@ struct RecipeReducer: Reducer {
         state.alert = nil
         return .none
 
-      case .alert:
+      case .alert, .delegate:
         return .none
       }
     }
+    .onChange(of: \.recipe, { _, newValue in
+      Reduce { _, _ in
+          .send(.delegate(.recipeUpdated(newValue)))
+      }
+    })
     .ifLet(\.about, action: /Action.about) {
       AboutListReducer()
     }
@@ -335,6 +341,15 @@ struct RecipeReducer: Reducer {
   }
 }
 
+// MARK: - DelegateAction
+extension RecipeReducer {
+  enum DelegateAction: Equatable {
+    case recipeUpdated(Recipe)
+  }
+}
+
+
+// MARK: - AlertAction
 extension RecipeReducer {
   enum AlertAction: Equatable {
     case confirmDeleteSectionButtonTapped(Section)
@@ -342,6 +357,7 @@ extension RecipeReducer {
 }
 
 
+// MARK: - AlertState
 extension AlertState where Action == RecipeReducer.AlertAction {
   static let deleteAbout = Self(
     title: {
@@ -393,6 +409,8 @@ extension AlertState where Action == RecipeReducer.AlertAction {
   )
 }
 
+
+// MARK: - Section Helper
 extension RecipeReducer {
   enum Section: Equatable {
     case about

@@ -17,6 +17,7 @@
         <attribute name="name" attributeType="String"/>
         <relationship name="folders" toMany="YES" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="folders" inverseEntity="CoreFolder"/>
         <relationship name="imageData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CoreImageData" inverseName="folder" inverseEntity="CoreImageData"/>
+        <relationship name="parentFolder" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="parentFolder" inverseEntity="CoreFolder"/>
         <relationship name="recipes" toMany="YES" deletionRule="Cascade" destinationEntity="CoreRecipe" inverseName="folder" inverseEntity="CoreRecipe"/>
         <relationship name="userSystemFolders" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreUser" inverseName="systemFolders" inverseEntity="CoreUser"/>
         <relationship name="userUserFolders" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoreUser" inverseName="userFolders" inverseEntity="CoreUser"/>

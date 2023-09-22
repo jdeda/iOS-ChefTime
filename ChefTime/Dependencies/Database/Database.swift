@@ -4,6 +4,8 @@ import ComposableArchitecture
 struct Database {
   let fetchUser: @Sendable () async -> User?
   let updateUser: @Sendable (User) async -> Void
+  let updateRecipe: @Sendable (Recipe) async -> Void
+  let updateFolder: @Sendable (Folder) async -> Void
 }
 
 extension Database: DependencyKey {

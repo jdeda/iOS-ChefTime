@@ -13,10 +13,10 @@ struct FolderView: View {
         ScrollView {
           
           // Folders
-          let isHidingFolders = viewStore.isEditing == .recipes || viewStore.folders.folders.isEmpty
+          let isHidingFolders = viewStore.isEditing == .recipes || viewStore.folderModel.folders.folders.isEmpty
           FolderSectionView(
             store: store.scope(
-              state: \.folders,
+              state: \.folderModel.folders,
               action: FolderReducer.Action.folders
             ),
             isEditing: !isHidingFolders && viewStore.isEditing == .folders
@@ -28,10 +28,10 @@ struct FolderView: View {
           .id(1)
           
           // Recipes.
-          let isHidingRecipes = viewStore.isEditing == .folders || viewStore.recipes.recipes.isEmpty
+          let isHidingRecipes = viewStore.isEditing == .folders || viewStore.folderModel.recipes.recipes.isEmpty
           RecipeSectionView(
             store: store.scope(
-              state: \.recipes,
+              state: \.folderModel.recipes,
               action: FolderReducer.Action.recipes
             ),
             isEditing: !isHidingRecipes && viewStore.isEditing == .recipes
@@ -97,14 +97,14 @@ extension FolderView {
     else {
       ToolbarItemGroup(placement: .primaryAction) {
         Menu {
-          if !viewStore.folders.folders.isEmpty {
+          if !viewStore.folderModel.folders.folders.isEmpty {
             Button {
               viewStore.send(.selectFoldersButtonTapped, animation: .default)
             } label: {
               Label("Select Folders", systemImage: "checkmark.circle")
             }
           }
-          if !viewStore.recipes.recipes.isEmpty {
+          if !viewStore.folderModel.recipes.recipes.isEmpty {
             Button {
               viewStore.send(.selectRecipesButtonTapped, animation: .default)
             } label: {
@@ -130,7 +130,7 @@ extension FolderView {
         .accentColor(.yellow)
         Spacer()
         // TODO: Update this count when all the folders are fetched properly
-        Text("\(viewStore.folders.folders.count) folders • \(viewStore.recipes.recipes.count) recipes")
+        Text("\(viewStore.folderModel.folders.folders.count) folders • \(viewStore.folderModel.recipes.recipes.count) recipes")
         Spacer()
         Button {
           viewStore.send(.newRecipeButtonTapped, animation: .default)
@@ -150,13 +150,15 @@ struct FolderView_Previews: PreviewProvider {
       let folder  = FolderGridItemReducer.State(id: .init(), folder: Folder.longMock)
       FolderView(store: .init(
         initialState: .init(
-          name: Folder.longMock.name,
-          folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.prefix(3).map {
-            .init(id: .init(), folder: $0)
-          })),
-          recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.prefix(3).map {
-            .init(id: .init(), recipe: $0)
-          }))
+          folderModel: .init(
+            name: Folder.longMock.name,
+            folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.prefix(3).map {
+              .init(id: .init(), folder: $0)
+            })),
+            recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.prefix(3).map {
+              .init(id: .init(), recipe: $0)
+            }))
+          )
         ),
         reducer: FolderReducer.init
       ))

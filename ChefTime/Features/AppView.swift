@@ -36,6 +36,7 @@ struct AppView: View {
 }
 
 // MARK: - Reducer
+/// This feature does one thing and one thing only: control all navigation for the folders, folder, recipe, and search.
 struct AppReducer: Reducer {
   struct State: Equatable {
     var path = StackState<PathReducer.State>()
@@ -89,6 +90,23 @@ struct AppReducer: Reducer {
           await db.updateUser(user)
         }
         
+        
+        // Recipe triggers an update.
+      case let .path(.element(id: pathID, action: .recipe(.delegate(.recipeUpdated(recipe))))):
+//        return .run {
+//          await db.updateRecipe(recipe)
+//        }
+        return .none
+        // TODO: Propagate all changes from this path element to all its elders
+        
+        // Folder triggers an update.
+      case let .path(.element(id: pathID, action: .folder(.delegate(.folderUpdated(folderModel))))):
+//        return .run {
+//          await db.updateFolder(folder)
+//        }
+        // TODO: Propagate all changes from this path element to all its elders
+        return .none
+        
         // Folder taps into a folder.
       case let .path(.element(id: pathID, action: .folder(.folders(.delegate(.folderTapped(id)))))):
         return folderNavigateToFolder(state: &state, pathID: pathID, id: id)
@@ -108,6 +126,7 @@ struct AppReducer: Reducer {
       case let .path(.element(id: pathID, action: .folder(.delegate(.addNewRecipeButtonTappedDidComplete(id))))):
         return folderNavigateToRecipe(state: &state, pathID: pathID, id: id)
         // TODO: Propagate all changes from this path element to all its elders
+        
         
         // Folders.UserFolders taps into a folder.
       case let .folders(.userFoldersSection(.delegate(.folderTapped(id)))):
@@ -141,16 +160,16 @@ struct AppReducer: Reducer {
       case let .path(.popFrom(id: id)):
         switch state.path[id: id] {
         case let .folder(folder):
-          let isEmpty = folder.folders.folders.isEmpty && folder.recipes.recipes.isEmpty
-          // TODO: Delete this folder because it is empty, and propagate all changes to its elders
+//          let isEmpty = folder.folder.folders.folders.isEmpty && folder.folder.recipes.recipes.isEmpty
+//          // TODO: Delete this folder because it is empty, and propagate all changes to its elders
           return .none
           
         case let .recipe(recipe):
-          let isEmpty = recipe.photos.photos.isEmpty &&
-          recipe.about?.aboutSections.isEmpty ?? false  &&
-          recipe.ingredients?.ingredientSections.isEmpty ?? false &&
-          recipe.steps?.stepSections.isEmpty ?? false
-          // TODO: Delete this recipe because it is empty, and propagate all changes to its elders
+//          let isEmpty = recipe.photos.photos.isEmpty &&
+//          recipe.about?.aboutSections.isEmpty ?? false  &&
+//          recipe.ingredients?.ingredientSections.isEmpty ?? false &&
+//          recipe.steps?.stepSections.isEmpty ?? false
+//          // TODO: Delete this recipe because it is empty, and propagate all changes to its elders
           return .none
           
         case .none:
@@ -171,13 +190,15 @@ struct AppReducer: Reducer {
 private extension AppReducer {
   func navigateToFolder(state: inout State, folder: FolderGridItemReducer.State) -> Effect<Action> {
     state.path.append(.folder(.init(
-      name: folder.folder.name,
-      folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.map {
-        .init(id: .init(rawValue: uuid()), folder: $0)
-      })),
-      recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.map {
-        .init(id: .init(rawValue: uuid()), recipe: $0)
-      }))
+      folderModel: .init(
+        name: folder.folder.name,
+        folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.map {
+          .init(id: .init(rawValue: uuid()), folder: $0)
+        })),
+        recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.map {
+          .init(id: .init(rawValue: uuid()), recipe: $0)
+        }))
+      )
     )))
     return .none
   }
@@ -194,7 +215,7 @@ private extension AppReducer {
   ) -> Effect<Action> {
     guard let element = state.path[id: pathID],
           case let .folder(folderState) = element,
-          let folder = folderState.folders.folders[id: id]
+          let folder = folderState.folderModel.folders.folders[id: id]
     else { return .none }
     
     return navigateToFolder(state: &state, folder: folder)
@@ -207,7 +228,7 @@ private extension AppReducer {
   ) -> Effect<Action> {
     guard let element = state.path[id: pathID],
           case let .folder(folderState) = element,
-          let recipe = folderState.recipes.recipes[id: id]
+          let recipe = folderState.folderModel.recipes.recipes[id: id]
     else { return .none }
     
     return navigateToRecipe(state: &state, recipe: .init(recipe: recipe.recipe))
@@ -230,11 +251,6 @@ extension AppReducer {
     var body: some ReducerOf<Self> {
       Scope(state: /State.folder, action: /Action.folder) {
         FolderReducer()
-//          .onChange(of: \.folders) { old, new in
-//            Reduce { state, action in
-////              .send(.delegate(.standupUpdated(newValue)))
-//            }
-//          }
       }
       Scope(state: /State.recipe, action: /Action.recipe) {
         RecipeReducer()
