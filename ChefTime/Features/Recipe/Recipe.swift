@@ -110,7 +110,7 @@ struct RecipeView: View {
       }
       .alert(store: store.scope(state: \.$alert, action: RecipeReducer.Action.alert))
       .navigationTitle(viewStore.binding(
-        get:  { !$0.recipe.name.isEmpty ? $0.recipe.name : "Untitled Recipe" },
+        get:  { !$0.name.isEmpty ? $0.name : "Untitled Recipe" },
         send: { .recipeNameEdited($0) }
       ))
       .toolbar {
@@ -167,7 +167,7 @@ struct RecipeView: View {
 
 struct RecipeReducer: Reducer {
   struct State: Equatable {
-    var recipe: Recipe
+    var name: String
     var photos: PhotosReducer.State
     var about: AboutListReducer.State?
     var ingredients: IngredientsListReducer.State?
@@ -177,12 +177,14 @@ struct RecipeReducer: Reducer {
     
     init(recipe: Recipe) {
       @Dependency(\.uuid) var uuid
-      self.recipe = recipe
+      self.name = recipe.name
+      
       self.photos = .init(
         photos: recipe.imageData,
         disableContextMenu: false,
         selection: recipe.imageData.first?.id
       )
+      
       self.about = .init(
         aboutSections: .init(uniqueElements: recipe.aboutSections.map({ section in
             .init(
@@ -194,6 +196,7 @@ struct RecipeReducer: Reducer {
         isExpanded: true,
         focusedField: nil
       )
+      
       self.ingredients = .init(
         ingredientSections: .init(uniqueElements: recipe.ingredientSections.map({ section in
             .init(
@@ -255,7 +258,7 @@ struct RecipeReducer: Reducer {
         return .none
         
       case let .recipeNameEdited(newName):
-        state.recipe.name = newName
+        state.name = newName
         return .none
         
       case .toggleHideImages:
@@ -320,7 +323,7 @@ struct RecipeReducer: Reducer {
         return .none
       }
     }
-    .onChange(of: \.recipe, { _, newValue in
+    .onChange(of: { $0 } , { _, newValue in
       Reduce { _, _ in
           .send(.delegate(.recipeUpdated(newValue)))
       }
@@ -344,7 +347,7 @@ struct RecipeReducer: Reducer {
 // MARK: - DelegateAction
 extension RecipeReducer {
   enum DelegateAction: Equatable {
-    case recipeUpdated(Recipe)
+    case recipeUpdated(RecipeReducer.State)
   }
 }
 

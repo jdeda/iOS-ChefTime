@@ -61,7 +61,7 @@ struct AppReducer: Reducer {
         
         
         // Recipe triggers an update.
-      case let .path(.element(id: pathID, action: .recipe(.delegate(.recipeUpdated(recipe))))):
+      case let .path(.element(id: pathID, action: .recipe(.delegate(.recipeUpdated(recipeFeatureState))))):
 //        return .run {
 //          await db.updateRecipe(recipe)
 //        }
@@ -69,7 +69,7 @@ struct AppReducer: Reducer {
         // TODO: Propagate all changes from this path element to all its elders
         
         // Folder triggers an update.
-      case let .path(.element(id: pathID, action: .folder(.delegate(.folderUpdated(folderModel))))):
+      case let .path(.element(id: pathID, action: .folder(.delegate(.folderUpdated(folderFeatureState))))):
 //        return .run {
 //          await db.updateFolder(folder)
 //        }

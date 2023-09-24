@@ -1,6 +1,11 @@
 import SwiftUI
 import ComposableArchitecture
 
+
+/// FoldersView
+/// FolderView
+/// RecipeView
+
 /// Let's see how we can refactor our code and add features to handle persistence and synchronization of destinations in the stack.
 /// First, we want to synchronize any changes that occur in the destination to be interecepted so that we may update our real state.
 

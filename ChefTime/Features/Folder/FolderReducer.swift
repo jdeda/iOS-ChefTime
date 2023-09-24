@@ -195,7 +195,7 @@ struct FolderReducer: Reducer {
         return .none
       }
     }
-    .onChange(of: \.folderModel) { _, newValue in
+    .onChange(of: { $0 }) { _, newValue in
       Reduce { _, _ in
           .send(.delegate(.folderUpdated(newValue)))
       }
@@ -223,7 +223,7 @@ extension FolderReducer {
   enum DelegateAction: Equatable {
     case addNewFolderButtonTappedDidComplete(FolderGridItemReducer.State.ID)
     case addNewRecipeButtonTappedDidComplete(RecipeGridItemReducer.State.ID)
-    case folderUpdated(FolderModel)
+    case folderUpdated(FolderReducer.State)
   }
 }
 
