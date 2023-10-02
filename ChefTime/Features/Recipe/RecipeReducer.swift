@@ -16,20 +16,14 @@ struct RecipeReducer: Reducer {
     init(recipe: Recipe) {
       @Dependency(\.uuid) var uuid
       self.recipe = recipe
-      
-      self.photos = .init(
-        photos: recipe.imageData,
-        disableContextMenu: false,
-        selection: recipe.imageData.first?.id
-      )
-      
-      // Abuse of typed IDs
-      // Abuse of identified array (well u can make a map to clean it 100X)
-      // Not syncing feature to persistent model
+      self.photos = .init(photos: recipe.imageData)
       self.about = .init(recipeSections: recipe.aboutSections)
       self.ingredients = .init(ingredientSections: recipe.ingredientSections)
       self.steps = .init(stepSections: recipe.stepSections)
       self.isHidingImages = false
+      // Abuse of typed IDs
+      // Abuse of identified array (well u can make a map to clean it 100X)
+      // Not syncing feature to persistent model
     }
   }
   

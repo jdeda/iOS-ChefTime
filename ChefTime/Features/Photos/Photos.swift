@@ -8,7 +8,6 @@ import Combine
 // TODO: Maybe change order of adding a photo to next rather than inplace.
 // TODO: Fix transition animation from 0 images to 1+ images
 
-
 extension Image {
   @warn_unqualified_access
   func square() -> some View {
@@ -29,7 +28,6 @@ extension Image {
 struct PhotosView: View {
   let store: StoreOf<PhotosReducer>
   @Environment(\.maxScreenWidth) var maxScreenWidth
-  
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
@@ -183,23 +181,17 @@ struct PhotosReducer: Reducer {
     init(
       photos: IdentifiedArrayOf<ImageData>,
       supportSinglePhotoOnly: Bool = false,
-      disableContextMenu: Bool = false,
-      photoEditStatus: PhotoEditStatus? = nil,
-      photoEditInFlight: Bool = false,
-      photoPickerIsPresented: Bool = false,
-      selection: ImageData.ID? = nil,
-      photoPickerItem: PhotosPickerItem? = nil,
-      alert: AlertState<AlertAction>? = nil
+      disableContextMenu: Bool = false
     ) {
       self.photos = photos
       self.supportSinglePhotoOnly = supportSinglePhotoOnly
       self.disableContextMenu = disableContextMenu
-      self.photoEditStatus = photoEditStatus
-      self.photoEditInFlight = photoEditInFlight
-      self.photoPickerIsPresented = photoPickerIsPresented
-      self.selection = selection
-      self.photoPickerItem = photoPickerItem
-      self.alert =   alert
+      self.photoEditStatus = nil
+      self.photoEditInFlight = false
+      self.photoPickerIsPresented = false
+      self.selection = photos.first?.id
+      self.photoPickerItem = nil
+      self.alert = nil
     }
   }
   
@@ -479,12 +471,10 @@ struct PhotosView_Previews: PreviewProvider {
           initialState: .init(
             photos: .init(Recipe.longMock.imageData.prefix(0)),
             supportSinglePhotoOnly: false,
-            disableContextMenu: false,
-            selection: Recipe.longMock.imageData.first?.id
+            disableContextMenu: false
           ),
           reducer: PhotosReducer.init
         ))
-//        .frame(width: 150, height: 150)
       }
       .padding()
     }

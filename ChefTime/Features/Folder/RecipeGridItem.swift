@@ -121,7 +121,6 @@ struct RecipeGridItemReducer: Reducer {
         supportSinglePhotoOnly: true,
         disableContextMenu: true
       )
-      self.photos.selection = self.photos.photos.first?.id
       self.destination = destination
     }
   }
