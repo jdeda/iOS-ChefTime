@@ -32,7 +32,7 @@ struct StepSection: View {
         TextField(
           "Untitled About Section",
           text: viewStore.binding(
-            get: \.name,
+            get: \.stepSection.name,
             send: { .stepSectionNameEdited($0) }
           ),
           axis: .vertical
@@ -83,13 +83,20 @@ struct StepSection: View {
 // MARK: - Reducer
 struct StepSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
-    typealias ID = Tagged<Self, UUID>
-    
-    let id: ID
-    var name: String
+    var id: Recipe.StepSection.ID {
+      self.stepSection.id
+    }
+    var stepSection: Recipe.StepSection
     var steps: IdentifiedArrayOf<StepReducer.State>
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
+    
+    init(stepSection: Recipe.StepSection, focusedField: FocusField? = nil) {
+      self.stepSection = stepSection
+      self.steps = stepSection.steps.map { .init(step: $0) }
+      self.isExpanded = true
+      self.focusedField = focusedField
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -121,8 +128,7 @@ struct StepSectionReducer: Reducer  {
           guard let i = state.steps.index(id: id) else { return .none }
           state.steps[i].focusedField = nil
           let newStep = StepReducer.State(
-            id: .init(rawValue: uuid()),
-            step: .init(id: .init(rawValue: uuid()), description: ""),
+            step: .init(id: .init(rawValue: uuid())),
             focusedField: .description
           )
           state.steps.insert(newStep, at: aboveBelow == .above ? i : i + 1)
@@ -133,20 +139,20 @@ struct StepSectionReducer: Reducer  {
         return .none
         
       case let .stepSectionNameEdited(newName):
-        let oldName = state.name
+        let oldName = state.stepSection.name
         if oldName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
         }
         if !oldName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-          state.name = ""
+          state.stepSection.name = ""
           return .none
         }
         let didEnter = DidEnter.didEnter(oldName, newName)
         switch didEnter {
         case .didNotSatisfy:
-          state.name = newName
+          state.stepSection.name = newName
           return .none
         case .leading, .trailing:
           state.focusedField = nil
@@ -172,8 +178,7 @@ struct StepSectionReducer: Reducer  {
         
       case .addStep:
         state.steps.append(StepReducer.State(
-          id: .init(rawValue: uuid()),
-          step: .init(id: .init(rawValue: uuid()), description: ""),
+          step: .init(id: .init(rawValue: uuid())),
           focusedField: .description
         ))
         return .none
@@ -224,7 +229,7 @@ private struct StepSectionContextMenuPreview: View {
         Divider() // TODO: Dont render last divier
       }
     } label: {
-      TextField("Untitled About Section", text: .constant(state.name))
+      TextField("Untitled About Section", text: .constant(state.stepSection.name))
         .textSubtitleStyle()
         .lineLimit(2)
         .disabled(true)
@@ -240,13 +245,7 @@ struct StepSection_Previews: PreviewProvider {
       ScrollView {
         StepSection(store: .init(
           initialState: .init(
-            id: .init(),
-            name: Recipe.longMock.stepSections.first!.name,
-            steps: .init(uniqueElements: Recipe.longMock.stepSections.first!.steps.map({
-              .init(id: .init(), step: $0)
-            })),
-            isExpanded: true,
-            focusedField: nil
+            stepSection: Recipe.longMock.stepSections.first!
           ),
           reducer: StepSectionReducer.init
         ))

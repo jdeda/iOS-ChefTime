@@ -96,19 +96,18 @@ struct StepView: View {
 // MARK: - Reducer
 struct StepReducer: Reducer {
   struct State: Equatable, Identifiable {
-    typealias ID = Tagged<Self, UUID>
+    var id: Recipe.StepSection.Step.ID {
+      self.step.id
+    }
     
-    let id: ID
     @BindingState var step: Recipe.StepSection.Step
     @BindingState var focusedField: FocusField? = nil
     var photos: PhotosReducer.State
     
     init(
-      id: ID,
       step: Recipe.StepSection.Step,
       focusedField: FocusField? = nil
     ) {
-      self.id = id
       self.step = step
       self.focusedField = focusedField
       self.photos = .init(
@@ -188,7 +187,6 @@ struct StepView_Previews: PreviewProvider {
       ScrollView {
         StepView(store: .init(
           initialState: .init(
-            id: .init(),
             step: Recipe.longMock.stepSections.first!.steps.first!
           ),
           reducer: StepReducer.init

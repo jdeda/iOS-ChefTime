@@ -23,29 +23,12 @@ struct RecipeReducer: Reducer {
         selection: recipe.imageData.first?.id
       )
       
-      self.about = .init(recipeSections: recipe.aboutSections)
-      
       // Abuse of typed IDs
       // Abuse of identified array (well u can make a map to clean it 100X)
       // Not syncing feature to persistent model
+      self.about = .init(recipeSections: recipe.aboutSections)
       self.ingredients = .init(ingredientSections: recipe.ingredientSections)
-      
-      self.steps = .init(
-        stepSections: .init(uniqueElements: recipe.stepSections.map({ section in
-            .init(
-              id: .init(),
-              name: section.name,
-              steps: .init(uniqueElements: section.steps.map({ step in
-                  .init(id: .init(), step: step, focusedField: nil)
-              })),
-              isExpanded: true,
-              focusedField: nil
-            )
-        })),
-        isExpanded: true,
-        focusedField: nil
-      )
-      
+      self.steps = .init(stepSections: recipe.stepSections)
       self.isHidingImages = false
     }
   }
@@ -131,7 +114,7 @@ struct RecipeReducer: Reducer {
           switch section {
           case .about: state.about = .init(recipeSections: [])
           case .ingredients: state.ingredients = .init(ingredientSections: [])
-          case .steps: state.steps = .init()
+          case .steps: state.steps = .init(stepSections: [])
           }
           return .none
         }

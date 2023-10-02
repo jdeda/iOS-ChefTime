@@ -77,6 +77,10 @@ struct StepListReducer: Reducer {
     @BindingState var isExpanded: Bool = true
     @BindingState var isHidingStepImages: Bool = false
     @BindingState var focusedField: FocusField? = nil
+    
+    init(stepSections: IdentifiedArrayOf<Recipe.StepSection>) {
+      self.stepSections = stepSections.map { .init(stepSection: $0) }
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -104,22 +108,19 @@ struct StepListReducer: Reducer {
             }
             state.stepSections.remove(id: id)
             return .none
-            
-          case let .insertSection(aboveBelow):
-            // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
-            guard let i = state.stepSections.index(id: id) else { return .none }
-            state.stepSections[i].focusedField = nil
-            let newSection = StepSectionReducer.State(
-              id: .init(rawValue: uuid()),
-              name: "",
-              steps: [],
-              isExpanded: true,
-              focusedField: .name
-            )
-            state.stepSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
-            state.focusedField = .row(newSection.id)
-            return .none
-          }
+          
+        case let .insertSection(aboveBelow):
+          // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
+          guard let i = state.stepSections.index(id: id) else { return .none }
+          state.stepSections[i].focusedField = nil
+          let newSection = StepSectionReducer.State(
+            stepSection: .init(id: .init(rawValue: uuid())),
+            focusedField: .name
+          )
+          state.stepSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
+          state.focusedField = .row(newSection.id)
+          return .none
+        }
         
       case .hideImagesToggled:
         return .run { send in
@@ -130,13 +131,7 @@ struct StepListReducer: Reducer {
         
       case .addSectionButtonTapped:
         guard state.stepSections.isEmpty else { return .none }
-        let s = StepSectionReducer.State(
-          id: .init(rawValue: uuid()),
-          name: "",
-          steps: [],
-          isExpanded: true,
-          focusedField: nil
-        )
+        let s = StepSectionReducer.State(stepSection: .init(id: .init(rawValue: uuid())))
         state.stepSections.append(s)
         state.focusedField = .row(s.id)
         return .none
@@ -180,19 +175,7 @@ struct StepList_Previews: PreviewProvider {
       ScrollView {
         StepListView(store: .init(
           initialState: .init(
-            stepSections: .init(uniqueElements: Recipe.longMock.stepSections.map({ section in
-                .init(
-                  id: .init(),
-                  name: section.name,
-                  steps: .init(uniqueElements: section.steps.map({ step in
-                      .init(id: .init(), step: step, focusedField: nil)
-                  })),
-                  isExpanded: true,
-                  focusedField: nil
-                )
-            })),
-            isExpanded: true,
-            focusedField: nil
+            stepSections: Recipe.longMock.stepSections
           ),
           reducer: StepListReducer.init
         ))
