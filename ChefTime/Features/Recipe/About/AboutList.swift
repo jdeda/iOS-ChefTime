@@ -103,7 +103,7 @@ struct AboutListReducer: Reducer {
           state.aboutSections[i].focusedField = nil
           
           let newSection_: Recipe.AboutSection =  .init(id: .init(rawValue: uuid()), name: "", description: "")
-          let newSection = AboutSectionReducer.State(aboutSection: newSection_)
+          let newSection = AboutSectionReducer.State(aboutSection: newSection_, focusedField: .name)
           
           state.aboutSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
           state.focusedField = .row(newSection.id)
@@ -114,7 +114,7 @@ struct AboutListReducer: Reducer {
         guard state.aboutSections.isEmpty else { return .none }
         
         let newSection_: Recipe.AboutSection =  .init(id: .init(rawValue: uuid()), name: "", description: "")
-        let newSection = AboutSectionReducer.State(aboutSection: newSection_)
+        let newSection = AboutSectionReducer.State(aboutSection: newSection_, focusedField: .name)
 
         state.aboutSections.append(newSection)
         state.focusedField = .row(newSection.id)

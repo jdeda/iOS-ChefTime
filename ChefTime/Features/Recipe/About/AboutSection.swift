@@ -89,10 +89,14 @@ struct AboutSectionReducer: Reducer  {
     
     @BindingState var aboutSection: Recipe.AboutSection
     @BindingState var isExpanded: Bool = true
-    @BindingState var focusedField: FocusField?
+    @BindingState var focusedField: FocusField? = nil
     
-    init(aboutSection: Recipe.AboutSection) {
+    init(
+      aboutSection: Recipe.AboutSection,
+      focusedField: FocusField? = nil
+    ) {
       self.aboutSection = aboutSection
+      self.focusedField = nil
     }
   }
   
