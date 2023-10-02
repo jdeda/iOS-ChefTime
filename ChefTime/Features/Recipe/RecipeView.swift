@@ -70,7 +70,7 @@ struct RecipeView: View {
           action: RecipeReducer.Action.about
         )) {
           AboutListView(store: $0)
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
           
           if !(viewStore.about?.isExpanded ?? false) {
             Divider()
@@ -84,7 +84,7 @@ struct RecipeView: View {
           action: RecipeReducer.Action.ingredients
         )) {
           IngredientListView(store: $0)
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
           
           if !(viewStore.ingredients?.isExpanded ?? false) {
             Divider()
@@ -98,7 +98,7 @@ struct RecipeView: View {
           action: RecipeReducer.Action.steps
         )) {
           StepListView(store: $0)
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
           
           if !(viewStore.steps?.isExpanded ?? false) {
             Divider()
@@ -109,11 +109,7 @@ struct RecipeView: View {
         Spacer()
       }
       .alert(store: store.scope(state: \.$alert, action: RecipeReducer.Action.alert))
-      .navigationTitle(viewStore.$recipe.name)
-//      binding(
-//        get:  { !$0.name.isEmpty ? $0.name : "Untitled Recipe" },
-//        send: { .recipeNameEdited($0) }
-//      ))
+      .navigationTitle(viewStore.$navigationTitle)
       .toolbar {
         ToolbarItemGroup(placement: .primaryAction) {
           Menu {

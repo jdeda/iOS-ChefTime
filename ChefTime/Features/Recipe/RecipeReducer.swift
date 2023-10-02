@@ -4,8 +4,8 @@ import Tagged
 struct RecipeReducer: Reducer {
   struct State: Equatable {
     // this is what powers this feature
-    @BindingState var recipe: Recipe
-    
+    @BindingState var navigationTitle: String
+    var recipe: Recipe
     var photos: PhotosReducer.State
     var about: AboutListReducer.State?
     var ingredients: IngredientsListReducer.State?
@@ -14,7 +14,7 @@ struct RecipeReducer: Reducer {
     @PresentationState var alert: AlertState<AlertAction>?
     
     init(recipe: Recipe) {
-      @Dependency(\.uuid) var uuid
+      self.navigationTitle = recipe.name
       self.recipe = recipe
       self.photos = .init(photos: recipe.imageData)
       self.about = .init(recipeSections: recipe.aboutSections)
@@ -22,14 +22,15 @@ struct RecipeReducer: Reducer {
       self.steps = .init(stepSections: recipe.stepSections)
       self.isHidingImages = false
       // Abuse of typed IDs
-      // Abuse of identified array (well u can make a map to clean it 100X)
+      // Ugly ceremony of identified array (well u can write a map to clean it 100X)
+      // Ugly ceremony of creating a feature that should just be init with persistent model
+      // Combining these things makes the feature very ugly, but an easy fix :D
       // Not syncing feature to persistent model
     }
   }
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-
     case photos(PhotosReducer.Action)
     case about(AboutListReducer.Action)
     case ingredients(IngredientsListReducer.Action)
@@ -51,6 +52,11 @@ struct RecipeReducer: Reducer {
     Reduce { state, action in
       switch action {
       case .binding:
+        return .none
+        
+      case .binding(\.$navigationTitle):
+        if state.navigationTitle.isEmpty { state.navigationTitle = "Untitled Recipe" }
+        state.recipe.name = state.navigationTitle
         return .none
 
       case .about:
