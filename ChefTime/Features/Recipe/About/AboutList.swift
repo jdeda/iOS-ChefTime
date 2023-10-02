@@ -61,7 +61,6 @@ struct AboutListView: View {
 // MARK: - AboutListReducer
 struct AboutListReducer: Reducer {
   struct State: Equatable {
-    // we want to power using this
     var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State> = []
     
     @BindingState var isExpanded: Bool = true
