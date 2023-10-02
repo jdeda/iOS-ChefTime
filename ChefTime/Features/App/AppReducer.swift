@@ -3,20 +3,59 @@ import ComposableArchitecture
 
 /// Let's see how we can refactor our code and add features to handle persistence and synchronization of destinations in the stack.
 /// First, we want to synchronize any changes that occur in the destination to be interecepted so that we may update our real state.
+///
+
+extension Folder {
+  /**
+   Update the recepie on the first matching folder
+   Recursive mutating of state upon condition
+   */
+  mutating func updateRecipe(_ recipe: Recipe) -> Self {
+    if let index = self.recipes[id: recipe.id] {
+      self.recipes[id: recipe.id] = recipe
+      return self
+    }
+    self.folders = self.folders.reduce(into: IdentifiedArrayOf<Folder>(), { partialResult, nextItem in
+      var copy = nextItem
+      partialResult.append(copy.updateRecipe(recipe))
+    })
+    return self
+  }
+}
+
+//// We get an updated value
+//func updateFolder(_ folder: inout Folder, _ recipe: Recipe, path: [Folder.ID]) {
+//
+////  for id in path {
+////    folder.folder[1].folders[2].folder[3].folder[4].recipe = recipe
+//////    folder.folders[id: id]?.folders[id: id]?.folders[id: id]?.folders
+////  }
+//
+//  // Traversed to the leaf.
+//  var current = folder
+//  for id in path {
+//    current = folder.folders[id: id]!
+//  }
+//  current.recipes[id: recipe.id] = recipe
+//
+//  // But, I have not actually mutated the original tree.
+//  // I have simply mutated a copy.
+//  // Now, I must bubble-up the new data.
+//
+//}
+
+// CoreDataModel <--> PersistenceModel <--> FeatureModel
+
 
 // MARK: - Reducer
 /// This feature does one thing and one thing only: control all navigation for the folders, folder, recipe, and search.
 struct AppReducer: Reducer {
   struct State: Equatable {
     var path = StackState<PathReducer.State>()
-    var user: User? = nil
     var folders = FoldersReducer.State()
   }
   
   enum Action: Equatable {
-    case task
-    case fetchUserSuccess(User)
-    case saveUser
     case path(StackAction<PathReducer.State, PathReducer.Action>)
     case folders(FoldersReducer.Action)
   }
@@ -31,37 +70,16 @@ struct AppReducer: Reducer {
     Reduce<AppReducer.State, AppReducer.Action> { state, action in
       switch action {
         
-      case .task:
-        guard state.user != nil else { return .none }
-        return .run { send in
-          guard let user = await db.fetchUser()
-          else { return }
-          await send(.fetchUserSuccess(user), animation: .default)
-        }
-        
-      case let .fetchUserSuccess(user):
-        state.user = user
-        let systemSection = FolderSectionReducer.State(
-          title: "Folders",
-          folders: .init(uniqueElements: user.systemFolders.map { .init(id: .init(rawValue: uuid()), folder: $0) })
-        )
-        let userSection = FolderSectionReducer.State(
-          title: "Folders",
-          folders: .init(uniqueElements: user.userFolders.map { .init(id: .init(rawValue: uuid()), folder: $0) })
-        )
-        state.folders = .init(systemFoldersSection: systemSection, userFoldersSection: userSection)
-        return .none
-        
-      case .saveUser:
-        guard let user = state.user
-        else { return .none }
-        return .run { _ in
-          await db.updateUser(user)
-        }
-        
-        
         // Recipe triggers an update.
       case let .path(.element(id: pathID, action: .recipe(.delegate(.recipeUpdated(recipeFeatureState))))):
+        let recipe = recipeFeatureState.recipe
+        
+        let folders = state.folders.systemFoldersSection.folders
+        
+        // newFolders =  forEach { $0.updateRecipe(recipe) }
+                              
+//        let treePath = await database.fetchAllAncestors(recipeFeatureState.recipe.id)
+//        state.folders.userFoldersSection.folders[id: id]?.folder.folders[id:]?.folder.folder[id]
 //        return .run {
 //          await db.updateRecipe(recipe)
 //        }

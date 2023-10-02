@@ -61,9 +61,19 @@ struct AboutListView: View {
 // MARK: - AboutListReducer
 struct AboutListReducer: Reducer {
   struct State: Equatable {
+    // we want to power using this
     var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State> = []
+    
     @BindingState var isExpanded: Bool = true
     @BindingState var focusedField: FocusField? = nil
+    
+    init(recipeSections: IdentifiedArrayOf<Recipe.AboutSection>) {
+      self.aboutSections = recipeSections.map(AboutSectionReducer.State.init(aboutSection:))
+    }
+    
+    var recipeSections: IdentifiedArrayOf<Recipe.AboutSection> {
+      aboutSections.map(\.aboutSection)
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -91,12 +101,10 @@ struct AboutListReducer: Reducer {
           // TODO: Focus is not working properly. It cant seem to figure diff b/w .name and .description
           guard let i = state.aboutSections.index(id: id) else { return .none }
           state.aboutSections[i].focusedField = nil
-          let newSection = AboutSectionReducer.State(
-            id: .init(rawValue: uuid()),
-            aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""),
-            isExpanded: true,
-            focusedField: .name
-          )
+          
+          let newSection_: Recipe.AboutSection =  .init(id: .init(rawValue: uuid()), name: "", description: "")
+          let newSection = AboutSectionReducer.State(aboutSection: newSection_)
+          
           state.aboutSections.insert(newSection, at: aboveBelow == .above ? i : i + 1)
           state.focusedField = .row(newSection.id)
           return .none
@@ -104,14 +112,12 @@ struct AboutListReducer: Reducer {
         
       case .addSectionButtonTapped:
         guard state.aboutSections.isEmpty else { return .none }
-        let s = AboutSectionReducer.State.init(
-          id: .init(rawValue: uuid()),
-          aboutSection: .init(id: .init(rawValue: uuid()), name: "", description: ""),
-          isExpanded: true,
-          focusedField: .name
-        )
-        state.aboutSections.append(s)
-        state.focusedField = .row(s.id)
+        
+        let newSection_: Recipe.AboutSection =  .init(id: .init(rawValue: uuid()), name: "", description: "")
+        let newSection = AboutSectionReducer.State(aboutSection: newSection_)
+
+        state.aboutSections.append(newSection)
+        state.focusedField = .row(newSection.id)
         return .none
         
       case .binding(\.$isExpanded):
@@ -149,15 +155,18 @@ struct AboutList_Previews: PreviewProvider {
       ScrollView {
         AboutListView(store: .init(
           initialState: .init(
-            aboutSections: .init(uniqueElements: Recipe.longMock.aboutSections.map({
-              .init(id: .init(), aboutSection: $0, isExpanded: true)
-            })),
-            isExpanded: true
+            recipeSections: Recipe.longMock.aboutSections
           ),
           reducer: AboutListReducer.init
         ))
         .padding()
       }
     }
+  }
+}
+
+extension IdentifiedArrayOf where Element: Identifiable {
+  func map<B>(_ transform: (Element) -> B) -> IdentifiedArrayOf<B> where B: Identifiable {
+    .init(uniqueElements: self.elements.map(transform))
   }
 }

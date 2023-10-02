@@ -83,23 +83,16 @@ struct AboutSection: View {
 // MARK: - Reducer
 struct AboutSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
-    typealias ID = Tagged<Self, UUID>
+    var id: Recipe.AboutSection.ID {
+      aboutSection.id
+    }
     
-    let id: ID
     @BindingState var aboutSection: Recipe.AboutSection
-    @BindingState var isExpanded: Bool
+    @BindingState var isExpanded: Bool = true
     @BindingState var focusedField: FocusField?
     
-    init(
-      id: ID,
-      aboutSection: Recipe.AboutSection,
-      isExpanded: Bool,
-      focusedField: FocusField? = nil
-    ) {
-      self.id = id
+    init(aboutSection: Recipe.AboutSection) {
       self.aboutSection = aboutSection
-      self.isExpanded = isExpanded
-      self.focusedField = focusedField
     }
   }
   
@@ -107,6 +100,11 @@ struct AboutSectionReducer: Reducer  {
     case binding(BindingAction<State>)
     case aboutSectionNameEdited(String)
     case keyboardDoneButtonTapped
+    
+    enum DelegateAction: Equatable {
+      case deleteSectionButtonTapped
+      case insertSection(AboveBelow)
+    }
     case delegate(DelegateAction)
   }
     
@@ -160,14 +158,6 @@ struct AboutSectionReducer: Reducer  {
   }
 }
 
-// MARK: - DelegateAction
-extension AboutSectionReducer {
-  enum DelegateAction: Equatable {
-    case deleteSectionButtonTapped
-    case insertSection(AboveBelow)
-  }
-}
-
 // MARK: - FocusField
 extension AboutSectionReducer {
   enum FocusField: Equatable, Hashable {
@@ -203,10 +193,7 @@ struct AboutSection_Previews: PreviewProvider {
       ScrollView {
         AboutSection(store: .init(
           initialState: .init(
-            id: .init(),
-            aboutSection: Recipe.longMock.aboutSections.first!,
-            isExpanded: true,
-            focusedField: nil
+            aboutSection: Recipe.longMock.aboutSections.first!
           ),
           reducer: AboutSectionReducer.init
         ))
@@ -218,10 +205,7 @@ struct AboutSection_Previews: PreviewProvider {
       ScrollView {
         AboutSection(store: .init(
           initialState: .init(
-            id: .init(),
-            aboutSection: .init(id: .init(), name: "", description: ""),
-            isExpanded: true,
-            focusedField: nil
+            aboutSection: .init(id: .init(), name: "", description: "")
           ),
           reducer: AboutSectionReducer.init
         ))
