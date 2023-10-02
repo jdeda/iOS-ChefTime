@@ -68,7 +68,7 @@ struct AboutListReducer: Reducer {
     @BindingState var focusedField: FocusField? = nil
     
     init(recipeSections: IdentifiedArrayOf<Recipe.AboutSection>) {
-      self.aboutSections = recipeSections.map(AboutSectionReducer.State.init(aboutSection:))
+      self.aboutSections = recipeSections.map{ .init(aboutSection: $0) }
     }
     
     var recipeSections: IdentifiedArrayOf<Recipe.AboutSection> {

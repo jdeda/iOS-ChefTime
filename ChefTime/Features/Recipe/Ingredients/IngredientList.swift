@@ -71,6 +71,10 @@ struct IngredientsListReducer: Reducer {
     var scale: Double = 1.0
     @BindingState var isExpanded: Bool = true
     @BindingState var focusedField: FocusField? = nil
+    
+    init(ingredientSections: IdentifiedArrayOf<Recipe.IngredientSection>) {
+      self.ingredientSections = ingredientSections.map { .init(ingredientSection: $0) }
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -82,9 +86,9 @@ struct IngredientsListReducer: Reducer {
   
   @Dependency(\.uuid) var uuid
   
-  var body: some ReducerOf<Self> {
+  var body: some Reducer<IngredientsListReducer.State, IngredientsListReducer.Action> {
     BindingReducer()
-    Reduce { state, action in
+    Reduce<IngredientsListReducer.State, IngredientsListReducer.Action> { state, action in
       switch action {
       case let .ingredient(id, .delegate(action)):
         switch action {
@@ -98,10 +102,7 @@ struct IngredientsListReducer: Reducer {
           state.ingredientSections[i].focusedField = nil
           
           let newSection = IngredientSectionReducer.State(
-            id: .init(rawValue: uuid()),
-            name: "",
-            ingredients: [],
-            isExpanded: true,
+            ingredientSection: .init(id: .init()),
             focusedField: .name
           )
           switch aboveBelow {
@@ -130,10 +131,7 @@ struct IngredientsListReducer: Reducer {
       case .addSectionButtonTapped:
         let id = IngredientSectionReducer.State.ID(rawValue: uuid())
         state.ingredientSections.append(.init(
-          id: id,
-          name: "",
-          ingredients: [],
-          isExpanded: true,
+          ingredientSection: .init(id: id),
           focusedField: .name
         ))
         state.focusedField = .row(id)
@@ -229,26 +227,7 @@ struct IngredientList_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         IngredientListView(store: .init(
-          initialState: .init(
-            ingredientSections: .init(uniqueElements: Recipe.longMock.ingredientSections.map { section in
-                .init(
-                  id: .init(),
-                  name: section.name,
-                  ingredients: .init(uniqueElements: (section.ingredients.map { ingredient in
-                      .init(
-                        id: .init(),
-                        ingredient: ingredient,
-                        ingredientAmountString: String(ingredient.amount),
-                        focusedField: nil
-                      )
-                  })),
-                  isExpanded: true,
-                  focusedField: nil
-                )
-            }),
-            isExpanded: true,
-            focusedField: nil
-          ),
+          initialState: .init(ingredientSections: Recipe.longMock.ingredientSections),
           reducer: IngredientsListReducer.init
         ))
         .padding()

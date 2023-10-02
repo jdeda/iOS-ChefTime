@@ -35,7 +35,7 @@ struct IngredientSection: View {
         TextField(
           "Untitled Ingredient Section",
           text: viewStore.binding(
-            get: \.name,
+            get: \.ingredientSection.name,
             send: { .ingredientSectionNameEdited($0) }
           ),
           axis: .vertical
@@ -86,13 +86,21 @@ struct IngredientSection: View {
 // MARK: - Reducer
 struct IngredientSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
-    typealias ID = Tagged<Self, UUID>
+    var id: Recipe.IngredientSection.ID {
+      self.ingredientSection.id
+    }
     
-    let id: ID
-    var name: String
+    var ingredientSection: Recipe.IngredientSection
     var ingredients: IdentifiedArrayOf<IngredientReducer.State>
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
+    
+    init(ingredientSection: Recipe.IngredientSection, focusedField: FocusField? = nil) {
+      self.ingredientSection = ingredientSection
+      self.ingredients = ingredientSection.ingredients.map{ .init(ingredient: $0) }
+      self.isExpanded = true
+      self.focusedField = focusedField
+    }
   }
   
   @Dependency(\.uuid) var uuid
@@ -130,7 +138,6 @@ struct IngredientSectionReducer: Reducer  {
           else { return .none }
           state.ingredients[id: id]?.focusedField = nil
           let s = IngredientReducer.State.init(
-            id: .init(rawValue: uuid()),
             ingredient: .init(id: .init(rawValue: uuid())),
             ingredientAmountString: "",
             focusedField: .name
@@ -141,19 +148,19 @@ struct IngredientSectionReducer: Reducer  {
         }
           
         case let .ingredientSectionNameEdited(newName):
-        if state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        if state.ingredientSection.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
         }
-        if !state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        if !state.ingredientSection.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-          state.name = ""
+          state.ingredientSection.name = ""
           return .none
         }
-        let didEnter = DidEnter.didEnter(state.name, newName)
+        let didEnter = DidEnter.didEnter(state.ingredientSection.name, newName)
         switch didEnter {
         case .didNotSatisfy:
-          state.name = newName
+          state.ingredientSection.name = newName
           return .none
         case .leading, .trailing:
           state.focusedField = nil
@@ -182,7 +189,6 @@ struct IngredientSectionReducer: Reducer  {
         
       case .addIngredient:
         let s = IngredientReducer.State(
-          id: .init(rawValue: uuid()),
           ingredient: .init(id: .init(rawValue: uuid())),
           ingredientAmountString: "",
           focusedField: .name
@@ -241,7 +247,7 @@ private struct IngredientSectionContextMenuPreview: View {
         Divider()
       }
     } label: {
-      Text(!state.name.isEmpty ? state.name : "Untitled Ingredient Section")
+      Text(!state.ingredientSection.name.isEmpty ? state.ingredientSection.name : "Untitled Ingredient Section")
         .lineLimit(2)
         .textSubtitleStyle()
     }
@@ -256,23 +262,9 @@ struct IngredientSection_Previews: PreviewProvider {
       ScrollView {
         IngredientSection(store: .init(
           initialState: .init(
-            id: .init(),
-            name: Recipe.longMock.ingredientSections.first!.name,
-            ingredients: .init(uniqueElements: Recipe.longMock.ingredientSections.first!.ingredients.map {
-              .init(
-                id: .init(),
-                ingredient: $0,
-                ingredientAmountString: String($0.amount),
-                focusedField: nil
-              )
-            }),
-            isExpanded: true,
-            focusedField: nil
+            ingredientSection: Recipe.longMock.ingredientSections.first!
           ),
-          reducer: IngredientSectionReducer.init,
-          withDependencies: { _ in
-            // TODO:
-          }
+          reducer: IngredientSectionReducer.init
         ))
         .padding()
       }

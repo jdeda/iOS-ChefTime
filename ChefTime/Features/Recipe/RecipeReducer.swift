@@ -23,34 +23,12 @@ struct RecipeReducer: Reducer {
         selection: recipe.imageData.first?.id
       )
       
-      // TODO: klajd
-      // help me do this properly
-      // A to B, look up B to A
       self.about = .init(recipeSections: recipe.aboutSections)
       
       // Abuse of typed IDs
       // Abuse of identified array (well u can make a map to clean it 100X)
       // Not syncing feature to persistent model
-      self.ingredients = .init(
-        ingredientSections: .init(uniqueElements: recipe.ingredientSections.map({ section in
-            .init(
-              id: .init(rawValue: uuid()),
-              name: section.name,
-              ingredients: .init(uniqueElements: section.ingredients.map({ ingredient in
-                  .init(
-                    id: .init(),
-                    ingredient: ingredient,
-                    ingredientAmountString: String(ingredient.amount),
-                    focusedField: nil
-                  )
-              })),
-              isExpanded: true,
-              focusedField: nil
-            )
-        })),
-        isExpanded: true,
-        focusedField: nil
-      )
+      self.ingredients = .init(ingredientSections: recipe.ingredientSections)
       
       self.steps = .init(
         stepSections: .init(uniqueElements: recipe.stepSections.map({ section in
@@ -152,7 +130,7 @@ struct RecipeReducer: Reducer {
         case .add:
           switch section {
           case .about: state.about = .init(recipeSections: [])
-          case .ingredients: state.ingredients = .init()
+          case .ingredients: state.ingredients = .init(ingredientSections: [])
           case .steps: state.steps = .init()
           }
           return .none

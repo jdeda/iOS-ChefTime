@@ -101,12 +101,23 @@ struct IngredientView: View {
 // MARK: - Reducer
 struct IngredientReducer: Reducer {
   struct State: Equatable, Identifiable {
-    typealias ID = Tagged<Self, UUID>
+    var id: Recipe.IngredientSection.Ingredient.ID {
+      self.ingredient.id
+    }
     
-    let id: ID
     var ingredient: Recipe.IngredientSection.Ingredient
     @BindingState var ingredientAmountString: String
     @BindingState var focusedField: FocusField? = nil
+    
+    init(
+      ingredient: Recipe.IngredientSection.Ingredient,
+      ingredientAmountString: String? = nil,
+      focusedField: FocusField? = nil
+    ) {
+      self.ingredient = ingredient
+      self.ingredientAmountString = ingredientAmountString ?? String(ingredient.amount)
+      self.focusedField = focusedField
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -320,10 +331,7 @@ struct IngredientView_Previews: PreviewProvider {
       ScrollView {
         IngredientView(store: .init(
           initialState: .init(
-            id: .init(),
-            ingredient: ingredient,
-            ingredientAmountString: String(ingredient.amount),
-            focusedField: nil
+            ingredient: ingredient
           ),
           reducer: IngredientReducer.init
         ))
