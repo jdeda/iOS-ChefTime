@@ -71,19 +71,19 @@ struct AppReducer: Reducer {
       switch action {
         
         // Recipe triggers an update.
-      case let .path(.element(id: pathID, action: .recipe(.delegate(.recipeUpdated(recipeFeatureState))))):
-        let recipe = recipeFeatureState.recipe
-        
-        let folders = state.folders.systemFoldersSection.folders
-        
-        // newFolders =  forEach { $0.updateRecipe(recipe) }
-                              
-//        let treePath = await database.fetchAllAncestors(recipeFeatureState.recipe.id)
-//        state.folders.userFoldersSection.folders[id: id]?.folder.folders[id:]?.folder.folder[id]
-//        return .run {
-//          await db.updateRecipe(recipe)
-//        }
-        return .none
+//      case let .path(.element(id: pathID, action: .recipe(.delegate(.recipeUpdated(recipeFeatureState))))):
+//        let recipe = recipeFeatureState.recipe
+//        
+//        let folders = state.folders.systemFoldersSection.folders
+//        
+//        // newFolders =  forEach { $0.updateRecipe(recipe) }
+//                              
+////        let treePath = await database.fetchAllAncestors(recipeFeatureState.recipe.id)
+////        state.folders.userFoldersSection.folders[id: id]?.folder.folders[id:]?.folder.folder[id]
+////        return .run {
+////          await db.updateRecipe(recipe)
+////        }
+//        return .none
         // TODO: Propagate all changes from this path element to all its elders
         
         // Folder triggers an update.

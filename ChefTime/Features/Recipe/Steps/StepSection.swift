@@ -105,6 +105,7 @@ struct StepSectionReducer: Reducer  {
     case stepSectionNameEdited(String)
     case addStep
     case keyboardDoneButtonTapped
+    case stepSectionUpdate
     case delegate(DelegateAction)
   }
   
@@ -113,9 +114,9 @@ struct StepSectionReducer: Reducer  {
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   
-  var body: some ReducerOf<Self> {
+  var body: some Reducer<StepSectionReducer.State, StepSectionReducer.Action> {
     BindingReducer()
-    Reduce { state, action in
+    Reduce<StepSectionReducer.State, StepSectionReducer.Action> { state, action in
       switch action {
       case let .step(id, .delegate(action)):
         switch action  {
@@ -183,6 +184,10 @@ struct StepSectionReducer: Reducer  {
         ))
         return .none
         
+      case .stepSectionUpdate:
+        state.stepSection.steps = state.steps.map(\.step)
+        return .none
+        
       case .binding(\.$isExpanded):
         // If we just collapsed the list, nil out any potential focus state to prevent
         // keyboard issues such as duplicate buttons
@@ -197,6 +202,11 @@ struct StepSectionReducer: Reducer  {
     }
     .forEach(\.steps, action: /Action.step) {
       StepReducer()
+    }
+    .onChange(of: \.steps) { _, _ in
+      Reduce { _, _ in
+          .send(.stepSectionUpdate)
+      }
     }
   }
 }

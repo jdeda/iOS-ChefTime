@@ -3,31 +3,28 @@ import Tagged
 
 struct RecipeReducer: Reducer {
   struct State: Equatable {
-    // this is what powers this feature
-    @BindingState var navigationTitle: String
     var recipe: Recipe
     var photos: PhotosReducer.State
-    var about: AboutListReducer.State
+    var about: AboutListReducer.State {
+      didSet {
+        self.recipe.aboutSections = self.about.recipeSections
+      }
+    }
     var ingredients: IngredientsListReducer.State
     var steps: StepListReducer.State
     var isHidingImages: Bool
+    @BindingState var navigationTitle: String
     @PresentationState var alert: AlertState<AlertAction>?
     
     init(recipe: Recipe) {
-      self.navigationTitle = recipe.name
       self.recipe = recipe
       self.photos = .init(photos: recipe.imageData)
-      
-      // A to B
       self.about = .init(recipeSections: recipe.aboutSections)
       self.ingredients = .init(recipeSections: recipe.ingredientSections)
       self.steps = .init(recipeSections: recipe.stepSections)
       self.isHidingImages = false
-      // Abuse of typed IDs
-      // Ugly ceremony of identified array (well u can write a map to clean it 100X)
-      // Ugly ceremony of creating a feature that should just be init with persistent model
-      // Combining these things makes the feature very ugly, but an easy fix :D
-      // Not syncing feature to persistent model
+      self.navigationTitle = recipe.name
+      self.alert = nil
     }
   }
   
@@ -41,44 +38,43 @@ struct RecipeReducer: Reducer {
     case setExpansionButtonTapped(Bool)
     case editSectionButtonTapped(Section, SectionEditAction)
     case alert(PresentationAction<AlertAction>)
-    
-    enum DelegateAction: Equatable {
-      case recipeUpdated(RecipeReducer.State)
-    }
-    case delegate(DelegateAction)
+    case recipeUpdate(RecipeUpdateAction)
   }
   
-  var body: some ReducerOf<Self> {
+  var body: some Reducer<RecipeReducer.State, RecipeReducer.Action> {
+    Scope(state: \.photos, action: /Action.photos) {
+      PhotosReducer()
+    }
+    Scope(state: \.about, action: /Action.about) {
+      AboutListReducer()
+    }
+    Scope(state: \.ingredients, action: /Action.ingredients) {
+      IngredientsListReducer()
+    }
+    Scope(state: \.steps, action: /Action.steps) {
+      StepListReducer()
+    }
     BindingReducer()
-
-    Reduce { state, action in
+    Reduce<RecipeReducer.State, RecipeReducer.Action> { state, action in
       switch action {
-      case .binding:
-        return .none
-        
       case .binding(\.$navigationTitle):
+        // TODO: ... B -> A
         if state.navigationTitle.isEmpty { state.navigationTitle = "Untitled Recipe" }
         state.recipe.name = state.navigationTitle
         return .none
-
-//      case .about(.recipeSectionsDidChange):
-//        print(".about(.recipeSectionsDidChange)")
-//
-//        // this is the B to A, from the previous discussion
-//        if let recipeSections = state.about?.recipeSections {
-//          print("recipeSections: '\(recipeSections)'")
-//          state.recipe.aboutSections = recipeSections
-//        }
-//        return .none
-
-      case .about:
+        
+      case .recipeUpdate(.aboutUpdated):
+        state.recipe.aboutSections = state.about.recipeSections
         return .none
         
-      case .photos, .ingredients, .steps:
-        // TODO: fix me ...
-        print("recipeSections: 'NOOP'")
+      case .recipeUpdate(.ingredientsUpdated):
+        state.recipe.ingredientSections = state.ingredients.recipeSections
         return .none
-                
+        
+      case .recipeUpdate(.stepsUpdated):
+        state.recipe.stepSections = state.steps.recipeSections
+        return .none
+        
       case .toggleHideImages:
         state.isHidingImages.toggle()
         return .none
@@ -132,29 +128,42 @@ struct RecipeReducer: Reducer {
         }
         state.alert = nil
         return .none
-
+        
       case .alert(.dismiss):
         state.alert = nil
         return .none
-
-      case .alert, .delegate:
+        
+      case .photos, .about, .ingredients, .steps, .alert, .binding:
         return .none
       }
     }
-    Scope(state: \.photos, action: /Action.photos) {
-      PhotosReducer()
+    .onChange(of: \.about.aboutSections) { _, _ in
+      Reduce { _, _ in
+          .send(.recipeUpdate(.aboutUpdated))
+      }
     }
-    Scope(state: \.about, action: /Action.about) {
-      AboutListReducer()
+    .onChange(of: \.ingredients.ingredientSections) { _, _ in
+      Reduce { _, _ in
+          .send(.recipeUpdate(.ingredientsUpdated))
+      }
     }
-    Scope(state: \.ingredients, action: /Action.ingredients) {
-      IngredientsListReducer()
-    }
-    Scope(state: \.steps, action: /Action.steps) {
-      StepListReducer()
+    .onChange(of: \.steps.stepSections) { _, _ in
+      Reduce { _, _ in
+          .send(.recipeUpdate(.stepsUpdated))
+      }
     }
   }
 }
+
+// MARK: - RecipeUpdateAction
+extension RecipeReducer {
+  enum RecipeUpdateAction: Equatable {
+    case aboutUpdated
+    case ingredientsUpdated
+    case stepsUpdated
+  }
+}
+
 
 // MARK: - AlertAction
 extension RecipeReducer {

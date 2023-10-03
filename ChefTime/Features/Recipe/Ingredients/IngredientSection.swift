@@ -91,7 +91,7 @@ struct IngredientSectionReducer: Reducer  {
     }
     
     var ingredientSection: Recipe.IngredientSection
-    var ingredients: IdentifiedArrayOf<IngredientReducer.State> 
+    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
     
@@ -112,6 +112,7 @@ struct IngredientSectionReducer: Reducer  {
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
     case rowTapped(IngredientReducer.State.ID)
+    case ingredientSectionsUpdate
     case delegate(DelegateAction)
   }
   
@@ -119,9 +120,9 @@ struct IngredientSectionReducer: Reducer  {
   
   private enum AddIngredientID: Hashable { case timer }
   
-  var body: some ReducerOf<Self> {
+  var body: some Reducer<IngredientSectionReducer.State, IngredientSectionReducer.Action> {
     BindingReducer()
-    Reduce { state, action in
+    Reduce<IngredientSectionReducer.State, IngredientSectionReducer.Action> { state, action in
       switch action {
       case let .ingredient(id, .delegate(action)):
         switch action {
@@ -197,6 +198,9 @@ struct IngredientSectionReducer: Reducer  {
         state.focusedField = .row(s.id)
         return .none
         
+      case .ingredientSectionsUpdate:
+        state.ingredientSection.ingredients = state.ingredientSection.ingredients
+        return .none
         
       case .binding(\.$isExpanded):
         // If we just collapsed the list, nil out any potential focus state to prevent
@@ -215,9 +219,11 @@ struct IngredientSectionReducer: Reducer  {
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientReducer()
-//        .onChange(of: \.ingredient) { oldValue, newValue in
-//            .send(.delegate(.ingredientDidChange))
-//        }
+    }
+    .onChange(of: \.ingredients) { _, _ in
+      Reduce { _, _ in
+          .send(.ingredientSectionsUpdate)
+      }
     }
   }
 }
