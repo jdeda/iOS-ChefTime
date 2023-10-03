@@ -65,45 +65,39 @@ struct RecipeView: View {
         }
         
         // AboutListView
-        IfLetStore(store.scope(
+        AboutListView(store: store.scope(
           state: \.about,
           action: RecipeReducer.Action.about
-        )) {
-          AboutListView(store: $0)
+        ))
+        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        
+        if !viewStore.about.isExpanded {
+          Divider()
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          
-          if !(viewStore.about?.isExpanded ?? false) {
-            Divider()
-              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          }
         }
         
         // IngredientListView
-        IfLetStore(store.scope(
+        IngredientListView(store: store.scope(
           state: \.ingredients,
           action: RecipeReducer.Action.ingredients
-        )) {
-          IngredientListView(store: $0)
+        ))
+        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        
+        if !viewStore.ingredients.isExpanded {
+          Divider()
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          
-          if !(viewStore.ingredients?.isExpanded ?? false) {
-            Divider()
-              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          }
         }
         
         // StepListView
-        IfLetStore(store.scope(
+        StepListView(store: store.scope(
           state: \.steps,
           action: RecipeReducer.Action.steps
-        )) {
-          StepListView(store: $0)
+        ))
+        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        
+        if !viewStore.steps.isExpanded {
+          Divider()
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          
-          if !(viewStore.steps?.isExpanded ?? false) {
-            Divider()
-              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-          }
         }
         
         Spacer()

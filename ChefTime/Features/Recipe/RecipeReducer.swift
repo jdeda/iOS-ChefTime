@@ -7,9 +7,9 @@ struct RecipeReducer: Reducer {
     @BindingState var navigationTitle: String
     var recipe: Recipe
     var photos: PhotosReducer.State
-    var about: AboutListReducer.State?
-    var ingredients: IngredientsListReducer.State?
-    var steps: StepListReducer.State?
+    var about: AboutListReducer.State
+    var ingredients: IngredientsListReducer.State
+    var steps: StepListReducer.State
     var isHidingImages: Bool
     @PresentationState var alert: AlertState<AlertAction>?
     
@@ -20,8 +20,8 @@ struct RecipeReducer: Reducer {
       
       // A to B
       self.about = .init(recipeSections: recipe.aboutSections)
-      self.ingredients = .init(ingredientSections: recipe.ingredientSections)
-      self.steps = .init(stepSections: recipe.stepSections)
+      self.ingredients = .init(recipeSections: recipe.ingredientSections)
+      self.steps = .init(recipeSections: recipe.stepSections)
       self.isHidingImages = false
       // Abuse of typed IDs
       // Ugly ceremony of identified array (well u can write a map to clean it 100X)
@@ -87,21 +87,21 @@ struct RecipeReducer: Reducer {
         // TODO: May need to worry about focus state
         
         // Collapse all about sections
-        state.about?.isExpanded = isExpanded
-        state.about?.aboutSections.ids.forEach {
-          state.about?.aboutSections[id: $0]?.isExpanded = isExpanded
+        state.about.isExpanded = isExpanded
+        state.about.aboutSections.ids.forEach {
+          state.about.aboutSections[id: $0]?.isExpanded = isExpanded
         }
         
         // Collapse all ingredient sections
-        state.ingredients?.isExpanded = isExpanded
-        state.ingredients?.ingredientSections.ids.forEach {
-          state.ingredients?.ingredientSections[id: $0]?.isExpanded = isExpanded
+        state.ingredients.isExpanded = isExpanded
+        state.ingredients.ingredientSections.ids.forEach {
+          state.ingredients.ingredientSections[id: $0]?.isExpanded = isExpanded
         }
         
         // Collapse all step sections
-        state.steps?.isExpanded = isExpanded
-        state.steps?.stepSections.ids.forEach {
-          state.steps?.stepSections[id: $0]?.isExpanded = isExpanded
+        state.steps.isExpanded = isExpanded
+        state.steps.stepSections.ids.forEach {
+          state.steps.stepSections[id: $0]?.isExpanded = isExpanded
         }
         return .none
         
@@ -118,17 +118,17 @@ struct RecipeReducer: Reducer {
         case .add:
           switch section {
           case .about: state.about = .init(recipeSections: [])
-          case .ingredients: state.ingredients = .init(ingredientSections: [])
-          case .steps: state.steps = .init(stepSections: [])
+          case .ingredients: state.ingredients = .init(recipeSections: [])
+          case .steps: state.steps = .init(recipeSections: [])
           }
           return .none
         }
         
       case let .alert(.presented(.confirmDeleteSectionButtonTapped(section))):
         switch section {
-        case .about: state.about = nil
-        case .ingredients: state.ingredients = nil
-        case .steps: state.steps = nil
+        case .about: state.about.aboutSections = []
+        case .ingredients: state.ingredients.ingredientSections = []
+        case .steps: state.steps.stepSections = []
         }
         state.alert = nil
         return .none
@@ -141,23 +141,17 @@ struct RecipeReducer: Reducer {
         return .none
       }
     }
-    .onChange(of: { $0 } , { _, newValue in
-      Reduce { _, _ in
-          .send(.delegate(.recipeUpdated(newValue)))
-      }
-    })
-    .ifLet(\.about, action: /Action.about) {
-      AboutListReducer()
-    }
-    .ifLet(\.ingredients, action: /Action.ingredients) {
-      IngredientsListReducer()
-    }
-    .ifLet(\.steps, action: /Action.steps) {
-      StepListReducer()
-    }
-    
     Scope(state: \.photos, action: /Action.photos) {
       PhotosReducer()
+    }
+    Scope(state: \.about, action: /Action.about) {
+      AboutListReducer()
+    }
+    Scope(state: \.ingredients, action: /Action.ingredients) {
+      IngredientsListReducer()
+    }
+    Scope(state: \.steps, action: /Action.steps) {
+      StepListReducer()
     }
   }
 }
