@@ -78,8 +78,12 @@ struct StepListReducer: Reducer {
     @BindingState var isHidingStepImages: Bool = false
     @BindingState var focusedField: FocusField? = nil
     
-    init(stepSections: IdentifiedArrayOf<Recipe.StepSection>) {
-      self.stepSections = stepSections.map { .init(stepSection: $0) }
+    init(recipeSections: IdentifiedArrayOf<Recipe.StepSection>) {
+      self.stepSections = recipeSections.map { .init(stepSection: $0) }
+    }
+    
+    var recipeSections: IdentifiedArrayOf<Recipe.StepSection> {
+      self.stepSections.map(\.stepSection)
     }
   }
   
@@ -175,7 +179,7 @@ struct StepList_Previews: PreviewProvider {
       ScrollView {
         StepListView(store: .init(
           initialState: .init(
-            stepSections: Recipe.longMock.stepSections
+            recipeSections: Recipe.longMock.stepSections
           ),
           reducer: StepListReducer.init
         ))

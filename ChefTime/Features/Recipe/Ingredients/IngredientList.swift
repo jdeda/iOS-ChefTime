@@ -72,8 +72,8 @@ struct IngredientsListReducer: Reducer {
     @BindingState var isExpanded: Bool = true
     @BindingState var focusedField: FocusField? = nil
     
-    init(ingredientSections: IdentifiedArrayOf<Recipe.IngredientSection>) {
-      self.ingredientSections = ingredientSections.map { .init(ingredientSection: $0) }
+    init(recipeSections: IdentifiedArrayOf<Recipe.IngredientSection>) {
+      self.ingredientSections = recipeSections.map { .init(ingredientSection: $0) }
     }
     
     var recipeSections: IdentifiedArrayOf<Recipe.IngredientSection> {
@@ -231,7 +231,7 @@ struct IngredientList_Previews: PreviewProvider {
     NavigationStack {
       ScrollView {
         IngredientListView(store: .init(
-          initialState: .init(ingredientSections: Recipe.longMock.ingredientSections),
+          initialState: .init(recipeSections: Recipe.longMock.ingredientSections),
           reducer: IngredientsListReducer.init
         ))
         .padding()

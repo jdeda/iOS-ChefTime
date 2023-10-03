@@ -158,7 +158,6 @@ struct AboutSectionReducer: Reducer  {
         return .none
       }
     }
-    ._printChanges()
   }
 }
 
