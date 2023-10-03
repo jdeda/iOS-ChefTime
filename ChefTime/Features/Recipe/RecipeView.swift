@@ -65,36 +65,24 @@ struct RecipeView: View {
         }
         
         // AboutListView
-        AboutListView(store: store.scope(
-          state: \.about,
-          action: RecipeReducer.Action.about
-        ))
-        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-        
+        AboutListView(store: store.scope(state: \.about, action: RecipeReducer.Action.about))
+          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
         if !viewStore.about.isExpanded {
           Divider()
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
         }
         
         // IngredientListView
-        IngredientListView(store: store.scope(
-          state: \.ingredients,
-          action: RecipeReducer.Action.ingredients
-        ))
-        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-        
+        IngredientListView(store: store.scope(state: \.ingredients, action: RecipeReducer.Action.ingredients))
+          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
         if !viewStore.ingredients.isExpanded {
           Divider()
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
         }
         
         // StepListView
-        StepListView(store: store.scope(
-          state: \.steps,
-          action: RecipeReducer.Action.steps
-        ))
-        .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-        
+        StepListView(store: store.scope(state: \.steps, action: RecipeReducer.Action.steps))
+          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
         if !viewStore.steps.isExpanded {
           Divider()
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
@@ -126,22 +114,27 @@ struct RecipeView: View {
             } label: {
               Label("Edit Visibility", systemImage: "eyeglasses")
             }
-
+            
             Menu {
+              let aboutIsEmpty = viewStore.about.aboutSections.isEmpty
               Button {
-                viewStore.send(.editSectionButtonTapped(.about, viewStore.about == nil ? .add : .delete), animation: .default)
+                viewStore.send(.editSectionButtonTapped(.about, aboutIsEmpty ? .add : .delete), animation: .default)
               } label: {
-                Label(viewStore.about == nil ? "Add About" : "Delete About", systemImage: "text.alignleft")
+                Label(aboutIsEmpty ? "Add About" : "Delete About", systemImage: "text.alignleft")
               }
+              
+              let ingredientsIsEmpty = viewStore.ingredients.ingredientSections.isEmpty
               Button {
-                viewStore.send(.editSectionButtonTapped(.ingredients, viewStore.ingredients == nil ? .add : .delete), animation: .default)
+                viewStore.send(.editSectionButtonTapped(.ingredients, ingredientsIsEmpty ? .add : .delete), animation: .default)
               } label: {
-                Label(viewStore.ingredients == nil ? "Add Ingredients" : "Delete Ingredients", systemImage: "checklist")
+                Label(ingredientsIsEmpty ? "Add Ingredients" : "Delete Ingredients", systemImage: "checklist")
               }
+              
+              let stepsIsEmpty = viewStore.steps.stepSections.isEmpty
               Button {
-                viewStore.send(.editSectionButtonTapped(.steps, viewStore.steps == nil ? .add : .delete), animation: .default)
+                viewStore.send(.editSectionButtonTapped(.steps, stepsIsEmpty ? .add : .delete), animation: .default)
               } label: {
-                Label(viewStore.steps == nil ? "Add Steps" : "Delete Steps", systemImage: "list.number")
+                Label(stepsIsEmpty ? "Add Steps" : "Delete Steps", systemImage: "list.number")
               }
             } label: {
               Label("Edit Sections", systemImage: "line.3.horizontal")
