@@ -17,6 +17,8 @@ struct RecipeReducer: Reducer {
       self.navigationTitle = recipe.name
       self.recipe = recipe
       self.photos = .init(photos: recipe.imageData)
+      
+      // A to B
       self.about = .init(recipeSections: recipe.aboutSections)
       self.ingredients = .init(ingredientSections: recipe.ingredientSections)
       self.steps = .init(stepSections: recipe.stepSections)
@@ -59,14 +61,17 @@ struct RecipeReducer: Reducer {
         state.recipe.name = state.navigationTitle
         return .none
 
-      case .about:
-        print("about")
+//      case .about(.recipeSectionsDidChange):
+//        print(".about(.recipeSectionsDidChange)")
+//
+//        // this is the B to A, from the previous discussion
+//        if let recipeSections = state.about?.recipeSections {
+//          print("recipeSections: '\(recipeSections)'")
+//          state.recipe.aboutSections = recipeSections
+//        }
+//        return .none
 
-        // this is the B to A, from the previous discussion
-        if let recipeSections = state.about?.recipeSections {
-          print("recipeSections: '\(recipeSections)'")
-          state.recipe.aboutSections = recipeSections
-        }
+      case .about:
         return .none
         
       case .photos, .ingredients, .steps:

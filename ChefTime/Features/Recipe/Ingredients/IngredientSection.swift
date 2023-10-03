@@ -91,7 +91,7 @@ struct IngredientSectionReducer: Reducer  {
     }
     
     var ingredientSection: Recipe.IngredientSection
-    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
+    var ingredients: IdentifiedArrayOf<IngredientReducer.State> 
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
     
@@ -215,6 +215,9 @@ struct IngredientSectionReducer: Reducer  {
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientReducer()
+//        .onChange(of: \.ingredient) { oldValue, newValue in
+//            .send(.delegate(.ingredientDidChange))
+//        }
     }
   }
 }
@@ -234,7 +237,6 @@ extension IngredientSectionReducer {
     case name
   }
 }
-
 
 // MARK: - IngredientSectionContextMenuPreview
 private struct IngredientSectionContextMenuPreview: View {

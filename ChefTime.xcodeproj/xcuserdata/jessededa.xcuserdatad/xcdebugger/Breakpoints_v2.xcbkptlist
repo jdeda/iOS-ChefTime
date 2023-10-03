@@ -66,6 +66,38 @@
             endingLineNumber = "86"
             landmarkName = "body"
             landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "95B4CA41-5981-4ADA-9514-31B1B6F53981 - 29acdd914252ea4f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (inout ChefTime.AppReducer.State, ChefTime.AppReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.AppReducer.Action&gt; in ChefTime.AppReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/App/AppReducer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "86"
+                  endingLineNumber = "86"
+                  offsetFromSymbolStart = "2544">
+               </Location>
+               <Location
+                  uuid = "95B4CA41-5981-4ADA-9514-31B1B6F53981 - 29acdd914252ea4f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (inout ChefTime.AppReducer.State, ChefTime.AppReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.AppReducer.Action&gt; in ChefTime.AppReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/App/AppReducer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "86"
+                  endingLineNumber = "86"
+                  offsetFromSymbolStart = "2488">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -78,8 +110,8 @@
             filePath = "ChefTime/Features/Recipe/RecipeReducer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "68"
-            endingLineNumber = "68"
+            startingLineNumber = "86"
+            endingLineNumber = "86"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>

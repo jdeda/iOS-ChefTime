@@ -6,10 +6,12 @@ struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
       //            if _XCTIsTesting {
-      RecipeView(store: .init(
-        initialState: .init(recipe: Recipe.shortMock),
-        reducer: RecipeReducer.init
-      ))
+      NavigationStack {
+        RecipeView(store: .init(
+          initialState: .init(recipe: Recipe.longMock),
+          reducer: RecipeReducer.init
+        ))
+      }
 
       //      AppView(store: .init(
 //        initialState: .init(),

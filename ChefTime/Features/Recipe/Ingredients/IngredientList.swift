@@ -75,6 +75,10 @@ struct IngredientsListReducer: Reducer {
     init(ingredientSections: IdentifiedArrayOf<Recipe.IngredientSection>) {
       self.ingredientSections = ingredientSections.map { .init(ingredientSection: $0) }
     }
+    
+    var recipeSections: IdentifiedArrayOf<Recipe.IngredientSection> {
+      ingredientSections.map(\.ingredientSection)
+    }
   }
   
   enum Action: Equatable, BindableAction {

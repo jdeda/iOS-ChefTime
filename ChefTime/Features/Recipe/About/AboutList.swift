@@ -58,6 +58,11 @@ struct AboutListView: View {
   }
 }
 
+/// 1. computed property, send a delegate action `aboutSectionsDidChange`, and the parent just reads the computed property
+/// 2. normal property, onChange, send a delegate action `aboutSectionsDidChange`
+///
+/// X. computed property, onChange, send a delegate action `aboutSectionsDidChange`, and the parent just reads the computed property
+
 // MARK: - AboutListReducer
 struct AboutListReducer: Reducer {
   struct State: Equatable {
@@ -136,6 +141,12 @@ struct AboutListReducer: Reducer {
     }
     .forEach(\.aboutSections, action: /Action.aboutSection) {
       AboutSectionReducer()
+//        .onChange(of: \.aboutSection) { _, newValue in
+//          Reduce { _, _ in
+//            // TODO: Debounce
+////              .send(.delegate(.aboutSectionDidChange), animation: .default)
+//          }
+//        }
     }
   }
 }
