@@ -141,12 +141,6 @@ struct AboutListReducer: Reducer {
     }
     .forEach(\.aboutSections, action: /Action.aboutSection) {
       AboutSectionReducer()
-//        .onChange(of: \.aboutSection) { _, newValue in
-//          Reduce { _, _ in
-//            // TODO: Debounce
-////              .send(.delegate(.aboutSectionDidChange), animation: .default)
-//          }
-//        }
     }
   }
 }

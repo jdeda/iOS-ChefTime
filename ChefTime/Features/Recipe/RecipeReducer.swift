@@ -5,11 +5,7 @@ struct RecipeReducer: Reducer {
   struct State: Equatable {
     var recipe: Recipe
     var photos: PhotosReducer.State
-    var about: AboutListReducer.State {
-      didSet {
-        self.recipe.aboutSections = self.about.recipeSections
-      }
-    }
+    var about: AboutListReducer.State
     var ingredients: IngredientsListReducer.State
     var steps: StepListReducer.State
     var isHidingImages: Bool
