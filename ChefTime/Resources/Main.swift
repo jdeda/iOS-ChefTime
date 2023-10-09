@@ -3,7 +3,7 @@ import XCTestDynamicOverlay
 
 @main
 struct ChefTimeApp: App {
-  let recipeUUIIDString = "4E2B0674-B7E6-4585-8636-6F552E42A570"
+  let recipeUUIIDString = "C89AA66E-87C7-48DB-B26B-A46125750DBE"
 
   var body: some Scene {
     WindowGroup {
