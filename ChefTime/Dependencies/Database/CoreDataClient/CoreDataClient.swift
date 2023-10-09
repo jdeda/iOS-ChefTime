@@ -73,7 +73,7 @@ struct CoreDataClient {
 //    container.save()
 //  }
   
-  func deleteAll() {
+  func deleteAll() async {
     let request = CoreRecipe.fetchRequest()
     guard let response = try? container.viewContext.fetch(request)
     else { return }

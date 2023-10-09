@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-/// MARK: - View
+// MARK: - View
 struct FolderView: View {
   let store: StoreOf<FolderReducer>
   @Environment(\.maxScreenWidth) private var maxScreenWidth
@@ -62,6 +62,7 @@ struct FolderView: View {
   }
 }
 
+// MARK: - Toolbar
 extension FolderView {
   @ToolbarContentBuilder
   func toolbar(viewStore: ViewStoreOf<FolderReducer>) -> some ToolbarContent {
