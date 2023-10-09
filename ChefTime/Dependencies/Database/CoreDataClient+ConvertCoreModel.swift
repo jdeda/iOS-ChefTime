@@ -57,7 +57,10 @@ private extension String {
 
 extension CoreRecipe {
   func toRecipe() -> Recipe? {
-    
+//    let aboutSectionsRaw = Array((self.aboutSections as? Set<CoreAboutSection>) ?? [])
+//    let ingredientSectionsRaw = Array((self.ingredientSections as? Set<CoreIngredientSection>) ?? [])
+//    let stepSectionsRaw = Array((self.stepSections as? Set<CoreStepSection>) ?? [])
+
     guard let id = self.id,
           let name = self.name,
           let aboutSectionsRaw = self.aboutSections as? Set<CoreAboutSection>,
@@ -68,7 +71,7 @@ extension CoreRecipe {
     let aboutSections: Array<Recipe.AboutSection> = aboutSectionsRaw.compactMap { $0.toAboutSection() }
     let ingredientSections: Array<Recipe.IngredientSection> = ingredientSectionsRaw.compactMap { $0.toIngredientSection() }
     let stepSections: Array<Recipe.StepSection> = stepSectionsRaw.compactMap { $0.toStepSection() }
-    
+
     return Recipe(
       id: .init(rawValue: id),
       name: name,

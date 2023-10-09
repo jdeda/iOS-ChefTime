@@ -145,6 +145,9 @@ struct RecipeView: View {
           .foregroundColor(.primary)
         }
       }
+      .task {
+        await viewStore.send(.task).finish()
+      }
     }
   }
 }
@@ -155,12 +158,9 @@ struct RecipeView_Previews: PreviewProvider {
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          recipe: .longMock
+          recipeID: .init(rawValue: .init(uuidString: "111615F7-FDE4-4FD1-B50C-BBE213EF5223")!)
         ),
-        reducer: RecipeReducer.init,
-        withDependencies: { _ in
-          // TODO:
-        }
+        reducer: RecipeReducer.init
       ))
     }
   }

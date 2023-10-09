@@ -6,17 +6,17 @@ extension Database {
   static let live = {
     let db = CoreDataClient(inMemory: false)
     return Self(
-      fetchUser: {
-        return await db.fetchUser()
+      createRecipe: { recipe in
+        return await db.createRecipe(recipe)
       },
-      updateUser: { user in
-        return await db.updateUser(user)
+      retrieveRecipe: { recipeID in
+        return await db.retrieveRecipe(recipeID)
       },
       updateRecipe: { recipe in
         return await db.updateRecipe(recipe)
       },
-      updateFolder: { folder in
-        return await db.updateFolder(folder)
+      deleteAll: {
+        return await db.deleteAll()
       }
     )
   }()

@@ -18,60 +18,80 @@ import CoreData
 /// 1. must make sure you init everything, compiler doesn't help you at all
 /// 2. if u put rules that make values non-optional, the compiler doesn't help you at all, putting nil with crash i think
 ///
-extension User {
-  func toCoreUser(_ context: NSManagedObjectContext) -> CoreUser? {
-    guard let entity = NSEntityDescription.entity(forEntityName: "CoreUser", in: context)
-    else { return nil }
-    let coreUser = CoreUser(entity: entity, insertInto: context)
-    coreUser.id = self.id.rawValue
-    coreUser.systemFolders = .init(array: self.systemFolders.compactMap { $0.toCoreFolder(context) })
-    coreUser.userFolders = .init(array: self.userFolders.compactMap { $0.toCoreFolder(context) })
-    return nil
-  }
-}
+//extension User {
+//  func toCoreUser(_ context: NSManagedObjectContext) -> CoreUser? {
+//    guard let entity = NSEntityDescription.entity(forEntityName: "CoreUser", in: context)
+//    else { return nil }
+//    let coreUser = CoreUser(entity: entity, insertInto: context)
+//    coreUser.id = self.id.rawValue
+//    coreUser.systemFolders = .init(array: self.systemFolders.compactMap { $0.toCoreFolder(context) })
+//    coreUser.userFolders = .init(array: self.userFolders.compactMap { $0.toCoreFolder(context) })
+//    return nil
+//  }
+//}
+//
+//extension Folder {
+//  func toCoreFolder(_ context: NSManagedObjectContext) -> CoreFolder? {
+//    guard let entity = NSEntityDescription.entity(forEntityName: "CoreFolder", in: context)
+//    else { return nil }
+//    let coreFolder = CoreFolder(entity: entity, insertInto: context)
+//    coreFolder.id = self.id.rawValue
+//    coreFolder.name = self.name
+//    coreFolder.imageData = nil // MARK: - Special persistence for images...
+//    coreFolder.folderType = self.folderType.toFolderString()
+//    coreFolder.folders = .init(array: self.folders.compactMap({ $0.toCoreFolder(context) }))
+//    coreFolder.recipes = .init(array: self.recipes.compactMap( { $0.toCoreRecipe} ))
+//    return coreFolder
+//  }
+//}
 
-extension Folder {
-  func toCoreFolder(_ context: NSManagedObjectContext) -> CoreFolder? {
-    guard let entity = NSEntityDescription.entity(forEntityName: "CoreFolder", in: context)
-    else { return nil }
-    let coreFolder = CoreFolder(entity: entity, insertInto: context)
-    coreFolder.id = self.id.rawValue
-    coreFolder.name = self.name
-    coreFolder.imageData = nil // MARK: - Special persistence for images...
-    coreFolder.folderType = self.folderType.toFolderString()
-    coreFolder.folders = .init(array: self.folders.compactMap({ $0.toCoreFolder(context) }))
-    coreFolder.recipes = .init(array: self.recipes.compactMap( { $0.toCoreRecipe} ))
-    return coreFolder
-  }
-}
-
-private extension Folder.FolderType {
-  func toFolderString() -> String {
-    switch self {
-    case .systemAll: return "systemAll"
-    case .systemStandard: return "systemStandard"
-    case .systemRecentlyDeleted: return "systemRecentlyDeleted"
-    case .user: return "user"
-    }
-  }
-}
+//private extension Folder.FolderType {
+//  func toFolderString() -> String {
+//    switch self {
+//    case .systemAll: return "systemAll"
+//    case .systemStandard: return "systemStandard"
+//    case .systemRecentlyDeleted: return "systemRecentlyDeleted"
+//    case .user: return "user"
+//    }
+//  }
+//}
 
 extension Recipe {
   func toCoreRecipe(_ context: NSManagedObjectContext) -> CoreRecipe? {
     guard let entity = NSEntityDescription.entity(forEntityName: "CoreRecipe", in: context)
     else { return nil }
+    
+    // TODO:
+    // figure how to create an NSManagedObjectID with this self.id.rawValue
+    //
+    let objectID = NSManagedObjectID()
+    // managedObjectID(forURIRepresentation url: URL
     let coreRecipe = CoreRecipe(entity: entity, insertInto: context)
+    coreRecipe.folder = nil
     coreRecipe.id = self.id.rawValue
     coreRecipe.name = self.name
     coreRecipe.imageData = [] // MARK: - Special persistence for images...
-    coreRecipe.aboutSections = .init(array: self.aboutSections.compactMap { $0.toCoreAboutSection(context) })
-    coreRecipe.ingredientSections = .init(array: self.ingredientSections.compactMap { $0.toCoreIngredientSection(context) })
-    coreRecipe.stepSections = .init(array: self.stepSections.compactMap { $0.toCoreStepSection(context) })
+    coreRecipe.aboutSections = .init(array: self.aboutSections.compactMap {
+      let v = $0.toCoreAboutSection(context)
+      v?.recipe = coreRecipe
+      return v
+    })
+    coreRecipe.ingredientSections = .init(array: self.ingredientSections.compactMap {
+      let v = $0.toCoreIngredientSection(context)
+      v?.recipe = coreRecipe
+      return v
+    })
+    coreRecipe.stepSections = .init(array: self.stepSections.compactMap {
+      let v = $0.toCoreStepSection(context)
+      v?.recipe = coreRecipe
+      return v
+      
+    })
     return coreRecipe
   }
 }
 
-extension Recipe.AboutSection {
+private extension Recipe.AboutSection {
   func toCoreAboutSection(_ context: NSManagedObjectContext) -> CoreAboutSection? {
     guard let entity = NSEntityDescription.entity(forEntityName: "CoreAboutSection", in: context)
     else { return nil }
@@ -83,19 +103,24 @@ extension Recipe.AboutSection {
   }
 }
 
-extension Recipe.IngredientSection {
+private extension Recipe.IngredientSection {
   func toCoreIngredientSection(_ context: NSManagedObjectContext) -> CoreIngredientSection? {
     guard let entity = NSEntityDescription.entity(forEntityName: "CoreIngredientSection", in: context)
     else { return nil }
     let coreIngredientSection = CoreIngredientSection(entity: entity, insertInto: context)
     coreIngredientSection.id = self.id.rawValue
     coreIngredientSection.name = self.name
-    coreIngredientSection.ingredients = .init(array: self.ingredients.compactMap { $0.toCoreIngredient(context) })
+    coreIngredientSection.ingredients = .init(array: self.ingredients.compactMap {
+      let v = $0.toCoreIngredient(context)
+      v?.ingredientSection = coreIngredientSection
+      return v
+      
+    })
     return coreIngredientSection
   }
 }
 
-extension Recipe.IngredientSection.Ingredient {
+private extension Recipe.IngredientSection.Ingredient {
   func toCoreIngredient(_ context: NSManagedObjectContext) -> CoreIngredient? {
     guard let entity = NSEntityDescription.entity(forEntityName: "CoreIngredient", in: context)
     else { return nil }
@@ -108,19 +133,23 @@ extension Recipe.IngredientSection.Ingredient {
   }
 }
 
-extension Recipe.StepSection {
+private extension Recipe.StepSection {
   func toCoreStepSection(_ context: NSManagedObjectContext) -> CoreStepSection? {
     guard let entity = NSEntityDescription.entity(forEntityName: "CoreStepSection", in: context)
     else { return nil }
     let coreStepSection = CoreStepSection(entity: entity, insertInto: context)
     coreStepSection.id = self.id.rawValue
     coreStepSection.name = self.name
-    coreStepSection.steps = .init(array: self.steps.compactMap { $0.toCoreStep(context) })
+    coreStepSection.steps = .init(array: self.steps.compactMap {
+      let v = $0.toCoreStep(context)
+      v?.stepSection = coreStepSection
+      return v
+    })
     return coreStepSection
   }
 }
 
-extension Recipe.StepSection.Step {
+private extension Recipe.StepSection.Step {
   func toCoreStep(_ context: NSManagedObjectContext) -> CoreStep? {
     guard let entity = NSEntityDescription.entity(forEntityName: "CoreStep", in: context)
     else { return nil }

@@ -9,28 +9,24 @@ struct CoreDataClient {
     self.container = .init(inMemory: inMemory)
   }
   
-  // CRUD
-  func fetchUser() async -> User? {
-    // Assume you are only ever going to have one user in this client's DB.
-    // So we don't need a predicate of any sort.
-    let request = CoreUser.fetchRequest()
-    guard let response = try? container.viewContext.fetch(request),
-          let user = response.first
-    else { return nil }
-    return user.toUser()
-  }
-  
-  func updateUser(_ user: User) async -> Void {
-    let request = CoreUser.fetchRequest()
-    request.predicate = .init(format: "id == %@", user.id.rawValue.uuidString)
-    guard let response = try? container.viewContext.fetch(request),
-          let coreUser = response.first
+  // TODO: Setup relations
+  func createRecipe(_ recipe: Recipe) async -> Void {
+    guard let _ = recipe.toCoreRecipe(container.viewContext)
     else { return }
-    coreUser.systemFolders = .init(array: user.systemFolders.compactMap { $0.toCoreFolder(container.viewContext) })
-    coreUser.userFolders = .init(array: user.userFolders.compactMap { $0.toCoreFolder(container.viewContext) })
     container.save()
   }
   
+  func retrieveRecipe(_ recipeID: Recipe.ID) async -> Recipe? {
+    let request = CoreRecipe.fetchRequest()
+    request.predicate = .init(format: "id == %@", recipeID.rawValue.uuidString)
+    guard let response = try? container.viewContext.fetch(request),
+          let coreRecipe = response.first,
+          let recipe = coreRecipe.toRecipe()
+    else { return nil }
+    return recipe
+  }
+   
+  // TODO: Setup relations
   func updateRecipe(_ recipe: Recipe) async -> Void {
     guard let newCoreRecipe = recipe.toCoreRecipe(container.viewContext)
     else { return }
@@ -38,7 +34,8 @@ struct CoreDataClient {
     let request = CoreRecipe.fetchRequest()
     request.predicate = .init(format: "id == %@", recipe.id.rawValue.uuidString)
     guard let response = try? container.viewContext.fetch(request),
-          let originalCoreRecipe = response.first
+          let originalCoreRecipe = response.first,
+          newCoreRecipe.id == originalCoreRecipe.id
     else { return }
     
     // Copy the original ID and parent reference of the old recipe, then delete the old one
@@ -53,27 +50,14 @@ struct CoreDataClient {
     container.save()
   }
   
-  func updateFolder(_ folder: Folder) async -> Void {
-    guard let newCoreFolder = folder.toCoreFolder(container.viewContext)
+  func deleteAll() {
+    let request = CoreRecipe.fetchRequest()
+    guard let response = try? container.viewContext.fetch(request)
     else { return }
-    
-    let request = CoreFolder.fetchRequest()
-    request.predicate = .init(format: "id == %@", folder.id.rawValue.uuidString)
-    guard let response = try? container.viewContext.fetch(request),
-          let originalCoreFolder = response.first
-    else { return }
-    
-    // Copy the original ID and parent reference of the old recipe, then delete the old one
-    // then replace the new recipe's id and parent reference with the old recipe's ones
-    // then finally save all the changes.
-    let originalID = originalCoreFolder.id
-    let originalParentRef = originalCoreFolder.parentFolder
-    // TODO: This needs to be checked and handled...
-    // Must check if the folder being replaced is a root folder.
-    // It also may be possible we need to delete the parent's reference to a child and replace it with this one!
-    container.viewContext.delete(originalCoreFolder)
-    newCoreFolder.id = originalID
-    newCoreFolder.parentFolder = originalParentRef
+    response.forEach { container.viewContext.delete($0) }
+    container.viewContext.registeredObjects.forEach {
+      container.viewContext.delete($0)
+    }
     container.save()
   }
 }
@@ -91,7 +75,7 @@ struct CoreDataPersistenceContainer {
   }
   
   init(inMemory: Bool = false) {
-    container = NSPersistentContainer(name: "ChefTime")
+    container = NSPersistentContainer(name: "CoreModels")
     container.loadPersistentStores { _, error in
       if let error { fatalError("ERROR LOADING CORE DATA: \(error)") } // TODO: This should not nuke in production
       else { print("Successfully loaded Core Data") }
@@ -113,4 +97,5 @@ struct CoreDataPersistenceContainer {
       print("CORE DATA FAILED TO SAVE: \(error)")
     }
   }
+  
 }

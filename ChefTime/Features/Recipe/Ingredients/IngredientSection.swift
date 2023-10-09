@@ -147,8 +147,8 @@ struct IngredientSectionReducer: Reducer  {
           state.focusedField = .row(s.id)
           return .none
         }
-          
-        case let .ingredientSectionNameEdited(newName):
+        
+      case let .ingredientSectionNameEdited(newName):
         if state.ingredientSection.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
@@ -199,7 +199,7 @@ struct IngredientSectionReducer: Reducer  {
         return .none
         
       case .ingredientSectionsUpdate:
-        state.ingredientSection.ingredients = state.ingredientSection.ingredients
+        state.ingredientSection.ingredients = state.ingredients.map(\.ingredient)
         return .none
         
       case .binding(\.$isExpanded):

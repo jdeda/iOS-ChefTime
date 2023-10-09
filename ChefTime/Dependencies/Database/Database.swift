@@ -2,10 +2,10 @@ import Foundation
 import ComposableArchitecture
 
 struct Database {
-  let fetchUser: @Sendable () async -> User?
-  let updateUser: @Sendable (User) async -> Void
+  let createRecipe: @Sendable (Recipe) async -> Void
+  let retrieveRecipe: @Sendable (Recipe.ID) async -> Recipe?
   let updateRecipe: @Sendable (Recipe) async -> Void
-  let updateFolder: @Sendable (Folder) async -> Void
+  let deleteAll: @Sendable () async -> Void
 }
 
 extension Database: DependencyKey {

@@ -12,6 +12,11 @@ struct RecipeReducer: Reducer {
     @BindingState var navigationTitle: String
     @PresentationState var alert: AlertState<AlertAction>?
     
+    
+    init(recipeID: Recipe.ID) {
+      self.init(recipe: .init(id: recipeID))
+    }
+    
     init(recipe: Recipe) {
       self.recipe = recipe
       self.photos = .init(photos: recipe.imageData)
@@ -25,6 +30,8 @@ struct RecipeReducer: Reducer {
   }
   
   enum Action: Equatable, BindableAction {
+    case task
+    case fetchRecipeSuccess(Recipe)
     case binding(BindingAction<State>)
     case photos(PhotosReducer.Action)
     case about(AboutListReducer.Action)
@@ -37,100 +44,121 @@ struct RecipeReducer: Reducer {
     case recipeUpdate(RecipeUpdateAction)
   }
   
+  @Dependency(\.continuousClock) var clock
+  @Dependency(\.database) var database
+  
   var body: some Reducer<RecipeReducer.State, RecipeReducer.Action> {
-    Scope(state: \.photos, action: /Action.photos) {
-      PhotosReducer()
-    }
-    Scope(state: \.about, action: /Action.about) {
-      AboutListReducer()
-    }
-    Scope(state: \.ingredients, action: /Action.ingredients) {
-      IngredientsListReducer()
-    }
-    Scope(state: \.steps, action: /Action.steps) {
-      StepListReducer()
-    }
-    BindingReducer()
-    Reduce<RecipeReducer.State, RecipeReducer.Action> { state, action in
-      switch action {
-      case .binding(\.$navigationTitle):
-        // TODO: ... B -> A
-        if state.navigationTitle.isEmpty { state.navigationTitle = "Untitled Recipe" }
-        state.recipe.name = state.navigationTitle
-        return .none
-        
-      case .recipeUpdate(.aboutUpdated):
-        state.recipe.aboutSections = state.about.recipeSections
-        return .none
-        
-      case .recipeUpdate(.ingredientsUpdated):
-        state.recipe.ingredientSections = state.ingredients.recipeSections
-        return .none
-        
-      case .recipeUpdate(.stepsUpdated):
-        state.recipe.stepSections = state.steps.recipeSections
-        return .none
-        
-      case .toggleHideImages:
-        state.isHidingImages.toggle()
-        return .none
-        
-      case let .setExpansionButtonTapped(isExpanded):
-        // TODO: May need to worry about focus state
-        
-        // Collapse all about sections
-        state.about.isExpanded = isExpanded
-        state.about.aboutSections.ids.forEach {
-          state.about.aboutSections[id: $0]?.isExpanded = isExpanded
-        }
-        
-        // Collapse all ingredient sections
-        state.ingredients.isExpanded = isExpanded
-        state.ingredients.ingredientSections.ids.forEach {
-          state.ingredients.ingredientSections[id: $0]?.isExpanded = isExpanded
-        }
-        
-        // Collapse all step sections
-        state.steps.isExpanded = isExpanded
-        state.steps.stepSections.ids.forEach {
-          state.steps.stepSections[id: $0]?.isExpanded = isExpanded
-        }
-        return .none
-        
-      case let .editSectionButtonTapped(section, action):
+    CombineReducers {
+      Scope(state: \.photos, action: /Action.photos) {
+        PhotosReducer()
+      }
+      Scope(state: \.about, action: /Action.about) {
+        AboutListReducer()
+      }
+      Scope(state: \.ingredients, action: /Action.ingredients) {
+        IngredientsListReducer()
+      }
+      Scope(state: \.steps, action: /Action.steps) {
+        StepListReducer()
+      }
+      BindingReducer()
+      Reduce<RecipeReducer.State, RecipeReducer.Action> { state, action in
         switch action {
-        case .delete:
-          switch section {
-          case .about: state.alert = .deleteAbout
-          case .ingredients: state.alert = .deleteIngredients
-          case .steps: state.alert = .deleteSteps
+        case .task:
+          let recipe = state.recipe
+          return .run { send in
+//            await self.database.deleteAll()
+            if let newRecipe = await self.database.retrieveRecipe(recipe.id) {
+              await send(.fetchRecipeSuccess(newRecipe))
+            }
+            else {
+              await self.database.createRecipe(recipe)
+            }
+          }
+          
+        case let .fetchRecipeSuccess(newRecipe):
+          state = .init(recipe: newRecipe)
+          return .none
+          
+        case .binding(\.$navigationTitle):
+          // TODO: ... B -> A
+          if state.navigationTitle.isEmpty { state.navigationTitle = "Untitled Recipe" }
+          state.recipe.name = state.navigationTitle
+          return .none
+          
+        case .recipeUpdate(.aboutUpdated):
+          state.recipe.aboutSections = state.about.recipeSections
+          return .none
+          
+        case .recipeUpdate(.ingredientsUpdated):
+          state.recipe.ingredientSections = state.ingredients.recipeSections
+          return .none
+          
+        case .recipeUpdate(.stepsUpdated):
+          state.recipe.stepSections = state.steps.recipeSections
+          return .none
+          
+        case .toggleHideImages:
+          state.isHidingImages.toggle()
+          return .none
+          
+        case let .setExpansionButtonTapped(isExpanded):
+          // TODO: May need to worry about focus state
+          
+          // Collapse all about sections
+          state.about.isExpanded = isExpanded
+          state.about.aboutSections.ids.forEach {
+            state.about.aboutSections[id: $0]?.isExpanded = isExpanded
+          }
+          
+          // Collapse all ingredient sections
+          state.ingredients.isExpanded = isExpanded
+          state.ingredients.ingredientSections.ids.forEach {
+            state.ingredients.ingredientSections[id: $0]?.isExpanded = isExpanded
+          }
+          
+          // Collapse all step sections
+          state.steps.isExpanded = isExpanded
+          state.steps.stepSections.ids.forEach {
+            state.steps.stepSections[id: $0]?.isExpanded = isExpanded
           }
           return .none
           
-        case .add:
-          switch section {
-          case .about: state.about = .init(recipeSections: [])
-          case .ingredients: state.ingredients = .init(recipeSections: [])
-          case .steps: state.steps = .init(recipeSections: [])
+        case let .editSectionButtonTapped(section, action):
+          switch action {
+          case .delete:
+            switch section {
+            case .about: state.alert = .deleteAbout
+            case .ingredients: state.alert = .deleteIngredients
+            case .steps: state.alert = .deleteSteps
+            }
+            return .none
+            
+          case .add:
+            switch section {
+            case .about: state.about = .init(recipeSections: [])
+            case .ingredients: state.ingredients = .init(recipeSections: [])
+            case .steps: state.steps = .init(recipeSections: [])
+            }
+            return .none
           }
+          
+        case let .alert(.presented(.confirmDeleteSectionButtonTapped(section))):
+          switch section {
+          case .about: state.about.aboutSections = []
+          case .ingredients: state.ingredients.ingredientSections = []
+          case .steps: state.steps.stepSections = []
+          }
+          state.alert = nil
+          return .none
+          
+        case .alert(.dismiss):
+          state.alert = nil
+          return .none
+          
+        case .photos, .about, .ingredients, .steps, .alert, .binding:
           return .none
         }
-        
-      case let .alert(.presented(.confirmDeleteSectionButtonTapped(section))):
-        switch section {
-        case .about: state.about.aboutSections = []
-        case .ingredients: state.ingredients.ingredientSections = []
-        case .steps: state.steps.stepSections = []
-        }
-        state.alert = nil
-        return .none
-        
-      case .alert(.dismiss):
-        state.alert = nil
-        return .none
-        
-      case .photos, .about, .ingredients, .steps, .alert, .binding:
-        return .none
       }
     }
     .onChange(of: \.about.aboutSections) { _, _ in
@@ -146,6 +174,18 @@ struct RecipeReducer: Reducer {
     .onChange(of: \.steps.stepSections) { _, _ in
       Reduce { _, _ in
           .send(.recipeUpdate(.stepsUpdated))
+      }
+    }
+    .onChange(of: \.recipe) { _, newRecipe in // TODO: Does newRecipe get copied every call?
+      Reduce { _, _ in
+          .run { _ in
+            enum RecipeUpdateID: Hashable { case debounce }
+            try await withTaskCancellation(id: RecipeUpdateID.debounce, cancelInFlight: true) {
+              try await self.clock.sleep(for: .seconds(1))
+              print("Updated recipe \(newRecipe.id.uuidString)")
+              await database.updateRecipe(newRecipe)
+            }
+          }
       }
     }
   }

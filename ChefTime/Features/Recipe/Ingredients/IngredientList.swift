@@ -77,7 +77,16 @@ struct IngredientsListReducer: Reducer {
     }
     
     var recipeSections: IdentifiedArrayOf<Recipe.IngredientSection> {
-      ingredientSections.map(\.ingredientSection)
+      ingredientSections
+        .map { section in
+          var section = section.ingredientSection
+          section.ingredients = section.ingredients.map { ingredient in
+            var ingredient = ingredient
+            ingredient.amount /= scale
+            return ingredient
+          }
+          return section
+        }
     }
   }
   
