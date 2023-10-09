@@ -199,6 +199,28 @@
 			path = RecipeSection;
 			sourceTree = "<group>";
 		};
+		97033A162AD495BB006C5A54 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				971D71D52ABE355C00026152 /* App */,
+				9760CBAD2A9D1ABC0077A8F9 /* Folders */,
+				97DE5BC62A97C8BD00BBE455 /* Folder */,
+				975A4EFB2A44C3AA00C9509A /* Recipe */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		97033A172AD495C7006C5A54 /* Non-Screens */ = {
+			isa = PBXGroup;
+			children = (
+				9712FB5E2A4393B100E5E227 /* Photos */,
+				976CBB3A2AB3A05900BE69F5 /* Search */,
+				97033A152AD490FE006C5A54 /* RecipeSection */,
+				97033A142AD490F5006C5A54 /* FolderSection */,
+			);
+			path = "Non-Screens";
+			sourceTree = "<group>";
+		};
 		9712FB5E2A4393B100E5E227 /* Photos */ = {
 			isa = PBXGroup;
 			children = (
@@ -248,14 +270,8 @@
 		975A4EF22A44C30500C9509A /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				971D71D52ABE355C00026152 /* App */,
-				9760CBAD2A9D1ABC0077A8F9 /* Folders */,
-				97DE5BC62A97C8BD00BBE455 /* Folder */,
-				975A4EFB2A44C3AA00C9509A /* Recipe */,
-				9712FB5E2A4393B100E5E227 /* Photos */,
-				976CBB3A2AB3A05900BE69F5 /* Search */,
-				97033A152AD490FE006C5A54 /* RecipeSection */,
-				97033A142AD490F5006C5A54 /* FolderSection */,
+				97033A162AD495BB006C5A54 /* Screens */,
+				97033A172AD495C7006C5A54 /* Non-Screens */,
 			);
 			path = Features;
 			sourceTree = "<group>";
