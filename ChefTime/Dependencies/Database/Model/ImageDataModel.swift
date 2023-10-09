@@ -53,14 +53,14 @@ struct ImageData: Equatable, Codable, Identifiable {
   }
   
   enum ParseError: Error { case failure }
-
+  
   init(from decoder: Decoder) throws {
     enum ParseError: Error { case failure }
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.id = try container.decode(ID.self, forKey: .id)
     self.data = try container.decode(Data.self, forKey: .data)
     guard let _ = UIImage(data: data) else { throw ParseError.failure  }
-
+    
   }
   
   func encode(to encoder: Encoder) throws {

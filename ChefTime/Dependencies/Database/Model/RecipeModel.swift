@@ -1,9 +1,125 @@
-import Foundation
 import Tagged
+import Foundation
+import ComposableArchitecture
+import SwiftUI
 
+/// Represents a recipe.
+/// Recipes have a name and contain several lists of information describing what
+/// the finished recipe looks like, any peritnent discussion about it, the ingredients, and steps.
+struct Recipe: Identifiable, Equatable, Codable {
+  typealias ID = Tagged<Self, UUID>
+  
+  let id: ID
+  var name: String = ""
+  var imageData: IdentifiedArrayOf<ImageData> = []
+  var aboutSections: IdentifiedArrayOf<AboutSection> = []
+  var ingredientSections: IdentifiedArrayOf<IngredientSection> = []
+  var stepSections: IdentifiedArrayOf<StepSection> = []
+  
+  struct AboutSection: Identifiable, Equatable, Codable {
+    typealias ID = Tagged<Self, UUID>
+    
+    let id: ID
+    var name: String = ""
+    var description: String = ""
+  }
+  
+  struct IngredientSection: Identifiable, Equatable, Codable {
+    typealias ID = Tagged<Self, UUID>
+    
+    let id: ID
+    var name: String = ""
+    var ingredients: IdentifiedArrayOf<Ingredient> = []
+    
+    struct Ingredient: Identifiable, Equatable, Codable {
+      typealias ID = Tagged<Self, UUID>
+      
+      let id: ID
+      var name: String = ""
+      var amount: Double = 0.0
+      var measure: String = ""
+      var isComplete: Bool = false
+    }
+  }
+  
+  struct StepSection: Identifiable, Equatable, Codable {
+    typealias ID = Tagged<Self, UUID>
+    
+    let id: ID
+    var name: String = ""
+    var steps: IdentifiedArrayOf<Step> = []
+    
+    struct Step: Identifiable, Equatable, Codable {
+      typealias ID = Tagged<Self, UUID>
+      
+      let id: ID
+      var description: String = ""
+      var imageData: IdentifiedArrayOf<ImageData> = []
+    }
+  }
+}
+
+// MARK: - EmptyMock
+extension Recipe {
+  static let empty = Self(id: .init())
+}
+
+// MARK: - ShortMock
+extension Recipe {
+  static let shortMock = Recipe.init(
+    id: .init(),
+    name: "Double Cheese Burger",
+    imageData: [
+      .init(
+        id: .init(),
+        data: (try? Data(contentsOf: Bundle.main.url(forResource: "recipe_00", withExtension: "jpeg")!))!
+      )!
+    ],
+    aboutSections: [
+      .init(
+        id: .init(),
+        name: "Description",
+        description: "A proper meat feast, this classical burger is just too good! Homemade buns and ground meat, served with your side of classic toppings, it makes a fantastic Friday night treat or cookout favorite."
+      )
+    ],
+    ingredientSections: [
+      .init(
+        id: .init(),
+        name: "Burger",
+        ingredients: [
+          .init(id: .init(), name: "Buns", amount: 1, measure: "store pack"),
+          .init(id: .init(), name: "Frozen Beef Patties", amount: 1, measure: "lb"),
+          .init(id: .init(), name: "Lettuce", amount: 2, measure: "leaves"),
+          .init(id: .init(), name: "Tomato", amount: 2, measure: "thick slices"),
+          .init(id: .init(), name: "Onion", amount: 2, measure: "thick slices"),
+          .init(id: .init(), name: "Pickle", amount: 2, measure: "chips"),
+          .init(id: .init(), name: "Ketchup", amount: 2, measure: "tbsp"),
+          .init(id: .init(), name: "Mustard", amount: 2, measure: "tbsp")
+        ]
+      ),
+    ],
+    stepSections: [
+      .init(id: .init(), name: "Burger", steps: [
+        .init(
+          id: .init(),
+          description: "Toast the buns"
+        ),
+        .init(
+          id: .init(),
+          description: "Fry the burger patties"
+        ),
+        .init(
+          id: .init(),
+          description: "Assemble with toppings to your liking"
+        ),
+      ])
+    ]
+  )
+}
+
+// MARK: - Long Mock
 // TODO: There are a LOT of force unwraps...
 // TODO: Put all of these into a JSON file then load them...
-
 extension Recipe {
   static let longMock = Recipe(
     id: .init(),
