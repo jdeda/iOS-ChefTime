@@ -58,6 +58,13 @@ struct FolderSectionReducer: Reducer {
     var folders: IdentifiedArrayOf<FolderGridItemReducer.State> = []
     @BindingState var isExpanded: Bool = true
     @BindingState var selection = Set<FolderGridItemReducer.State.ID>()
+    
+    init(title: String, folders: IdentifiedArrayOf<Folder>) {
+      self.title = title
+      self.folders = folders.map({ .init(folder: $0) })
+      self.isExpanded = true
+      self.selection = []
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -118,7 +125,7 @@ struct FolderSectionView_Previews: PreviewProvider {
       FolderSectionView(
         store: .init(
           initialState: .init(
-            title: "My Folder Section", folders: .init(uniqueElements: Folder.longMock.folders.map { .init(id: .init(), folder: $0) })
+            title: "My Folder Section", folders: .init(uniqueElements: Folder.longMock.folders)
           ),
           reducer: FolderSectionReducer.init
         ),

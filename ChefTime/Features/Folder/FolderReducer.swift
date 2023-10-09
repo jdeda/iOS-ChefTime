@@ -48,27 +48,38 @@ import Tagged
 // MARK: - Reducer
 struct FolderReducer: Reducer {
   struct State: Equatable {
-    var scrollViewIndex: Int = 1
-//    var folder: Folder
-    var folderModel: FolderModel
+    @BindingState var folder: Folder
+    var folderSection: FolderSectionReducer.State
+    var recipeSection: RecipeSectionReducer.State
     var isHidingImages: Bool = false
-    var isEditing: Section?
+    var scrollViewIndex: Int = 1
+    var editStatus: Section?
     @PresentationState var alert: AlertState<AlertAction>?
-  
     
+    
+    init(folder: Folder) {
+      self.folder = folder
+      self.folderSection = .init(title: "Folders", folders: folder.folders)
+      self.recipeSection = .init(title: "Folders", recipes: folder.recipes)
+      self.isHidingImages = false
+      self.editStatus = nil
+      self.scrollViewIndex = 1
+      self.alert = nil
+    }
+
     var hasSelectedAll: Bool {
-      switch self.isEditing {
-      case .folders: return folderModel.folders.selection.count == folderModel.folders.folders.count
-      case .recipes: return folderModel.recipes.selection.count == folderModel.recipes.recipes.count
+      switch self.editStatus {
+      case .folders: return folderSection.selection.count == folderSection.folders.count
+      case .recipes: return recipeSection.selection.count == recipeSection.recipes.count
       case .none: return false
       }
     }
     
     var navigationTitle: String {
-      switch self.isEditing {
-      case .folders: return hasSelectedAll ? "\(folderModel.folders.selection.count) Folders Selected" : folderModel.name
-      case .recipes: return hasSelectedAll ? "\(folderModel.recipes.selection.count) Recipes Selected" : folderModel.name
-      case .none: return folderModel.name
+      switch self.editStatus {
+      case .folders: return hasSelectedAll ? "\(folderSection.selection.count) Folders Selected" : folder.name
+      case .recipes: return hasSelectedAll ? "\(recipeSection.selection.count) Recipes Selected" : folder.name
+      case .none: return folder.name
       }
     }
   }
@@ -108,35 +119,35 @@ struct FolderReducer: Reducer {
         return .none
         
       case .selectFoldersButtonTapped:
-        state.isEditing = .folders
-        state.folderModel.folders.isExpanded = true
-        state.folderModel.recipes.isExpanded = false
+        state.editStatus = .folders
+        state.folderSection.isExpanded = true
+        state.recipeSection.isExpanded = false
         return .none
         
       case .selectRecipesButtonTapped:
-        state.isEditing = .recipes
-        state.folderModel.folders.isExpanded = false
-        state.folderModel.recipes.isExpanded = true
+        state.editStatus = .recipes
+        state.folderSection.isExpanded = false
+        state.recipeSection.isExpanded = true
         return .none
         
       case .doneButtonTapped:
-        state.isEditing = nil
-        state.folderModel.folders.selection = []
-        state.folderModel.recipes.selection = []
-        state.folderModel.folders.isExpanded = true
-        state.folderModel.recipes.isExpanded = true
+        state.editStatus = nil
+        state.folderSection.selection = []
+        state.recipeSection.selection = []
+        state.folderSection.isExpanded = true
+        state.recipeSection.isExpanded = true
         return .none
         
       case .selectAllButtonTapped:
-        switch state.isEditing {
+        switch state.editStatus {
         case .folders:
-          state.folderModel.folders.selection = .init(
-            state.hasSelectedAll ? [] : state.folderModel.folders.folders.map(\.id)
+          state.folderSection.selection = .init(
+            state.hasSelectedAll ? [] : state.folderSection.folders.map(\.id)
           )
           break
         case .recipes:
-          state.folderModel.recipes.selection = .init(
-            state.hasSelectedAll ? [] : state.folderModel.recipes.recipes.map(\.id)
+          state.recipeSection.selection = .init(
+            state.hasSelectedAll ? [] : state.recipeSection.recipes.map(\.id)
           )
           break
         case .none:
@@ -153,12 +164,12 @@ struct FolderReducer: Reducer {
         
       case .newFolderButtonTapped:
         let id = FolderGridItemReducer.State.ID(rawValue: uuid())
-        state.folderModel.folders.folders.append(.init(id: id, folder: .init(id: .init(rawValue: uuid()), name: "New Untitled Folder")))
+        state.folderSection.folders.append(.init(folder: .init(id: .init(rawValue: uuid()), name: "New Untitled Folder")))
         return .send(.delegate(.addNewFolderButtonTappedDidComplete(id)), animation: .default)
         
       case .newRecipeButtonTapped:
         let id = RecipeGridItemReducer.State.ID(rawValue: uuid())
-        state.folderModel.recipes.recipes.append(.init(id: id, recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
+        state.recipeSection.recipes.append(.init(recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
         return .send(.delegate(.addNewRecipeButtonTappedDidComplete(id)), animation: .default)
         
       case let .folders(.delegate(action)):
@@ -173,12 +184,12 @@ struct FolderReducer: Reducer {
       case let .alert(.presented(action)):
         switch action {
         case .confirmDeleteSelectedButtonTapped:
-          switch state.isEditing {
+          switch state.editStatus {
           case .folders:
-            state.folderModel.folders.folders = state.folderModel.folders.folders.filter { !state.folderModel.folders.selection.contains($0.id) }
+            state.folderSection.folders = state.folderSection.folders.filter { !state.folderSection.selection.contains($0.id) }
             break
           case .recipes:
-            state.folderModel.recipes.recipes = state.folderModel.recipes.recipes.filter { !state.folderModel.recipes.selection.contains($0.id) }
+            state.recipeSection.recipes = state.recipeSection.recipes.filter { !state.recipeSection.selection.contains($0.id) }
             break
           case .none:
             break
@@ -200,21 +211,12 @@ struct FolderReducer: Reducer {
           .send(.delegate(.folderUpdated(newValue)))
       }
     }
-    Scope(state: \.folderModel.folders, action: /Action.folders) {
-      FolderSectionReducer()
-    }
-    Scope(state: \.folderModel.recipes, action: /Action.recipes) {
-      RecipeSectionReducer()
-    }
-  }
-}
-
-// MARK: - FolderModel
-extension FolderReducer {
-  struct FolderModel: Equatable {
-    var name: String
-    var folders: FolderSectionReducer.State
-    var recipes: RecipeSectionReducer.State
+//    Scope(state: \.folderModel.folders, action: /Action.folders) {
+//      FolderSectionReducer()
+//    }
+//    Scope(state: \.folderModel.recipes, action: /Action.recipes) {
+//      RecipeSectionReducer()
+//    }
   }
 }
 
@@ -282,19 +284,8 @@ extension AlertState where Action == FolderReducer.AlertAction {
 struct Previews_FolderReducer_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      let folder  = FolderGridItemReducer.State(id: .init(), folder: Folder.longMock)
       FolderView(store: .init(
-        initialState: .init(
-          folderModel: .init(
-            name: Folder.longMock.name,
-            folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.prefix(3).map {
-              .init(id: .init(), folder: $0)
-            })),
-            recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.prefix(3).map {
-              .init(id: .init(), recipe: $0)
-            }))
-          )
-        ),
+        initialState: .init(folder: Folder.longMock),
         reducer: FolderReducer.init
       ))
     }

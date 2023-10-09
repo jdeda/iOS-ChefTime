@@ -131,14 +131,11 @@ struct FoldersReducer: Reducer {
         return .none
         
       case .newFolderButtonTapped:
-        let newFolder = FolderGridItemReducer.State(
+        let newFolder = FolderGridItemReducer.State(folder: .init(
           id: .init(rawValue: uuid()),
-          folder: .init(
-            id: .init(rawValue: uuid()),
-            name: "New Untitled Folder",
-            folderType: .user
-          )
-        )
+          name: "New Untitled Folder",
+          folderType: .user
+        ))
         state.userFoldersSection.folders.append(newFolder)
         return .send(.delegate(.addNewFolderButtonTappedDidComplete(newFolder.id)), animation: .default)
         
@@ -238,9 +235,9 @@ extension FolderSectionReducer.State {
     @Dependency(\.uuid) var uuid
     return Self(
       title: "System", folders: [
-        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "All", folderType: .systemAll)),
-        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Standard", folderType: .systemStandard)),
-        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Recently Deleted", folderType: .systemRecentlyDeleted))
+//        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "All", folderType: .systemAll)),
+//        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Standard", folderType: .systemStandard)),
+//        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Recently Deleted", folderType: .systemRecentlyDeleted))
       ]
     )
   }()

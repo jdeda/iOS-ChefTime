@@ -13,13 +13,13 @@ struct FolderView: View {
         ScrollView {
           
           // Folders
-          let isHidingFolders = viewStore.isEditing == .recipes || viewStore.folderModel.folders.folders.isEmpty
+          let isHidingFolders = viewStore.editStatus == .recipes || viewStore.folderSection.folders.isEmpty
           FolderSectionView(
             store: store.scope(
-              state: \.folderModel.folders,
+              state: \.folderSection,
               action: FolderReducer.Action.folders
             ),
-            isEditing: !isHidingFolders && viewStore.isEditing == .folders
+            isEditing: !isHidingFolders && viewStore.editStatus == .folders
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
           .opacity(isHidingFolders ? 0.0 : 1.0)
@@ -28,13 +28,13 @@ struct FolderView: View {
           .id(1)
           
           // Recipes.
-          let isHidingRecipes = viewStore.isEditing == .folders || viewStore.folderModel.recipes.recipes.isEmpty
+          let isHidingRecipes = viewStore.editStatus == .folders || viewStore.recipeSection.recipes.isEmpty
           RecipeSectionView(
             store: store.scope(
-              state: \.folderModel.recipes,
+              state: \.recipeSection,
               action: FolderReducer.Action.recipes
             ),
-            isEditing: !isHidingRecipes && viewStore.isEditing == .recipes
+            isEditing: !isHidingRecipes && viewStore.editStatus == .recipes
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
           .opacity(isHidingRecipes ? 0.0 : 1.0)
@@ -65,7 +65,7 @@ struct FolderView: View {
 extension FolderView {
   @ToolbarContentBuilder
   func toolbar(viewStore: ViewStoreOf<FolderReducer>) -> some ToolbarContent {
-    if viewStore.isEditing != nil {
+    if viewStore.editStatus != nil {
       ToolbarItemGroup(placement: .primaryAction) {
         Button("Done") {
           viewStore.send(.doneButtonTapped, animation: .default)
@@ -97,14 +97,14 @@ extension FolderView {
     else {
       ToolbarItemGroup(placement: .primaryAction) {
         Menu {
-          if !viewStore.folderModel.folders.folders.isEmpty {
+          if !viewStore.folderSection.folders.isEmpty {
             Button {
               viewStore.send(.selectFoldersButtonTapped, animation: .default)
             } label: {
               Label("Select Folders", systemImage: "checkmark.circle")
             }
           }
-          if !viewStore.folderModel.recipes.recipes.isEmpty {
+          if !viewStore.recipeSection.recipes.isEmpty {
             Button {
               viewStore.send(.selectRecipesButtonTapped, animation: .default)
             } label: {
@@ -130,7 +130,7 @@ extension FolderView {
         .accentColor(.yellow)
         Spacer()
         // TODO: Update this count when all the folders are fetched properly
-        Text("\(viewStore.folderModel.folders.folders.count) folders • \(viewStore.folderModel.recipes.recipes.count) recipes")
+        Text("\(viewStore.folderSection.folders.count) folders • \(viewStore.recipeSection.recipes.count) recipes")
         Spacer()
         Button {
           viewStore.send(.newRecipeButtonTapped, animation: .default)
@@ -147,19 +147,8 @@ extension FolderView {
 struct FolderView_Previews: PreviewProvider {
   static var previews: some View {
     NavigationStack {
-      let folder  = FolderGridItemReducer.State(id: .init(), folder: Folder.longMock)
       FolderView(store: .init(
-        initialState: .init(
-          folderModel: .init(
-            name: Folder.longMock.name,
-            folders: .init(title: "Folders", folders: .init(uniqueElements: folder.folder.folders.prefix(3).map {
-              .init(id: .init(), folder: $0)
-            })),
-            recipes: .init(title: "Recipes", recipes: .init(uniqueElements: folder.folder.recipes.prefix(3).map {
-              .init(id: .init(), recipe: $0)
-            }))
-          )
-        ),
+        initialState: .init(folder: Folder.longMock),
         reducer: FolderReducer.init
       ))
     }

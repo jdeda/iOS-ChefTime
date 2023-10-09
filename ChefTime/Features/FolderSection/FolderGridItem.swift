@@ -136,19 +136,18 @@ struct FolderGridItemView: View {
 // MARK: - Reducer
 struct FolderGridItemReducer: Reducer {
   struct State: Equatable, Identifiable {
-    typealias ID = Tagged<Self, UUID>
+    var id: Folder.ID {
+      folder.id
+    }
     
-    let id: ID
     var folder: Folder
     var photos: PhotosReducer.State
     @PresentationState var destination: DestinationReducer.State?
     
     init(
-      id: ID,
       folder: Folder,
       destination: DestinationReducer.State? = nil
     ) {
-      self.id = id
       self.folder = folder
       self.photos = .init(
         photos: .init(uniqueElements: (folder.imageData != nil) ? [folder.imageData!] : []),
@@ -309,7 +308,7 @@ struct FolderGridItemView_Previews: PreviewProvider {
     NavigationStack {
       FolderGridItemView(
         store: .init(
-          initialState: .init(id: .init(), folder: .shortMock),
+          initialState: .init(folder: .shortMock),
           reducer: FolderGridItemReducer.init
         ),
         isEditing: false,

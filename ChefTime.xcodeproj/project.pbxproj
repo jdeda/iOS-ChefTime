@@ -181,6 +181,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		97033A142AD490F5006C5A54 /* FolderSection */ = {
+			isa = PBXGroup;
+			children = (
+				97AB36AF2AAA0283001CB9F4 /* FolderSection.swift */,
+				9745FCF42AB21D71008CF16F /* FolderGridItem.swift */,
+			);
+			path = FolderSection;
+			sourceTree = "<group>";
+		};
+		97033A152AD490FE006C5A54 /* RecipeSection */ = {
+			isa = PBXGroup;
+			children = (
+				9704A18D2AB33FD200E826BB /* RecipeSection.swift */,
+				9704A1892AB33D3200E826BB /* RecipeGridItem.swift */,
+			);
+			path = RecipeSection;
+			sourceTree = "<group>";
+		};
 		9712FB5E2A4393B100E5E227 /* Photos */ = {
 			isa = PBXGroup;
 			children = (
@@ -236,6 +254,8 @@
 				975A4EFB2A44C3AA00C9509A /* Recipe */,
 				9712FB5E2A4393B100E5E227 /* Photos */,
 				976CBB3A2AB3A05900BE69F5 /* Search */,
+				97033A152AD490FE006C5A54 /* RecipeSection */,
+				97033A142AD490F5006C5A54 /* FolderSection */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -323,8 +343,6 @@
 			children = (
 				97EF38F42A9E3D7600DF4D86 /* FoldersView.swift */,
 				9760CBAE2A9D1AC90077A8F9 /* FoldersReducer.swift */,
-				97AB36AF2AAA0283001CB9F4 /* FolderSection.swift */,
-				9745FCF42AB21D71008CF16F /* FolderGridItem.swift */,
 			);
 			path = Folders;
 			sourceTree = "<group>";
@@ -460,8 +478,6 @@
 			children = (
 				971334C12A97D54300743A49 /* FolderView.swift */,
 				9704A18F2AB3421C00E826BB /* FolderReducer.swift */,
-				9704A18D2AB33FD200E826BB /* RecipeSection.swift */,
-				9704A1892AB33D3200E826BB /* RecipeGridItem.swift */,
 			);
 			path = Folder;
 			sourceTree = "<group>";

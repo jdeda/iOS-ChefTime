@@ -102,19 +102,18 @@ struct RecipeGridItemView: View {
 // MARK: - Reducer
 struct RecipeGridItemReducer: Reducer {
   struct State: Equatable, Identifiable {
-    typealias ID = Tagged<Self, UUID>
+    var id: Recipe.ID {
+      recipe.id
+    }
     
-    let id: ID
     var recipe: Recipe
     var photos: PhotosReducer.State
     @PresentationState var destination: DestinationReducer.State?
     
     init(
-      id: ID,
       recipe: Recipe,
       destination: DestinationReducer.State? = nil
     ) {
-      self.id = id
       self.recipe = recipe
       self.photos = .init(
         photos: .init(uniqueElements: (recipe.imageData.first != nil) ? [recipe.imageData.first!] : []),
@@ -275,7 +274,7 @@ struct RecipeGridItemView_Previews: PreviewProvider {
     NavigationStack {
       RecipeGridItemView(
         store: .init(
-          initialState: .init(id: .init(), recipe: .shortMock),
+          initialState: .init(recipe: .shortMock),
           reducer: RecipeGridItemReducer.init
         ),
         isEditing: false,

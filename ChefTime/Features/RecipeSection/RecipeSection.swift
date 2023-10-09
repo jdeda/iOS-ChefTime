@@ -58,6 +58,13 @@ struct RecipeSectionReducer: Reducer {
     var recipes: IdentifiedArrayOf<RecipeGridItemReducer.State> = []
     @BindingState var isExpanded: Bool = true
     @BindingState var selection = Set<RecipeGridItemReducer.State.ID>()
+    
+    init(title: String, recipes: IdentifiedArrayOf<Recipe>) {
+      self.title = title
+      self.recipes = recipes.map({ .init(recipe: $0) })
+      self.isExpanded = true
+      self.selection = []
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -117,9 +124,7 @@ struct RecipeSectionView_Previews: PreviewProvider {
     ScrollView {
       RecipeSectionView(
         store: .init(
-          initialState: .init(title: "Recipes", recipes: .init(uniqueElements: Folder.shortMock.recipes.map {
-            .init(id: .init(), recipe: $0)}
-          )),
+          initialState: .init(title: "Recipes", recipes: .init(uniqueElements: Folder.shortMock.recipes)),
           reducer: RecipeSectionReducer.init
         ),
         isEditing: false
