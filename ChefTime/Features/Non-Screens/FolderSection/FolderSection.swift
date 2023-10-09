@@ -59,7 +59,7 @@ struct FolderSectionReducer: Reducer {
     @BindingState var isExpanded: Bool = true
     @BindingState var selection = Set<FolderGridItemReducer.State.ID>()
     
-    init(title: String, folders: IdentifiedArrayOf<Folder>) {
+    init(title: String = "Folders", folders: IdentifiedArrayOf<Folder>) {
       self.title = title
       self.folders = folders.map({ .init(folder: $0) })
       self.isExpanded = true

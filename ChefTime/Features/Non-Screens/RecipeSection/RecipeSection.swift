@@ -59,7 +59,7 @@ struct RecipeSectionReducer: Reducer {
     @BindingState var isExpanded: Bool = true
     @BindingState var selection = Set<RecipeGridItemReducer.State.ID>()
     
-    init(title: String, recipes: IdentifiedArrayOf<Recipe>) {
+    init(title: String = "Recipes", recipes: IdentifiedArrayOf<Recipe>) {
       self.title = title
       self.recipes = recipes.map({ .init(recipe: $0) })
       self.isExpanded = true
