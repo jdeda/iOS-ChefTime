@@ -9,7 +9,40 @@ struct CoreDataClient {
     self.container = .init(inMemory: inMemory)
   }
   
-  // TODO: Setup relations
+  func createFolder(_ folder: Folder) async -> Void {
+    guard let _ = folder.toCoreFolder(container.viewContext)
+    else { return }
+    container.save()
+  }
+  
+  func retrieveFolder(_ folderID: Folder.ID) async -> Folder? {
+    let request = CoreFolder.fetchRequest()
+    request.predicate = .init(format: "id == %@", folderID.rawValue.uuidString)
+    guard let response = try? container.viewContext.fetch(request),
+          let coreFolder = response.first,
+          let folder = coreFolder.toFolder()
+    else { return nil }
+    return folder
+  }
+  
+  // TODO: Inspect this code performance because replacing recursive structure may be expensive
+  func updateFolder(_ folder: Folder) async -> Void {
+    let request = CoreFolder.fetchRequest()
+    request.predicate = .init(format: "id == %@", folder.id.rawValue.uuidString)
+    guard let response = try? container.viewContext.fetch(request),
+          let originalCoreFolder = response.first,
+          folder.id.rawValue == originalCoreFolder.id
+    else { return }
+
+    let originalParentRef = originalCoreFolder.parentFolder
+    container.viewContext.delete(originalCoreFolder)
+    
+    guard let newCoreFolder = folder.toCoreFolder(container.viewContext)
+    else { return }
+    newCoreFolder.parentFolder = originalParentRef
+    container.save()
+  }
+  
   func createRecipe(_ recipe: Recipe) async -> Void {
     guard let _ = recipe.toCoreRecipe(container.viewContext)
     else { return }
@@ -35,43 +68,14 @@ struct CoreDataClient {
           recipe.id.rawValue == originalCoreRecipe.id
     else { return }
     
-    // Copy the original ID and parent reference of the old recipe, then delete the old one
-    // then replace the new recipe's id and parent reference with the old recipe's ones
-    // then finally save all the changes.
-    // It also may be possible we need to delete the parent's reference to a child and replace it with this one!
-    let originalID = originalCoreRecipe.id
     let originalParentRef = originalCoreRecipe.folder
     container.viewContext.delete(originalCoreRecipe)
     
     guard let newCoreRecipe = recipe.toCoreRecipe(container.viewContext)
     else { return }
-    newCoreRecipe.id = originalID
     newCoreRecipe.folder = originalParentRef
     container.save()
   }
-//  // TODO: Setup relations
-//  func updateRecipe(_ recipe: Recipe) async -> Void {
-//    guard let newCoreRecipe = recipe.toCoreRecipe(container.viewContext)
-//    else { return }
-//
-//    let request = CoreRecipe.fetchRequest()
-//    request.predicate = .init(format: "id == %@", recipe.id.rawValue.uuidString)
-//    guard let response = try? container.viewContext.fetch(request),
-//          let originalCoreRecipe = response.first,
-//          newCoreRecipe.id == originalCoreRecipe.id
-//    else { return }
-//
-//    // Copy the original ID and parent reference of the old recipe, then delete the old one
-//    // then replace the new recipe's id and parent reference with the old recipe's ones
-//    // then finally save all the changes.
-//    let originalID = originalCoreRecipe.id
-//    let originalParentRef = originalCoreRecipe.folder
-//    // It also may be possible we need to delete the parent's reference to a child and replace it with this one!
-//    container.viewContext.delete(originalCoreRecipe)
-//    newCoreRecipe.id = originalID
-//    newCoreRecipe.folder = originalParentRef
-//    container.save()
-//  }
   
   func deleteAll() async {
     let request = CoreRecipe.fetchRequest()

@@ -18,43 +18,41 @@ import CoreData
 /// 1. must make sure you init everything, compiler doesn't help you at all
 /// 2. if u put rules that make values non-optional, the compiler doesn't help you at all, putting nil with crash i think
 ///
-//extension User {
-//  func toCoreUser(_ context: NSManagedObjectContext) -> CoreUser? {
-//    guard let entity = NSEntityDescription.entity(forEntityName: "CoreUser", in: context)
-//    else { return nil }
-//    let coreUser = CoreUser(entity: entity, insertInto: context)
-//    coreUser.id = self.id.rawValue
-//    coreUser.systemFolders = .init(array: self.systemFolders.compactMap { $0.toCoreFolder(context) })
-//    coreUser.userFolders = .init(array: self.userFolders.compactMap { $0.toCoreFolder(context) })
-//    return nil
-//  }
-//}
-//
-//extension Folder {
-//  func toCoreFolder(_ context: NSManagedObjectContext) -> CoreFolder? {
-//    guard let entity = NSEntityDescription.entity(forEntityName: "CoreFolder", in: context)
-//    else { return nil }
-//    let coreFolder = CoreFolder(entity: entity, insertInto: context)
-//    coreFolder.id = self.id.rawValue
-//    coreFolder.name = self.name
-//    coreFolder.imageData = nil // MARK: - Special persistence for images...
-//    coreFolder.folderType = self.folderType.toFolderString()
-//    coreFolder.folders = .init(array: self.folders.compactMap({ $0.toCoreFolder(context) }))
-//    coreFolder.recipes = .init(array: self.recipes.compactMap( { $0.toCoreRecipe} ))
-//    return coreFolder
-//  }
-//}
+///
+private extension Folder.FolderType {
+  func toFolderString() -> String {
+    switch self {
+    case .systemAll: return "systemAll"
+    case .systemStandard: return "systemStandard"
+    case .systemRecentlyDeleted: return "systemRecentlyDeleted"
+    case .user: return "user"
+    }
+  }
+}
 
-//private extension Folder.FolderType {
-//  func toFolderString() -> String {
-//    switch self {
-//    case .systemAll: return "systemAll"
-//    case .systemStandard: return "systemStandard"
-//    case .systemRecentlyDeleted: return "systemRecentlyDeleted"
-//    case .user: return "user"
-//    }
-//  }
-//}
+extension Folder {
+  func toCoreFolder(_ context: NSManagedObjectContext) -> CoreFolder? {
+    guard let entity = NSEntityDescription.entity(forEntityName: "CoreRecipe", in: context)
+    else { return nil }
+    
+    let coreFolder = CoreFolder(entity: entity, insertInto: context)
+    coreFolder.id = self.id.rawValue
+    coreFolder.folderType = self.folderType.toFolderString()
+    coreFolder.name = self.name
+    coreFolder.recipes = .init(array: self.recipes.compactMap({
+      let v = $0.toCoreRecipe(context)
+      v?.folder = coreFolder
+      return v
+    }))
+    coreFolder.folders = .init(array: self.folders.compactMap({
+      let v = $0.toCoreFolder(context)
+      v?.parentFolder = coreFolder
+      return v
+    }))
+    coreFolder.imageData = nil // MARK: - Special persistence for images...
+    return coreFolder
+  }
+}
 
 extension Recipe {
   func toCoreRecipe(_ context: NSManagedObjectContext) -> CoreRecipe? {
@@ -64,7 +62,7 @@ extension Recipe {
     // TODO:
     // figure how to create an NSManagedObjectID with this self.id.rawValue
     //
-    let objectID = NSManagedObjectID()
+//    let objectID = NSManagedObjectID()
     // managedObjectID(forURIRepresentation url: URL
     let coreRecipe = CoreRecipe(entity: entity, insertInto: context)
     coreRecipe.folder = nil
@@ -114,7 +112,6 @@ private extension Recipe.IngredientSection {
       let v = $0.toCoreIngredient(context)
       v?.ingredientSection = coreIngredientSection
       return v
-      
     })
     return coreIngredientSection
   }

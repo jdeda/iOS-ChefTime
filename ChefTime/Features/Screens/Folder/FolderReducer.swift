@@ -13,6 +13,10 @@ struct FolderReducer: Reducer {
     var editStatus: Section?
     @PresentationState var alert: AlertState<AlertAction>?
     
+    init(folderID: Folder.ID) {
+      self.init(folder: .init(id: folderID))
+    }
+    
     init(folder: Folder) {
       self.folder = folder
       self.folderSection = .init(folders: folder.folders)
@@ -61,118 +65,142 @@ struct FolderReducer: Reducer {
     case recipes(RecipeSectionReducer.Action)
     case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
+    case folderUpdate(FolderUpdate)
     case delegate(DelegateAction)
   }
   
   @Dependency(\.uuid) var uuid
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {
-    BindingReducer()
-    Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
-      switch action {
-      case .toggleHideImagesButtonTapped:
-        state.isHidingImages.toggle()
-        return .none
-        
-      case .selectFoldersButtonTapped:
-        state.editStatus = .folders
-        state.folderSection.isExpanded = true
-        state.recipeSection.isExpanded = false
-        return .none
-        
-      case .selectRecipesButtonTapped:
-        state.editStatus = .recipes
-        state.folderSection.isExpanded = false
-        state.recipeSection.isExpanded = true
-        return .none
-        
-      case .doneButtonTapped:
-        state.editStatus = nil
-        state.folderSection.selection = []
-        state.recipeSection.selection = []
-        state.folderSection.isExpanded = true
-        state.recipeSection.isExpanded = true
-        return .none
-        
-      case .selectAllButtonTapped:
-        switch state.editStatus {
-        case .folders:
-          state.folderSection.selection = .init(
-            state.hasSelectedAll ? [] : state.folderSection.folders.map(\.id)
-          )
-          break
-        case .recipes:
-          state.recipeSection.selection = .init(
-            state.hasSelectedAll ? [] : state.recipeSection.recipes.map(\.id)
-          )
-          break
-        case .none:
-          break
-        }
-        return .none
-        
-      case .moveSelectedButtonTapped:
-        return .none
-        
-      case .deleteSelectedButtonTapped:
-        state.alert = .delete
-        return .none
-        
-      case .newFolderButtonTapped:
-        let id = FolderGridItemReducer.State.ID(rawValue: uuid())
-        state.folderSection.folders.append(.init(folder: .init(id: .init(rawValue: uuid()), name: "New Untitled Folder")))
-        return .send(.delegate(.addNewFolderButtonTappedDidComplete(id)), animation: .default)
-        
-      case .newRecipeButtonTapped:
-        let id = RecipeGridItemReducer.State.ID(rawValue: uuid())
-        state.recipeSection.recipes.append(.init(recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
-        return .send(.delegate(.addNewRecipeButtonTappedDidComplete(id)), animation: .default)
-        
-      case let .folders(.delegate(action)):
+    CombineReducers {
+      BindingReducer()
+      Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
         switch action {
-          
-        case let .folderTapped(id):
-          // TODO: Navigate
+        case .toggleHideImagesButtonTapped:
+          state.isHidingImages.toggle()
           return .none
-        }
-        return .none
-        
-      case let .alert(.presented(action)):
-        switch action {
-        case .confirmDeleteSelectedButtonTapped:
+          
+        case .selectFoldersButtonTapped:
+          state.editStatus = .folders
+          state.folderSection.isExpanded = true
+          state.recipeSection.isExpanded = false
+          return .none
+          
+        case .selectRecipesButtonTapped:
+          state.editStatus = .recipes
+          state.folderSection.isExpanded = false
+          state.recipeSection.isExpanded = true
+          return .none
+          
+        case .doneButtonTapped:
+          state.editStatus = nil
+          state.folderSection.selection = []
+          state.recipeSection.selection = []
+          state.folderSection.isExpanded = true
+          state.recipeSection.isExpanded = true
+          return .none
+          
+        case .selectAllButtonTapped:
           switch state.editStatus {
           case .folders:
-            state.folderSection.folders = state.folderSection.folders.filter { !state.folderSection.selection.contains($0.id) }
+            state.folderSection.selection = .init(
+              state.hasSelectedAll ? [] : state.folderSection.folders.map(\.id)
+            )
             break
           case .recipes:
-            state.recipeSection.recipes = state.recipeSection.recipes.filter { !state.recipeSection.selection.contains($0.id) }
+            state.recipeSection.selection = .init(
+              state.hasSelectedAll ? [] : state.recipeSection.recipes.map(\.id)
+            )
             break
           case .none:
             break
           }
           return .none
+          
+        case .moveSelectedButtonTapped:
+          return .none
+          
+        case .deleteSelectedButtonTapped:
+          state.alert = .delete
+          return .none
+          
+        case .newFolderButtonTapped:
+          let id = FolderGridItemReducer.State.ID(rawValue: uuid())
+          state.folderSection.folders.append(.init(folder: .init(id: .init(rawValue: uuid()), name: "New Untitled Folder")))
+          return .send(.delegate(.addNewFolderButtonTappedDidComplete(id)), animation: .default)
+          
+        case .newRecipeButtonTapped:
+          let id = RecipeGridItemReducer.State.ID(rawValue: uuid())
+          state.recipeSection.recipes.append(.init(recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
+          return .send(.delegate(.addNewRecipeButtonTappedDidComplete(id)), animation: .default)
+          
+        case let .folders(.delegate(action)):
+          switch action {
+            
+          case let .folderTapped(id):
+            // TODO: Navigate
+            return .none
+          }
+          return .none
+          
+        case let .alert(.presented(action)):
+          switch action {
+          case .confirmDeleteSelectedButtonTapped:
+            switch state.editStatus {
+            case .folders:
+              state.folderSection.folders = state.folderSection.folders.filter { !state.folderSection.selection.contains($0.id) }
+              break
+            case .recipes:
+              state.recipeSection.recipes = state.recipeSection.recipes.filter { !state.recipeSection.selection.contains($0.id) }
+              break
+            case .none:
+              break
+            }
+            return .none
+          }
+          
+          
+        case .alert(.dismiss):
+          state.alert = nil
+          return .none
+          
+        case .folderUpdate(.folders):
+          state.folder.folders = state.folderSection.folders.map(\.folder)
+          return .none
+          
+        case .folderUpdate(.recipes):
+          state.folder.recipes = state.recipeSection.recipes.map(\.recipe)
+          return .none
+          
+        case .binding, .folders, .recipes, .alert, .delegate:
+          return .none
         }
-        
-        
-      case .alert(.dismiss):
-        state.alert = nil
-        return .none
-        
-      case .binding, .folders, .recipes, .alert, .delegate:
-        return .none
+      }
+      Scope(state: \.folderSection, action: /Action.folders) {
+        FolderSectionReducer()
+      }
+      Scope(state: \.recipeSection, action: /Action.recipes) {
+        RecipeSectionReducer()
       }
     }
-    .onChange(of: { $0 }) { _, newValue in
+    .onChange(of: \.folderSection.folders) { _, _ in
       Reduce { _, _ in
-          .send(.delegate(.folderUpdated(newValue)))
+          .send(.folderUpdate(.folders))
       }
     }
-    Scope(state: \.folderSection, action: /Action.folders) {
-      FolderSectionReducer()
+    .onChange(of: \.recipeSection.recipes) { _, _ in
+      Reduce { _, _ in
+          .send(.folderUpdate(.recipes))
+      }
     }
-    Scope(state: \.recipeSection, action: /Action.recipes) {
-      RecipeSectionReducer()
-    }
+  }
+}
+
+// MARK: - Action.FolderUpdate
+extension FolderReducer.Action {
+  enum FolderUpdate: Equatable {
+    case folders
+    case recipes
   }
 }
 
