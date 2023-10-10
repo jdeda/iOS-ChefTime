@@ -50,6 +50,8 @@ struct FolderReducer: Reducer {
   }
   
   enum Action: Equatable, BindableAction {
+    case task
+    case fetchFolderSuccess(Folder)
     case toggleHideImagesButtonTapped
     case selectFoldersButtonTapped
     case selectRecipesButtonTapped
@@ -70,12 +72,35 @@ struct FolderReducer: Reducer {
   }
   
   @Dependency(\.uuid) var uuid
+  @Dependency(\.continuousClock) var clock
+  @Dependency(\.database) var database
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {
     CombineReducers {
+      Scope(state: \.folderSection, action: /Action.folders) {
+        FolderSectionReducer()
+      }
+      Scope(state: \.recipeSection, action: /Action.recipes) {
+        RecipeSectionReducer()
+      }
       BindingReducer()
       Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
         switch action {
+        case .task:
+          let folder = state.folder
+          return .run { send in
+            if let newFolder = await self.database.retrieveFolder(folder.id) {
+              await send(.fetchFolderSuccess(newFolder))
+            }
+            else {
+              await self.database.createFolder(folder)
+            }
+          }
+          
+        case let .fetchFolderSuccess(newFolder):
+          state = .init(folder: newFolder)
+          return .none
+          
         case .toggleHideImagesButtonTapped:
           state.isHidingImages.toggle()
           return .none
@@ -176,12 +201,6 @@ struct FolderReducer: Reducer {
           return .none
         }
       }
-      Scope(state: \.folderSection, action: /Action.folders) {
-        FolderSectionReducer()
-      }
-      Scope(state: \.recipeSection, action: /Action.recipes) {
-        RecipeSectionReducer()
-      }
     }
     .onChange(of: \.folderSection.folders) { _, _ in
       Reduce { _, _ in
@@ -191,6 +210,18 @@ struct FolderReducer: Reducer {
     .onChange(of: \.recipeSection.recipes) { _, _ in
       Reduce { _, _ in
           .send(.folderUpdate(.recipes))
+      }
+    }
+    .onChange(of: \.folder) { _, newFolder in // TODO: Does newFolder get copied every call?
+      Reduce { _, _ in
+          .run { _ in
+            enum FolderUpdateID: Hashable { case debounce }
+            try await withTaskCancellation(id: FolderUpdateID.debounce, cancelInFlight: true) {
+              try await self.clock.sleep(for: .seconds(1))
+              print("Updated folder \(newFolder.id.uuidString)")
+              await database.updateFolder(newFolder)
+            }
+          }
       }
     }
   }

@@ -23,9 +23,6 @@ extension Database {
       },
       updateRecipe: { recipe in
         return await db.updateRecipe(recipe)
-      },
-      deleteAll: {
-        return await db.deleteAll()
       }
     )
   }()

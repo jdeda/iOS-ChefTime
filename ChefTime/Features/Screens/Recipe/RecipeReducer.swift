@@ -67,7 +67,6 @@ struct RecipeReducer: Reducer {
         case .task:
           let recipe = state.recipe
           return .run { send in
-//            await self.database.deleteAll()
             if let newRecipe = await self.database.retrieveRecipe(recipe.id) {
               await send(.fetchRecipeSuccess(newRecipe))
             }

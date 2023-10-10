@@ -76,17 +76,6 @@ struct CoreDataClient {
     newCoreRecipe.folder = originalParentRef
     container.save()
   }
-  
-  func deleteAll() async {
-    let request = CoreRecipe.fetchRequest()
-    guard let response = try? container.viewContext.fetch(request)
-    else { return }
-    response.forEach { container.viewContext.delete($0) }
-    container.viewContext.registeredObjects.forEach {
-      container.viewContext.delete($0)
-    }
-    container.save()
-  }
 }
 
 // MARK: - CoreDataPersistenceContainer

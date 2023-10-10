@@ -10,10 +10,7 @@ struct Database {
   // MARK: - Recipe CRUD
   let createRecipe: @Sendable (Recipe) async -> Void
   let retrieveRecipe: @Sendable (Recipe.ID) async -> Recipe?
-  let updateRecipe: @Sendable (Recipe) async -> Void
-  
-  // MARK: - Other
-  let deleteAll: @Sendable () async -> Void
+  let updateRecipe: @Sendable (Recipe) async -> Void  
 }
 
 extension Database: DependencyKey {
