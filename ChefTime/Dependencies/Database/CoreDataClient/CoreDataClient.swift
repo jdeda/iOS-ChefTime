@@ -1,6 +1,9 @@
 import Foundation
 import CoreData
 
+// TODO: This needs to be actor isolated to prevent concurrent mutations.
+// TODO: This could utilize writable keypath setters for more efficient mutations
+
 // We need to fetch the user's root folders.
 struct CoreDataClient {
   private let container: CoreDataPersistenceContainer
@@ -26,6 +29,7 @@ struct CoreDataClient {
   }
   
   // TODO: Inspect this code performance because replacing recursive structure may be expensive
+  // TODO: You can delete but not create a core folder, so this could be very bad
   func updateFolder(_ folder: Folder) async -> Void {
     let request = CoreFolder.fetchRequest()
     request.predicate = .init(format: "id == %@", folder.id.rawValue.uuidString)
@@ -60,6 +64,7 @@ struct CoreDataClient {
   }
    
   // TODO: Setup relations
+  // TODO: You can delete but not create a core recipe, so this could be very bad
   func updateRecipe(_ recipe: Recipe) async -> Void {
     let request = CoreRecipe.fetchRequest()
     request.predicate = .init(format: "id == %@", recipe.id.rawValue.uuidString)

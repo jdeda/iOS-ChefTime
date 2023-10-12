@@ -58,6 +58,7 @@ struct FolderView: View {
         .alert(store: store.scope(state: \.$alert, action: FolderReducer.Action.alert))
       }
       .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
+      .task { await viewStore.send(.task).finish() }
     }
   }
 }

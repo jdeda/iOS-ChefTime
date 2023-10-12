@@ -18,6 +18,7 @@ struct FolderReducer: Reducer {
     }
     
     init(folder: Folder) {
+      print("\(folder.id.uuidString)")
       self.folder = folder
       self.folderSection = .init(folders: folder.folders)
       self.recipeSection = .init(recipes: folder.recipes)
@@ -59,10 +60,8 @@ struct FolderReducer: Reducer {
     case selectAllButtonTapped
     case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
-    
     case newFolderButtonTapped
     case newRecipeButtonTapped
-    
     case folders(FolderSectionReducer.Action)
     case recipes(RecipeSectionReducer.Action)
     case alert(PresentationAction<AlertAction>)
@@ -98,6 +97,7 @@ struct FolderReducer: Reducer {
           }
           
         case let .fetchFolderSuccess(newFolder):
+          dump(newFolder)
           state = .init(folder: newFolder)
           return .none
           

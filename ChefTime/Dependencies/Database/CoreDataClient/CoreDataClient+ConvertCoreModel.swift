@@ -3,6 +3,9 @@ import CoreData
 
 extension CoreFolder {
   func toFolder() -> Folder? {
+    print("toFolder: \(String(describing: self.id))")
+    print("folderID: \(String(describing: self.id))")
+
     guard let id = self.id,
           let name = self.name,
           let foldersRaw = self.folders as? Set<CoreFolder>,
@@ -10,8 +13,18 @@ extension CoreFolder {
           let folderType = self.folderType?.toFolderType()
     else { return nil }
     
-    let folders: Array<Folder> = foldersRaw.compactMap { $0.toFolder() }
-    let recipes: Array<Recipe> = recipesRaw.compactMap { $0.toRecipe() }
+    foldersRaw.forEach {
+      print("childFolderID: \(String(describing: $0.id))")
+    }
+    
+    // TODO: This is being called way too many times...fault issue?
+    // For some reason, this stupid thing faults the parent and causes an infinite loop
+    let folders: Array<Folder> = foldersRaw.compactMap {
+      $0.toFolder()
+    }
+    let recipes: Array<Recipe> = recipesRaw.compactMap {
+      $0.toRecipe()
+    }
     
     return .init(
       id: .init(rawValue: id),

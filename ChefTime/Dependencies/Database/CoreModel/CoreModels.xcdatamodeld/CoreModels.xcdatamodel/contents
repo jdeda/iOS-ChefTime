@@ -15,9 +15,9 @@
         <attribute name="folderType" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" attributeType="String"/>
-        <relationship name="folders" toMany="YES" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="folders" inverseEntity="CoreFolder"/>
+        <relationship name="folders" toMany="YES" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="parentFolder" inverseEntity="CoreFolder"/>
         <relationship name="imageData" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CoreImageData" inverseName="folder" inverseEntity="CoreImageData"/>
-        <relationship name="parentFolder" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="parentFolder" inverseEntity="CoreFolder"/>
+        <relationship name="parentFolder" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CoreFolder" inverseName="folders" inverseEntity="CoreFolder"/>
         <relationship name="recipes" toMany="YES" deletionRule="Cascade" destinationEntity="CoreRecipe" inverseName="folder" inverseEntity="CoreRecipe"/>
         <uniquenessConstraints>
             <uniquenessConstraint>

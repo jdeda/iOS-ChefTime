@@ -3,35 +3,22 @@ import XCTestDynamicOverlay
 
 @main
 struct ChefTimeApp: App {
-  let recipeUUIIDString = "C89AA66E-87C7-48DB-B26B-A46125750DBE"
-
+  let uuidString = "B9FBD9C4-FC5F-4EC3-9FE3-D81324F103D9"
+  
   var body: some Scene {
     WindowGroup {
-      //            if _XCTIsTesting {
       NavigationStack {
-        RecipeView(store: .init(
+        FolderView(store: .init(
           initialState: .init(
-//            recipe: Recipe.longMock
-            recipeID: .init(rawValue: .init(uuidString: recipeUUIIDString)!)
+            folderID: .init(uuidString: uuidString)!
+//            folder: Folder.longMock
           ),
-          reducer: RecipeReducer.init
+          reducer: FolderReducer.init
         ))
-
       }
-
-      //      AppView(store: .init(
-//        initialState: .init(),
-//        reducer: AppReducer.init
-//      ))
       .onAppear {
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
       }
-      //            }
     }
   }
 }
-
-/// 1. Settings
-/// 2. Folders
-///   - Folders
-///   - Recipes

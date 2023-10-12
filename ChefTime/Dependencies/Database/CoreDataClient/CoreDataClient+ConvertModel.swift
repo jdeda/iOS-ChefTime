@@ -32,7 +32,8 @@ private extension Folder.FolderType {
 
 extension Folder {
   func toCoreFolder(_ context: NSManagedObjectContext) -> CoreFolder? {
-    guard let entity = NSEntityDescription.entity(forEntityName: "CoreRecipe", in: context)
+    print("toCoreFolder: \(String(describing: self.id))")
+    guard let entity = NSEntityDescription.entity(forEntityName: "CoreFolder", in: context)
     else { return nil }
     
     let coreFolder = CoreFolder(entity: entity, insertInto: context)
