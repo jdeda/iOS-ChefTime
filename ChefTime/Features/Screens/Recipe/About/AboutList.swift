@@ -168,9 +168,3 @@ struct AboutList_Previews: PreviewProvider {
     }
   }
 }
-
-extension IdentifiedArrayOf where Element: Identifiable {
-  func map<B>(_ transform: (Element) -> B) -> IdentifiedArrayOf<B> where B: Identifiable {
-    .init(uniqueElements: self.elements.map(transform))
-  }
-}

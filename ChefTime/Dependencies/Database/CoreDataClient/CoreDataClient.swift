@@ -4,6 +4,8 @@ import CoreData
 // TODO: This needs to be actor isolated to prevent concurrent mutations.
 // TODO: This could utilize writable keypath setters for more efficient mutations
 
+// TODO: There is a bunch of duplicate code for fetching by ID then making sure the first result is the matching id'd element
+
 // We need to fetch the user's root folders.
 struct CoreDataClient {
   private let container: CoreDataPersistenceContainer
@@ -47,6 +49,18 @@ struct CoreDataClient {
     container.save()
   }
   
+  func deleteFolder(_ folder: Folder) async -> Void {
+    let request = CoreFolder.fetchRequest()
+    request.predicate = .init(format: "id == %@", folder.id.rawValue.uuidString)
+    guard let response = try? container.viewContext.fetch(request),
+          let originalCoreFolder = response.first,
+          folder.id.rawValue == originalCoreFolder.id
+    else { return }
+
+    container.viewContext.delete(originalCoreFolder)
+    container.save()
+  }
+  
   func createRecipe(_ recipe: Recipe) async -> Void {
     guard let _ = recipe.toCoreRecipe(container.viewContext)
     else { return }
@@ -79,6 +93,18 @@ struct CoreDataClient {
     guard let newCoreRecipe = recipe.toCoreRecipe(container.viewContext)
     else { return }
     newCoreRecipe.folder = originalParentRef
+    container.save()
+  }
+  
+  func deleteRecipe(_ recipe: Recipe) async -> Void {
+    let request = CoreRecipe.fetchRequest()
+    request.predicate = .init(format: "id == %@", recipe.id.rawValue.uuidString)
+    guard let response = try? container.viewContext.fetch(request),
+          let originalCoreRecipe = response.first,
+          recipe.id.rawValue == originalCoreRecipe.id
+    else { return }
+    
+    container.viewContext.delete(originalCoreRecipe)
     container.save()
   }
 }

@@ -15,6 +15,9 @@ extension Database {
       updateFolder: { folder in
         return await db.updateFolder(folder)
       },
+      deleteFolder: { folder in
+        return await db.updateFolder(folder)
+      },
       createRecipe: { recipe in
         return await db.createRecipe(recipe)
       },
@@ -23,6 +26,9 @@ extension Database {
       },
       updateRecipe: { recipe in
         return await db.updateRecipe(recipe)
+      },
+      deleteRecipe: { recipe in
+        return await db.deleteRecipe(recipe)
       }
     )
   }()
