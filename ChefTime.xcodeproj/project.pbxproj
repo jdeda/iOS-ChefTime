@@ -63,6 +63,7 @@
 		97C04E6B2A40AA0D00EB7D6D /* burger_bun_04.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E652A40AA0D00EB7D6D /* burger_bun_04.jpg */; };
 		97C04E6C2A40AA0D00EB7D6D /* burger_bun_03.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E662A40AA0D00EB7D6D /* burger_bun_03.jpg */; };
 		97C04E6D2A40AA0D00EB7D6D /* burger_bun_05.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97C04E672A40AA0D00EB7D6D /* burger_bun_05.jpg */; };
+		97C0CDF32ADD9CB000862908 /* SDRecipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C0CDF22ADD9CB000862908 /* SDRecipe.swift */; };
 		97D8CCFF2A55EED60031E760 /* PhotosClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97D8CCFE2A55EED60031E760 /* PhotosClient.swift */; };
 		97DE31D32AD8594500A59D44 /* FoldersModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97DE31D22AD8594500A59D44 /* FoldersModel.swift */; };
 		97EE972C2A6853BB001AA88B /* StepsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE972B2A6853BB001AA88B /* StepsList.swift */; };
@@ -142,6 +143,7 @@
 		97C04E652A40AA0D00EB7D6D /* burger_bun_04.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_04.jpg; sourceTree = "<group>"; };
 		97C04E662A40AA0D00EB7D6D /* burger_bun_03.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_03.jpg; sourceTree = "<group>"; };
 		97C04E672A40AA0D00EB7D6D /* burger_bun_05.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_bun_05.jpg; sourceTree = "<group>"; };
+		97C0CDF22ADD9CB000862908 /* SDRecipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDRecipe.swift; sourceTree = "<group>"; };
 		97D8CCFE2A55EED60031E760 /* PhotosClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosClient.swift; sourceTree = "<group>"; };
 		97DE31D22AD8594500A59D44 /* FoldersModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersModel.swift; sourceTree = "<group>"; };
 		97EE972B2A6853BB001AA88B /* StepsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsList.swift; sourceTree = "<group>"; };
@@ -442,6 +444,7 @@
 		97B17BCB2AB770D6009B6378 /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				97C0CDF12ADD9CA900862908 /* SDModel */,
 				97B17BCC2AB7713A009B6378 /* Database.swift */,
 				97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */,
 				97033A1A2AD49649006C5A54 /* CoreDataClient */,
@@ -465,6 +468,14 @@
 				97C04E642A40AA0D00EB7D6D /* burger_bun_06.jpg */,
 			);
 			path = Images;
+			sourceTree = "<group>";
+		};
+		97C0CDF12ADD9CA900862908 /* SDModel */ = {
+			isa = PBXGroup;
+			children = (
+				97C0CDF22ADD9CB000862908 /* SDRecipe.swift */,
+			);
+			path = SDModel;
 			sourceTree = "<group>";
 		};
 		97CC0C0F2A3A1F5400E311C9 /* Steps */ = {
@@ -659,6 +670,7 @@
 				976CBB3E2AB3A64900BE69F5 /* SearchView.swift in Sources */,
 				97EE97302A6853F6001AA88B /* Step.swift in Sources */,
 				9712FB622A43A13800E5E227 /* Photos.swift in Sources */,
+				97C0CDF32ADD9CB000862908 /* SDRecipe.swift in Sources */,
 				971334C22A97D54300743A49 /* FolderView.swift in Sources */,
 				97B17BCD2AB7713A009B6378 /* Database.swift in Sources */,
 			);
@@ -843,6 +855,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -874,6 +887,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
