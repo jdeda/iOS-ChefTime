@@ -203,7 +203,7 @@ struct StepSectionReducer: Reducer  {
     .forEach(\.steps, action: /Action.step) {
       StepReducer()
     }
-    .onChange(of: \.steps) { _, _ in
+    .onChange(of: { $0.steps.map(\.step) }) { _, _ in
       Reduce { _, _ in
           .send(.stepSectionUpdate)
       }

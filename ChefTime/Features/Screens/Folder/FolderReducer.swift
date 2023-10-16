@@ -202,12 +202,12 @@ struct FolderReducer: Reducer {
         }
       }
     }
-    .onChange(of: \.folderSection.folders) { _, _ in
+    .onChange(of: { $0.folderSection.folders.map(\.folder) }) { _, _ in
       Reduce { _, _ in
           .send(.folderUpdate(.folders))
       }
     }
-    .onChange(of: \.recipeSection.recipes) { _, _ in
+    .onChange(of: { $0.recipeSection.recipes.map(\.recipe) }) { _, _ in
       Reduce { _, _ in
           .send(.folderUpdate(.recipes))
       }

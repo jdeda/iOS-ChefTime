@@ -220,7 +220,7 @@ struct IngredientSectionReducer: Reducer  {
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientReducer()
     }
-    .onChange(of: \.ingredients) { _, _ in
+    .onChange(of: { $0.ingredients.map(\.ingredient) }) { _, _ in
       Reduce { _, _ in
           .send(.ingredientSectionsUpdate)
       }

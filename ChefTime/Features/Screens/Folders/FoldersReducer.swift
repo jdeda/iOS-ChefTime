@@ -165,23 +165,23 @@ struct FoldersReducer: Reducer {
         }
       }
     }
-    .onChange(of: \.userFoldersSection.folders) { oldFolders, newFolders in
+    .onChange(of: { $0.userFoldersSection.folders.map(\.folder) }) { oldFolders, newFolders in
       Reduce { _, _ in
           .run { _ in
             enum UserFoldersUpdateID: Hashable { case debounce }
             try await withTaskCancellation(id: UserFoldersUpdateID.debounce, cancelInFlight: true) {
               try await self.clock.sleep(for: .seconds(1))
-              for updatedFolder in newFolders.intersectionByID(oldFolders).filter({ newFolders[id: $0.id]?.folder != oldFolders[id: $0.id]?.folder }) {
-                await self.database.updateFolder(updatedFolder.folder)
-                print("Updated folder \(updatedFolder.folder.id.uuidString)")
+              for updatedFolder in newFolders.intersectionByID(oldFolders).filter({ newFolders[id: $0.id] != oldFolders[id: $0.id] }) {
+                await self.database.updateFolder(updatedFolder)
+                print("Updated folder \(updatedFolder.id.uuidString)")
               }
               for addedFolder in newFolders.symmetricDifferenceByID(oldFolders) {
-                await self.database.createFolder(addedFolder.folder)
-                print("Creatd folder \(addedFolder.folder.id.uuidString)")
+                await self.database.createFolder(addedFolder)
+                print("Creatd folder \(addedFolder.id.uuidString)")
               }
               for removedFolders in oldFolders.symmetricDifferenceByID(newFolders) {
-                await self.database.deleteFolder(removedFolders.folder)
-                print("Deleted folder \(removedFolders.folder.id.uuidString)")
+                await self.database.deleteFolder(removedFolders)
+                print("Deleted folder \(removedFolders.id.uuidString)")
               }
             }
           }
