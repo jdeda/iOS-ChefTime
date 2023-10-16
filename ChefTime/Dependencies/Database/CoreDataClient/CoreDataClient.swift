@@ -14,6 +14,15 @@ struct CoreDataClient {
     self.container = .init(inMemory: inMemory)
   }
   
+  func retrieveRootFolders() async -> [Folder] {
+    let request = CoreFolder.fetchRequest()
+    request.predicate = .init(format: "parentFolder == nil")
+    guard let response = try? container.viewContext.fetch(request)
+    else { return [] }
+    let folders: [Folder] = response.compactMap { $0.toFolder() }
+    return folders
+  }
+  
   func createFolder(_ folder: Folder) async -> Void {
     guard let _ = folder.toCoreFolder(container.viewContext)
     else { return }

@@ -2,7 +2,7 @@ import Foundation
 import ComposableArchitecture
 
 struct Database {
-//  let retrieveAllFolders: @Sendable () async -> [Folder]
+  let retrieveRootFolders: @Sendable () async -> [Folder]
   
   // MARK: - Folder CRUD
   let createFolder: @Sendable (Folder) async -> Void

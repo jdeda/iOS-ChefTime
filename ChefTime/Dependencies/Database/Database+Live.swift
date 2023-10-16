@@ -6,6 +6,9 @@ extension Database {
   static let live = {
     let db = CoreDataClient(inMemory: false)
     return Self(
+      retrieveRootFolders: {
+        return await db.retrieveRootFolders()
+      },
       createFolder: { folder in
         return await db.createFolder(folder)
       },

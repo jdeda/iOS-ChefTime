@@ -36,7 +36,7 @@ struct FoldersReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case task
-    case fetchFolderSuccess(IdentifiedArrayOf<Folder>)
+    case fetchFoldersSuccess(IdentifiedArrayOf<Folder>)
     case selectFoldersButtonTapped
     case doneButtonTapped
     case selectAllButtonTapped
@@ -68,13 +68,13 @@ struct FoldersReducer: Reducer {
       Reduce<FoldersReducer.State, FoldersReducer.Action> { state, action in
         switch action {
         case .task:
-          return .run { _ in
-            //          let folders = await database.retrieveAllFolders()
-            //          await send(.fetchFolderSuccess(folders))
+          return .run { send in
+            let folders = await database.retrieveRootFolders()
+            await send(.fetchFoldersSuccess(.init(uniqueElements: folders)))
             return
           }
           
-        case let .fetchFolderSuccess(folders):
+        case let .fetchFoldersSuccess(folders):
           state.userFoldersSection.folders = folders.map({
             .init(folder: $0)
           })
