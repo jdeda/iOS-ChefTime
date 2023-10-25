@@ -69,6 +69,7 @@ struct FoldersReducer: Reducer {
         switch action {
         case .task:
           return .run { send in
+            // TODO: Might be nicer to make this a stream...
             let folders = await database.retrieveRootFolders()
             await send(.fetchFoldersSuccess(.init(uniqueElements: folders)))
             return
@@ -128,7 +129,7 @@ struct FoldersReducer: Reducer {
         case let .userFoldersSection(.delegate(action)):
           switch action {
           case let .folderTapped(id):
-            guard let folder = state.userFoldersSection.folders[id: id]?.folder
+            guard let _ = state.userFoldersSection.folders[id: id]?.folder
             else { return .none }
             return .none
           }
@@ -136,7 +137,7 @@ struct FoldersReducer: Reducer {
         case let .systemFoldersSection(.delegate(action)):
           switch action {
           case let .folderTapped(id):
-            guard let folder = state.systemFoldersSection.folders[id: id]?.folder
+            guard let _ = state.systemFoldersSection.folders[id: id]?.folder
             else { return .none }
             return .none
           }
@@ -177,7 +178,7 @@ struct FoldersReducer: Reducer {
               }
               for addedFolder in newFolders.symmetricDifferenceByID(oldFolders) {
                 await self.database.createFolder(addedFolder)
-                print("Creatd folder \(addedFolder.id.uuidString)")
+                print("Created folder \(addedFolder.id.uuidString)")
               }
               for removedFolders in oldFolders.symmetricDifferenceByID(newFolders) {
                 await self.database.deleteFolder(removedFolders)

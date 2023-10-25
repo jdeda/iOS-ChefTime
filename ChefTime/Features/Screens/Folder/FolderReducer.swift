@@ -88,6 +88,7 @@ struct FolderReducer: Reducer {
         case .task:
           let folder = state.folder
           return .run { send in
+            // TODO: Might be wise to check if ID matches here.
             if let newFolder = await self.database.retrieveFolder(folder.id) {
               await send(.fetchFolderSuccess(newFolder))
             }
@@ -166,7 +167,6 @@ struct FolderReducer: Reducer {
             // TODO: Navigate
             return .none
           }
-          return .none
           
         case let .alert(.presented(action)):
           switch action {

@@ -4,34 +4,34 @@ import CoreData
 
 extension Database {
   static let live = {
-    let db = CoreDataClient(inMemory: false)
+    let sdc = SDClient()! // TODO: Do not force unwrap
     return Self(
       retrieveRootFolders: {
-        return await db.retrieveRootFolders()
+        await sdc.retrieveRootFolders()
       },
       createFolder: { folder in
-        return await db.createFolder(folder)
+        try? await sdc.createFolder(folder)
       },
       retrieveFolder: { folderID in
-        return await db.retrieveFolder(folderID)
+        await sdc.retrieveFolder(folderID.rawValue)
       },
       updateFolder: { folder in
-        return await db.updateFolder(folder)
+        try? await sdc.updateFolder(folder)
       },
       deleteFolder: { folder in
-        return await db.updateFolder(folder)
+        try? await sdc.updateFolder(folder)
       },
       createRecipe: { recipe in
-        return await db.createRecipe(recipe)
+        try? await sdc.createRecipe(recipe)
       },
       retrieveRecipe: { recipeID in
-        return await db.retrieveRecipe(recipeID)
+        await sdc.retrieveRecipe(recipeID.rawValue)
       },
       updateRecipe: { recipe in
-        return await db.updateRecipe(recipe)
+        try? await sdc.updateRecipe(recipe)
       },
       deleteRecipe: { recipe in
-        return await db.deleteRecipe(recipe)
+        try? await sdc.deleteRecipe(recipe)
       }
     )
   }()

@@ -49,7 +49,7 @@ struct FolderView: View {
           text: .constant(""),
           placement: .navigationBarDrawer(displayMode: .always)
         )
-        .onChange(of: viewStore.scrollViewIndex) { newScrollViewIndex in
+        .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
           withAnimation {
             proxy.scrollTo(newScrollViewIndex, anchor: .center)
           }

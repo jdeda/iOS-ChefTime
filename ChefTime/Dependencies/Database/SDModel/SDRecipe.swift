@@ -88,20 +88,17 @@ final class SDRecipe: Identifiable, Equatable {
       var name: String = ""
       var amount: Double = 0.0
       var measure: String = ""
-      var isComplete: Bool = false
       
       init(
         id: UUID,
         name: String,
         amount: Double,
-        measure: String,
-        isComplete: Bool
+        measure: String
       ) {
         self.id = id
         self.name = name
         self.amount = amount
         self.measure = measure
-        self.isComplete = isComplete
       }
     }
   }
@@ -146,3 +143,4 @@ final class SDRecipe: Identifiable, Equatable {
     }
   }
 }
+

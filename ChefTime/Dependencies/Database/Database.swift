@@ -1,6 +1,7 @@
 import Foundation
 import ComposableArchitecture
 
+// TODO: - Make Sendable?
 struct Database {
   let retrieveRootFolders: @Sendable () async -> [Folder]
   

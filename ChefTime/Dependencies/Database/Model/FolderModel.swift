@@ -9,11 +9,13 @@ struct Folder: Identifiable, Equatable, Codable {
   typealias ID = Tagged<Self, UUID>
   
   let id: ID
+  var parentFolderID: Folder.ID?
   var name: String = ""
   var imageData: ImageData?
   var folders: IdentifiedArrayOf<Self> = []
   var recipes: IdentifiedArrayOf<Recipe> = []
   var folderType: FolderType = .user
+  
 }
 
 extension Folder {

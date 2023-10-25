@@ -45,12 +45,12 @@ struct FoldersView: View {
           text: .constant(""),
           placement: .navigationBarDrawer(displayMode: .always)
         )
-        .onChange(of: viewStore.scrollViewIndex) { newScrollViewIndex in
+        .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
           withAnimation {
             proxy.scrollTo(newScrollViewIndex, anchor: .center)
           }
         }
-//        .task { await viewStore.send(.task).finish() }
+        .task { await viewStore.send(.task).finish() }
         .environment(\.isHidingImages, viewStore.isHidingImages)
         .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
       }

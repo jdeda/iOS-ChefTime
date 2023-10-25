@@ -67,6 +67,7 @@ struct RecipeReducer: Reducer {
         case .task:
           let recipe = state.recipe
           return .run { send in
+            // TODO: Might be wise to check if the ID here matches...
             if let newRecipe = await self.database.retrieveRecipe(recipe.id) {
               await send(.fetchRecipeSuccess(newRecipe))
             }
