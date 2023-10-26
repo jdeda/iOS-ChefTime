@@ -15,14 +15,16 @@ final class SDRecipe: Identifiable, Equatable {
   var name: String = ""
   var imageData: [Data] = []
   
-  @Relationship(deleteRule: .cascade)
+  @Relationship(deleteRule: .cascade, inverse: \SDAboutSection.parentRecipe)
   var aboutSections: [SDAboutSection] = []
   
-  @Relationship(deleteRule: .cascade)
+  @Relationship(deleteRule: .cascade, inverse: \SDIngredientSection.parentRecipe)
   var ingredientSections: [SDIngredientSection] = []
   
-  @Relationship(deleteRule: .cascade)
+  @Relationship(deleteRule: .cascade, inverse: \SDStepSection.parentRecipe)
   var stepSections: [SDStepSection] = []
+  
+  var parentFolder: SDFolder?
   
   init(
     id: UUID,
@@ -30,7 +32,8 @@ final class SDRecipe: Identifiable, Equatable {
     imageData: [Data],
     aboutSections: [SDAboutSection],
     ingredientSections: [SDIngredientSection],
-    stepSections: [SDStepSection]
+    stepSections: [SDStepSection],
+    parentFolder: SDFolder? = nil
   ) {
     self.id = id
     self.name = name
@@ -38,6 +41,7 @@ final class SDRecipe: Identifiable, Equatable {
     self.aboutSections = aboutSections
     self.ingredientSections = ingredientSections
     self.stepSections = stepSections
+    self.parentFolder = parentFolder
   }
   
   @Model
@@ -49,14 +53,18 @@ final class SDRecipe: Identifiable, Equatable {
     var name: String = ""
     var description_: String = ""
     
+    var parentRecipe: SDRecipe?
+    
     init(
       id: ID,
       name: String,
-      description_: String
+      description_: String,
+      parentRecipe: SDRecipe? = nil
     ) {
       self.id = id
       self.name = name
       self.description_ = description_
+      self.parentRecipe = parentRecipe
     }
   }
   
@@ -67,17 +75,21 @@ final class SDRecipe: Identifiable, Equatable {
     
     var name: String = ""
     
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \SDIngredient.parentIngredientSection)
     var ingredients: [SDIngredient] = []
+    
+    var parentRecipe: SDRecipe?
     
     init(
       id: ID,
       name: String,
-      ingredients: [SDIngredient]
+      ingredients: [SDIngredient],
+      parentRecipe: SDRecipe? = nil
     ) {
       self.id = id
       self.name = name
       self.ingredients = ingredients
+      self.parentRecipe = parentRecipe
     }
     
     @Model
@@ -89,16 +101,20 @@ final class SDRecipe: Identifiable, Equatable {
       var amount: Double = 0.0
       var measure: String = ""
       
+      var parentIngredientSection: SDIngredientSection?
+      
       init(
         id: UUID,
         name: String,
         amount: Double,
-        measure: String
+        measure: String,
+        parentIngredientSection: SDIngredientSection? = nil
       ) {
         self.id = id
         self.name = name
         self.amount = amount
         self.measure = measure
+        self.parentIngredientSection = parentIngredientSection
       }
     }
   }
@@ -110,17 +126,21 @@ final class SDRecipe: Identifiable, Equatable {
     
     var name: String = ""
     
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \SDStep.parentStepSection)
     var steps: [SDStep] = []
+    
+    var parentRecipe: SDRecipe?
     
     init(
       id: UUID,
       name: String,
-      steps: [SDStep]
+      steps: [SDStep],
+      parentRecipe: SDRecipe? = nil
     ) {
       self.id = id
       self.name = name
       self.steps = steps
+      self.parentRecipe = parentRecipe
     }
     
     @Model
@@ -130,15 +150,18 @@ final class SDRecipe: Identifiable, Equatable {
       
       var description_: String = ""
       var imageData: [Data] = []
+      var parentStepSection: SDStepSection?
       
       init(
         id: UUID,
         description_: String,
-        imageData: [Data]
+        imageData: [Data],
+        parentStepSection: SDStepSection? = nil
       ) {
         self.id = id
         self.description_ = description_
         self.imageData = imageData
+        self.parentStepSection = parentStepSection
       }
     }
   }

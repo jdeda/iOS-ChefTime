@@ -10,10 +10,12 @@ extension Database {
         await sdc.retrieveRootFolders()
       },
       createFolder: { folder in
+        print(Thread.current)
         try? await sdc.createFolder(folder)
       },
       retrieveFolder: { folderID in
-        await sdc.retrieveFolder(folderID.rawValue)
+        print(Thread.current)
+        return await sdc.retrieveFolder(folderID.rawValue)
       },
       updateFolder: { folder in
         try? await sdc.updateFolder(folder)

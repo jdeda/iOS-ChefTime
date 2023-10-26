@@ -3,11 +3,16 @@ import XCTestDynamicOverlay
 
 @main
 struct ChefTimeApp: App {
-  let uuidString = "F0B722EB-54D0-42AF-AA90-806413C1F7DE"
+  let uuidString = "C2968483-6FA1-4CFF-9C7B-B3DB43DDDF31"
   
   var body: some Scene {
     WindowGroup {
       NavigationStack {
+//        RecipeView(store: .init(
+////          initialState: .init(recipeID: .init(uuidString: uuidString)!),
+//          initialState: .init(recipe: .longMock),
+//          reducer: RecipeReducer.init
+//        ))
         FolderView(store: .init(
           initialState: .init(
 //            folderID: .init(uuidString: uuidString)!,

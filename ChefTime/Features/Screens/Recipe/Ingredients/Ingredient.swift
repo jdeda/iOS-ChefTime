@@ -13,7 +13,7 @@ struct IngredientView: View {
       HStack(alignment: .top) {
         
         // Checkbox
-        Image(systemName: viewStore.ingredient.isComplete ? "checkmark.square" : "square")
+        Image(systemName: viewStore.isComplete ? "checkmark.square" : "square")
           .fontWeight(.medium)
           .onTapGesture {
             viewStore.send(.isCompleteButtonToggled)
@@ -67,7 +67,7 @@ struct IngredientView: View {
         
       }
       .synchronize(viewStore.$focusedField, $focusedField)
-      .foregroundColor(viewStore.ingredient.isComplete ? .secondary : .primary)
+      .foregroundColor(viewStore.isComplete ? .secondary : .primary)
       .toolbar {
         if viewStore.focusedField != nil {
           ToolbarItemGroup(placement: .keyboard) {
@@ -107,15 +107,18 @@ struct IngredientReducer: Reducer {
     
     var ingredient: Recipe.IngredientSection.Ingredient
     @BindingState var ingredientAmountString: String
+    var isComplete: Bool = false
     @BindingState var focusedField: FocusField? = nil
     
     init(
       ingredient: Recipe.IngredientSection.Ingredient,
       ingredientAmountString: String? = nil,
+      isComplete: Bool = false,
       focusedField: FocusField? = nil
     ) {
       self.ingredient = ingredient
       self.ingredientAmountString = ingredientAmountString ?? String(ingredient.amount)
+      self.isComplete = false
       self.focusedField = focusedField
     }
   }
@@ -202,7 +205,7 @@ struct IngredientReducer: Reducer {
         return .none
         
       case .isCompleteButtonToggled:
-        state.ingredient.isComplete.toggle()
+        state.isComplete.toggle()
         return .none
         
       case .keyboardDoneButtonTapped:
@@ -296,7 +299,7 @@ struct IngredientContextMenuPreview: View {
     HStack(alignment: .top) {
       
       // Checkbox
-      Image(systemName: state.ingredient.isComplete ? "checkmark.square" : "square")
+      Image(systemName: state.isComplete ? "checkmark.square" : "square")
         .fontWeight(.medium)
         .padding([.top], 2)
       
@@ -318,7 +321,7 @@ struct IngredientContextMenuPreview: View {
       Text(!state.ingredient.measure.isEmpty ? state.ingredient.measure : "...")
         .lineLimit(1)
     }
-    .foregroundColor(state.ingredient.isComplete ? .secondary : .primary)
+    .foregroundColor(state.isComplete ? .secondary : .primary)
     .accentColor(.accentColor)
   }
 }

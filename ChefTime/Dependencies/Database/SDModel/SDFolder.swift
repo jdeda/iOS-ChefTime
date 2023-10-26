@@ -30,7 +30,7 @@ final class SDFolder: Identifiable, Equatable {
     folders: [SDFolder],
     recipes: [SDRecipe],
     folderType: Folder.FolderType,
-    parentFolder: SDFolder?
+    parentFolder: SDFolder? = nil
   ) {
     self.id = id
     self.name = name

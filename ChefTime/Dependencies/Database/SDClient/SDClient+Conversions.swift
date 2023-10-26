@@ -136,8 +136,7 @@ extension Recipe.IngredientSection.Ingredient {
       id: .init(rawValue: sdIngredient.id),
       name: sdIngredient.name,
       amount: sdIngredient.amount,
-      measure: sdIngredient.measure,
-      isComplete: false
+      measure: sdIngredient.measure
     )
   }
 }

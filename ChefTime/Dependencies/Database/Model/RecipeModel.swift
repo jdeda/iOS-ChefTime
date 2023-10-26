@@ -38,7 +38,6 @@ struct Recipe: Identifiable, Equatable, Codable {
       var name: String = ""
       var amount: Double = 0.0
       var measure: String = ""
-      var isComplete: Bool = false
     }
   }
   
