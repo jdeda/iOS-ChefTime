@@ -24,7 +24,7 @@ final class SDRecipe: Identifiable, Equatable {
   @Relationship(deleteRule: .cascade, inverse: \SDStepSection.parentRecipe)
   var stepSections: [SDStepSection] = []
   
-  var parentFolder: SDFolder?
+  weak var parentFolder: SDFolder?
   
   init(
     id: UUID,
@@ -53,7 +53,7 @@ final class SDRecipe: Identifiable, Equatable {
     var name: String = ""
     var description_: String = ""
     
-    var parentRecipe: SDRecipe?
+    weak var parentRecipe: SDRecipe?
     
     init(
       id: ID,
@@ -78,7 +78,7 @@ final class SDRecipe: Identifiable, Equatable {
     @Relationship(deleteRule: .cascade, inverse: \SDIngredient.parentIngredientSection)
     var ingredients: [SDIngredient] = []
     
-    var parentRecipe: SDRecipe?
+    weak var parentRecipe: SDRecipe?
     
     init(
       id: ID,
@@ -101,7 +101,7 @@ final class SDRecipe: Identifiable, Equatable {
       var amount: Double = 0.0
       var measure: String = ""
       
-      var parentIngredientSection: SDIngredientSection?
+      weak var parentIngredientSection: SDIngredientSection?
       
       init(
         id: UUID,
@@ -129,7 +129,7 @@ final class SDRecipe: Identifiable, Equatable {
     @Relationship(deleteRule: .cascade, inverse: \SDStep.parentStepSection)
     var steps: [SDStep] = []
     
-    var parentRecipe: SDRecipe?
+    weak var parentRecipe: SDRecipe?
     
     init(
       id: UUID,
@@ -150,7 +150,7 @@ final class SDRecipe: Identifiable, Equatable {
       
       var description_: String = ""
       var imageData: [Data] = []
-      var parentStepSection: SDStepSection?
+      weak var parentStepSection: SDStepSection?
       
       init(
         id: UUID,

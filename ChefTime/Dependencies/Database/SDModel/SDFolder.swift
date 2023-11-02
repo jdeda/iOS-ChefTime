@@ -17,7 +17,7 @@ final class SDFolder: Identifiable, Equatable {
   @Relationship(deleteRule: .cascade, inverse: \SDFolder.parentFolder)
   var folders: [SDFolder]
   
-  @Relationship(deleteRule: .cascade)
+  @Relationship(deleteRule: .cascade, inverse: \SDRecipe.parentFolder)
   var recipes: [SDRecipe]
   
   var folderType: Folder.FolderType

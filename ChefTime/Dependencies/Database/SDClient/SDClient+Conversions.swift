@@ -12,8 +12,7 @@ extension SDFolder {
       imageData: nil,
       folders: folder.folders.map(SDFolder.init),
       recipes: folder.recipes.map(SDRecipe.init),
-      folderType: folder.folderType,
-      parentFolder: nil
+      folderType: folder.folderType
     )
   }
 }
@@ -24,9 +23,9 @@ extension SDRecipe {
       id: recipe.id.rawValue,
       name: recipe.name,
       imageData: [],
-      aboutSections: recipe.aboutSections.elements.map(SDRecipe.SDAboutSection.init),
-      ingredientSections: recipe.ingredientSections.elements.map(SDRecipe.SDIngredientSection.init),
-      stepSections: recipe.stepSections.elements.map(SDRecipe.SDStepSection.init)
+      aboutSections: recipe.aboutSections.map(SDRecipe.SDAboutSection.init),
+      ingredientSections: recipe.ingredientSections.map(SDRecipe.SDIngredientSection.init),
+      stepSections: recipe.stepSections.map(SDRecipe.SDStepSection.init)
     )
   }
 }
@@ -46,7 +45,7 @@ extension SDRecipe.SDIngredientSection {
     self.init(
       id: ingredientSection.id.rawValue,
       name: ingredientSection.name,
-      ingredients: ingredientSection.ingredients.elements.map(SDRecipe.SDIngredientSection.SDIngredient.init)
+      ingredients: ingredientSection.ingredients.map(SDRecipe.SDIngredientSection.SDIngredient.init)
     )
   }
 }
@@ -67,7 +66,7 @@ extension SDRecipe.SDStepSection {
     self.init(
       id: stepSection.id.rawValue,
       name: stepSection.name,
-      steps: stepSection.steps.elements.map(SDRecipe.SDStepSection.SDStep.init)
+      steps: stepSection.steps.map(SDRecipe.SDStepSection.SDStep.init)
     )
   }
 }
