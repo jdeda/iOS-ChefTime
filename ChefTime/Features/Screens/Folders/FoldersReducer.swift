@@ -180,9 +180,9 @@ struct FoldersReducer: Reducer {
                 await self.database.createFolder(addedFolder)
                 print("Created folder \(addedFolder.id.uuidString)")
               }
-              for removedFolders in oldFolders.symmetricDifferenceByID(newFolders) {
-                await self.database.deleteFolder(removedFolders)
-                print("Deleted folder \(removedFolders.id.uuidString)")
+              for removedFolder in oldFolders.symmetricDifferenceByID(newFolders) {
+                await self.database.deleteFolder(removedFolder.id)
+                print("Deleted folder \(removedFolder.id.uuidString)")
               }
             }
           }

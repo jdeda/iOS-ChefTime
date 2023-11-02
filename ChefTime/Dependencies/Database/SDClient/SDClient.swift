@@ -1,23 +1,6 @@
 import Foundation
 import SwiftData
 
-// Fetch init crashes
-// Optimistic locking failuire on objects
-// Mutating a managed object after it has been removed from its context.
-
-
-/// linking and delete propagation isn't working at all in some cases
-/// we assume a couple things about SwiftData to handle this things for us
-/// 1. SD infers relationships, based on parent with array of child, and child with optional parent
-/// 2. SD can make these relationships explicit, and as loong as yu did what we said above, it will build the relationships
-/// 3. when we iinit the types, and then we save to thr context, the relaitons are automatically set, we don't have to do that
-/// 4. when the parent deletes, the child deletes, and that propogation effect propagates to all types
-///
-/// right now we get really werird behavior
-/// 1. not wrking
-/// 2. we did thjat, looks fine
-/// 3. this hapapens, but also doesn't fr some type
-/// 4. this des not happen at all.
 actor SDClient: ModelActor {
   let modelContainer: ModelContainer
   let modelExecutor: ModelExecutor
@@ -49,7 +32,7 @@ actor SDClient: ModelActor {
     let sdFolder = SDFolder(folder)
     modelContext.insert(sdFolder)
     try modelContext.save()
-
+    
     func linkSDFolder(_ sdFolder: SDFolder) {
       sdFolder.folders.forEach {
         $0.parentFolder = sdFolder
@@ -63,7 +46,7 @@ actor SDClient: ModelActor {
     try modelContext.save()
   }
   
-  func retrieveFolder(_ folderID: UUID) -> Folder? {
+  func retrieveFolder(_ folderID: Folder.ID) -> Folder? {
     print("SDClient", "retrieveFolder")
     guard let sdFolder = _retrieveSDFolder(folderID)
     else { return nil }
@@ -73,31 +56,31 @@ actor SDClient: ModelActor {
   func updateFolder(_ folder: Folder) throws {
     print("SDClient", "updateFolder")
     printAll()
-    try deleteFolder(folder)
+    try deleteFolder(folder.id)
     printAll()
     try createFolder(folder)
     printAll()
     try modelContext.save()
   }
   
-  func deleteFolder(_ folder: Folder) throws {
+  func deleteFolder(_ folderID: Folder.ID) throws {
     print("SDClient", "deleteFolder")
-    guard let sdFolder = _retrieveSDFolder(folder.id.rawValue)
+    guard let sdFolder = _retrieveSDFolder(folderID)
     else { throw SDError.failure }
     sdFolder.folders.forEach {
-      try? self.deleteFolder(.init($0))
+      try? self.deleteFolder(.init($0.id))
     }
     sdFolder.recipes.forEach {
-      try? self.deleteRecipe(.init($0))
+      try? self.deleteRecipe(.init($0.id))
     }
     modelContext.delete(sdFolder)
     try modelContext.save()
     // Recursively delete all folders.
   }
   
-  private func _retrieveSDFolder(_ folderID: UUID) -> SDFolder? {
+  private func _retrieveSDFolder(_ folderID: Folder.ID) -> SDFolder? {
     print("SDClient", "_retrieveSDFolder")
-    let predicate = #Predicate<SDFolder> { $0.id == folderID }
+    let predicate = #Predicate<SDFolder> { $0.id == folderID.rawValue }
     let fetchDescriptor = FetchDescriptor<SDFolder>(predicate: predicate)
     return try? modelContext.fetch(fetchDescriptor).first
   }
@@ -110,23 +93,23 @@ actor SDClient: ModelActor {
     try modelContext.save()
   }
   
-  func retrieveRecipe(_ recipeID: UUID) -> Recipe? {
+  func retrieveRecipe(_ recipeID: Recipe.ID) -> Recipe? {
     print("SDClient", "retrieveRecipe")
-    guard let sdRecipe = _retrieveSDRecipe(recipeID)
+    guard let sdRecipe = _retrieveSDRecipe(recipeID.rawValue)
     else { return nil }
     return Recipe(sdRecipe)
   }
   
   func updateRecipe(_ recipe: Recipe) throws {
     print("SDClient", "updateRecipe")
-    try deleteRecipe(recipe)
+    try deleteRecipe(recipe.id)
     try createRecipe(recipe)
     try modelContext.save()
   }
   
-  func deleteRecipe(_ recipe: Recipe) throws {
+  func deleteRecipe(_ recipeID: Recipe.ID) throws {
     print("SDClient", "deleteRecipe")
-    guard let sdRecipe = _retrieveSDRecipe(recipe.id.rawValue)
+    guard let sdRecipe = _retrieveSDRecipe(recipeID.rawValue)
     else { throw SDError.failure }
     sdRecipe.aboutSections.forEach { sdas in
       modelContext.delete(sdas)
@@ -162,7 +145,7 @@ actor SDClient: ModelActor {
     let sdr = try! modelContext.fetch(FetchDescriptor<SDRecipe>())
     print("SDRecipe", sdr.count)
     print("SDRecipe.parentFolder", sdr.compactMap(\.parentFolder).count)
-
+    
     let sdas = try! modelContext.fetch(FetchDescriptor<SDRecipe.SDAboutSection>())
     print("SDAboutSection", sdas.count)
     print("SDAboutSection.parentRecipe", sdas.compactMap(\.parentRecipe).count)
@@ -183,40 +166,4 @@ actor SDClient: ModelActor {
     print("SDStep", sds.count)
     print("SDStep.parentStepSection", sds.compactMap(\.parentStepSection).count)
   }
-  
-//  func printAll() {
-//    let sdf = try! modelContext.fetch(FetchDescriptor<SDFolder>())
-//    sdf.forEach {
-//      printFolder($0)
-//    }
-//    
-//    func printFolder(_ sdf: SDFolder) {
-//      print("sdf", sdf.id)
-//      sdf.folders.forEach {
-//        printFolder($0)
-//      }
-//      sdf.recipes.forEach {
-//        printRecipe($0)
-//      }
-//    }
-//    
-//    func printRecipe(_ sdr: SDRecipe) {
-//      print("sdr", sdr.id)
-//      sdr.aboutSections.forEach { sdsas in
-//        print("sdas", sdsas.parentRecipe?.id)
-//      }
-//      sdr.ingredientSections.forEach { sdis in
-//        print("sdis", sdis.parentRecipe?.id)
-//        sdis.ingredients.forEach { sdi in
-//          print("sdi", sdi.parentIngredientSection?.id)
-//        }
-//      }
-//      sdr.stepSections.forEach { sdss in
-//        print("sdss", sdss.parentRecipe?.id)
-//        sdss.steps.forEach { sds in
-//          print("sds", sds.parentStepSection?.id)
-//        }
-//      }
-//    }
-//  }
 }

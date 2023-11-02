@@ -10,30 +10,28 @@ extension Database {
         await sdc.retrieveRootFolders()
       },
       createFolder: { folder in
-        print(Thread.current)
         try? await sdc.createFolder(folder)
       },
       retrieveFolder: { folderID in
-        print(Thread.current)
-        return await sdc.retrieveFolder(folderID.rawValue)
+        return await sdc.retrieveFolder(folderID)
       },
       updateFolder: { folder in
         try? await sdc.updateFolder(folder)
       },
-      deleteFolder: { folder in
-        try? await sdc.updateFolder(folder)
+      deleteFolder: { folderID in
+        try? await sdc.deleteFolder(folderID)
       },
       createRecipe: { recipe in
         try? await sdc.createRecipe(recipe)
       },
       retrieveRecipe: { recipeID in
-        await sdc.retrieveRecipe(recipeID.rawValue)
+        await sdc.retrieveRecipe(recipeID)
       },
       updateRecipe: { recipe in
         try? await sdc.updateRecipe(recipe)
       },
-      deleteRecipe: { recipe in
-        try? await sdc.deleteRecipe(recipe)
+      deleteRecipe: { recipeID in
+        try? await sdc.deleteRecipe(recipeID)
       }
     )
   }()
