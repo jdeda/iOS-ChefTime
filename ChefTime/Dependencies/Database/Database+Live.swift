@@ -2,9 +2,11 @@ import Foundation
 import ComposableArchitecture
 import CoreData
 
+// MARK: - Database.live
+// Represents the production version of the database client.
 extension Database {
   static let live = {
-    let sdc = SDClient()! // TODO: Do not force unwrap
+    let sdc = SDClient()! // MARK: - If this fail the app should be obliterated.
     return Self(
       retrieveRootFolders: {
         await sdc.retrieveRootFolders()

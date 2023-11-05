@@ -3,6 +3,7 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
+// MARK: - Model
 /// Represents a recipe.
 /// Recipes have a name and contain several lists of information describing what
 /// the finished recipe looks like, any peritnent discussion about it, the ingredients, and steps.

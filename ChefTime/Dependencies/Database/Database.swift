@@ -14,12 +14,14 @@ struct Database {
   // MARK: - Recipe CRUD
   let createRecipe: @Sendable (Recipe) async -> Void
   let retrieveRecipe: @Sendable (Recipe.ID) async -> Recipe?
-  let updateRecipe: @Sendable (Recipe) async -> Void  
+  let updateRecipe: @Sendable (Recipe) async -> Void
   let deleteRecipe: @Sendable (Recipe.ID) async -> Void
 }
 
 extension Database: DependencyKey {
-  static var liveValue: Self = .live
+  static let liveValue = Self.live
+  static let previewValue = Self.preview
+  static let testValue = Self.test
 }
 
 extension DependencyValues {

@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 
+
 actor SDClient: ModelActor {
   let modelContainer: ModelContainer
   let modelExecutor: ModelExecutor
@@ -16,6 +17,14 @@ actor SDClient: ModelActor {
   
   enum SDError: Equatable, Error {
     case failure
+  }
+  
+  private var isLoaded = false
+  func loadPreview() {
+    guard isLoaded else { return }
+    
+    try? createFolder(.emptyMock)
+    isLoaded = true
   }
   
   func retrieveRootFolders() -> [Folder] {
