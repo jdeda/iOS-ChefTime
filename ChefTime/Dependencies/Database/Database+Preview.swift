@@ -1,8 +1,8 @@
 import Foundation
 import ComposableArchitecture
 import CoreData
+import SwiftUI
 
-// MARK: - Database.preview
 // Represents the XCode preview oriented version of the database client.
 // Generates and utilizes mock data that resets on reinit.
 extension Database {
@@ -44,8 +44,8 @@ extension Database {
   }()
 }
 
-import SwiftUI
-struct LoadView: View {
+// Used for creating SwiftData stack store with folders fetched from local JSON files.
+struct LoadDBView: View {
   var body: some View {
     Text("Load View")
       .task {
@@ -59,6 +59,7 @@ struct LoadView: View {
   }
 }
 
+// Fetches folder models from local JSON files.
 fileprivate func generateMockFolders() async -> [Folder] {
   let fetchFolders: (String) async -> [Folder] = {
     let rootSystemURL = URL(string: $0)!
@@ -83,8 +84,7 @@ fileprivate func generateMockFolders() async -> [Folder] {
   return f1 + f2
 }
 
-// MARK: - ReadWriteIO
-/// Assume directory is a user folder.
+// Fetches folder model from local JSON file. Assume directory is a user folder.
 fileprivate func fetchFolder(at directoryURL: URL) async -> Folder? {
   guard let contents = try? FileManager.default.contentsOfDirectory(
     at: directoryURL,
@@ -127,6 +127,7 @@ fileprivate func fetchFolder(at directoryURL: URL) async -> Folder? {
   return folder
 }
 
+// Fetches recipe model from local JSON file.
 fileprivate func fetchRecipe(at url: URL) async -> Recipe? {
   guard let data = try? Data(contentsOf: url),
         let recipe = try? JSONDecoder().decode(Recipe.self, from: data)
@@ -134,7 +135,7 @@ fileprivate func fetchRecipe(at url: URL) async -> Recipe? {
   return recipe
 }
 
-
+// Reads and writes recipe to disk given fileName and fileExtension.
 fileprivate struct ReadWriteIO {
   let fileName: String
   let fileExtension: String

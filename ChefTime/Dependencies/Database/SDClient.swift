@@ -1,6 +1,9 @@
 import Foundation
 import SwiftData
 
+// Client responsible for all SwiftData operations for the entire app.
+// Performs basic CRUD operations on SDFolders and SDRecipes.
+// Executes all operations on background thread via ModelActor.
 actor SDClient: ModelActor {
   let modelContainer: ModelContainer
   let modelExecutor: ModelExecutor
@@ -25,14 +28,6 @@ actor SDClient: ModelActor {
   
   enum SDError: Equatable, Error {
     case failure
-  }
-  
-  private var isLoaded = false
-  func loadPreview() {
-    guard isLoaded else { return }
-    
-    try? createFolder(.emptyMock)
-    isLoaded = true
   }
   
   func retrieveRootFolders() -> [Folder] {
