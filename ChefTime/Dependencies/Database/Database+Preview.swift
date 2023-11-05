@@ -7,11 +7,11 @@ import CoreData
 // Generates and utilizes mock data that resets on reinit.
 extension Database {
   static let preview = {
-    // TODO: Load a saved .store file and use only in-memory..
-    let sdc = SDClient()!
-    
-    // in memory
-    // than add your objects
+    let source = Bundle.main.url(forResource: "mock", withExtension: "store")!
+    let original = Bundle.main.url(forResource: "mock_original", withExtension: "store")!
+    _ = try! FileManager.default.replaceItemAt(source, withItemAt: original)
+    let sdc = SDClient(Bundle.main.url(forResource: "mock", withExtension: "store")!)!
+
     return Self(
       retrieveRootFolders: {
         return await sdc.retrieveRootFolders()
@@ -54,6 +54,7 @@ struct LoadView: View {
         for folder in folders {
           try? await db.createFolder(folder)
         }
+        print("Done")
       }
   }
 }

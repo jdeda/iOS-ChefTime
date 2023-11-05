@@ -3,24 +3,17 @@ import XCTestDynamicOverlay
 
 @main
 struct ChefTimeApp: App {
-  let uuidString = "456DBE9B-E519-4A79-8DE6-7078C47E3A7D"
+  let uuidString = "3DF50638-9B9A-48AB-87FF-9D7B943DF494"
   
   var body: some Scene {
     WindowGroup {
       NavigationStack {
-        //        RecipeView(store: .init(
-        ////          initialState: .init(recipeID: .init(uuidString: uuidString)!),
-        //          initialState: .init(recipe: .longMock),
-        //          reducer: RecipeReducer.init
-        //        ))
-//        FolderView(store: .init(
-//          initialState: .init(
-//            folderID: .init(uuidString: uuidString)!
-////            folder: .longMock
-//          ),
-//          reducer: FolderReducer.init
-//        ))
-        LoadView()
+        FolderView(store: .init(
+          initialState: .init(
+            folderID: .init(uuidString: uuidString)!
+          ),
+          reducer: FolderReducer.init
+        ))
       }
       .onAppear {
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)

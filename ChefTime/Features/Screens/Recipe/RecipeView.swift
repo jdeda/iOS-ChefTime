@@ -11,7 +11,7 @@ import Tagged
 ///   may be because of padding issues
 
 // MARK: - Possible Improvements
-/// 1. Consider lazy rendering and  limit observation for performance
+/// 1. Consider lazy rendering and limit observation for performance
 /// 2. Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
 
 // MARK: - Recipe Feature Animation Bugs
@@ -158,10 +158,15 @@ struct RecipeView_Previews: PreviewProvider {
     NavigationStack {
       RecipeView(store: .init(
         initialState: RecipeReducer.State(
-          recipeID: .init(rawValue: .init(uuidString: "111615F7-FDE4-4FD1-B50C-BBE213EF5223")!)
+          recipeID: .init(rawValue: .init(uuidString: "3DF50638-9B9A-48AB-87FF-9D7B943DF494")!)
         ),
         reducer: RecipeReducer.init
       ))
     }
   }
 }
+
+/// This feature inits with a recipe or id
+/// if id is not found, create it
+/// if found, fetch it
+/// i dont want to create my own recipe or have to search for an id, it should already have one

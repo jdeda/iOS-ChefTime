@@ -1,7 +1,6 @@
 import Foundation
 import SwiftData
 
-
 actor SDClient: ModelActor {
   let modelContainer: ModelContainer
   let modelExecutor: ModelExecutor
@@ -11,6 +10,15 @@ actor SDClient: ModelActor {
     else { return nil }
     self.modelContainer = modelContainer
     let context = ModelContext(modelContainer)
+    context.autosaveEnabled = false
+    self.modelExecutor = DefaultSerialModelExecutor(modelContext: context)
+  }
+  
+  init?(_ url: URL) {
+    guard let container = try? ModelContainer(for: SDFolder.self, SDRecipe.self, configurations: .init(url: url))
+    else { return nil }
+    self.modelContainer = container
+    let context = ModelContext(container)
     context.autosaveEnabled = false
     self.modelExecutor = DefaultSerialModelExecutor(modelContext: context)
   }
@@ -40,7 +48,11 @@ actor SDClient: ModelActor {
     print("SDClient", "createFolder")
     let sdFolder = SDFolder(folder)
     modelContext.insert(sdFolder)
-    try modelContext.save()
+    do {try modelContext.save()}
+    catch {
+      dump(error)
+      fatalError(error.localizedDescription)
+    }
     
     func linkSDFolder(_ sdFolder: SDFolder) {
       sdFolder.folders.forEach {
@@ -144,6 +156,7 @@ actor SDClient: ModelActor {
     let predicate = #Predicate<SDRecipe> { $0.id == recipeID }
     let fetchDescriptor = FetchDescriptor<SDRecipe>(predicate: predicate)
     return try? modelContext.fetch(fetchDescriptor).first
+    
   }
   
   func printAll() {
