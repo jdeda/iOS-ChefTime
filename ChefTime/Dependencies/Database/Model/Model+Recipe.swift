@@ -1,7 +1,224 @@
 import Tagged
 import Foundation
 import ComposableArchitecture
-import SwiftUI
+import SwiftData
+
+// MARK: - SDModel
+/// Represents a recipe.
+/// Recipes have a name and contain several lists of information describing what
+/// the finished recipe looks like, any peritnent discussion about it, the ingredients, and steps.
+@Model
+final class SDRecipe: Identifiable, Equatable {
+  
+  @Attribute(.unique)
+  let id: UUID
+  
+  var name: String = ""
+  var imageData: [Data] = []
+  
+  @Relationship(deleteRule: .cascade, inverse: \SDAboutSection.parentRecipe)
+  var aboutSections: [SDAboutSection] = []
+  
+  @Relationship(deleteRule: .cascade, inverse: \SDIngredientSection.parentRecipe)
+  var ingredientSections: [SDIngredientSection] = []
+  
+  @Relationship(deleteRule: .cascade, inverse: \SDStepSection.parentRecipe)
+  var stepSections: [SDStepSection] = []
+  
+  weak var parentFolder: SDFolder?
+  
+  init(
+    id: UUID,
+    name: String,
+    imageData: [Data],
+    aboutSections: [SDAboutSection],
+    ingredientSections: [SDIngredientSection],
+    stepSections: [SDStepSection],
+    parentFolder: SDFolder? = nil
+  ) {
+    self.id = id
+    self.name = name
+    self.imageData = imageData
+    self.aboutSections = aboutSections
+    self.ingredientSections = ingredientSections
+    self.stepSections = stepSections
+    self.parentFolder = parentFolder
+  }
+  
+  convenience init(_ recipe: Recipe) {
+    self.init(
+      id: recipe.id.rawValue,
+      name: recipe.name,
+      imageData: [],
+      aboutSections: recipe.aboutSections.map(SDRecipe.SDAboutSection.init),
+      ingredientSections: recipe.ingredientSections.map(SDRecipe.SDIngredientSection.init),
+      stepSections: recipe.stepSections.map(SDRecipe.SDStepSection.init)
+    )
+  }
+  
+  @Model
+  final class SDAboutSection: Identifiable, Equatable {
+    
+    @Attribute(.unique)
+    let id: UUID
+    
+    var name: String = ""
+    var description_: String = ""
+    
+    weak var parentRecipe: SDRecipe?
+    
+    init(
+      id: ID,
+      name: String,
+      description_: String,
+      parentRecipe: SDRecipe? = nil
+    ) {
+      self.id = id
+      self.name = name
+      self.description_ = description_
+      self.parentRecipe = parentRecipe
+    }
+    
+    convenience init(_ aboutSection: Recipe.AboutSection) {
+      self.init(
+        id: aboutSection.id.rawValue,
+        name: aboutSection.name,
+        description_: aboutSection.name.description
+      )
+    }
+  }
+  
+  @Model
+  final class SDIngredientSection: Identifiable, Equatable {
+    @Attribute(.unique)
+    let id: UUID
+    
+    var name: String = ""
+    
+    @Relationship(deleteRule: .cascade, inverse: \SDIngredient.parentIngredientSection)
+    var ingredients: [SDIngredient] = []
+    
+    weak var parentRecipe: SDRecipe?
+    
+    init(
+      id: ID,
+      name: String,
+      ingredients: [SDIngredient],
+      parentRecipe: SDRecipe? = nil
+    ) {
+      self.id = id
+      self.name = name
+      self.ingredients = ingredients
+      self.parentRecipe = parentRecipe
+    }
+    
+    convenience init(_ ingredientSection: Recipe.IngredientSection) {
+      self.init(
+        id: ingredientSection.id.rawValue,
+        name: ingredientSection.name,
+        ingredients: ingredientSection.ingredients.map(SDRecipe.SDIngredientSection.SDIngredient.init)
+      )
+    }
+    
+    @Model
+    final class SDIngredient: Identifiable, Equatable {
+      @Attribute(.unique)
+      let id: UUID
+      
+      var name: String = ""
+      var amount: Double = 0.0
+      var measure: String = ""
+      
+      weak var parentIngredientSection: SDIngredientSection?
+      
+      init(
+        id: UUID,
+        name: String,
+        amount: Double,
+        measure: String,
+        parentIngredientSection: SDIngredientSection? = nil
+      ) {
+        self.id = id
+        self.name = name
+        self.amount = amount
+        self.measure = measure
+        self.parentIngredientSection = parentIngredientSection
+      }
+      
+      convenience init(_ ingredient: Recipe.IngredientSection.Ingredient) {
+        self.init(
+          id: ingredient.id.rawValue,
+          name: ingredient.name,
+          amount: ingredient.amount,
+          measure: ingredient.measure
+        )
+      }
+    }
+  }
+  
+  @Model
+  final class SDStepSection: Identifiable, Equatable {
+    @Attribute(.unique)
+    let id: UUID
+    
+    var name: String = ""
+    
+    @Relationship(deleteRule: .cascade, inverse: \SDStep.parentStepSection)
+    var steps: [SDStep] = []
+    
+    weak var parentRecipe: SDRecipe?
+    
+    init(
+      id: UUID,
+      name: String,
+      steps: [SDStep],
+      parentRecipe: SDRecipe? = nil
+    ) {
+      self.id = id
+      self.name = name
+      self.steps = steps
+      self.parentRecipe = parentRecipe
+    }
+    
+    convenience init(_ stepSection: Recipe.StepSection) {
+      self.init(
+        id: stepSection.id.rawValue,
+        name: stepSection.name,
+        steps: stepSection.steps.map(SDRecipe.SDStepSection.SDStep.init)
+      )
+    }
+    
+    @Model
+    final class SDStep: Identifiable, Equatable {
+      @Attribute(.unique)
+      let id: UUID
+      
+      var description_: String = ""
+      var imageData: [Data] = []
+      weak var parentStepSection: SDStepSection?
+      
+      init(
+        id: UUID,
+        description_: String,
+        imageData: [Data],
+        parentStepSection: SDStepSection? = nil
+      ) {
+        self.id = id
+        self.description_ = description_
+        self.imageData = imageData
+        self.parentStepSection = parentStepSection
+      }
+      
+      convenience init(_ step: Recipe.StepSection.Step) {
+        self.init(
+          id: step.id.rawValue,
+          description_: step.description,
+          imageData: []
+        )
+      }
+    }
+  }
+}
 
 // MARK: - Model
 /// Represents a recipe.
@@ -17,12 +234,57 @@ struct Recipe: Identifiable, Equatable, Codable {
   var ingredientSections: IdentifiedArrayOf<IngredientSection> = []
   var stepSections: IdentifiedArrayOf<StepSection> = []
   
+  init(
+    id: ID,
+    name: String = "",
+    imageData: IdentifiedArrayOf<ImageData> = [],
+    aboutSections: IdentifiedArrayOf<AboutSection> = [],
+    ingredientSections: IdentifiedArrayOf<IngredientSection> = [],
+    stepSections: IdentifiedArrayOf<StepSection> = []
+  ) {
+    self.id = id
+    self.name = name
+    self.imageData = imageData
+    self.aboutSections = aboutSections
+    self.ingredientSections = ingredientSections
+    self.stepSections = stepSections
+  }
+  
+  init(_ sdRecipe: SDRecipe) {
+    self.init(
+      id: .init(rawValue: sdRecipe.id),
+      name: sdRecipe.name,
+      imageData: [],
+      aboutSections: .init(uniqueElements: sdRecipe.aboutSections.map(Recipe.AboutSection.init)),
+      ingredientSections: .init(uniqueElements: sdRecipe.ingredientSections.map(Recipe.IngredientSection.init)),
+      stepSections: .init(uniqueElements: sdRecipe.stepSections.map(Recipe.StepSection.init))
+    )
+  }
+  
   struct AboutSection: Identifiable, Equatable, Codable {
     typealias ID = Tagged<Self, UUID>
     
     let id: ID
     var name: String = ""
     var description: String = ""
+    
+    init(
+      id: ID,
+      name: String = "",
+      description: String = ""
+    ) {
+      self.id = id
+      self.name = name
+      self.description = description
+    }
+    
+    init(_ sdAboutSection: SDRecipe.SDAboutSection) {
+      self.init(
+        id: .init(rawValue: sdAboutSection.id),
+        name: sdAboutSection.name,
+        description: sdAboutSection.description_
+      )
+    }
   }
   
   struct IngredientSection: Identifiable, Equatable, Codable {
@@ -32,6 +294,24 @@ struct Recipe: Identifiable, Equatable, Codable {
     var name: String = ""
     var ingredients: IdentifiedArrayOf<Ingredient> = []
     
+    init(
+      id: ID,
+      name: String = "",
+      ingredients: IdentifiedArrayOf<Ingredient> = []
+    ) {
+      self.id = id
+      self.name = name
+      self.ingredients = ingredients
+    }
+    
+    init(_ sdIngredientSection: SDRecipe.SDIngredientSection) {
+      self.init(
+        id: .init(rawValue: sdIngredientSection.id),
+        name: sdIngredientSection.name,
+        ingredients: .init(uniqueElements: sdIngredientSection.ingredients.map(Recipe.IngredientSection.Ingredient.init))
+      )
+    }
+    
     struct Ingredient: Identifiable, Equatable, Codable {
       typealias ID = Tagged<Self, UUID>
       
@@ -39,6 +319,27 @@ struct Recipe: Identifiable, Equatable, Codable {
       var name: String = ""
       var amount: Double = 0.0
       var measure: String = ""
+      
+      init(
+        id: ID,
+        name: String = "",
+        amount: Double = 0.0,
+        measure: String = ""
+      ) {
+        self.id = id
+        self.name = name
+        self.amount = amount
+        self.measure = measure
+      }
+      
+      init(_ sdIngredient: SDRecipe.SDIngredientSection.SDIngredient) {
+        self.init(
+          id: .init(rawValue: sdIngredient.id),
+          name: sdIngredient.name,
+          amount: sdIngredient.amount,
+          measure: sdIngredient.measure
+        )
+      }
     }
   }
   
@@ -49,12 +350,48 @@ struct Recipe: Identifiable, Equatable, Codable {
     var name: String = ""
     var steps: IdentifiedArrayOf<Step> = []
     
+    init(
+      id: ID,
+      name: String = "",
+      steps: IdentifiedArrayOf<Step> = []
+    ) {
+      self.id = id
+      self.name = name
+      self.steps = steps
+    }
+    
+    init(_ sdStepSection: SDRecipe.SDStepSection) {
+      self.init(
+        id: .init(rawValue: sdStepSection.id),
+        name: sdStepSection.name,
+        steps: .init(uniqueElements: sdStepSection.steps.map(Recipe.StepSection.Step.init))
+      )
+    }
+    
     struct Step: Identifiable, Equatable, Codable {
       typealias ID = Tagged<Self, UUID>
       
       let id: ID
       var description: String = ""
       var imageData: IdentifiedArrayOf<ImageData> = []
+      
+      init(
+        id: ID,
+        description: String = "",
+        imageData: IdentifiedArrayOf<ImageData> = []
+      ) {
+        self.id = id
+        self.description = description
+        self.imageData = imageData
+      }
+      
+      init(_ sdStep: SDRecipe.SDStepSection.SDStep) {
+        self.init(
+          id: .init(rawValue: sdStep.id),
+          description: sdStep.description_,
+          imageData: []
+        )
+      }
     }
   }
 }
@@ -232,3 +569,4 @@ extension Recipe {
     ]
   )
 }
+

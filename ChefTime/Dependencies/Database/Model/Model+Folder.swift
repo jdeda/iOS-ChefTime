@@ -1,6 +1,59 @@
+import Tagged
 import Foundation
 import ComposableArchitecture
-import Tagged
+import SwiftData
+
+// MARK: - SDModel
+/// Represents a container for recipes.
+/// Folders are recursive over themselves and contain a list of recipes.
+@Model
+final class SDFolder: Identifiable, Equatable {
+  
+  @Attribute(.unique)
+  let id: UUID
+  
+  var name: String
+  var imageData: Data?
+  
+  @Relationship(deleteRule: .cascade, inverse: \SDFolder.parentFolder)
+  var folders: [SDFolder]
+  
+  @Relationship(deleteRule: .cascade, inverse: \SDRecipe.parentFolder)
+  var recipes: [SDRecipe]
+  
+  var folderType: Folder.FolderType
+  var parentFolder: SDFolder?
+  
+  init(
+    id: ID,
+    name: String,
+    imageData: Data?,
+    folders: [SDFolder],
+    recipes: [SDRecipe],
+    folderType: Folder.FolderType,
+    parentFolder: SDFolder? = nil
+  ) {
+    self.id = id
+    self.name = name
+    self.imageData = imageData
+    self.folders = folders
+    self.recipes = recipes
+    self.folderType = folderType
+    self.parentFolder = parentFolder
+  }
+  
+  convenience init(_ folder: Folder) {
+    self.init(
+      id: folder.id.rawValue,
+      name: folder.name,
+      imageData: nil,
+      folders: folder.folders.map(SDFolder.init),
+      recipes: folder.recipes.map(SDRecipe.init),
+      folderType: folder.folderType
+    )
+  }
+}
+
 
 // MARK: - Model
 /// Represents a container for recipes.
@@ -16,6 +69,36 @@ struct Folder: Identifiable, Equatable, Codable {
   var recipes: IdentifiedArrayOf<Recipe> = []
   var folderType: FolderType = .user
   
+  
+  init(
+    id: ID,
+    parentFolderID: Folder.ID? = nil,
+    name: String = "",
+    imageData: ImageData? = nil,
+    folders: IdentifiedArrayOf<Self> = [],
+    recipes: IdentifiedArrayOf<Recipe> = [],
+    folderType: FolderType = .user
+  ) {
+    self.id = id
+    self.parentFolderID = parentFolderID
+    self.name = name
+    self.imageData = imageData
+    self.folders = folders
+    self.recipes = recipes
+    self.folderType = folderType
+  }
+  
+  init(_ sdFolder: SDFolder) {
+    self.init(
+      id: .init(rawValue: sdFolder.id),
+      parentFolderID: nil,
+      name: sdFolder.name,
+      imageData: nil,
+      folders: .init(uniqueElements: sdFolder.folders.map(Folder.init)),
+      recipes: .init(uniqueElements: sdFolder.recipes.map(Recipe.init)),
+      folderType: sdFolder.folderType
+    )
+  }
 }
 
 extension Folder {
@@ -85,7 +168,7 @@ private func generateFolder(_ num: Int) -> Folder {
     recipes: .init(uniqueElements: (1...10).map(generateRecipe))
   )
 }
-                    
+
 private func generateRecipe(_ num: Int) -> Recipe {
   .init(
     id: .init(),
