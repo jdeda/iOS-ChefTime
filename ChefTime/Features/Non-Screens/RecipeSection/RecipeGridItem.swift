@@ -129,6 +129,7 @@ struct RecipeGridItemReducer: Reducer {
     case replacePreviewImage
     case renameButtonTapped
     case renameAcceptButtonTapped(String)
+    case updateRecipePhotos
     case binding(BindingAction<State>)
     case destination(PresentationAction<DestinationReducer.Action>)
     case photos(PhotosReducer.Action)
@@ -138,44 +139,55 @@ struct RecipeGridItemReducer: Reducer {
   @Dependency(\.dismiss) var dismiss
   
   var body: some ReducerOf<Self> {
-    Reduce { state, action in
-      switch action {
-        
-      case .deleteButtonTapped:
-        state.destination = .alert(.delete)
-        return .none
-        
-      case .replacePreviewImage:
-        return .none
-        
-      case .renameButtonTapped:
-        state.destination = .renameAlert
-        return .none
-        
-      case let .renameAcceptButtonTapped(newName):
-        state.recipe.name = newName
-        state.destination = nil
-        return .none
-        
-      case .destination(.presented(.alert(.confirmDeleteButtonTapped))):
-        state.destination = nil
-        return .run { send in
-          // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
-          // However, this bug seems to happen because you are returning an action in the .presented.
-          // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
-          await dismiss()
-          await send(.delegate(.delete))
+    CombineReducers {
+      Scope(state: \.photos, action: /Action.photos) {
+        PhotosReducer()
+      }
+      Reduce { state, action in
+        switch action {
+          
+        case .deleteButtonTapped:
+          state.destination = .alert(.delete)
+          return .none
+          
+        case .replacePreviewImage:
+          return .none
+          
+        case .renameButtonTapped:
+          state.destination = .renameAlert
+          return .none
+          
+        case let .renameAcceptButtonTapped(newName):
+          state.recipe.name = newName
+          state.destination = nil
+          return .none
+          
+        case .updateRecipePhotos:
+          state.recipe.imageData = state.photos.photos
+          return .none
+          
+        case .destination(.presented(.alert(.confirmDeleteButtonTapped))):
+          state.destination = nil
+          return .run { send in
+            // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
+            // However, this bug seems to happen because you are returning an action in the .presented.
+            // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
+            await dismiss()
+            await send(.delegate(.delete))
+          }
+          
+        case .binding, .photos, .delegate, .destination:
+          return .none
         }
-        
-      case .binding, .photos, .delegate, .destination:
-        return .none
+      }
+      .ifLet(\.$destination, action: /Action.destination) {
+        DestinationReducer()
       }
     }
-    .ifLet(\.$destination, action: /Action.destination) {
-      DestinationReducer()
-    }
-    Scope(state: \.photos, action: /Action.photos) {
-      PhotosReducer()
+    .onChange(of: \.photos.photos) { _, _ in
+      Reduce { _, _ in
+          .send(.updateRecipePhotos)
+      }
     }
   }
 }

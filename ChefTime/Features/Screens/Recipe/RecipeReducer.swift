@@ -86,6 +86,10 @@ struct RecipeReducer: Reducer {
           state.recipe.name = state.navigationTitle
           return .none
           
+        case .recipeUpdate(.photosUpdated):
+          state.recipe.imageData = state.photos.photos
+          return .none
+          
         case .recipeUpdate(.aboutUpdated):
           state.recipe.aboutSections = state.about.recipeSections
           return .none
@@ -161,6 +165,11 @@ struct RecipeReducer: Reducer {
         }
       }
     }
+    .onChange(of: \.photos.photos, { _, _ in
+      Reduce { _, _ in
+          .send(.recipeUpdate(.photosUpdated))
+      }
+    })
     .onChange(of: \.about.aboutSections) { _, _ in
       Reduce { _, _ in
           .send(.recipeUpdate(.aboutUpdated))
@@ -194,6 +203,7 @@ struct RecipeReducer: Reducer {
 // MARK: - RecipeUpdateAction
 extension RecipeReducer {
   enum RecipeUpdateAction: Equatable {
+    case photosUpdated
     case aboutUpdated
     case ingredientsUpdated
     case stepsUpdated

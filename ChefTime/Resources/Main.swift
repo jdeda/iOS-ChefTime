@@ -9,6 +9,7 @@ struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
       NavigationStack {
+//        LoadDBView()
         FoldersView(store: .init(
           initialState: .init(),
           reducer: FoldersReducer.init,

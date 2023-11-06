@@ -11,10 +11,18 @@
 		9704A18E2AB33FD200E826BB /* RecipeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9704A18D2AB33FD200E826BB /* RecipeSection.swift */; };
 		9704A1902AB3421C00E826BB /* FolderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9704A18F2AB3421C00E826BB /* FolderReducer.swift */; };
 		9704A1922AB3557800E826BB /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9704A1912AB3557800E826BB /* AppView.swift */; };
-		970BEFEA2AF84F8100ACD339 /* mock_original.store in Resources */ = {isa = PBXBuildFile; fileRef = 970BEFE92AF84F7700ACD339 /* mock_original.store */; };
-		970BEFEB2AF84F8100ACD339 /* mock.store in Resources */ = {isa = PBXBuildFile; fileRef = 970BEFE82AF84F7700ACD339 /* mock.store */; };
 		970BEFF22AF859D100ACD339 /* Model+Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970BEFF12AF859D100ACD339 /* Model+Recipe.swift */; };
 		970BEFF42AF859D800ACD339 /* Model+Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970BEFF32AF859D800ACD339 /* Model+Folder.swift */; };
+		970BF04A2AF957E200ACD339 /* sd_mock_original.store in Resources */ = {isa = PBXBuildFile; fileRef = 970BF03E2AF957E200ACD339 /* sd_mock_original.store */; };
+		970BF04B2AF957E200ACD339 /* D3BA6685-7C8D-4EB4-8A9B-E17BA4500EF7 in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0412AF957E200ACD339 /* D3BA6685-7C8D-4EB4-8A9B-E17BA4500EF7 */; };
+		970BF04C2AF957E200ACD339 /* EE65687F-224F-4ABB-8C3C-7F83467495A5 in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0422AF957E200ACD339 /* EE65687F-224F-4ABB-8C3C-7F83467495A5 */; };
+		970BF04D2AF957E200ACD339 /* 25044792-B060-4DEF-92C2-2F5CB093D9E5 in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0432AF957E200ACD339 /* 25044792-B060-4DEF-92C2-2F5CB093D9E5 */; };
+		970BF04E2AF957E200ACD339 /* 290F3478-3097-4928-8BF9-F93358CDA0C8 in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0442AF957E200ACD339 /* 290F3478-3097-4928-8BF9-F93358CDA0C8 */; };
+		970BF04F2AF957E200ACD339 /* F72ABF8E-DFE0-4024-8787-E4303A2DBC08 in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0452AF957E200ACD339 /* F72ABF8E-DFE0-4024-8787-E4303A2DBC08 */; };
+		970BF0502AF957E200ACD339 /* 9E23301E-E0F7-46C0-AE96-96C637A3BBC8 in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0462AF957E200ACD339 /* 9E23301E-E0F7-46C0-AE96-96C637A3BBC8 */; };
+		970BF0512AF957E200ACD339 /* 99BBE743-16C3-4D4D-97CB-22AC59494B86 in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0472AF957E200ACD339 /* 99BBE743-16C3-4D4D-97CB-22AC59494B86 */; };
+		970BF0522AF957E200ACD339 /* B632B705-7901-408D-B026-287923479D3E in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0482AF957E200ACD339 /* B632B705-7901-408D-B026-287923479D3E */; };
+		970BF0532AF957E200ACD339 /* sd_mock.store in Resources */ = {isa = PBXBuildFile; fileRef = 970BF0492AF957E200ACD339 /* sd_mock.store */; };
 		9712FB502A438A0B00E5E227 /* ImageSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712FB4F2A438A0B00E5E227 /* ImageSlider.swift */; };
 		9712FB5A2A438E2A00E5E227 /* recipe_00.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 9712FB572A438E2A00E5E227 /* recipe_00.jpeg */; };
 		9712FB5B2A438E2A00E5E227 /* recipe_01.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 9712FB582A438E2A00E5E227 /* recipe_01.jpeg */; };
@@ -128,10 +136,18 @@
 		9704A18D2AB33FD200E826BB /* RecipeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeSection.swift; sourceTree = "<group>"; };
 		9704A18F2AB3421C00E826BB /* FolderReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderReducer.swift; sourceTree = "<group>"; };
 		9704A1912AB3557800E826BB /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
-		970BEFE82AF84F7700ACD339 /* mock.store */ = {isa = PBXFileReference; lastKnownFileType = file; path = mock.store; sourceTree = "<group>"; };
-		970BEFE92AF84F7700ACD339 /* mock_original.store */ = {isa = PBXFileReference; lastKnownFileType = file; path = mock_original.store; sourceTree = "<group>"; };
 		970BEFF12AF859D100ACD339 /* Model+Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Recipe.swift"; sourceTree = "<group>"; };
 		970BEFF32AF859D800ACD339 /* Model+Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Folder.swift"; sourceTree = "<group>"; };
+		970BF03E2AF957E200ACD339 /* sd_mock_original.store */ = {isa = PBXFileReference; lastKnownFileType = file; path = sd_mock_original.store; sourceTree = "<group>"; };
+		970BF0412AF957E200ACD339 /* D3BA6685-7C8D-4EB4-8A9B-E17BA4500EF7 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "D3BA6685-7C8D-4EB4-8A9B-E17BA4500EF7"; sourceTree = "<group>"; };
+		970BF0422AF957E200ACD339 /* EE65687F-224F-4ABB-8C3C-7F83467495A5 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "EE65687F-224F-4ABB-8C3C-7F83467495A5"; sourceTree = "<group>"; };
+		970BF0432AF957E200ACD339 /* 25044792-B060-4DEF-92C2-2F5CB093D9E5 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "25044792-B060-4DEF-92C2-2F5CB093D9E5"; sourceTree = "<group>"; };
+		970BF0442AF957E200ACD339 /* 290F3478-3097-4928-8BF9-F93358CDA0C8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "290F3478-3097-4928-8BF9-F93358CDA0C8"; sourceTree = "<group>"; };
+		970BF0452AF957E200ACD339 /* F72ABF8E-DFE0-4024-8787-E4303A2DBC08 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "F72ABF8E-DFE0-4024-8787-E4303A2DBC08"; sourceTree = "<group>"; };
+		970BF0462AF957E200ACD339 /* 9E23301E-E0F7-46C0-AE96-96C637A3BBC8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "9E23301E-E0F7-46C0-AE96-96C637A3BBC8"; sourceTree = "<group>"; };
+		970BF0472AF957E200ACD339 /* 99BBE743-16C3-4D4D-97CB-22AC59494B86 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "99BBE743-16C3-4D4D-97CB-22AC59494B86"; sourceTree = "<group>"; };
+		970BF0482AF957E200ACD339 /* B632B705-7901-408D-B026-287923479D3E */ = {isa = PBXFileReference; lastKnownFileType = file; path = "B632B705-7901-408D-B026-287923479D3E"; sourceTree = "<group>"; };
+		970BF0492AF957E200ACD339 /* sd_mock.store */ = {isa = PBXFileReference; lastKnownFileType = file; path = sd_mock.store; sourceTree = "<group>"; };
 		9712FB4F2A438A0B00E5E227 /* ImageSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSlider.swift; sourceTree = "<group>"; };
 		9712FB572A438E2A00E5E227 /* recipe_00.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = recipe_00.jpeg; sourceTree = "<group>"; };
 		9712FB582A438E2A00E5E227 /* recipe_01.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = recipe_01.jpeg; sourceTree = "<group>"; };
@@ -296,11 +312,45 @@
 		970BEFF72AF85AF200ACD339 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				970BEFF12AF859D100ACD339 /* Model+Recipe.swift */,
 				970BEFF32AF859D800ACD339 /* Model+Folder.swift */,
+				970BEFF12AF859D100ACD339 /* Model+Recipe.swift */,
 				975F47C32A6B06FC0016BB95 /* Model+ImageData.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		970BF03D2AF957E200ACD339 /* SDMockStore */ = {
+			isa = PBXGroup;
+			children = (
+				970BF03E2AF957E200ACD339 /* sd_mock_original.store */,
+				970BF0492AF957E200ACD339 /* sd_mock.store */,
+				970BF03F2AF957E200ACD339 /* .sd_mock_SUPPORT */,
+				979FA1812AF7DC2D00A83590 /* JSON */,
+			);
+			path = SDMockStore;
+			sourceTree = "<group>";
+		};
+		970BF03F2AF957E200ACD339 /* .sd_mock_SUPPORT */ = {
+			isa = PBXGroup;
+			children = (
+				970BF0402AF957E200ACD339 /* _EXTERNAL_DATA */,
+			);
+			path = .sd_mock_SUPPORT;
+			sourceTree = "<group>";
+		};
+		970BF0402AF957E200ACD339 /* _EXTERNAL_DATA */ = {
+			isa = PBXGroup;
+			children = (
+				970BF0412AF957E200ACD339 /* D3BA6685-7C8D-4EB4-8A9B-E17BA4500EF7 */,
+				970BF0422AF957E200ACD339 /* EE65687F-224F-4ABB-8C3C-7F83467495A5 */,
+				970BF0432AF957E200ACD339 /* 25044792-B060-4DEF-92C2-2F5CB093D9E5 */,
+				970BF0442AF957E200ACD339 /* 290F3478-3097-4928-8BF9-F93358CDA0C8 */,
+				970BF0452AF957E200ACD339 /* F72ABF8E-DFE0-4024-8787-E4303A2DBC08 */,
+				970BF0462AF957E200ACD339 /* 9E23301E-E0F7-46C0-AE96-96C637A3BBC8 */,
+				970BF0472AF957E200ACD339 /* 99BBE743-16C3-4D4D-97CB-22AC59494B86 */,
+				970BF0482AF957E200ACD339 /* B632B705-7901-408D-B026-287923479D3E */,
+			);
+			path = _EXTERNAL_DATA;
 			sourceTree = "<group>";
 		};
 		9712FB5E2A4393B100E5E227 /* Photos */ = {
@@ -352,9 +402,7 @@
 		975A4EF42A44C31000C9509A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				970BEFE92AF84F7700ACD339 /* mock_original.store */,
-				970BEFE82AF84F7700ACD339 /* mock.store */,
-				979FA1812AF7DC2D00A83590 /* JSON */,
+				970BF03D2AF957E200ACD339 /* SDMockStore */,
 				97AD13B72A2E7392002FCE30 /* Main.swift */,
 				971A3B5B2A40FD71009F8002 /* Info.plist */,
 				97AD13BB2A2E7394002FCE30 /* Assets.xcassets */,
@@ -790,8 +838,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				970BEFEA2AF84F8100ACD339 /* mock_original.store in Resources */,
-				970BEFEB2AF84F8100ACD339 /* mock.store in Resources */,
 				97C04E692A40AA0D00EB7D6D /* burger_bun_02.jpg in Resources */,
 				979FA1C92AF7DC2E00A83590 /* recipe_24.json in Resources */,
 				979FA1DB2AF7DC2E00A83590 /* recipe_31.json in Resources */,
@@ -799,11 +845,14 @@
 				979FA1BA2AF7DC2E00A83590 /* recipe_04.json in Resources */,
 				97AD13BF2A2E7394002FCE30 /* Preview Assets.xcassets in Resources */,
 				979FA1C32AF7DC2E00A83590 /* recipe_11.json in Resources */,
+				970BF0502AF957E200ACD339 /* 9E23301E-E0F7-46C0-AE96-96C637A3BBC8 in Resources */,
 				9712FB5A2A438E2A00E5E227 /* recipe_00.jpeg in Resources */,
 				979FA1D52AF7DC2E00A83590 /* recipe_36.json in Resources */,
 				979FA1D72AF7DC2E00A83590 /* recipe_33.json in Resources */,
 				9712FB5C2A438E2A00E5E227 /* recipe_02.jpeg in Resources */,
 				979FA1D22AF7DC2E00A83590 /* recipe_38.json in Resources */,
+				970BF0522AF957E200ACD339 /* B632B705-7901-408D-B026-287923479D3E in Resources */,
+				970BF04D2AF957E200ACD339 /* 25044792-B060-4DEF-92C2-2F5CB093D9E5 in Resources */,
 				97C04E6B2A40AA0D00EB7D6D /* burger_bun_04.jpg in Resources */,
 				979FA1D92AF7DC2E00A83590 /* recipe_28.json in Resources */,
 				979FA1DD2AF7DC2E00A83590 /* recipe_30.json in Resources */,
@@ -815,6 +864,7 @@
 				979FA1D42AF7DC2E00A83590 /* recipe_37.json in Resources */,
 				979FA1D02AF7DC2E00A83590 /* recipe_35.json in Resources */,
 				979FA1C02AF7DC2E00A83590 /* recipe_09.json in Resources */,
+				970BF0512AF957E200ACD339 /* 99BBE743-16C3-4D4D-97CB-22AC59494B86 in Resources */,
 				979FA1D12AF7DC2E00A83590 /* recipe_34.json in Resources */,
 				979FA1CF2AF7DC2E00A83590 /* recipe_39.json in Resources */,
 				979FA1C82AF7DC2E00A83590 /* recipe_22.json in Resources */,
@@ -823,19 +873,25 @@
 				979FA1CB2AF7DC2E00A83590 /* recipe_20.json in Resources */,
 				979FA1CD2AF7DC2E00A83590 /* recipe_17.json in Resources */,
 				97C04E682A40AA0D00EB7D6D /* burger_bun_01.jpg in Resources */,
+				970BF04F2AF957E200ACD339 /* F72ABF8E-DFE0-4024-8787-E4303A2DBC08 in Resources */,
 				979FA1CE2AF7DC2E00A83590 /* recipe_16.json in Resources */,
 				979FA1CA2AF7DC2E00A83590 /* recipe_23.json in Resources */,
 				979FA1D82AF7DC2E00A83590 /* recipe_29.json in Resources */,
 				979FA1BC2AF7DC2E00A83590 /* recipe_07.json in Resources */,
 				9712FB5B2A438E2A00E5E227 /* recipe_01.jpeg in Resources */,
 				979FA1DA2AF7DC2E00A83590 /* recipe_32.json in Resources */,
+				970BF04A2AF957E200ACD339 /* sd_mock_original.store in Resources */,
+				970BF04E2AF957E200ACD339 /* 290F3478-3097-4928-8BF9-F93358CDA0C8 in Resources */,
 				979FA1C22AF7DC2E00A83590 /* recipe_12.json in Resources */,
 				979FA1B82AF7DC2E00A83590 /* recipe_02.json in Resources */,
 				979FA1C52AF7DC2E00A83590 /* recipe_15.json in Resources */,
 				979FA1BF2AF7DC2E00A83590 /* recipe_14.json in Resources */,
 				979FA1C42AF7DC2E00A83590 /* recipe_10.json in Resources */,
+				970BF04C2AF957E200ACD339 /* EE65687F-224F-4ABB-8C3C-7F83467495A5 in Resources */,
 				979FA1D62AF7DC2E00A83590 /* recipe_25.json in Resources */,
 				979FA1BD2AF7DC2E00A83590 /* recipe_06.json in Resources */,
+				970BF0532AF957E200ACD339 /* sd_mock.store in Resources */,
+				970BF04B2AF957E200ACD339 /* D3BA6685-7C8D-4EB4-8A9B-E17BA4500EF7 in Resources */,
 				97C04E6D2A40AA0D00EB7D6D /* burger_bun_05.jpg in Resources */,
 				979FA1B92AF7DC2E00A83590 /* recipe_05.json in Resources */,
 				979FA1CC2AF7DC2E00A83590 /* recipe_21.json in Resources */,

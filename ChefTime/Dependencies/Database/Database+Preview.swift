@@ -7,10 +7,10 @@ import SwiftUI
 // Generates and utilizes mock data that resets on reinit.
 extension Database {
   static let preview = {
-    let source = Bundle.main.url(forResource: "mock", withExtension: "store")!
-    let original = Bundle.main.url(forResource: "mock_original", withExtension: "store")!
+    let source = Bundle.main.url(forResource: "sd_mock", withExtension: "store")!
+    let original = Bundle.main.url(forResource: "sd_mock_original", withExtension: "store")!
     _ = try! FileManager.default.replaceItemAt(source, withItemAt: original)
-    let sdc = SDClient(Bundle.main.url(forResource: "mock", withExtension: "store")!)!
+    let sdc = SDClient(source)!
 
     return Self(
       retrieveRootFolders: {

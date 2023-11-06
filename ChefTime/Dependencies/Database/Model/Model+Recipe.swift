@@ -14,7 +14,12 @@ final class SDRecipe: Identifiable, Equatable {
   let id: UUID
   
   var name: String = ""
+  
+  @Attribute(.externalStorage)
   var imageData: [Data] = []
+  // MARK: - Should be ImageData for saftey, however, SwiftData does not seem to play well
+  // with other value types using externalStorage except for Data and String.
+
   
   @Relationship(deleteRule: .cascade, inverse: \SDAboutSection.parentRecipe)
   var aboutSections: [SDAboutSection] = []
@@ -49,7 +54,7 @@ final class SDRecipe: Identifiable, Equatable {
     self.init(
       id: recipe.id.rawValue,
       name: recipe.name,
-      imageData: [],
+      imageData: recipe.imageData.map(\.data),
       aboutSections: recipe.aboutSections.map(SDRecipe.SDAboutSection.init),
       ingredientSections: recipe.ingredientSections.map(SDRecipe.SDIngredientSection.init),
       stepSections: recipe.stepSections.map(SDRecipe.SDStepSection.init)
@@ -194,7 +199,12 @@ final class SDRecipe: Identifiable, Equatable {
       let id: UUID
       
       var description_: String = ""
+      
+      @Attribute(.externalStorage)
       var imageData: [Data] = []
+      // MARK: - Should be ImageData for saftey, however, SwiftData does not seem to play well
+      // with other value types using externalStorage except for Data and String.
+      
       weak var parentStepSection: SDStepSection?
       
       init(
@@ -213,7 +223,7 @@ final class SDRecipe: Identifiable, Equatable {
         self.init(
           id: step.id.rawValue,
           description_: step.description,
-          imageData: []
+          imageData: step.imageData.map(\.data)
         )
       }
     }
@@ -254,7 +264,7 @@ struct Recipe: Identifiable, Equatable, Codable {
     self.init(
       id: .init(rawValue: sdRecipe.id),
       name: sdRecipe.name,
-      imageData: [],
+      imageData: .init(uniqueElements: sdRecipe.imageData.compactMap({ImageData(id: .init(), data: $0)})),
       aboutSections: .init(uniqueElements: sdRecipe.aboutSections.map(Recipe.AboutSection.init)),
       ingredientSections: .init(uniqueElements: sdRecipe.ingredientSections.map(Recipe.IngredientSection.init)),
       stepSections: .init(uniqueElements: sdRecipe.stepSections.map(Recipe.StepSection.init))
@@ -389,7 +399,7 @@ struct Recipe: Identifiable, Equatable, Codable {
         self.init(
           id: .init(rawValue: sdStep.id),
           description: sdStep.description_,
-          imageData: []
+          imageData: .init(uniqueElements: sdStep.imageData.compactMap({ImageData(id: .init(), data: $0)}))
         )
       }
     }
