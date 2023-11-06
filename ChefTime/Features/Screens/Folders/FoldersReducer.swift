@@ -166,7 +166,10 @@ struct FoldersReducer: Reducer {
         }
       }
     }
-    .onChange(of: { $0.userFoldersSection.folders.map(\.folder) }) { oldFolders, newFolders in
+    .onChange(
+      of: { $0.userFoldersSection.folders.map(\.folder) },
+      removeDuplicates: { ($0.isEmpty && !$1.isEmpty) || $0 == $1 }
+    ) { oldFolders, newFolders in
       Reduce { _, _ in
           .run { _ in
             enum UserFoldersUpdateID: Hashable { case debounce }
@@ -188,9 +191,9 @@ struct FoldersReducer: Reducer {
           }
       }
     }
-    .onChange(of: \.systemFoldersSection.folders) { _, _ in
-      EmptyReducer() // TODO: ....
-    }
+//    .onChange(of: \.systemFoldersSection.folders) { _, _ in
+//      EmptyReducer() // TODO: ....
+//    }
   }
 }
 
