@@ -290,6 +290,14 @@
 			path = "Non-Screens";
 			sourceTree = "<group>";
 		};
+		9704F3022AFAE052003D24C1 /* Database+Mock */ = {
+			isa = PBXGroup;
+			children = (
+				970BF0542AF965BA00ACD339 /* SDMockStore */,
+			);
+			path = "Database+Mock";
+			sourceTree = "<group>";
+		};
 		970BEFF72AF85AF200ACD339 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -365,7 +373,6 @@
 		975A4EF42A44C31000C9509A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				970BF0542AF965BA00ACD339 /* SDMockStore */,
 				979FA1812AF7DC2D00A83590 /* JSON */,
 				97AD13B72A2E7392002FCE30 /* Main.swift */,
 				971A3B5B2A40FD71009F8002 /* Info.plist */,
@@ -630,6 +637,7 @@
 		97B17BCB2AB770D6009B6378 /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				9704F3022AFAE052003D24C1 /* Database+Mock */,
 				97B17BCC2AB7713A009B6378 /* Database.swift */,
 				97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */,
 				97CE0F232AF416600075B46D /* Database+Preview.swift */,
