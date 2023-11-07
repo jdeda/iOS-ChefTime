@@ -3,19 +3,19 @@ import ComposableArchitecture
 
 // TODO: - Make Sendable?
 struct Database {
-  let retrieveRootFolders: @Sendable () async -> [Folder]
+  var retrieveRootFolders: @Sendable () async -> [Folder]
   
   // MARK: - Folder CRUD
-  let createFolder: @Sendable (Folder) async -> Void
-  let retrieveFolder: @Sendable (Folder.ID) async -> Folder?
-  let updateFolder: @Sendable (Folder) async -> Void
-  let deleteFolder: @Sendable (Folder.ID) async -> Void
+  var createFolder: @Sendable (Folder) async -> Void
+  var retrieveFolder: @Sendable (Folder.ID) async -> Folder?
+  var updateFolder: @Sendable (Folder) async -> Void
+  var deleteFolder: @Sendable (Folder.ID) async -> Void
   
   // MARK: - Recipe CRUD
-  let createRecipe: @Sendable (Recipe) async -> Void
-  let retrieveRecipe: @Sendable (Recipe.ID) async -> Recipe?
-  let updateRecipe: @Sendable (Recipe) async -> Void
-  let deleteRecipe: @Sendable (Recipe.ID) async -> Void
+  var createRecipe: @Sendable (Recipe) async -> Void
+  var retrieveRecipe: @Sendable (Recipe.ID) async -> Recipe?
+  var updateRecipe: @Sendable (Recipe) async -> Void
+  var deleteRecipe: @Sendable (Recipe.ID) async -> Void
 }
 
 extension Database: DependencyKey {

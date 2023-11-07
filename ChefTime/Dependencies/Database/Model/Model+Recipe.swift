@@ -20,7 +20,6 @@ final class SDRecipe: Identifiable, Equatable {
   // MARK: - Should be ImageData for saftey, however, SwiftData does not seem to play well
   // with other value types using externalStorage except for Data and String.
 
-  
   @Relationship(deleteRule: .cascade, inverse: \SDAboutSection.parentRecipe)
   var aboutSections: [SDAboutSection] = []
   
@@ -88,7 +87,7 @@ final class SDRecipe: Identifiable, Equatable {
       self.init(
         id: aboutSection.id.rawValue,
         name: aboutSection.name,
-        description_: aboutSection.name.description
+        description_: aboutSection.description
       )
     }
   }
