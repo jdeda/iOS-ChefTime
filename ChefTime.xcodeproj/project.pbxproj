@@ -20,6 +20,7 @@
 		9704F3172AFB0858003D24C1 /* 9E413AD7-BA19-4904-AB43-2432698F37DD in Resources */ = {isa = PBXBuildFile; fileRef = 9704F30D2AFB0858003D24C1 /* 9E413AD7-BA19-4904-AB43-2432698F37DD */; };
 		9704F3182AFB0858003D24C1 /* 22B0696D-1381-4453-8D8E-9AF1A3892735 in Resources */ = {isa = PBXBuildFile; fileRef = 9704F30E2AFB0858003D24C1 /* 22B0696D-1381-4453-8D8E-9AF1A3892735 */; };
 		9704F3192AFB0858003D24C1 /* sd_mock.store in Resources */ = {isa = PBXBuildFile; fileRef = 9704F30F2AFB0858003D24C1 /* sd_mock.store */; };
+		9704F31C2AFB0F18003D24C1 /* DatabaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9704F31B2AFB0F18003D24C1 /* DatabaseTests.swift */; };
 		970BEFF22AF859D100ACD339 /* Model+Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970BEFF12AF859D100ACD339 /* Model+Recipe.swift */; };
 		970BEFF42AF859D800ACD339 /* Model+Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970BEFF32AF859D800ACD339 /* Model+Folder.swift */; };
 		9712FB502A438A0B00E5E227 /* ImageSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712FB4F2A438A0B00E5E227 /* ImageSlider.swift */; };
@@ -136,6 +137,7 @@
 		9704F30D2AFB0858003D24C1 /* 9E413AD7-BA19-4904-AB43-2432698F37DD */ = {isa = PBXFileReference; lastKnownFileType = file; path = "9E413AD7-BA19-4904-AB43-2432698F37DD"; sourceTree = "<group>"; };
 		9704F30E2AFB0858003D24C1 /* 22B0696D-1381-4453-8D8E-9AF1A3892735 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "22B0696D-1381-4453-8D8E-9AF1A3892735"; sourceTree = "<group>"; };
 		9704F30F2AFB0858003D24C1 /* sd_mock.store */ = {isa = PBXFileReference; lastKnownFileType = file; path = sd_mock.store; sourceTree = "<group>"; };
+		9704F31B2AFB0F18003D24C1 /* DatabaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseTests.swift; sourceTree = "<group>"; };
 		970BEFF12AF859D100ACD339 /* Model+Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Recipe.swift"; sourceTree = "<group>"; };
 		970BEFF32AF859D800ACD339 /* Model+Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Folder.swift"; sourceTree = "<group>"; };
 		9712FB4F2A438A0B00E5E227 /* ImageSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSlider.swift; sourceTree = "<group>"; };
@@ -162,7 +164,6 @@
 		977633DB2A51C987009FD90C /* AboutList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutList.swift; sourceTree = "<group>"; };
 		9782405A2A3B410000CAC459 /* IngredientList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientList.swift; sourceTree = "<group>"; };
 		97833B992A584E4E002EB24B /* ChefTimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChefTimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		979F80812A5DE08600E3B152 /* ChefTime.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChefTime.xctestplan; sourceTree = "<group>"; };
 		979FA1852AF7DC2D00A83590 /* recipe_26.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recipe_26.json; sourceTree = "<group>"; };
 		979FA1872AF7DC2D00A83590 /* recipe_03.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recipe_03.json; sourceTree = "<group>"; };
 		979FA1882AF7DC2D00A83590 /* recipe_02.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recipe_02.json; sourceTree = "<group>"; };
@@ -226,7 +227,6 @@
 		97EE972D2A6853C9001AA88B /* StepSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSection.swift; sourceTree = "<group>"; };
 		97EE972F2A6853F6001AA88B /* Step.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step.swift; sourceTree = "<group>"; };
 		97EF38F42A9E3D7600DF4D86 /* FoldersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersView.swift; sourceTree = "<group>"; };
-		97F019442A5F2C3700264922 /* ChefTimeTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChefTimeTests.xctestplan; sourceTree = "<group>"; };
 		97F9C5022A9D66610053CAB5 /* HidingImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HidingImages.swift; sourceTree = "<group>"; };
 		97F9C5062A9D66A60053CAB5 /* MaxScreenWidth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxScreenWidth.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -456,6 +456,7 @@
 		97833B9A2A584E4E002EB24B /* ChefTimeTests */ = {
 			isa = PBXGroup;
 			children = (
+				9704F31B2AFB0F18003D24C1 /* DatabaseTests.swift */,
 			);
 			path = ChefTimeTests;
 			sourceTree = "<group>";
@@ -606,8 +607,6 @@
 		97AD13AB2A2E7392002FCE30 = {
 			isa = PBXGroup;
 			children = (
-				97F019442A5F2C3700264922 /* ChefTimeTests.xctestplan */,
-				979F80812A5DE08600E3B152 /* ChefTime.xctestplan */,
 				97AD13B62A2E7392002FCE30 /* ChefTime */,
 				97833B9A2A584E4E002EB24B /* ChefTimeTests */,
 				97AD13B52A2E7392002FCE30 /* Products */,
@@ -745,6 +744,7 @@
 				TargetAttributes = {
 					97833B982A584E4E002EB24B = {
 						CreatedOnToolsVersion = 14.3.1;
+						LastSwiftMigration = 1500;
 						TestTargetID = 97AD13B32A2E7392002FCE30;
 					};
 					97AD13B32A2E7392002FCE30 = {
@@ -858,6 +858,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9704F31C2AFB0F18003D24C1 /* DatabaseTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -923,6 +924,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ME637H7ZM9;
@@ -931,6 +933,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.dedaInc.ChefTimeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChefTime.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ChefTime";
@@ -941,6 +944,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ME637H7ZM9;
