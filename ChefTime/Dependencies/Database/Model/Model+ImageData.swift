@@ -2,6 +2,25 @@ import Tagged
 import Foundation
 import SwiftUI
 
+struct SDData: Equatable, Codable, Identifiable {
+  typealias ID = Tagged<Self, UUID>
+  let id: ID
+  let data: Data
+  var positionPriority: Int?
+  
+  init(id: ID, data: Data, positionPriority: Int? = nil) {
+    self.id = id
+    self.data = data
+    self.positionPriority = positionPriority
+  }
+  
+  init(_ imageData: ImageData, _ positionPriority: Int? = nil) {
+    self.id = .init(rawValue: imageData.id.rawValue)
+    self.data = imageData.data
+    self.positionPriority = positionPriority
+  }
+}
+
 // MARK: - ImageData
 /// Essentially a `Data` wrapper, that when an instance is successfully created,
 /// the **immutable data** stored is **fully image compatible.**
@@ -45,6 +64,10 @@ struct ImageData: Equatable, Codable, Identifiable {
     guard let _ = UIImage(data: data) else { return nil }
     self.data = data
     self.id = id
+  }
+  
+  init?(_ sdData: SDData) {
+    self.init(id: .init(sdData.id.rawValue), data: sdData.data)
   }
   
   enum CodingKeys: CodingKey {

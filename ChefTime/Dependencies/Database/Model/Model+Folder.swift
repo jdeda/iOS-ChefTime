@@ -15,9 +15,7 @@ final class SDFolder: Identifiable, Equatable {
   var name: String
   
   @Attribute(.externalStorage)
-  var imageData: Data?
-  // MARK: - Should be ImageData for saftey, however, SwiftData does not seem to play well
-  // with other value types using externalStorage except for Data and String.
+  var imageData: SDData?
   
   @Relationship(deleteRule: .cascade, inverse: \SDFolder.parentFolder)
   var folders: [SDFolder]
@@ -31,7 +29,7 @@ final class SDFolder: Identifiable, Equatable {
   init(
     id: ID,
     name: String,
-    imageData: Data?,
+    imageData: SDData?,
     folders: [SDFolder],
     recipes: [SDRecipe],
     folderType: Folder.FolderType,
@@ -50,7 +48,7 @@ final class SDFolder: Identifiable, Equatable {
     self.init(
       id: folder.id.rawValue,
       name: folder.name,
-      imageData: folder.imageData.map(\.data),
+      imageData: folder.imageData.flatMap({SDData.init($0)}),
       folders: folder.folders.map(SDFolder.init),
       recipes: folder.recipes.map(SDRecipe.init),
       folderType: folder.folderType
@@ -97,7 +95,7 @@ struct Folder: Identifiable, Equatable, Codable {
       id: .init(rawValue: sdFolder.id),
       parentFolderID: nil,
       name: sdFolder.name,
-      imageData: sdFolder.imageData.flatMap({ImageData(id: .init(), data: $0)}),
+      imageData: sdFolder.imageData.flatMap({ImageData.init($0)}),
       folders: .init(uniqueElements: sdFolder.folders.map(Folder.init)),
       recipes: .init(uniqueElements: sdFolder.recipes.map(Recipe.init)),
       folderType: sdFolder.folderType

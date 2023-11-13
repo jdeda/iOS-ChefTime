@@ -69,6 +69,12 @@ actor SDClient: ModelActor {
     return Folder(sdFolder)
   }
   
+  func retrieveFolders(_ fetchDescriptor: FetchDescriptor<SDFolder>) -> [Folder] {
+    print("SDClient", "retrieveFolders")
+    let sdFolder = (try? modelContext.fetch(fetchDescriptor)) ?? []
+    return sdFolder.map(Folder.init)
+  }
+  
   func updateFolder(_ folder: Folder) throws {
     print("SDClient", "updateFolder")
     printAll()
@@ -116,6 +122,12 @@ actor SDClient: ModelActor {
     return Recipe(sdRecipe)
   }
   
+  func retrieveRecipes(_ fetchDescriptor: FetchDescriptor<SDRecipe>) -> [Recipe] {
+    print("SDClient", "retrieveRecipes")
+    let sdRecipes = (try? modelContext.fetch(fetchDescriptor)) ?? []
+    return sdRecipes.map(Recipe.init)
+  }
+  
   func updateRecipe(_ recipe: Recipe) throws {
     print("SDClient", "updateRecipe")
     try deleteRecipe(recipe.id)
@@ -151,7 +163,6 @@ actor SDClient: ModelActor {
     let predicate = #Predicate<SDRecipe> { $0.id == recipeID }
     let fetchDescriptor = FetchDescriptor<SDRecipe>(predicate: predicate)
     return try? modelContext.fetch(fetchDescriptor).first
-    
   }
   
   func printAll() {

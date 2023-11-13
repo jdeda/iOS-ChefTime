@@ -16,9 +16,7 @@ final class SDRecipe: Identifiable, Equatable {
   var name: String = ""
   
   @Attribute(.externalStorage)
-  var imageData: [Data] = []
-  // MARK: - Should be ImageData for saftey, however, SwiftData does not seem to play well
-  // with other value types using externalStorage except for Data and String.
+  var imageData: [SDData] = []
 
   @Relationship(deleteRule: .cascade, inverse: \SDAboutSection.parentRecipe)
   var aboutSections: [SDAboutSection] = []
@@ -34,7 +32,7 @@ final class SDRecipe: Identifiable, Equatable {
   init(
     id: UUID,
     name: String,
-    imageData: [Data],
+    imageData: [SDData],
     aboutSections: [SDAboutSection],
     ingredientSections: [SDIngredientSection],
     stepSections: [SDStepSection],
@@ -53,10 +51,10 @@ final class SDRecipe: Identifiable, Equatable {
     self.init(
       id: recipe.id.rawValue,
       name: recipe.name,
-      imageData: recipe.imageData.map(\.data),
-      aboutSections: recipe.aboutSections.map(SDRecipe.SDAboutSection.init),
-      ingredientSections: recipe.ingredientSections.map(SDRecipe.SDIngredientSection.init),
-      stepSections: recipe.stepSections.map(SDRecipe.SDStepSection.init)
+      imageData: recipe.imageData.enumerated().map({SDData($0.element, $0.offset)}),
+      aboutSections: recipe.aboutSections.enumerated().map({SDRecipe.SDAboutSection($0.element, $0.offset)}),
+      ingredientSections: recipe.ingredientSections.enumerated().map({SDRecipe.SDIngredientSection($0.element, $0.offset)}),
+      stepSections: recipe.stepSections.enumerated().map({SDRecipe.SDStepSection($0.element, $0.offset)})
     )
   }
   
@@ -71,23 +69,28 @@ final class SDRecipe: Identifiable, Equatable {
     
     weak var parentRecipe: SDRecipe?
     
+    var positionPriority: Int?
+    
     init(
       id: ID,
       name: String,
       description_: String,
-      parentRecipe: SDRecipe? = nil
+      parentRecipe: SDRecipe? = nil,
+      positionPriority: Int? = nil
     ) {
       self.id = id
       self.name = name
       self.description_ = description_
       self.parentRecipe = parentRecipe
+      self.positionPriority = positionPriority
     }
     
-    convenience init(_ aboutSection: Recipe.AboutSection) {
+    convenience init(_ aboutSection: Recipe.AboutSection, _ positionPriority: Int? = nil) {
       self.init(
         id: aboutSection.id.rawValue,
         name: aboutSection.name,
-        description_: aboutSection.description
+        description_: aboutSection.description,
+        positionPriority: positionPriority
       )
     }
   }
@@ -104,23 +107,28 @@ final class SDRecipe: Identifiable, Equatable {
     
     weak var parentRecipe: SDRecipe?
     
+    var positionPriority: Int?
+    
     init(
       id: ID,
       name: String,
       ingredients: [SDIngredient],
-      parentRecipe: SDRecipe? = nil
+      parentRecipe: SDRecipe? = nil,
+      positionPriority: Int? = nil
     ) {
       self.id = id
       self.name = name
       self.ingredients = ingredients
       self.parentRecipe = parentRecipe
+      self.positionPriority = positionPriority
     }
     
-    convenience init(_ ingredientSection: Recipe.IngredientSection) {
+    convenience init(_ ingredientSection: Recipe.IngredientSection, _ positionPriority: Int? = nil) {
       self.init(
         id: ingredientSection.id.rawValue,
         name: ingredientSection.name,
-        ingredients: ingredientSection.ingredients.map(SDRecipe.SDIngredientSection.SDIngredient.init)
+        ingredients: ingredientSection.ingredients.enumerated().map({SDRecipe.SDIngredientSection.SDIngredient($0.element, $0.offset)}),
+        positionPriority: positionPriority
       )
     }
     
@@ -135,26 +143,31 @@ final class SDRecipe: Identifiable, Equatable {
       
       weak var parentIngredientSection: SDIngredientSection?
       
+      var positionPriority: Int?
+      
       init(
         id: UUID,
         name: String,
         amount: Double,
         measure: String,
-        parentIngredientSection: SDIngredientSection? = nil
+        parentIngredientSection: SDIngredientSection? = nil,
+        positionPriority: Int? = nil
       ) {
         self.id = id
         self.name = name
         self.amount = amount
         self.measure = measure
         self.parentIngredientSection = parentIngredientSection
+        self.positionPriority = positionPriority
       }
       
-      convenience init(_ ingredient: Recipe.IngredientSection.Ingredient) {
+      convenience init(_ ingredient: Recipe.IngredientSection.Ingredient, _ positionPriority: Int? = nil) {
         self.init(
           id: ingredient.id.rawValue,
           name: ingredient.name,
           amount: ingredient.amount,
-          measure: ingredient.measure
+          measure: ingredient.measure,
+          positionPriority: positionPriority
         )
       }
     }
@@ -172,23 +185,28 @@ final class SDRecipe: Identifiable, Equatable {
     
     weak var parentRecipe: SDRecipe?
     
+    var positionPriority: Int?
+    
     init(
       id: UUID,
       name: String,
       steps: [SDStep],
-      parentRecipe: SDRecipe? = nil
+      parentRecipe: SDRecipe? = nil,
+      positionPriority: Int? = nil
     ) {
       self.id = id
       self.name = name
       self.steps = steps
       self.parentRecipe = parentRecipe
+      self.positionPriority = positionPriority
     }
     
-    convenience init(_ stepSection: Recipe.StepSection) {
+    convenience init(_ stepSection: Recipe.StepSection, _ positionPriority: Int? = nil) {
       self.init(
         id: stepSection.id.rawValue,
         name: stepSection.name,
-        steps: stepSection.steps.map(SDRecipe.SDStepSection.SDStep.init)
+        steps: stepSection.steps.enumerated().map({SDRecipe.SDStepSection.SDStep($0.element, $0.offset)}),
+        positionPriority: positionPriority
       )
     }
     
@@ -200,17 +218,18 @@ final class SDRecipe: Identifiable, Equatable {
       var description_: String = ""
       
       @Attribute(.externalStorage)
-      var imageData: [Data] = []
-      // MARK: - Should be ImageData for saftey, however, SwiftData does not seem to play well
-      // with other value types using externalStorage except for Data and String.
-      
+      var imageData: [SDData] = []
+
       weak var parentStepSection: SDStepSection?
+      
+      var positionPriority: Int?
       
       init(
         id: UUID,
         description_: String,
-        imageData: [Data],
-        parentStepSection: SDStepSection? = nil
+        imageData: [SDData],
+        parentStepSection: SDStepSection? = nil,
+        positionPriority: Int? = nil
       ) {
         self.id = id
         self.description_ = description_
@@ -218,11 +237,11 @@ final class SDRecipe: Identifiable, Equatable {
         self.parentStepSection = parentStepSection
       }
       
-      convenience init(_ step: Recipe.StepSection.Step) {
+      convenience init(_ step: Recipe.StepSection.Step, _ positionPriority: Int? = nil) {
         self.init(
           id: step.id.rawValue,
           description_: step.description,
-          imageData: step.imageData.map(\.data)
+          imageData: step.imageData.enumerated().map({SDData($0.element, $0.offset)})
         )
       }
     }
@@ -259,14 +278,15 @@ struct Recipe: Identifiable, Equatable, Codable {
     self.stepSections = stepSections
   }
   
+  // TODO: This probably needs proper ordering...
   init(_ sdRecipe: SDRecipe) {
     self.init(
       id: .init(rawValue: sdRecipe.id),
       name: sdRecipe.name,
-      imageData: .init(uniqueElements: sdRecipe.imageData.compactMap({ImageData(id: .init(), data: $0)})),
-      aboutSections: .init(uniqueElements: sdRecipe.aboutSections.map(Recipe.AboutSection.init)),
-      ingredientSections: .init(uniqueElements: sdRecipe.ingredientSections.map(Recipe.IngredientSection.init)),
-      stepSections: .init(uniqueElements: sdRecipe.stepSections.map(Recipe.StepSection.init))
+      imageData: .init(uniqueElements: sdRecipe.imageData.sorted(using: KeyPathComparator(\.positionPriority)).compactMap(ImageData.init)),
+      aboutSections: .init(uniqueElements: sdRecipe.aboutSections.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.AboutSection.init)),
+      ingredientSections: .init(uniqueElements: sdRecipe.ingredientSections.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.IngredientSection.init)),
+      stepSections: .init(uniqueElements: sdRecipe.stepSections.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.StepSection.init))
     )
   }
   
@@ -317,7 +337,7 @@ struct Recipe: Identifiable, Equatable, Codable {
       self.init(
         id: .init(rawValue: sdIngredientSection.id),
         name: sdIngredientSection.name,
-        ingredients: .init(uniqueElements: sdIngredientSection.ingredients.map(Recipe.IngredientSection.Ingredient.init))
+        ingredients: .init(uniqueElements: sdIngredientSection.ingredients.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.IngredientSection.Ingredient.init))
       )
     }
     
@@ -373,7 +393,7 @@ struct Recipe: Identifiable, Equatable, Codable {
       self.init(
         id: .init(rawValue: sdStepSection.id),
         name: sdStepSection.name,
-        steps: .init(uniqueElements: sdStepSection.steps.map(Recipe.StepSection.Step.init))
+        steps: .init(uniqueElements: sdStepSection.steps.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.StepSection.Step.init))
       )
     }
     
@@ -398,7 +418,7 @@ struct Recipe: Identifiable, Equatable, Codable {
         self.init(
           id: .init(rawValue: sdStep.id),
           description: sdStep.description_,
-          imageData: .init(uniqueElements: sdStep.imageData.compactMap({ImageData(id: .init(), data: $0)}))
+          imageData: .init(uniqueElements: sdStep.imageData.sorted(using: KeyPathComparator(\.positionPriority)).compactMap(ImageData.init))
         )
       }
     }
@@ -578,4 +598,3 @@ extension Recipe {
     ]
   )
 }
-
