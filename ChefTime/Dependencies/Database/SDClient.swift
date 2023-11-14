@@ -1,6 +1,21 @@
 import Foundation
 import SwiftData
 
+// MARK: - Handling Dupes
+/// 1. Never ever use UniqueAttrbute, it is suicidal thanks to retarded upserts
+/// 2. Every CoreData object has a persistentModelID, that is guarenteed to be unique, so use that instead
+///   It is a hash value (int), so you have to work with that. That means a couple things you could do:
+///  3. Every Model holds onto that value instead of a UUID, and your PModel's no longer need any ID
+///    But that does elicit the question of, well, who creates who?
+///    Well, the DB is the only guy who you can ever get a real value from.
+///    
+///    If we create a new recipe, it starts with a nil PMID. Then we tell the DB to create one,
+///    and it returns us the PMID.
+///
+///    Right now we said, the app creates the IDs, and it tells the DB which ID to use, well,
+///    not the PMID but rather a UUID.
+///
+
 // Client responsible for all SwiftData operations for the entire app.
 // Performs basic CRUD operations on SDFolders and SDRecipes.
 // Executes all operations on background thread via ModelActor.

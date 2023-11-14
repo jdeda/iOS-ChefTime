@@ -592,7 +592,17 @@ extension Recipe {
         )
       ]),
       .init(id: .init(), name: "Patties", steps: [
-        .init(id: .init(), description: "Roughly chop all meat into bite size pieces and pass through a meat grinder. It usually helps if the meat is very cold. Frozen meat is better than warm meat, but neither will give you the best result")
+        .init(
+          id: .init(),
+          description: "Roughly chop all meat into bite size pieces and pass through a meat grinder. It usually helps if the meat is very cold, if not frozen. Then form into patties. Work the meat if needed just enough for the meat to be able to form patties easily.",
+          imageData: [
+            .init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_meat_01", withExtension: "jpg")!))!)!,
+            .init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_meat_02", withExtension: "jpg")!))!)!,
+            .init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_meat_03", withExtension: "jpg")!))!)!,
+            .init(id: .init(), data: (try? Data(contentsOf: Bundle.main.url(forResource: "burger_meat_04", withExtension: "jpg")!))!)!,
+            
+          ]
+        )
       ]),
       .init(id: .init(), name: "Toppings", steps: [
         .init(id: .init(), description: "Prepare the toppings as you like")
