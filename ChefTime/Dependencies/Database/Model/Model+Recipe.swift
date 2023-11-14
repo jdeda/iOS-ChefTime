@@ -235,13 +235,15 @@ final class SDRecipe: Identifiable, Equatable {
         self.description_ = description_
         self.imageData = imageData
         self.parentStepSection = parentStepSection
+        self.positionPriority = positionPriority
       }
       
       convenience init(_ step: Recipe.StepSection.Step, _ positionPriority: Int? = nil) {
         self.init(
           id: step.id.rawValue,
           description_: step.description,
-          imageData: step.imageData.enumerated().map({SDData($0.element, $0.offset)})
+          imageData: step.imageData.enumerated().map({SDData($0.element, $0.offset)}),
+          positionPriority: positionPriority
         )
       }
     }
