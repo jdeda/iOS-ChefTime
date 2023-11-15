@@ -71,7 +71,7 @@ fileprivate func generateMockFolders() async -> [Folder] {
     
     var folders = [Folder]()
     for url in contents {
-      guard var folder = await fetchFolder(at: url)
+      guard let folder = await fetchFolder(at: url)
       else { continue }
       folders.append(folder)
     }
