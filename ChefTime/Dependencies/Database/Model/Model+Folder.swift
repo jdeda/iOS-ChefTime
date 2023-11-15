@@ -8,8 +8,6 @@ import SwiftData
 /// Folders are recursive over themselves and contain a list of recipes.
 @Model
 final class SDFolder: Identifiable, Equatable {
-  
-  @Attribute(.unique)
   let id: UUID
   
   var name: String

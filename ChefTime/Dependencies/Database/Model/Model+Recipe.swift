@@ -9,8 +9,6 @@ import SwiftData
 /// the finished recipe looks like, any peritnent discussion about it, the ingredients, and steps.
 @Model
 final class SDRecipe: Identifiable, Equatable {
-  
-  @Attribute(.unique)
   let id: UUID
   
   var name: String = ""
@@ -60,8 +58,6 @@ final class SDRecipe: Identifiable, Equatable {
   
   @Model
   final class SDAboutSection: Identifiable, Equatable {
-    
-    @Attribute(.unique)
     let id: UUID
     
     var name: String = ""
@@ -97,9 +93,8 @@ final class SDRecipe: Identifiable, Equatable {
   
   @Model
   final class SDIngredientSection: Identifiable, Equatable {
-    @Attribute(.unique)
     let id: UUID
-    
+  
     var name: String = ""
     
     @Relationship(deleteRule: .cascade, inverse: \SDIngredient.parentIngredientSection)
@@ -134,15 +129,11 @@ final class SDRecipe: Identifiable, Equatable {
     
     @Model
     final class SDIngredient: Identifiable, Equatable {
-      @Attribute(.unique)
       let id: UUID
-      
       var name: String = ""
       var amount: Double = 0.0
       var measure: String = ""
-      
       weak var parentIngredientSection: SDIngredientSection?
-      
       var positionPriority: Int?
       
       init(
@@ -175,7 +166,6 @@ final class SDRecipe: Identifiable, Equatable {
   
   @Model
   final class SDStepSection: Identifiable, Equatable {
-    @Attribute(.unique)
     let id: UUID
     
     var name: String = ""
@@ -212,7 +202,6 @@ final class SDRecipe: Identifiable, Equatable {
     
     @Model
     final class SDStep: Identifiable, Equatable {
-      @Attribute(.unique)
       let id: UUID
       
       var description_: String = ""
