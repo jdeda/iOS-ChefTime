@@ -88,12 +88,12 @@ struct FolderReducer: Reducer {
         case .task:
           let folder = state.folder
           return .run { send in
-            // TODO: Might be wise to check if ID matches here.
             if let newFolder = await self.database.retrieveFolder(folder.id) {
               await send(.fetchFolderSuccess(newFolder))
             }
             else {
-              await self.database.createFolder(folder)
+              // TODO: - Handle DB errors in future
+              try! await self.database.createFolder(folder)
             }
           }
           
@@ -219,7 +219,8 @@ struct FolderReducer: Reducer {
             try await withTaskCancellation(id: FolderUpdateID.debounce, cancelInFlight: true) {
               try await self.clock.sleep(for: .seconds(1))
               print("Updated folder \(newFolder.id.uuidString)")
-              await database.updateFolder(newFolder)
+              // TODO: - Handle DB errors in future
+              try! await database.updateFolder(newFolder)
             }
           }
       }

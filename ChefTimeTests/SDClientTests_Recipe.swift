@@ -6,32 +6,32 @@ import SwiftData
 @testable import ChefTime
 
 @MainActor
-final class SDClientTests: XCTestCase {
+final class SDClientTests_Recipe: XCTestCase {
   
   func testInit() async {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
-    let folders = await sdc.retrieveFolders(FetchDescriptor<SDFolder>())
-    let recipes = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let folders = await sdc.retrieveFolders()
+    let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(folders.isEmpty)
     XCTAssertTrue(recipes.isEmpty)
   }
   
   func testCreateRecipe() async throws {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
-    let recipes = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes.isEmpty)
     
     // Let's add an empty butter recipe.
     let recipe = Recipe(id: .init(), name: "Butter")
     try await sdc.createRecipe(recipe)
-    let newRecipes = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let newRecipes = await sdc.retrieveRecipes()
     XCTAssertTrue(newRecipes.count == 1)
     XCTAssertTrue(newRecipes.first == recipe)
     
     // Let's add a complicated recipe:
     let recipe2 = Recipe.longMock
     try await sdc.createRecipe(recipe2)
-    let newRecipes2 = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let newRecipes2 = await sdc.retrieveRecipes()
     XCTAssertTrue(newRecipes2.count == 2)
     XCTAssertEqual(recipe, try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe.id })))
     dump(diff(recipe2, try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe2.id }))))
@@ -40,13 +40,13 @@ final class SDClientTests: XCTestCase {
   
   func testCreateDupeRecipe() async throws {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
-    let recipes = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes.isEmpty)
     
     // Let's add an empty butter recipe.
     let recipe = Recipe(id: .init(), name: "Butter")
     try await sdc.createRecipe(recipe)
-    let newRecipes = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let newRecipes = await sdc.retrieveRecipes()
     XCTAssertTrue(newRecipes.count == 1)
     XCTAssertTrue(newRecipes.first == recipe)
     
@@ -56,28 +56,28 @@ final class SDClientTests: XCTestCase {
     } catch {
       XCTAssertEqual(error as? SDClient.SDError, SDClient.SDError.duplicate)
     }
-    let newRecipes2 = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let newRecipes2 = await sdc.retrieveRecipes()
     XCTAssertTrue(newRecipes2.count == 1)
     XCTAssertTrue(newRecipes2.first == recipe)
   }
   
   func testUpdateRecipe() async throws {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
-    let recipes = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes.isEmpty)
     
     // Let's add an empty butter recipe.
     let id = Recipe.ID()
     var recipe = Recipe(id: id, name: "Butter")
     try await sdc.createRecipe(recipe)
-    let recipeSDC1 = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>()).first
+    let recipeSDC1 = await sdc.retrieveRecipes().first
     XCTAssertEqual(recipe, recipeSDC1)
     
     // Edit the recipe and update it to the DB.
     recipe.name = "Brown Butter"
     recipe.aboutSections.append(.init(id: .init(), name: "About", description: "The only thing better than butter is brown butter!"))
     try await sdc.updateRecipe(recipe)
-    let recipeSDC2 = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>()).first
+    let recipeSDC2 = await sdc.retrieveRecipes().first
     XCTAssertEqual(recipe, recipeSDC2)
     
     // Repeat.
@@ -97,7 +97,7 @@ final class SDClientTests: XCTestCase {
       .init(id: .init(), name: "MSG", amount: 1, measure: "tsp"),
     ]))
     try await sdc.updateRecipe(recipe)
-    let recipeSDC3 = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>()).first
+    let recipeSDC3 = await sdc.retrieveRecipes().first
     XCTAssertEqual(recipe, recipeSDC3)
     
     // Repeat.
@@ -117,13 +117,13 @@ final class SDClientTests: XCTestCase {
       .init(id: .init(), description: "Now that everything is in the butter mixture, stir gently until just combined then refridgerate."),
     ]))
     try await sdc.updateRecipe(recipe)
-    let recipeSDC4 = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>()).first
+    let recipeSDC4 = await sdc.retrieveRecipes().first
     XCTAssertEqual(recipe, recipeSDC4)
   }
   
   func testUpdateRecipeInvalidID() async throws {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
-    let recipes = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes.isEmpty)
     
     // Let's add an empty butter recipe.
@@ -150,7 +150,7 @@ final class SDClientTests: XCTestCase {
   
   func deleteRecipe() async throws {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
-    let initrecipes = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let initrecipes = await sdc.retrieveRecipes()
     XCTAssertTrue(initrecipes.isEmpty)
     
     // Let's create some recipes and add them.
@@ -160,14 +160,14 @@ final class SDClientTests: XCTestCase {
     for recipe in recipes {
       try await sdc.createRecipe(recipe)
     }
-    let recipes1 = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes1 = await sdc.retrieveRecipes()
     XCTAssertEqual(recipes1, recipes)
     XCTAssertTrue(recipes1.count == 9)
     XCTAssertTrue(recipes.count == 9)
     
     // Let's delete one and check.
     try await sdc.deleteRecipe(recipes1.first!.id)
-    let recipes2SDC = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes2SDC = await sdc.retrieveRecipes()
     var recipes2 = recipes1
     recipes2.removeLast()
     XCTAssertEqual(recipes2SDC, recipes2)
@@ -176,7 +176,7 @@ final class SDClientTests: XCTestCase {
     
     // Repeat.
     try await sdc.deleteRecipe(recipes2.first!.id)
-    let recipes3SDC = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes3SDC = await sdc.retrieveRecipes()
     var recipes3 = recipes2
     recipes3.removeLast()
     XCTAssertEqual(recipes3SDC, recipes3)
@@ -185,7 +185,7 @@ final class SDClientTests: XCTestCase {
     
     // Repeat.
     try await sdc.deleteRecipe(recipes3[1].id)
-    let recipes4SDC = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes4SDC = await sdc.retrieveRecipes()
     var recipes4 = recipes3
     recipes4.remove(at: 1)
     XCTAssertEqual(recipes4SDC, recipes4)
@@ -196,7 +196,7 @@ final class SDClientTests: XCTestCase {
     for recipe in recipes3 {
       try await sdc.deleteRecipe(recipe.id)
     }
-    let recipes5SDC = await sdc.retrieveRecipes(FetchDescriptor<SDRecipe>())
+    let recipes5SDC = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes5SDC.isEmpty)
   }
 }

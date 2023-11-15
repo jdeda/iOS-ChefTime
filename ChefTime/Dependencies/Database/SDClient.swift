@@ -81,7 +81,7 @@ actor SDClient: ModelActor {
     return Folder(sdFolder)
   }
   
-  func retrieveFolders(_ fetchDescriptor: FetchDescriptor<SDFolder>) -> [Folder] {
+  func retrieveFolders(_ fetchDescriptor: FetchDescriptor<SDFolder> = .init()) -> [Folder] {
     print("SDClient", "retrieveFolders")
     let sdFolder = (try? modelContext.fetch(fetchDescriptor)) ?? []
     return sdFolder.map(Folder.init)
@@ -143,7 +143,7 @@ actor SDClient: ModelActor {
     return Recipe(sdRecipe)
   }
   
-  func retrieveRecipes(_ fetchDescriptor: FetchDescriptor<SDRecipe>) -> [Recipe] {
+  func retrieveRecipes(_ fetchDescriptor: FetchDescriptor<SDRecipe> = .init()) -> [Recipe] {
     print("SDClient", "retrieveRecipes")
     let sdRecipes = (try? modelContext.fetch(fetchDescriptor)) ?? []
     return sdRecipes.map(Recipe.init)

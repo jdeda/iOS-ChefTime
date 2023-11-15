@@ -72,7 +72,8 @@ struct RecipeReducer: Reducer {
               await send(.fetchRecipeSuccess(newRecipe))
             }
             else {
-              await self.database.createRecipe(recipe)
+              // TODO: - Handle DB errors in future
+              try! await self.database.createRecipe(recipe)
             }
           }
           
@@ -192,7 +193,8 @@ struct RecipeReducer: Reducer {
             try await withTaskCancellation(id: RecipeUpdateID.debounce, cancelInFlight: true) {
               try await self.clock.sleep(for: .seconds(1))
               print("Updated recipe \(newRecipe.id.uuidString)")
-              await database.updateRecipe(newRecipe)
+              // TODO: - Handle DB errors in future
+              try! await database.updateRecipe(newRecipe)
             }
           }
       }

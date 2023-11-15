@@ -174,17 +174,18 @@ struct FoldersReducer: Reducer {
           .run { _ in
             enum UserFoldersUpdateID: Hashable { case debounce }
             try await withTaskCancellation(id: UserFoldersUpdateID.debounce, cancelInFlight: true) {
+              // TODO: - Handle DB errors in future
               try await self.clock.sleep(for: .seconds(1))
               for updatedFolder in newFolders.intersectionByID(oldFolders).filter({ newFolders[id: $0.id] != oldFolders[id: $0.id] }) {
-                await self.database.updateFolder(updatedFolder)
+                try! await self.database.updateFolder(updatedFolder)
                 print("Updated folder \(updatedFolder.id.uuidString)")
               }
               for addedFolder in newFolders.symmetricDifferenceByID(oldFolders) {
-                await self.database.createFolder(addedFolder)
+                try! await self.database.createFolder(addedFolder)
                 print("Created folder \(addedFolder.id.uuidString)")
               }
               for removedFolder in oldFolders.symmetricDifferenceByID(newFolders) {
-                await self.database.deleteFolder(removedFolder.id)
+                try! await self.database.deleteFolder(removedFolder.id)
                 print("Deleted folder \(removedFolder.id.uuidString)")
               }
             }
