@@ -28,6 +28,8 @@ actor SDClient: ModelActor {
   
   enum SDError: Equatable, Error {
     case failure
+    case notFound
+    case duplicate
   }
   
   func retrieveRootFolders() -> [Folder] {
@@ -40,6 +42,16 @@ actor SDClient: ModelActor {
   
   // MARK: - Folder CRUD
   func createFolder(_ folder: Folder) throws {
+    // Check if a duplicate exists.
+    let uuid = folder.id.rawValue // Putting this in the predicate causes runtime crash
+    let predicate = #Predicate<SDFolder> { $0.id == uuid }
+    var fetchDescriptor = FetchDescriptor<SDFolder>(predicate: predicate)
+    fetchDescriptor.fetchLimit = 1
+    fetchDescriptor.propertiesToFetch = [\.id]
+    if let _ = try? modelContext.fetch(fetchDescriptor).first {
+      throw SDError.duplicate
+    }
+
     print("SDClient", "createFolder")
     let sdFolder = SDFolder(folder)
     modelContext.insert(sdFolder)
@@ -88,7 +100,7 @@ actor SDClient: ModelActor {
   func deleteFolder(_ folderID: Folder.ID) throws {
     print("SDClient", "deleteFolder")
     guard let sdFolder = _retrieveSDFolder(folderID)
-    else { throw SDError.failure }
+    else { throw SDError.notFound }
     sdFolder.folders.forEach {
       try? self.deleteFolder(.init($0.id))
     }
@@ -109,6 +121,15 @@ actor SDClient: ModelActor {
   
   // MARK: - Recipe CRUD
   func createRecipe(_ recipe: Recipe) throws {
+    // Check if a duplicate exists.
+    let uuid = recipe.id.rawValue // Putting this in the predicate causes runtime crash
+    let predicate = #Predicate<SDRecipe> { $0.id == uuid }
+    var fetchDescriptor = FetchDescriptor<SDRecipe>(predicate: predicate)
+    fetchDescriptor.fetchLimit = 1
+    fetchDescriptor.propertiesToFetch = [\.id]
+    if let _ = try? modelContext.fetch(fetchDescriptor).first {
+      throw SDError.duplicate
+    }
     print("SDClient", "createRecipe")
     let sdRecipe = SDRecipe(recipe)
     modelContext.insert(sdRecipe)
@@ -138,7 +159,7 @@ actor SDClient: ModelActor {
   func deleteRecipe(_ recipeID: Recipe.ID) throws {
     print("SDClient", "deleteRecipe")
     guard let sdRecipe = _retrieveSDRecipe(recipeID.rawValue)
-    else { throw SDError.failure }
+    else { throw SDError.notFound }
     sdRecipe.aboutSections.forEach { sdas in
       modelContext.delete(sdas)
     }
