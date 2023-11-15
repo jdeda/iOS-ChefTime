@@ -7,7 +7,6 @@ import SwiftData
 
 @MainActor
 final class SDClientTests_Folder: XCTestCase {
-  
   func testInit() async {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
     let folders = await sdc.retrieveFolders()
@@ -16,26 +15,27 @@ final class SDClientTests_Folder: XCTestCase {
     XCTAssertTrue(recipes.isEmpty)
   }
   
-  func testCreateRecipe() async throws {
+  func testCreateFolder() async throws {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
-    let recipes = await sdc.retrieveRecipes()
-    XCTAssertTrue(recipes.isEmpty)
+    let folders = await sdc.retrieveFolders()
+    XCTAssertTrue(folders.isEmpty)
     
     // Let's add an empty butter recipe.
-    let recipe = Recipe(id: .init(), name: "Butter")
-    try await sdc.createRecipe(recipe)
-    let newRecipes = await sdc.retrieveRecipes()
-    XCTAssertTrue(newRecipes.count == 1)
-    XCTAssertTrue(newRecipes.first == recipe)
+    let folder = Folder(id: .init(), name: "Butter")
+    try await sdc.createFolder(folder)
+    let newFolders = await sdc.retrieveFolders()
+    XCTAssertTrue(newFolders.count == 1)
+    XCTAssertTrue(newFolders.first == folder)
     
     // Let's add a complicated recipe:
-    let recipe2 = Recipe.longMock
-    try await sdc.createRecipe(recipe2)
-    let newRecipes2 = await sdc.retrieveRecipes()
-    XCTAssertTrue(newRecipes2.count == 2)
-    XCTAssertEqual(recipe, try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe.id })))
-    dump(diff(recipe2, try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe2.id }))))
-    XCTAssertEqual(recipe2, try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe2.id })))
+    let folder2 = Folder.longMock
+    try await sdc.createFolder(folder2)
+    let newFolders2 = await sdc.retrieveFolders()
+    print("FDC", foldersCount(newFolders2))
+    XCTAssertTrue(foldersCount(newFolders2) == 12) // TODO: Magic number.
+    XCTAssertEqual(folder, try XCTUnwrap(newFolders2.first(where: { $0.id == folder.id })))
+    dump(diff(folder2, try XCTUnwrap(newFolders2.first(where: { $0.id == folder2.id }))))
+    XCTAssertEqual(folder2, try XCTUnwrap(newFolders2.first(where: { $0.id == folder2.id })))
   }
   
   func testCreateDupeRecipe() async throws {
@@ -198,5 +198,20 @@ final class SDClientTests_Folder: XCTestCase {
     }
     let recipes5SDC = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes5SDC.isEmpty)
+  }
+}
+
+// MARK: - FolderCount helpers. Helps calculate the folder count since folders can be recursive.
+extension SDClientTests_Folder {
+  private func folderCount(_ folder: Folder) -> Int {
+    folder.folders.reduce(into: folder.folders.count) { partial, folder in
+      partial += folderCount(folder)
+    }
+  }
+  
+  private func foldersCount(_ folders: [Folder]) -> Int {
+    folders.reduce(into: folders.count) { partial, folder in
+      partial += folderCount(folder)
+    }
   }
 }

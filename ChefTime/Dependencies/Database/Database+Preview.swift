@@ -84,6 +84,7 @@ fileprivate func generateMockFolders() async -> [Folder] {
   return f1 + f2
 }
 
+// TODO: Migrate your old data to the new data, including new dates!
 // Fetches folder model from local JSON file. Assume directory is a user folder.
 fileprivate func fetchFolder(at directoryURL: URL) async -> Folder? {
   guard let contents = try? FileManager.default.contentsOfDirectory(
@@ -93,7 +94,12 @@ fileprivate func fetchFolder(at directoryURL: URL) async -> Folder? {
   )
   else { return nil }
   
-  var folder = Folder(id: .init(), name: directoryURL.lastPathComponent, folderType: .user)
+  var folder = Folder(
+    id: .init(),
+    name: directoryURL.lastPathComponent, folderType: .user,
+    creationDate: .init(),
+    lastEditDate: .init()
+  )
   for url in contents {
     if url.hasDirectoryPath {
       guard let childFolder = await fetchFolder(at: url)

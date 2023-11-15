@@ -27,6 +27,10 @@ final class SDRecipe: Identifiable, Equatable {
   
   weak var parentFolder: SDFolder?
   
+  let creationDate: Date
+  
+  var lastEditDate: Date
+  
   init(
     id: UUID,
     name: String,
@@ -34,7 +38,9 @@ final class SDRecipe: Identifiable, Equatable {
     aboutSections: [SDAboutSection],
     ingredientSections: [SDIngredientSection],
     stepSections: [SDStepSection],
-    parentFolder: SDFolder? = nil
+    parentFolder: SDFolder? = nil,
+    creationDate: Date,
+    lastEditDate: Date
   ) {
     self.id = id
     self.name = name
@@ -43,6 +49,8 @@ final class SDRecipe: Identifiable, Equatable {
     self.ingredientSections = ingredientSections
     self.stepSections = stepSections
     self.parentFolder = parentFolder
+    self.creationDate = creationDate
+    self.lastEditDate = lastEditDate
   }
   
   convenience init(_ recipe: Recipe) {
@@ -52,7 +60,9 @@ final class SDRecipe: Identifiable, Equatable {
       imageData: recipe.imageData.enumerated().map({SDData($0.element, $0.offset)}),
       aboutSections: recipe.aboutSections.enumerated().map({SDRecipe.SDAboutSection($0.element, $0.offset)}),
       ingredientSections: recipe.ingredientSections.enumerated().map({SDRecipe.SDIngredientSection($0.element, $0.offset)}),
-      stepSections: recipe.stepSections.enumerated().map({SDRecipe.SDStepSection($0.element, $0.offset)})
+      stepSections: recipe.stepSections.enumerated().map({SDRecipe.SDStepSection($0.element, $0.offset)}),
+      creationDate: recipe.creationDate,
+      lastEditDate: recipe.lastEditDate
     )
   }
   
@@ -252,6 +262,8 @@ struct Recipe: Identifiable, Equatable, Codable {
   var aboutSections: IdentifiedArrayOf<AboutSection> = []
   var ingredientSections: IdentifiedArrayOf<IngredientSection> = []
   var stepSections: IdentifiedArrayOf<StepSection> = []
+  let creationDate: Date
+  var lastEditDate: Date
   
   init(
     id: ID,
@@ -259,7 +271,9 @@ struct Recipe: Identifiable, Equatable, Codable {
     imageData: IdentifiedArrayOf<ImageData> = [],
     aboutSections: IdentifiedArrayOf<AboutSection> = [],
     ingredientSections: IdentifiedArrayOf<IngredientSection> = [],
-    stepSections: IdentifiedArrayOf<StepSection> = []
+    stepSections: IdentifiedArrayOf<StepSection> = [],
+    creationDate: Date,
+    lastEditDate: Date
   ) {
     self.id = id
     self.name = name
@@ -267,6 +281,8 @@ struct Recipe: Identifiable, Equatable, Codable {
     self.aboutSections = aboutSections
     self.ingredientSections = ingredientSections
     self.stepSections = stepSections
+    self.creationDate = creationDate
+    self.lastEditDate = lastEditDate
   }
   
   // TODO: This probably needs proper ordering...
@@ -277,7 +293,9 @@ struct Recipe: Identifiable, Equatable, Codable {
       imageData: .init(uniqueElements: sdRecipe.imageData.sorted(using: KeyPathComparator(\.positionPriority)).compactMap(ImageData.init)),
       aboutSections: .init(uniqueElements: sdRecipe.aboutSections.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.AboutSection.init)),
       ingredientSections: .init(uniqueElements: sdRecipe.ingredientSections.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.IngredientSection.init)),
-      stepSections: .init(uniqueElements: sdRecipe.stepSections.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.StepSection.init))
+      stepSections: .init(uniqueElements: sdRecipe.stepSections.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.StepSection.init)),
+      creationDate: sdRecipe.creationDate,
+      lastEditDate: sdRecipe.lastEditDate
     )
   }
   
@@ -418,7 +436,7 @@ struct Recipe: Identifiable, Equatable, Codable {
 
 // MARK: - EmptyMock
 extension Recipe {
-  static let empty = Self(id: .init())
+  static let empty = Self(id: .init(), creationDate: .init(), lastEditDate: .init())
 }
 
 // MARK: - ShortMock
@@ -470,7 +488,9 @@ extension Recipe {
           description: "Assemble with toppings to your liking"
         ),
       ])
-    ]
+    ],
+    creationDate: .init(),
+    lastEditDate: .init()
   )
 }
 
@@ -596,6 +616,8 @@ extension Recipe {
       .init(id: .init(), name: "Toppings", steps: [
         .init(id: .init(), description: "Prepare the toppings as you like")
       ])
-    ]
+    ],
+    creationDate: .init(),
+    lastEditDate: .init()
   )
 }

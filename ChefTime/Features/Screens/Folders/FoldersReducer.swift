@@ -55,7 +55,8 @@ struct FoldersReducer: Reducer {
   @Dependency(\.database) var database
   @Dependency(\.continuousClock) var clock
   @Dependency(\.uuid) var uuid
-  
+  @Dependency(\.date) var date
+
   var body: some Reducer<FoldersReducer.State, FoldersReducer.Action> {
     CombineReducers {
       Scope(state: \.systemFoldersSection, action: /Action.systemFoldersSection) {
@@ -116,13 +117,20 @@ struct FoldersReducer: Reducer {
           let newFolder = FolderGridItemReducer.State(folder: .init(
             id: .init(rawValue: uuid()),
             name: "New Untitled Folder",
-            folderType: .user
+            folderType: .user,
+            creationDate: date(),
+            lastEditDate: date()
           ))
           state.userFoldersSection.folders.append(newFolder)
           return .send(.delegate(.addNewFolderButtonTappedDidComplete(newFolder.id)), animation: .default)
           
         case .newRecipeButtonTapped:
-          let newRecipe = Recipe(id: .init(rawValue: uuid()), name: "New Untitled Recipe")
+          let newRecipe = Recipe(
+            id: .init(rawValue: uuid()),
+            name: "New Untitled Recipe",
+            creationDate: date(),
+            lastEditDate: date()
+          )
           state.systemFoldersSection.folders[1].folder.recipes.append(newRecipe)
           return .send(.delegate(.addNewRecipeButtonTappedDidComplete(newRecipe.id)), animation: .default)
           

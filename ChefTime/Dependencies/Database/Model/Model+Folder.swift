@@ -22,8 +22,15 @@ final class SDFolder: Identifiable, Equatable {
   var recipes: [SDRecipe]
   
   var folderType: Folder.FolderType
+  
   var parentFolder: SDFolder?
   
+  var positionPriority: Int?
+
+  let creationDate: Date
+  
+  var lastEditDate: Date
+    
   init(
     id: ID,
     name: String,
@@ -31,7 +38,10 @@ final class SDFolder: Identifiable, Equatable {
     folders: [SDFolder],
     recipes: [SDRecipe],
     folderType: Folder.FolderType,
-    parentFolder: SDFolder? = nil
+    parentFolder: SDFolder? = nil,
+    positionPriority: Int?,
+    creationDate: Date,
+    lastEditDate: Date
   ) {
     self.id = id
     self.name = name
@@ -40,16 +50,22 @@ final class SDFolder: Identifiable, Equatable {
     self.recipes = recipes
     self.folderType = folderType
     self.parentFolder = parentFolder
+    self.positionPriority = positionPriority
+    self.creationDate = creationDate
+    self.lastEditDate = lastEditDate
   }
   
-  convenience init(_ folder: Folder) {
+  convenience init(_ folder: Folder, _ positionPriority: Int? = nil) {
     self.init(
       id: folder.id.rawValue,
       name: folder.name,
       imageData: folder.imageData.flatMap({SDData.init($0)}),
-      folders: folder.folders.map(SDFolder.init),
+      folders: folder.folders.enumerated().map({SDFolder($0.element, $0.offset)}),
       recipes: folder.recipes.map(SDRecipe.init),
-      folderType: folder.folderType
+      folderType: folder.folderType,
+      positionPriority: positionPriority,
+      creationDate: folder.creationDate,
+      lastEditDate: folder.lastEditDate
     )
   }
 }
@@ -68,7 +84,8 @@ struct Folder: Identifiable, Equatable, Codable {
   var folders: IdentifiedArrayOf<Self> = []
   var recipes: IdentifiedArrayOf<Recipe> = []
   var folderType: FolderType = .user
-  
+  let creationDate: Date
+  var lastEditDate: Date
   
   init(
     id: ID,
@@ -77,7 +94,9 @@ struct Folder: Identifiable, Equatable, Codable {
     imageData: ImageData? = nil,
     folders: IdentifiedArrayOf<Self> = [],
     recipes: IdentifiedArrayOf<Recipe> = [],
-    folderType: FolderType = .user
+    folderType: FolderType = .user,
+    creationDate: Date,
+    lastEditDate: Date
   ) {
     self.id = id
     self.parentFolderID = parentFolderID
@@ -86,6 +105,8 @@ struct Folder: Identifiable, Equatable, Codable {
     self.folders = folders
     self.recipes = recipes
     self.folderType = folderType
+    self.creationDate = creationDate
+    self.lastEditDate = lastEditDate
   }
   
   init(_ sdFolder: SDFolder) {
@@ -96,7 +117,9 @@ struct Folder: Identifiable, Equatable, Codable {
       imageData: sdFolder.imageData.flatMap({ImageData.init($0)}),
       folders: .init(uniqueElements: sdFolder.folders.map(Folder.init)),
       recipes: .init(uniqueElements: sdFolder.recipes.map(Recipe.init)),
-      folderType: sdFolder.folderType
+      folderType: sdFolder.folderType,
+      creationDate: sdFolder.creationDate,
+      lastEditDate: sdFolder.lastEditDate
     )
   }
 }
@@ -121,7 +144,7 @@ extension Folder {
 
 // MARK: - Empty Mock.
 extension Folder {
-  static let emptyMock = Self(id: .init())
+  static let emptyMock = Self(id: .init(), creationDate: .init(), lastEditDate: .init())
 }
 
 // MARK: - ShortMock
@@ -130,7 +153,9 @@ extension Folder {
     id: .init(),
     name: "My Best Recipes",
     folders: [],
-    recipes: .init(uniqueElements: (1...10).map(generateRecipe))
+    recipes: .init(uniqueElements: (1...10).map(generateRecipe)),
+    creationDate: .init(), 
+    lastEditDate: .init()
   )
 }
 
@@ -140,7 +165,9 @@ extension Folder {
     id: .init(),
     name: "My Best Recipes",
     folders: .init(uniqueElements: (1...5).map(generateFolder)),
-    recipes: .init(uniqueElements: (1...10).map(generateRecipe))
+    recipes: .init(uniqueElements: (1...10).map(generateRecipe)),
+    creationDate: .init(), 
+    lastEditDate: .init()
   )
 }
 
@@ -156,7 +183,9 @@ private func generateDeepFolder(_ num: Int) -> Folder {
     id: .init(),
     name: "Folder No. \(num)",
     folders: .init(uniqueElements: (1...5).map(generateFolder)),
-    recipes: .init(uniqueElements: (1...10).map(generateRecipe))
+    recipes: .init(uniqueElements: (1...10).map(generateRecipe)),
+    creationDate: .init(),
+    lastEditDate: .init()
   )
 }
 
@@ -165,7 +194,9 @@ private func generateFolder(_ num: Int) -> Folder {
     id: .init(),
     name: "Folder No. \(num)",
     folders: [],
-    recipes: .init(uniqueElements: (1...10).map(generateRecipe))
+    recipes: .init(uniqueElements: (1...10).map(generateRecipe)),
+    creationDate: .init(),
+    lastEditDate: .init()
   )
 }
 
@@ -217,7 +248,9 @@ private func generateRecipe(_ num: Int) -> Recipe {
           description: "Assemble with toppings to your liking"
         ),
       ])
-    ]
+    ],
+    creationDate: .init(),
+    lastEditDate: .init()
   )
 }
 

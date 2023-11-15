@@ -1,3 +1,4 @@
+import Foundation
 import ComposableArchitecture
 import Tagged
 
@@ -12,9 +13,9 @@ struct RecipeReducer: Reducer {
     @BindingState var navigationTitle: String
     @PresentationState var alert: AlertState<AlertAction>?
     
-    
+    // TODO: - What to do with the dates here?
     init(recipeID: Recipe.ID) {
-      self.init(recipe: .init(id: recipeID))
+      self.init(recipe: .init(id: recipeID, creationDate: Date(), lastEditDate: Date()))
     }
     
     init(recipe: Recipe) {

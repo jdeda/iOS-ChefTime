@@ -13,8 +13,9 @@ struct FolderReducer: Reducer {
     var editStatus: Section?
     @PresentationState var alert: AlertState<AlertAction>?
     
+    // TODO: - What to do with the dates here?
     init(folderID: Folder.ID) {
-      self.init(folder: .init(id: folderID))
+      self.init(folder: .init(id: folderID, creationDate: Date(), lastEditDate: Date()))
     }
     
     init(folder: Folder) {
@@ -71,6 +72,7 @@ struct FolderReducer: Reducer {
   }
   
   @Dependency(\.uuid) var uuid
+  @Dependency(\.date) var date
   @Dependency(\.continuousClock) var clock
   @Dependency(\.database) var database
   
@@ -152,12 +154,22 @@ struct FolderReducer: Reducer {
           
         case .newFolderButtonTapped:
           let id = FolderGridItemReducer.State.ID(rawValue: uuid())
-          state.folderSection.folders.append(.init(folder: .init(id: .init(rawValue: uuid()), name: "New Untitled Folder")))
+          state.folderSection.folders.append(.init(folder: .init(
+            id: .init(rawValue: uuid()),
+            name: "New Untitled Folder",
+            creationDate: date(),
+            lastEditDate: date()
+          )))
           return .send(.delegate(.addNewFolderButtonTappedDidComplete(id)), animation: .default)
           
         case .newRecipeButtonTapped:
           let id = RecipeGridItemReducer.State.ID(rawValue: uuid())
-          state.recipeSection.recipes.append(.init(recipe: .init(id: .init(rawValue: uuid()), name: "New Untitled Recipe")))
+          state.recipeSection.recipes.append(.init(recipe: .init(
+            id: .init(rawValue: uuid()),
+            name: "New Untitled Recipe",
+            creationDate: date(),
+            lastEditDate: date()
+          )))
           return .send(.delegate(.addNewRecipeButtonTappedDidComplete(id)), animation: .default)
           
         case let .folders(.delegate(action)):

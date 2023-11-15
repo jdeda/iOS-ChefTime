@@ -3,8 +3,7 @@ import Foundation
 import SwiftUI
 
 struct SDData: Equatable, Codable, Identifiable {
-  typealias ID = Tagged<Self, UUID>
-  let id: ID
+  let id: UUID
   let data: Data
   var positionPriority: Int?
   
@@ -15,7 +14,7 @@ struct SDData: Equatable, Codable, Identifiable {
   }
   
   init(_ imageData: ImageData, _ positionPriority: Int? = nil) {
-    self.id = .init(rawValue: imageData.id.rawValue)
+    self.id = imageData.id.rawValue
     self.data = imageData.data
     self.positionPriority = positionPriority
   }
@@ -67,7 +66,7 @@ struct ImageData: Equatable, Codable, Identifiable {
   }
   
   init?(_ sdData: SDData) {
-    self.init(id: .init(sdData.id.rawValue), data: sdData.data)
+    self.init(id: .init(sdData.id), data: sdData.data)
   }
   
   enum CodingKeys: CodingKey {
