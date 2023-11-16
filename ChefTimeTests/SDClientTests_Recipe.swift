@@ -21,8 +21,10 @@ final class SDClientTests_Recipe: XCTestCase {
     let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes.isEmpty)
     
+    let dateGenerator = DateGenerator({ Date() })
+  
     // Let's add an empty butter recipe.
-    let recipe = Recipe(id: .init(), name: "Butter")
+    let recipe = Recipe(id: .init(), name: "Butter", creationDate: dateGenerator(), lastEditDate: dateGenerator())
     try await sdc.createRecipe(recipe)
     let newRecipes = await sdc.retrieveRecipes()
     XCTAssertTrue(newRecipes.count == 1)
@@ -43,8 +45,10 @@ final class SDClientTests_Recipe: XCTestCase {
     let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes.isEmpty)
     
+    let dateGenerator = DateGenerator({ Date() })
+    
     // Let's add an empty butter recipe.
-    let recipe = Recipe(id: .init(), name: "Butter")
+    let recipe = Recipe(id: .init(), name: "Butter", creationDate: dateGenerator(), lastEditDate: dateGenerator())
     try await sdc.createRecipe(recipe)
     let newRecipes = await sdc.retrieveRecipes()
     XCTAssertTrue(newRecipes.count == 1)
@@ -66,9 +70,11 @@ final class SDClientTests_Recipe: XCTestCase {
     let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes.isEmpty)
     
+    let dateGenerator = DateGenerator({ Date() })
+
     // Let's add an empty butter recipe.
     let id = Recipe.ID()
-    var recipe = Recipe(id: id, name: "Butter")
+    var recipe = Recipe(id: id, name: "Butter", creationDate: dateGenerator(), lastEditDate: dateGenerator())
     try await sdc.createRecipe(recipe)
     let recipeSDC1 = await sdc.retrieveRecipes().first
     XCTAssertEqual(recipe, recipeSDC1)
@@ -77,7 +83,9 @@ final class SDClientTests_Recipe: XCTestCase {
     recipe.name = "Brown Butter"
     recipe.aboutSections.append(.init(id: .init(), name: "About", description: "The only thing better than butter is brown butter!"))
     try await sdc.updateRecipe(recipe)
-    let recipeSDC2 = await sdc.retrieveRecipes().first
+    let newRs = await sdc.retrieveRecipes()
+    let recipeSDC2 = newRs.first
+    XCTAssertTrue(newRs.count == 1)
     XCTAssertEqual(recipe, recipeSDC2)
     
     // Repeat.
@@ -126,9 +134,11 @@ final class SDClientTests_Recipe: XCTestCase {
     let recipes = await sdc.retrieveRecipes()
     XCTAssertTrue(recipes.isEmpty)
     
+    let dateGenerator = DateGenerator({ Date() })
+
     // Let's add an empty butter recipe.
     let id = Recipe.ID()
-    var recipe = Recipe(id: id, name: "Butter")
+    var recipe = Recipe(id: id, name: "Butter", creationDate: dateGenerator(), lastEditDate: dateGenerator())
     try await sdc.createRecipe(recipe)
     let recipeSDC1 = await sdc.retrieveRecipe(recipe.id)
     XCTAssertEqual(recipe, recipeSDC1)
@@ -153,9 +163,11 @@ final class SDClientTests_Recipe: XCTestCase {
     let initrecipes = await sdc.retrieveRecipes()
     XCTAssertTrue(initrecipes.isEmpty)
     
+    let dateGenerator = DateGenerator({ Date() })
+
     // Let's create some recipes and add them.
     let recipes: [Recipe] = (1...10).map {
-      .init(id: .init(), name: "Recipe No. \($0)")
+      .init(id: .init(), name: "Recipe No. \($0)", creationDate: dateGenerator(), lastEditDate: dateGenerator())
     }
     for recipe in recipes {
       try await sdc.createRecipe(recipe)

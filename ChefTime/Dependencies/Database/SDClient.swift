@@ -134,6 +134,24 @@ actor SDClient: ModelActor {
     let sdRecipe = SDRecipe(recipe)
     modelContext.insert(sdRecipe)
     try modelContext.save()
+    
+    sdRecipe.aboutSections.forEach { sdas in
+      sdas.parentRecipe = sdRecipe
+    }
+    sdRecipe.ingredientSections.forEach { sdis in
+      sdis.parentRecipe = sdRecipe
+      sdis.ingredients.forEach { sdi in
+        sdi.parentIngredientSection = sdis
+      }
+      modelContext.delete(sdis)
+    }
+    sdRecipe.stepSections.forEach { sdss in
+      sdss.parentRecipe = sdRecipe
+      sdss.steps.forEach { sds in
+        sds.parentStepSection = sdss
+      }
+    }
+    try modelContext.save()
   }
   
   func retrieveRecipe(_ recipeID: Recipe.ID) -> Recipe? {
