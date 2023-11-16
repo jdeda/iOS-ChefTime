@@ -7,17 +7,64 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5055DE22-1E95-4F2C-9422-588F281399AB"
+            uuid = "F3EEADDE-A68E-4131-841D-9FDF17DB4803"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChefTimeTests/SDClientTests_Recipe.swift"
+            filePath = "ChefTimeTests/SDClientTests_Folder.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "39"
-            endingLineNumber = "39"
-            landmarkName = "testCreateRecipe()"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
+            landmarkName = "testUpdateFolder()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "F3EEADDE-A68E-4131-841D-9FDF17DB4803 - 10690e24fcb6f354"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(15) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testUpdateFolder() async throws -&gt; ()"
+                  moduleName = "ChefTimeTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTimeTests/SDClientTests_Folder.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "97"
+                  endingLineNumber = "97"
+                  offsetFromSymbolStart = "699">
+               </Location>
+               <Location
+                  uuid = "F3EEADDE-A68E-4131-841D-9FDF17DB4803 - 10690e24fcb6f354"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(15) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testUpdateFolder() async throws -&gt; ()"
+                  moduleName = "ChefTimeTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTimeTests/SDClientTests_Folder.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "97"
+                  endingLineNumber = "97"
+                  offsetFromSymbolStart = "962">
+               </Location>
+               <Location
+                  uuid = "F3EEADDE-A68E-4131-841D-9FDF17DB4803 - 10690e24fcb6f32b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(15) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testUpdateFolder() async throws -&gt; ()"
+                  moduleName = "ChefTimeTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTimeTests/SDClientTests_Folder.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "100"
+                  endingLineNumber = "100"
+                  offsetFromSymbolStart = "1242">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

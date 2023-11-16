@@ -115,8 +115,8 @@ struct Folder: Identifiable, Equatable, Codable {
       parentFolderID: nil,
       name: sdFolder.name,
       imageData: sdFolder.imageData.flatMap({ImageData.init($0)}),
-      folders: .init(uniqueElements: sdFolder.folders.map(Folder.init)),
-      recipes: .init(uniqueElements: sdFolder.recipes.map(Recipe.init)),
+      folders: .init(uniqueElements: sdFolder.folders.sorted(using: KeyPathComparator(\.positionPriority)).map(Folder.init)),
+      recipes: .init(uniqueElements: sdFolder.recipes.sorted(using: KeyPathComparator(\.lastEditDate)).map(Recipe.init)),
       folderType: sdFolder.folderType,
       creationDate: sdFolder.creationDate,
       lastEditDate: sdFolder.lastEditDate
