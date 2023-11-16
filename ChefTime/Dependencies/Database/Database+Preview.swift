@@ -136,8 +136,18 @@ fileprivate func fetchFolder(at directoryURL: URL) async -> Folder? {
 // Fetches recipe model from local JSON file.
 fileprivate func fetchRecipe(at url: URL) async -> Recipe? {
   guard let data = try? Data(contentsOf: url),
-        let recipe = try? JSONDecoder().decode(Recipe.self, from: data)
+        let recipeV0 = try? JSONDecoder().decode(RecipeV0.self, from: data)
   else { return nil }
+  let recipe = Recipe.init(
+    id: .init(rawValue: recipeV0.id.rawValue),
+    name: recipeV0.name,
+    imageData: recipeV0.imageData,
+    aboutSections: recipeV0.aboutSections,
+    ingredientSections: recipeV0.ingredientSections,
+    stepSections: recipeV0.stepSections,
+    creationDate: .init(),
+    lastEditDate: .init()
+  )
   return recipe
 }
 
@@ -162,5 +172,34 @@ fileprivate struct ReadWriteIO {
     let decoder = JSONDecoder()
     let recipe = try! decoder.decode(Recipe.self, from: data)
     return recipe
+  }
+}
+
+import Tagged
+
+struct RecipeV0: Identifiable, Equatable, Codable {
+  typealias ID = Tagged<Self, UUID>
+  
+  let id: ID
+  var name: String = ""
+  var imageData: IdentifiedArrayOf<ImageData> = []
+  var aboutSections: IdentifiedArrayOf<Recipe.AboutSection> = []
+  var ingredientSections: IdentifiedArrayOf<Recipe.IngredientSection> = []
+  var stepSections: IdentifiedArrayOf<Recipe.StepSection> = []
+  
+  init(
+    id: ID,
+    name: String = "",
+    imageData: IdentifiedArrayOf<ImageData> = [],
+    aboutSections: IdentifiedArrayOf<Recipe.AboutSection> = [],
+    ingredientSections: IdentifiedArrayOf<Recipe.IngredientSection> = [],
+    stepSections: IdentifiedArrayOf<Recipe.StepSection> = []
+  ) {
+    self.id = id
+    self.name = name
+    self.imageData = imageData
+    self.aboutSections = aboutSections
+    self.ingredientSections = ingredientSections
+    self.stepSections = stepSections
   }
 }
