@@ -10,7 +10,7 @@ struct ChefTimeApp: App {
   var body: some Scene {
     WindowGroup {
       if _XCTIsTesting {
-        EmptyView()
+        Text("XCTIsTesting")
       }
       else {
         NavigationStack {

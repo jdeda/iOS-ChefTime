@@ -143,7 +143,6 @@ actor SDClient: ModelActor {
       sdis.ingredients.forEach { sdi in
         sdi.parentIngredientSection = sdis
       }
-      modelContext.delete(sdis)
     }
     sdRecipe.stepSections.forEach { sdss in
       sdss.parentRecipe = sdRecipe

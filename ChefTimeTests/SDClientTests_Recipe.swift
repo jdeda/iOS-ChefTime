@@ -36,7 +36,9 @@ final class SDClientTests_Recipe: XCTestCase {
     let newRecipes2 = await sdc.retrieveRecipes()
     XCTAssertTrue(newRecipes2.count == 2)
     XCTAssertEqual(recipe, try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe.id })))
-    dump(diff(recipe2, try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe2.id }))))
+    dump(recipe2)
+    dump("DIFF")
+    dump(try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe2.id })))
     XCTAssertEqual(recipe2, try XCTUnwrap(newRecipes2.first(where: { $0.id == recipe2.id })))
   }
   
