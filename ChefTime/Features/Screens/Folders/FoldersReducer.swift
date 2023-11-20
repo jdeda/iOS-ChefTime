@@ -2,6 +2,9 @@ import ComposableArchitecture
 import SwiftUI
 import Tagged
 
+
+// TODO: Deal with seperation of systemFolders, specificSystemFolders, and userFolders.
+
 // MARK: - Reducer
 struct FoldersReducer: Reducer {
   struct State: Equatable {
@@ -122,7 +125,7 @@ struct FoldersReducer: Reducer {
             lastEditDate: date()
           ))
           state.userFoldersSection.folders.append(newFolder)
-          return .send(.delegate(.addNewFolderButtonTappedDidComplete(newFolder.id)), animation: .default)
+          return .send(.delegate(.addNewFolderDidComplete(newFolder.folder.id)), animation: .default)
           
         case .newRecipeButtonTapped:
           let newRecipe = Recipe(
@@ -132,7 +135,7 @@ struct FoldersReducer: Reducer {
             lastEditDate: date()
           )
           state.systemFoldersSection.folders[1].folder.recipes.append(newRecipe)
-          return .send(.delegate(.addNewRecipeButtonTappedDidComplete(newRecipe.id)), animation: .default)
+          return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
           
         case let .userFoldersSection(.delegate(action)):
           switch action {
@@ -217,8 +220,8 @@ extension FoldersReducer.Action {
 // MARK: - AlertAction
 extension FoldersReducer {
   enum DelegateAction: Equatable {
-    case addNewFolderButtonTappedDidComplete(FolderGridItemReducer.State.ID)
-    case addNewRecipeButtonTappedDidComplete(Recipe.ID)
+    case addNewFolderDidComplete(Folder.ID)
+    case addNewRecipeDidComplete(Recipe.ID)
   }
 }
 

@@ -19,23 +19,19 @@ struct AppReducer: Reducer {
     }
     Reduce<AppReducer.State, AppReducer.Action> { state, action in
       switch action {
-      case .stack:
-        return .none
-        
-        // All possible folder navigation.
       case let .stack(.element(id: id, action: .folder(.delegate(delegateAction)))):
         // TODO: Remove force unwraps before production.
-        let folder = CasePath(StackReducer.State.folder).extract(from: state.stack[id: id])!
+        let folder = CasePath(StackReducer.State.folder).extract(from: state.stack[id: id])!.folder
         if let newStackElement: StackReducer.State = {
           switch delegateAction {
           case let .addNewFolderDidComplete(childID):
-             .folder(.init(folderID: folder.folder.folders[id: childID]!.id))
+             .folder(.init(folderID: folder.folders[id: childID]!.id))
           case let .addNewRecipeDidComplete(childID):
-             .recipe(.init(recipeID: folder.folder.recipes[id: childID]!.id))
+             .recipe(.init(recipeID: folder.recipes[id: childID]!.id))
           case let .folderTapped(childID):
-             .folder(.init(folderID: folder.folder.folders[id: childID]!.id))
+             .folder(.init(folderID: folder.folders[id: childID]!.id))
           case let .recipeTapped(childID):
-             .recipe(.init(recipeID: folder.folder.recipes[id: childID]!.id))
+             .recipe(.init(recipeID: folder.recipes[id: childID]!.id))
           case .folderUpdated:
              nil
           }
@@ -44,7 +40,23 @@ struct AppReducer: Reducer {
         }
         return .none
         
-      case .folders:
+      case let .folders(.delegate(delegateAction)):
+        // TODO: Remove force unwraps before production.
+        if let newStackElement: StackReducer.State = {
+          switch delegateAction {
+          case let .addNewFolderDidComplete(childID):
+              .folder(.init(folderID: state.folders.userFoldersSection.folders[id: childID]!.id))
+          case let .addNewRecipeDidComplete(childID):
+              .recipe(.init(recipeID: state.folders.systemFoldersSection.folders.first(where: {
+                $0.folder.folderType == .systemStandard
+              })!.folder.recipes[id: childID]!.id))
+          }
+        }() {
+          state.stack.append(newStackElement)
+        }
+        return .none
+        
+      case .folders, .stack:
         return .none
       }
     }
