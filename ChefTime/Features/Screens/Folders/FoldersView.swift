@@ -35,7 +35,7 @@ struct FoldersView: View {
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
           .opacity(viewStore.userFoldersSection.folders.isEmpty ? 0.0 : 1.0)
-          .frame(height: viewStore.userFoldersSection.folders.isEmpty ? 0 : .infinity)
+          .frame(maxHeight: viewStore.userFoldersSection.folders.isEmpty ? 0 : .infinity)
           .id(2)
         }
         

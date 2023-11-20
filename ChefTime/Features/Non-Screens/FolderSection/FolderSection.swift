@@ -20,6 +20,7 @@ struct FolderSectionView: View {
             action: FolderSectionReducer.Action.folders
           )) { childStore in
             let id = ViewStore(childStore, observe: \.id).state
+            
             FolderGridItemView(
               store: childStore,
               isEditing: isEditing,
@@ -34,7 +35,7 @@ struct FolderSectionView: View {
                 viewStore.send(.folderSelected(id), animation: .default)
               }
               else {
-                viewStore.send(.delegate(.folderTapped(id)), animation: .default)
+                viewStore.send(.folderTapped(id), animation: .default)
               }
             }
           }
@@ -71,7 +72,13 @@ struct FolderSectionReducer: Reducer {
     case folderSelected(FolderGridItemReducer.State.ID)
     case folders(FolderGridItemReducer.State.ID, FolderGridItemReducer.Action)
     case binding(BindingAction<State>)
+    
+    case folderTapped(FolderGridItemReducer.State.ID)
+    
     case delegate(DelegateAction)
+    enum DelegateAction: Equatable {
+      case folderTapped(FolderGridItemReducer.State.ID)
+    }
   }
   
   var body: some ReducerOf<Self> {
@@ -100,6 +107,9 @@ struct FolderSectionReducer: Reducer {
         return .none
         
         
+      case let .folderTapped(id):
+        return .send(.delegate(.folderTapped(id)))
+        
       case .folders, .binding, .delegate:
         return .none
       }
@@ -113,9 +123,9 @@ struct FolderSectionReducer: Reducer {
 
 // MARK: - DelegateAction
 extension FolderSectionReducer {
-  enum DelegateAction: Equatable {
-    case folderTapped(FolderGridItemReducer.State.ID)
-  }
+//  enum DelegateAction: Equatable {
+//    case folderTapped(FolderGridItemReducer.State.ID)
+//  }
 }
 
 // MARK: - Preview

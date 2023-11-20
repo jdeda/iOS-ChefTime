@@ -5,6 +5,7 @@ import Tagged
 // MARK: - Reducer
 struct FolderReducer: Reducer {
   struct State: Equatable {
+    var didLoad = false
     @BindingState var folder: Folder
     var folderSection: FolderSectionReducer.State
     var recipeSection: RecipeSectionReducer.State
@@ -52,6 +53,7 @@ struct FolderReducer: Reducer {
   }
   
   enum Action: Equatable, BindableAction {
+    case setDidLoad(Bool)
     case task
     case fetchFolderSuccess(Folder)
     case toggleHideImagesButtonTapped
@@ -87,7 +89,12 @@ struct FolderReducer: Reducer {
       BindingReducer()
       Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
         switch action {
+        case let .setDidLoad(didLoad):
+          state.didLoad = didLoad
+          return .none
+          
         case .task:
+          guard !state.didLoad else { return .none }
           let folder = state.folder
           return .run { send in
             if let newFolder = await self.database.retrieveFolder(folder.id) {
@@ -98,6 +105,7 @@ struct FolderReducer: Reducer {
               try! await self.database.createFolder(folder)
             }
           }
+          .concatenate(with: .send(.setDidLoad(true)))
           
         case let .fetchFolderSuccess(newFolder):
           dump(newFolder)
@@ -153,24 +161,26 @@ struct FolderReducer: Reducer {
           return .none
           
         case .newFolderButtonTapped:
-          let id = FolderGridItemReducer.State.ID(rawValue: uuid())
-          state.folderSection.folders.append(.init(folder: .init(
+          let newFolder = Folder(
             id: .init(rawValue: uuid()),
             name: "New Untitled Folder",
             creationDate: date(),
             lastEditDate: date()
-          )))
-          return .send(.delegate(.addNewFolderDidComplete(id)), animation: .default)
+          )
+          state.folder.folders.append(newFolder)
+          state.folderSection.folders.append(.init(folder: newFolder))
+          return .send(.delegate(.addNewFolderDidComplete(newFolder.id)), animation: .default)
           
         case .newRecipeButtonTapped:
-          let id = RecipeGridItemReducer.State.ID(rawValue: uuid())
-          state.recipeSection.recipes.append(.init(recipe: .init(
-            id: .init(rawValue: uuid()),
-            name: "New Untitled Recipe",
-            creationDate: date(),
-            lastEditDate: date()
-          )))
-          return .send(.delegate(.addNewRecipeDidComplete(id)), animation: .default)
+          let newRecipe = Recipe(
+           id: .init(rawValue: uuid()),
+           name: "New Untitled Recipe",
+           creationDate: date(),
+           lastEditDate: date()
+         )
+          state.folder.recipes.append(newRecipe)
+          state.recipeSection.recipes.append(.init(recipe: newRecipe))
+          return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
           
         case let .folders(.delegate(action)):
           switch action {
@@ -200,7 +210,6 @@ struct FolderReducer: Reducer {
             }
             return .none
           }
-          
           
         case .alert(.dismiss):
           state.alert = nil
@@ -256,8 +265,8 @@ extension FolderReducer.Action {
 // MARK: - DelegateAction
 extension FolderReducer {
   enum DelegateAction: Equatable {
-    case addNewFolderDidComplete(FolderGridItemReducer.State.ID)
-    case addNewRecipeDidComplete(RecipeGridItemReducer.State.ID)
+    case addNewFolderDidComplete(Folder.ID)
+    case addNewRecipeDidComplete(Recipe.ID)
     case folderTapped(Folder.ID)
     case recipeTapped(Recipe.ID)
     case folderUpdated(FolderReducer.State)

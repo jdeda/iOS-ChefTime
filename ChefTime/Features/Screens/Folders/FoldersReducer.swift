@@ -8,6 +8,7 @@ import Tagged
 // MARK: - Reducer
 struct FoldersReducer: Reducer {
   struct State: Equatable {
+    var didLoad = false
     var systemFoldersSection: FolderSectionReducer.State
     var userFoldersSection: FolderSectionReducer.State
     var scrollViewIndex: Int
@@ -35,9 +36,14 @@ struct FoldersReducer: Reducer {
       let value = isEditing && userFoldersSection.selection.count > 0
       return value ? "\(userFoldersSection.selection.count) Selected": "Folders"
     }
+    
+    var systemStandardFolderID: Folder.ID {
+      self.systemFoldersSection.folders.first(where: { $0.folder.folderType == .systemStandard })!.id
+    }
   }
   
   enum Action: Equatable, BindableAction {
+    case setDidLoad(Bool)
     case task
     case fetchFoldersSuccess(IdentifiedArrayOf<Folder>)
     case selectFoldersButtonTapped
@@ -52,7 +58,14 @@ struct FoldersReducer: Reducer {
     case systemFoldersSection(FolderSectionReducer.Action)
     case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
+    
     case delegate(DelegateAction)
+    enum DelegateAction: Equatable {
+      case addNewFolderDidComplete(Folder.ID)
+      case addNewRecipeDidComplete(Recipe.ID)
+      case userFolderTapped(Folder.ID)
+      case systemFolderTapped(Folder.ID)
+    }
   }
   
   @Dependency(\.database) var database
@@ -71,13 +84,18 @@ struct FoldersReducer: Reducer {
       BindingReducer()
       Reduce<FoldersReducer.State, FoldersReducer.Action> { state, action in
         switch action {
+        case let .setDidLoad(didLoad):
+          state.didLoad = didLoad
+          return .none
+          
         case .task:
+          guard !state.didLoad else { return .none }
           return .run { send in
             // TODO: Might be nicer to make this a stream...
             let folders = await database.retrieveRootFolders()
             await send(.fetchFoldersSuccess(.init(uniqueElements: folders)))
-            return
           }
+          .concatenate(with: .send(.setDidLoad(true)))
           
         case let .fetchFoldersSuccess(folders):
           state.userFoldersSection.folders = folders.map({
@@ -117,15 +135,15 @@ struct FoldersReducer: Reducer {
           return .none
           
         case .newFolderButtonTapped:
-          let newFolder = FolderGridItemReducer.State(folder: .init(
+          let newFolder = Folder(
             id: .init(rawValue: uuid()),
             name: "New Untitled Folder",
             folderType: .user,
             creationDate: date(),
             lastEditDate: date()
-          ))
-          state.userFoldersSection.folders.append(newFolder)
-          return .send(.delegate(.addNewFolderDidComplete(newFolder.folder.id)), animation: .default)
+          )
+          state.userFoldersSection.folders.append(.init(folder: newFolder))
+          return .send(.delegate(.addNewFolderDidComplete(newFolder.id)), animation: .default)
           
         case .newRecipeButtonTapped:
           let newRecipe = Recipe(
@@ -134,7 +152,7 @@ struct FoldersReducer: Reducer {
             creationDate: date(),
             lastEditDate: date()
           )
-          state.systemFoldersSection.folders[1].folder.recipes.append(newRecipe)
+          state.systemFoldersSection.folders[id: state.systemStandardFolderID]!.folder.recipes.append(newRecipe)
           return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
           
         case let .userFoldersSection(.delegate(action)):
@@ -142,7 +160,7 @@ struct FoldersReducer: Reducer {
           case let .folderTapped(id):
             guard let _ = state.userFoldersSection.folders[id: id]?.folder
             else { return .none }
-            return .none
+            return .send(.delegate(.userFolderTapped(id)))
           }
           
         case let .systemFoldersSection(.delegate(action)):
@@ -150,7 +168,7 @@ struct FoldersReducer: Reducer {
           case let .folderTapped(id):
             guard let _ = state.systemFoldersSection.folders[id: id]?.folder
             else { return .none }
-            return .none
+            return .send(.delegate(.systemFolderTapped(id)))
           }
         case .binding:
           return .none
@@ -219,10 +237,12 @@ extension FoldersReducer.Action {
 
 // MARK: - AlertAction
 extension FoldersReducer {
-  enum DelegateAction: Equatable {
-    case addNewFolderDidComplete(Folder.ID)
-    case addNewRecipeDidComplete(Recipe.ID)
-  }
+//  enum DelegateAction: Equatable {
+//    case addNewFolderDidComplete(Folder.ID)
+//    case addNewRecipeDidComplete(Recipe.ID)
+//    case userFolderTapped(Folder.ID)
+//    case systemFolderTapped(Folder.ID)
+//  }
 }
 
 

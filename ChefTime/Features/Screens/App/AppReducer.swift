@@ -50,6 +50,10 @@ struct AppReducer: Reducer {
               .recipe(.init(recipeID: state.folders.systemFoldersSection.folders.first(where: {
                 $0.folder.folderType == .systemStandard
               })!.folder.recipes[id: childID]!.id))
+          case let .userFolderTapped(childID):
+              .folder(.init(folderID: state.folders.userFoldersSection.folders[id: childID]!.id))
+          case let .systemFolderTapped(childID):
+              .folder(.init(folderID: state.folders.systemFoldersSection.folders[id: childID]!.id))
           }
         }() {
           state.stack.append(newStackElement)
@@ -60,6 +64,7 @@ struct AppReducer: Reducer {
         return .none
       }
     }
+    ._printChanges()
     .forEach(\.stack, action: /Action.stack) {
       StackReducer()
     }

@@ -2,8 +2,17 @@ import Foundation
 import ComposableArchitecture
 import Tagged
 
+/// How to Handle Loading
+/// 1. Load Everything Except Images
+///   - Based off calculations, keeping the recipes and folders in memory costs nothing, unless you have ten-thousand giant recipes
+///     and most people will only have less than one-thousand. Images of course however, can take massive amounts of space, so
+///     they must be stored externally (disk or cloud) and only fetched when needed, perhaps with some sort of caching to
+///     potentially improve the experience.
+/// 2. Load onAppear
+///
 struct RecipeReducer: Reducer {
   struct State: Equatable {
+    var didLoad = false
     var recipe: Recipe
     var photos: PhotosReducer.State
     var about: AboutListReducer.State
@@ -31,6 +40,7 @@ struct RecipeReducer: Reducer {
   }
   
   enum Action: Equatable, BindableAction {
+    case setDidLoad(Bool)
     case task
     case fetchRecipeSuccess(Recipe)
     case binding(BindingAction<State>)
@@ -65,7 +75,12 @@ struct RecipeReducer: Reducer {
       BindingReducer()
       Reduce<RecipeReducer.State, RecipeReducer.Action> { state, action in
         switch action {
+        case let .setDidLoad(didLoad):
+          state.didLoad = didLoad
+          return .none
+          
         case .task:
+          guard !state.didLoad else { return .none }
           let recipe = state.recipe
           return .run { send in
             // TODO: Might be wise to check if the ID here matches...
@@ -77,6 +92,7 @@ struct RecipeReducer: Reducer {
               try! await self.database.createRecipe(recipe)
             }
           }
+          .concatenate(with: .send(.setDidLoad(true)))
           
         case let .fetchRecipeSuccess(newRecipe):
           state = .init(recipe: newRecipe)
