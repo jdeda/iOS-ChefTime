@@ -32,6 +32,8 @@
 		9767E0FD2AE97E94003B0E2C /* SDClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9767E0FB2AE97E94003B0E2C /* SDClient.swift */; };
 		976CBB3C2AB3A06E00BE69F5 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976CBB3B2AB3A06E00BE69F5 /* Search.swift */; };
 		976CBB3E2AB3A64900BE69F5 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976CBB3D2AB3A64800BE69F5 /* SearchView.swift */; };
+		9775C1A72B0BA6A200B6F633 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9775C1A62B0BA6A200B6F633 /* AppReducer.swift */; };
+		9775C1A92B0BA6A700B6F633 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9775C1A82B0BA6A700B6F633 /* AppView.swift */; };
 		977633D62A4F77C9009FD90C /* Binding+RemoveDuplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */; };
 		977633DA2A51C4B0009FD90C /* AboutSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D92A51C4B0009FD90C /* AboutSection.swift */; };
 		977633DC2A51C987009FD90C /* AboutList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633DB2A51C987009FD90C /* AboutList.swift */; };
@@ -144,6 +146,8 @@
 		9767E0FB2AE97E94003B0E2C /* SDClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDClient.swift; sourceTree = "<group>"; };
 		976CBB3B2AB3A06E00BE69F5 /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
 		976CBB3D2AB3A64800BE69F5 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		9775C1A62B0BA6A200B6F633 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
+		9775C1A82B0BA6A700B6F633 /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		977633D52A4F77C9009FD90C /* Binding+RemoveDuplicates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+RemoveDuplicates.swift"; sourceTree = "<group>"; };
 		977633D92A51C4B0009FD90C /* AboutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSection.swift; sourceTree = "<group>"; };
 		977633DB2A51C987009FD90C /* AboutList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutList.swift; sourceTree = "<group>"; };
@@ -263,6 +267,7 @@
 		97033A162AD495BB006C5A54 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				9775C1AA2B0BA6D700B6F633 /* App */,
 				9760CBAD2A9D1ABC0077A8F9 /* Folders */,
 				97DE5BC62A97C8BD00BBE455 /* Folder */,
 				975A4EFB2A44C3AA00C9509A /* Recipe */,
@@ -416,6 +421,15 @@
 				976CBB3B2AB3A06E00BE69F5 /* Search.swift */,
 			);
 			path = Search;
+			sourceTree = "<group>";
+		};
+		9775C1AA2B0BA6D700B6F633 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				9775C1A82B0BA6A700B6F633 /* AppView.swift */,
+				9775C1A62B0BA6A200B6F633 /* AppReducer.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 		97833B9A2A584E4E002EB24B /* ChefTimeTests */ = {
@@ -832,6 +846,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9775C1A72B0BA6A200B6F633 /* AppReducer.swift in Sources */,
 				975A4EED2A44C23300C9509A /* IngredientSection.swift in Sources */,
 				97CE0F242AF416600075B46D /* Database+Preview.swift in Sources */,
 				97EE972E2A6853C9001AA88B /* StepSection.swift in Sources */,
@@ -869,6 +884,7 @@
 				97AB36B02AAA0283001CB9F4 /* FolderSection.swift in Sources */,
 				976CBB3E2AB3A64900BE69F5 /* SearchView.swift in Sources */,
 				97EE97302A6853F6001AA88B /* Step.swift in Sources */,
+				9775C1A92B0BA6A700B6F633 /* AppView.swift in Sources */,
 				9712FB622A43A13800E5E227 /* Photos.swift in Sources */,
 				971334C22A97D54300743A49 /* FolderView.swift in Sources */,
 				97B17BCD2AB7713A009B6378 /* Database.swift in Sources */,

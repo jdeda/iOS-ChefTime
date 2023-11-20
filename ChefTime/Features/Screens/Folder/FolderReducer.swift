@@ -160,7 +160,7 @@ struct FolderReducer: Reducer {
             creationDate: date(),
             lastEditDate: date()
           )))
-          return .send(.delegate(.addNewFolderButtonTappedDidComplete(id)), animation: .default)
+          return .send(.delegate(.addNewFolderDidComplete(id)), animation: .default)
           
         case .newRecipeButtonTapped:
           let id = RecipeGridItemReducer.State.ID(rawValue: uuid())
@@ -170,14 +170,19 @@ struct FolderReducer: Reducer {
             creationDate: date(),
             lastEditDate: date()
           )))
-          return .send(.delegate(.addNewRecipeButtonTappedDidComplete(id)), animation: .default)
+          return .send(.delegate(.addNewRecipeDidComplete(id)), animation: .default)
           
         case let .folders(.delegate(action)):
           switch action {
             
           case let .folderTapped(id):
-            // TODO: Navigate
-            return .none
+            return .send(.delegate(.folderTapped(id)))
+          }
+          
+        case let .recipes(.delegate(action)):
+          switch action {
+          case let .recipeTapped(id):
+            return .send(.delegate(.recipeTapped(id)))
           }
           
         case let .alert(.presented(action)):
@@ -251,8 +256,10 @@ extension FolderReducer.Action {
 // MARK: - DelegateAction
 extension FolderReducer {
   enum DelegateAction: Equatable {
-    case addNewFolderButtonTappedDidComplete(FolderGridItemReducer.State.ID)
-    case addNewRecipeButtonTappedDidComplete(RecipeGridItemReducer.State.ID)
+    case addNewFolderDidComplete(FolderGridItemReducer.State.ID)
+    case addNewRecipeDidComplete(RecipeGridItemReducer.State.ID)
+    case folderTapped(Folder.ID)
+    case recipeTapped(Recipe.ID)
     case folderUpdated(FolderReducer.State)
   }
 }

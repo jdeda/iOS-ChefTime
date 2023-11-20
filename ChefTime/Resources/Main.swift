@@ -27,11 +27,11 @@ struct ChefTimeApp: App {
 //                    initialState: .init(recipeID: .init(uuidString: recipeUUIDString)!),
 //                    reducer: RecipeReducer.init
 //                  ))
-          RecipeView(store: .init(
-            initialState: .init(recipeID: .init(uuidString: recipeUUIDString)!),
-//            initialState: .init(recipe: .longMock),
-            reducer: RecipeReducer.init
-          ))
+//          RecipeView(store: .init(
+//            initialState: .init(recipeID: .init(uuidString: recipeUUIDString)!),
+////            initialState: .init(recipe: .longMock),
+//            reducer: RecipeReducer.init
+//          ))
         }
         .onAppear {
           UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
