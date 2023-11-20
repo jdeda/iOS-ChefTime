@@ -40,7 +40,7 @@ final class SDClientTests_Folder: XCTestCase {
     XCTAssertEqual(folder2, try XCTUnwrap(newFolders2.first(where: { $0.id == folder2.id })))
   }
   
-  func testCreateDupeFolder() async throws {
+  func testCreateDupeFolder1() async throws {
     let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
     let folders = await sdc.retrieveFolders()
     XCTAssertTrue(folders.isEmpty)
@@ -57,12 +57,86 @@ final class SDClientTests_Folder: XCTestCase {
     // Lets try to add it again (dupe)
     do {
       try await sdc.createFolder(folder)
+      XCTFail("Should have thrown an error!")
     } catch {
       XCTAssertEqual(error as? SDClient.SDError, SDClient.SDError.duplicate)
     }
     let newFolders2 = await sdc.retrieveFolders()
     XCTAssertTrue(newFolders2.count == 1)
     XCTAssertTrue(newFolders2.first == folder)
+  }
+  
+  func testCreateDupeFolder2() async throws {
+    let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
+    let folders = await sdc.retrieveFolders()
+    XCTAssertTrue(folders.isEmpty)
+    
+    let dateGenerator = DateGenerator({ Date() })
+    
+    // Let's add an empty butter folder.
+    let folder1 = Folder(id: .init(), name: "Butter", creationDate: dateGenerator(), lastEditDate: dateGenerator())
+    try await sdc.createFolder(folder1)
+    let newFolders1 = await sdc.retrieveFolders()
+    XCTAssertTrue(newFolders1.count == 1)
+    XCTAssertTrue(newFolders1.first == folder1)
+    
+    // Lets try to add it again (dupe)
+    do {
+      try await sdc.createFolder(folder1)
+      XCTFail("Should have thrown an error!")
+    } catch {
+      XCTAssertEqual(error as? SDClient.SDError, SDClient.SDError.duplicate)
+    }
+    let newFolders1D = await sdc.retrieveFolders()
+    XCTAssertTrue(newFolders1D.count == 1)
+    XCTAssertTrue(newFolders1D.first == folder1)
+    
+    // Let's add an empty bread folder.
+    let folder2 = Folder(id: .init(), name: "Bread", creationDate: dateGenerator(), lastEditDate: dateGenerator())
+    try await sdc.createFolder(folder2)
+    let newFolders2 = await sdc.retrieveFolders()
+    XCTAssertTrue(newFolders2.count == 2)
+    XCTAssertTrue(newFolders2.first(where: {$0.id == folder2.id}) == folder2)
+    XCTAssertTrue(newFolders2.first(where: {$0.id == folder1.id}) == folder1)
+    
+    // Lets try to add it again (dupe)
+    do {
+      try await sdc.createFolder(folder2)
+      XCTFail("Should have thrown an error!")
+    } catch {
+      XCTAssertEqual(error as? SDClient.SDError, SDClient.SDError.duplicate)
+    }
+    let newFolders2D = await sdc.retrieveFolders()
+    XCTAssertTrue(newFolders2D.count == 2)
+    XCTAssertTrue(newFolders2D.first(where: {$0.id == folder2.id}) == folder2)
+    XCTAssertTrue(newFolders2D.first(where: {$0.id == folder1.id}) == folder1)
+    
+    // Now put the bread folder into the butter folder and see if that causes any dupe problem.
+    // Same ID should update the same folder and or interact with dupes the same way.
+    var folder1Updated = folder1
+    folder1Updated.folders.append(folder2)
+    do {
+      try await sdc.createFolder(folder1Updated)
+      XCTFail("Should have thrown an error!")
+    } catch {
+      XCTAssertEqual(error as? SDClient.SDError, SDClient.SDError.duplicate)
+    }
+    let newFolders3D = await sdc.retrieveFolders()
+    XCTAssertTrue(newFolders3D.count == 2)
+    XCTAssertTrue(newFolders3D.first(where: {$0.id == folder2.id}) == folder2)
+    XCTAssertTrue(newFolders3D.first(where: {$0.id == folder1.id}) == folder1)
+    
+    // Instead of creating try to update it.
+    do {
+      try await sdc.updateFolder(folder1Updated)
+      XCTFail("Should have thrown an error!")
+    } catch {
+      XCTAssertEqual(error as? SDClient.SDError, SDClient.SDError.duplicate)
+    }
+    let newFolders4D = await sdc.retrieveFolders()
+    XCTAssertTrue(newFolders4D.count == 2)
+    XCTAssertTrue(newFolders4D.first(where: {$0.id == folder2.id}) == folder2)
+    XCTAssertTrue(newFolders4D.first(where: {$0.id == folder1.id}) == folder1)
   }
   
   func testUpdateFolder() async throws {
@@ -149,6 +223,7 @@ final class SDClientTests_Folder: XCTestCase {
     folder.name = "Butter Recipes"
     do {
       try await sdc.updateFolder(folder)
+      XCTFail("Should have thrown an error!")
     } catch {
       XCTAssertEqual(error as? SDClient.SDError, SDClient.SDError.notFound)
     }
@@ -209,6 +284,21 @@ final class SDClientTests_Folder: XCTestCase {
     let folders5SDC = await sdc.retrieveFolders()
     XCTAssertTrue(folders5SDC.isEmpty)
   }
+  
+  func testCRUDLargeFolder() async throws {
+    let sdc = SDClient(URL(fileURLWithPath: "/dev/null"))!
+    let initfolders = await sdc.retrieveFolders()
+    XCTAssertTrue(initfolders.isEmpty)
+    
+    let date = DateGenerator({ Date() })
+    
+    let f1 = Folder.longMock
+    try await sdc.createFolder(f1)
+    let foldersSDC = await sdc.retrieveFolders()
+    XCTAssertEqual(foldersSDC.count, 6) // MARK: - Magic Number
+    XCTAssertEqual(foldersSDC.first(where: {$0.id == f1.id})!, f1)
+  }
+  // TODO: What happens if you create a folder with a unique recipe ID/childID you're doomed
 }
 
 // MARK: - FolderCount helpers. Helps calculate the folder count since folders can be recursive.

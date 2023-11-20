@@ -7,64 +7,222 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F3EEADDE-A68E-4131-841D-9FDF17DB4803"
+            uuid = "003AC378-48F0-48FE-A1DB-40B5ABDFCEAC"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChefTimeTests/SDClientTests_Folder.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "102"
-            endingLineNumber = "102"
-            landmarkName = "testUpdateFolder()"
+            startingLineNumber = "131"
+            endingLineNumber = "131"
+            landmarkName = "testCreateDupeFolder2()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "F3EEADDE-A68E-4131-841D-9FDF17DB4803 - 10690e24fcb6f354"
+                  uuid = "003AC378-48F0-48FE-A1DB-40B5ABDFCEAC - 8f37a5456bb512f0"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "(15) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testUpdateFolder() async throws -&gt; ()"
+                  symbolName = "(23) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testCreateDupeFolder2() async throws -&gt; ()"
                   moduleName = "ChefTimeTests"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTimeTests/SDClientTests_Folder.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "97"
-                  endingLineNumber = "97"
-                  offsetFromSymbolStart = "699">
+                  startingLineNumber = "131"
+                  endingLineNumber = "131"
+                  offsetFromSymbolStart = "787">
                </Location>
                <Location
-                  uuid = "F3EEADDE-A68E-4131-841D-9FDF17DB4803 - 10690e24fcb6f354"
+                  uuid = "003AC378-48F0-48FE-A1DB-40B5ABDFCEAC - 60b6b5f734af6f10"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "(15) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testUpdateFolder() async throws -&gt; ()"
+                  symbolName = "(24) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testCreateDupeFolder2() async throws -&gt; ()"
                   moduleName = "ChefTimeTests"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTimeTests/SDClientTests_Folder.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "97"
-                  endingLineNumber = "97"
-                  offsetFromSymbolStart = "962">
+                  startingLineNumber = "70"
+                  endingLineNumber = "70"
+                  offsetFromSymbolStart = "171">
                </Location>
                <Location
-                  uuid = "F3EEADDE-A68E-4131-841D-9FDF17DB4803 - 10690e24fcb6f32b"
+                  uuid = "003AC378-48F0-48FE-A1DB-40B5ABDFCEAC - 60b6b5f734af77f3"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "(15) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testUpdateFolder() async throws -&gt; ()"
+                  symbolName = "(24) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testCreateDupeFolder2() async throws -&gt; ()"
                   moduleName = "ChefTimeTests"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTimeTests/SDClientTests_Folder.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "100"
-                  endingLineNumber = "100"
-                  offsetFromSymbolStart = "1242">
+                  startingLineNumber = "131"
+                  endingLineNumber = "131"
+                  offsetFromSymbolStart = "207">
+               </Location>
+               <Location
+                  uuid = "003AC378-48F0-48FE-A1DB-40B5ABDFCEAC - 5a0986a1fda0c8f2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(25) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testCreateDupeFolder2() async throws -&gt; ()"
+                  moduleName = "ChefTimeTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTimeTests/SDClientTests_Folder.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "131"
+                  endingLineNumber = "131"
+                  offsetFromSymbolStart = "152">
+               </Location>
+               <Location
+                  uuid = "003AC378-48F0-48FE-A1DB-40B5ABDFCEAC - e7a7e03e3d0a74f3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(33) suspend resume partial function for ChefTimeTests.SDClientTests_Folder.testCreateDupeFolder2() async throws -&gt; ()"
+                  moduleName = "ChefTimeTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTimeTests/SDClientTests_Folder.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "131"
+                  endingLineNumber = "131"
+                  offsetFromSymbolStart = "176">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7BE23F63-2016-40A2-BAFE-FB0D3D4F2EAC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Dependencies/Database/SDClient.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "93"
+            endingLineNumber = "93"
+            landmarkName = "SDClient"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E3D6FB1B-E45E-49E0-9323-CED1F1879583"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Dependencies/Database/SDClient.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "100"
+            endingLineNumber = "100"
+            landmarkName = "SDClient"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "E3D6FB1B-E45E-49E0-9323-CED1F1879583 - 410c4a50800fcb0b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChefTime.SDClient.updateFolder(ChefTime.Folder) throws -&gt; ()"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Dependencies/Database/SDClient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "90"
+                  endingLineNumber = "90"
+                  offsetFromSymbolStart = "541">
+               </Location>
+               <Location
+                  uuid = "E3D6FB1B-E45E-49E0-9323-CED1F1879583 - 410c4a50800fcb0b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChefTime.SDClient.updateFolder(ChefTime.Folder) throws -&gt; ()"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Dependencies/Database/SDClient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "90"
+                  endingLineNumber = "90"
+                  offsetFromSymbolStart = "721">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5ACE39C0-B36A-4CE7-8092-0EA2C4E076EB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Dependencies/Database/SDClient.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "104"
+            endingLineNumber = "104"
+            landmarkName = "SDClient"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "5ACE39C0-B36A-4CE7-8092-0EA2C4E076EB - 410c4a50800fcba0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChefTime.SDClient.updateFolder(ChefTime.Folder) throws -&gt; ()"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Dependencies/Database/SDClient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "95"
+                  endingLineNumber = "95"
+                  offsetFromSymbolStart = "424">
+               </Location>
+               <Location
+                  uuid = "5ACE39C0-B36A-4CE7-8092-0EA2C4E076EB - 410c4a50800fcb8f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChefTime.SDClient.updateFolder(ChefTime.Folder) throws -&gt; ()"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Dependencies/Database/SDClient.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "94"
+                  endingLineNumber = "94"
+                  offsetFromSymbolStart = "507">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4AB777C5-FD3C-4C99-9638-C92D5124F36D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Dependencies/Database/SDClient.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "45"
+            endingLineNumber = "45"
+            landmarkName = "createFolder(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

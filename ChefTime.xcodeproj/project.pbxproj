@@ -207,6 +207,7 @@
 		97D866B42B06527000DAC882 /* recipe_31.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recipe_31.json; sourceTree = "<group>"; };
 		97D866B52B06527000DAC882 /* recipe_27.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recipe_27.json; sourceTree = "<group>"; };
 		97D866B62B06527000DAC882 /* recipe_30.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = recipe_30.json; sourceTree = "<group>"; };
+		97D866DF2B06805200DAC882 /* ChefTimeTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = ChefTimeTests.xctestplan; path = ChefTimeTests/ChefTimeTests.xctestplan; sourceTree = "<group>"; };
 		97D8CCFE2A55EED60031E760 /* PhotosClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosClient.swift; sourceTree = "<group>"; };
 		97E8F4BC2B03A856000192C7 /* burger_meat_01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_meat_01.jpg; sourceTree = "<group>"; };
 		97E8F4BD2B03A856000192C7 /* burger_meat_02.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger_meat_02.jpg; sourceTree = "<group>"; };
@@ -429,6 +430,7 @@
 		97AD13AB2A2E7392002FCE30 = {
 			isa = PBXGroup;
 			children = (
+				97D866DF2B06805200DAC882 /* ChefTimeTests.xctestplan */,
 				97AD13B62A2E7392002FCE30 /* ChefTime */,
 				97833B9A2A584E4E002EB24B /* ChefTimeTests */,
 				97AD13B52A2E7392002FCE30 /* Products */,
