@@ -120,31 +120,43 @@ struct StepReducer: Reducer {
     case photos(PhotosReducer.Action)
     case keyboardDoneButtonTapped
     case photoPickerButtonTapped
+    case photoImagesDidChange
   }
   
   @Dependency(\.photos) var photosClient
   @Dependency(\.uuid) var uuid
   
   var body: some ReducerOf<Self> {
-    BindingReducer()
-    Reduce { state, action in
-      switch action {
-      case .binding, .delegate, .photos:
-        return .none
-        
-      case .keyboardDoneButtonTapped:
-        state.focusedField = nil
-        return .none
-        
-      case .photoPickerButtonTapped:
-        state.photos.photoEditStatus = .addWhenEmpty
-        state.photos.photoPickerIsPresented = true
-        return .none
+    CombineReducers {
+      BindingReducer()
+      Reduce { state, action in
+        switch action {
+        case .binding, .delegate, .photos:
+          return .none
+          
+        case .keyboardDoneButtonTapped:
+          state.focusedField = nil
+          return .none
+          
+        case .photoPickerButtonTapped:
+          state.photos.photoEditStatus = .addWhenEmpty
+          state.photos.photoPickerIsPresented = true
+          return .none
+          
+        case .photoImagesDidChange:
+          state.step.imageData = state.photos.photos
+          return .none
+        }
+      }
+      Scope(state: \.photos, action: /Action.photos) {
+        PhotosReducer()
       }
     }
-    Scope(state: \.photos, action: /Action.photos) {
-      PhotosReducer()
-    }
+    .onChange(of: \.photos.photos, { _, _ in
+      Reduce { _, _ in
+          .send(.photoImagesDidChange)
+      }
+    })
   }
 }
 
