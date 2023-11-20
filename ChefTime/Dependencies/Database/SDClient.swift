@@ -76,34 +76,18 @@ actor SDClient: ModelActor {
   
   func updateFolder(_ folder: Folder) throws {
     print("SDClient", "updateFolder")
-    guard let temp = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
-    let tempFolder = Folder(temp)
+    guard let original = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
+    let originalFolder = Folder(original)
     try self.deleteFolder(folder.id)
     do {
       try self.createFolder(folder)
     }
     catch {
-      try self.createFolder(tempFolder)
-      throw SDError.duplicate
+      try self.createFolder(originalFolder)
+      throw error
     }
     try self.modelContext.save()
   }
-//  func updateFolder(_ folder: Folder) throws {
-//    print("SDClient", "updateFolder")
-//    guard let temp = self._retrieveSDFolder(folder.id)
-//    else { throw SDError.notFound }
-//    let tempFolder = Folder(temp)
-//    try self.deleteFolder(folder.id)
-//    try self.modelContext.save()
-//    guard self._containsDuplicateIDs(folder: folder)
-//    else {
-//      try self.createFolder(tempFolder)
-//      try self.modelContext.save()
-//      throw SDError.duplicate
-//    }
-//    try self.createFolder(folder)
-//    try self.modelContext.save()
-//  }
   
   func deleteFolder(_ folderID: Folder.ID) throws {
     print("SDClient", "deleteFolder")
@@ -134,7 +118,7 @@ actor SDClient: ModelActor {
   
   func retrieveRecipe(_ recipeID: Recipe.ID) -> Recipe? {
     print("SDClient", "retrieveRecipe")
-    guard let sdRecipe = self._retrieveSDRecipe(recipeID.rawValue)
+    guard let sdRecipe = self._retrieveSDRecipe(recipeID)
     else { return nil }
     return Recipe(sdRecipe)
   }
@@ -147,14 +131,22 @@ actor SDClient: ModelActor {
   
   func updateRecipe(_ recipe: Recipe) throws {
     print("SDClient", "updateRecipe")
+    guard let original = self._retrieveSDRecipe(recipe.id) else { throw SDError.notFound }
+    let originalRecipe = Recipe(original)
     try self.deleteRecipe(recipe.id)
-    try self.createRecipe(recipe)
+    do {
+      try self.createRecipe(recipe)
+    }
+    catch {
+      try self.createRecipe(originalRecipe)
+      throw error
+    }
     try self.modelContext.save()
   }
   
   func deleteRecipe(_ recipeID: Recipe.ID) throws {
     print("SDClient", "deleteRecipe")
-    guard let sdRecipe = self._retrieveSDRecipe(recipeID.rawValue)
+    guard let sdRecipe = self._retrieveSDRecipe(recipeID)
     else { throw SDError.notFound }
     sdRecipe.aboutSections.forEach { sdas in
       self.modelContext.delete(sdas)
@@ -258,9 +250,9 @@ extension SDClient {
     return try? self.modelContext.fetch(fetchDescriptor).first
   }
   
-  private func _retrieveSDRecipe(_ recipeID: UUID) -> SDRecipe? {
+  private func _retrieveSDRecipe(_ recipeID: Recipe.ID) -> SDRecipe? {
     print("SDClient", "_retrieveSDRecipe")
-    let predicate = #Predicate<SDRecipe> { $0.id == recipeID }
+    let predicate = #Predicate<SDRecipe> { $0.id == recipeID.rawValue }
     let fetchDescriptor = FetchDescriptor<SDRecipe>(predicate: predicate)
     return try? self.modelContext.fetch(fetchDescriptor).first
   }
