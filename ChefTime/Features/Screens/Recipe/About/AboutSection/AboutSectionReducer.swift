@@ -1,19 +1,14 @@
 import ComposableArchitecture
 
-struct AboutSectionReducer: Reducer  {
+@Reducer
+struct AboutSectionReducer {
   struct State: Equatable, Identifiable {
-    var id: Recipe.AboutSection.ID {
-      aboutSection.id
-    }
-    
+    var id: Recipe.AboutSection.ID { aboutSection.id }
     @BindingState var aboutSection: Recipe.AboutSection
     @BindingState var isExpanded: Bool = true
     @BindingState var focusedField: FocusField? = nil
     
-    init(
-      aboutSection: Recipe.AboutSection,
-      focusedField: FocusField? = nil
-    ) {
+    init(aboutSection: Recipe.AboutSection, focusedField: FocusField? = nil) {
       self.aboutSection = aboutSection
       self.focusedField = nil
     }
@@ -23,12 +18,19 @@ struct AboutSectionReducer: Reducer  {
     case binding(BindingAction<State>)
     case aboutSectionNameEdited(String)
     case keyboardDoneButtonTapped
-    
+
+    case delegate(DelegateAction)
+    @CasePathable
     enum DelegateAction: Equatable {
       case deleteSectionButtonTapped
       case insertSection(AboveBelow)
     }
-    case delegate(DelegateAction)
+  }
+  
+  @CasePathable
+  enum FocusField: Equatable, Hashable {
+    case name
+    case description
   }
     
   var body: some ReducerOf<Self> {
@@ -77,12 +79,5 @@ struct AboutSectionReducer: Reducer  {
         return .none
       }
     }
-  }
-}
-
-extension AboutSectionReducer {
-  enum FocusField: Equatable, Hashable {
-    case name
-    case description
   }
 }

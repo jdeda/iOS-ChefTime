@@ -4,7 +4,8 @@ import ComposableArchitecture
 /// 2. normal property, onChange, send a delegate action `aboutSectionsDidChange`
 ///
 /// X. computed property, onChange, send a delegate action `aboutSectionsDidChange`, and the parent just reads the computed property
-struct AboutListReducer: Reducer {
+@Reducer
+struct AboutListReducer {
   struct State: Equatable {
     var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State> = []
     
@@ -22,8 +23,14 @@ struct AboutListReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case aboutSection(AboutSectionReducer.State.ID, AboutSectionReducer.Action)
+    case aboutSection(IdentifiedActionOf<AboutSectionReducer>)
     case addSectionButtonTapped
+  }
+  
+  @CasePathable
+  @dynamicMemberLookup
+  enum FocusField: Equatable, Hashable {
+    case row(AboutSectionReducer.State.ID)
   }
   
   @Dependency(\.uuid) var uuid
@@ -32,10 +39,10 @@ struct AboutListReducer: Reducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .aboutSection(id, .delegate(action)):
+      case let .aboutSection(.element(id: id, action: .delegate(action))):
         switch action {
         case .deleteSectionButtonTapped:
-          if case .row = state.focusedField {
+          if state.focusedField?.is(\.row) ?? false {
             state.focusedField = nil
           }
           state.aboutSections.remove(id: id)
@@ -79,14 +86,6 @@ struct AboutListReducer: Reducer {
         return .none
       }
     }
-    .forEach(\.aboutSections, action: /Action.aboutSection) {
-      AboutSectionReducer()
-    }
-  }
-}
-
-extension AboutListReducer {
-  enum FocusField: Equatable, Hashable {
-    case row(AboutSectionReducer.State.ID)
+    .forEach(\.aboutSections, action: \.aboutSection, element: AboutSectionReducer.init)
   }
 }
