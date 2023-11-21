@@ -40,22 +40,20 @@ private extension Image {
 }
 
 
-struct ImageSliderView_Previews: PreviewProvider {
-  static var previews: some View {
-    ScrollView {
-      MasterView()
-    }
+#Preview {
+  ScrollView {
+    MasterView()
   }
-  
-  struct MasterView: View {
-    @State var imageDatas: IdentifiedArrayOf<ImageData> = Recipe.longMock.imageData
-    @State var selection: ImageData.ID? = nil
-    var body: some View {
-      ImageSliderView(
-        imageDatas: imageDatas,
-        selection: $selection
-      )
-      .frame(width: 350, height: 350)
-    }
+}
+
+private struct MasterView: View {
+  @State var imageDatas: IdentifiedArrayOf<ImageData> = Recipe.longMock.imageData
+  @State var selection: ImageData.ID? = nil
+  var body: some View {
+    ImageSliderView(
+      imageDatas: imageDatas,
+      selection: $selection
+    )
+    .frame(width: 350, height: 350)
   }
 }

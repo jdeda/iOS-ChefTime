@@ -4,7 +4,7 @@ import ComposableArchitecture
 struct AboutListView: View {
   let store: StoreOf<AboutListReducer>
   @FocusState private var focusedField: AboutListReducer.FocusField?
-
+  
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       if viewStore.aboutSections.isEmpty {
@@ -57,18 +57,16 @@ struct AboutListView: View {
   }
 }
 
-struct AboutList_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        AboutListView(store: .init(
-          initialState: .init(
-            recipeSections: Recipe.longMock.aboutSections
-          ),
-          reducer: AboutListReducer.init
-        ))
-        .padding()
-      }
+#Preview {
+  NavigationStack {
+    ScrollView {
+      AboutListView(store: .init(
+        initialState: .init(
+          recipeSections: Recipe.longMock.aboutSections
+        ),
+        reducer: AboutListReducer.init
+      ))
+      .padding()
     }
   }
 }

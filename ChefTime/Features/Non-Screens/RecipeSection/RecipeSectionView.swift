@@ -52,17 +52,15 @@ struct RecipeSectionView: View {
 }
 
 // MARK: - Preview
-struct RecipeSectionView_Previews: PreviewProvider {
-  static var previews: some View {
-    ScrollView {
-      RecipeSectionView(
-        store: .init(
-          initialState: .init(title: "Recipes", recipes: .init(uniqueElements: Folder.shortMock.recipes)),
-          reducer: RecipeSectionReducer.init
-        ),
-        isEditing: false
-      )
-      .padding(20)
-    }
+#Preview {
+  ScrollView {
+    RecipeSectionView(
+      store: .init(
+        initialState: .init(title: "Recipes", recipes: .init(uniqueElements: Folder.shortMock.recipes)),
+        reducer: RecipeSectionReducer.init
+      ),
+      isEditing: false
+    )
+    .padding(20)
   }
 }

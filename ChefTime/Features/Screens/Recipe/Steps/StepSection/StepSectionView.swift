@@ -97,18 +97,16 @@ private struct StepSectionContextMenuPreview: View {
   }
 }
 
-struct StepSection_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        StepSection(store: .init(
-          initialState: .init(
-            stepSection: Recipe.longMock.stepSections.first!
-          ),
-          reducer: StepSectionReducer.init
-        ))
-        .padding()
-      }
+#Preview {
+  NavigationStack {
+    ScrollView {
+      StepSection(store: .init(
+        initialState: .init(
+          stepSection: Recipe.longMock.stepSections.first!
+        ),
+        reducer: StepSectionReducer.init
+      ))
+      .padding()
     }
   }
 }

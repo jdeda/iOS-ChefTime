@@ -134,13 +134,11 @@ extension FoldersView {
 }
 
 // MARK: - Preview
-struct FoldersView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      FoldersView(store: .init(
-        initialState: .init(),
-        reducer: FoldersReducer.init
-      ))
-    }
+#Preview {
+  NavigationStack {
+    FoldersView(store: .init(
+      initialState: .init(),
+      reducer: FoldersReducer.init
+    ))
   }
 }

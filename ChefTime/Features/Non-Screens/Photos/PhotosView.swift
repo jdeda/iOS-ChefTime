@@ -117,14 +117,14 @@ struct PhotosView: View {
               // So we have to use the original view
             })
           })
-            .photosPicker(
-              isPresented: viewStore.$photoPickerIsPresented,
-              selection: viewStore.$photoPickerItem,
-              matching: .images,
-              preferredItemEncoding: .compatible,
-              photoLibrary: .shared()
-            )
-              .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
+          .photosPicker(
+            isPresented: viewStore.$photoPickerIsPresented,
+            selection: viewStore.$photoPickerItem,
+            matching: .images,
+            preferredItemEncoding: .compatible,
+            photoLibrary: .shared()
+          )
+          .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
         }
     }
   }
@@ -198,20 +198,18 @@ private extension Image {
 }
 
 // MARK: - Preview
-struct PhotosView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        PhotosView(store: .init(
-          initialState: .init(
-            photos: .init(Recipe.longMock.imageData.prefix(0)),
-            supportSinglePhotoOnly: false,
-            disableContextMenu: false
-          ),
-          reducer: PhotosReducer.init
-        ))
-      }
-      .padding()
+#Preview {
+  NavigationStack {
+    ScrollView {
+      PhotosView(store: .init(
+        initialState: .init(
+          photos: .init(Recipe.longMock.imageData.prefix(0)),
+          supportSinglePhotoOnly: false,
+          disableContextMenu: false
+        ),
+        reducer: PhotosReducer.init
+      ))
     }
+    .padding() 
   }
 }

@@ -69,18 +69,16 @@ struct StepListView: View {
   }
 }
 
-struct StepList_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        StepListView(store: .init(
-          initialState: .init(
-            recipeSections: Recipe.longMock.stepSections
-          ),
-          reducer: StepListReducer.init
-        ))
-        .padding()
-      }
+#Preview {
+  NavigationStack {
+    ScrollView {
+      StepListView(store: .init(
+        initialState: .init(
+          recipeSections: Recipe.longMock.stepSections
+        ),
+        reducer: StepListReducer.init
+      ))
+      .padding()
     }
   }
 }

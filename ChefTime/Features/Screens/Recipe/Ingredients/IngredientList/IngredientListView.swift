@@ -112,16 +112,14 @@ private struct IngredientStepper: View {
   }
 }
 
-struct IngredientList_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        IngredientListView(store: .init(
-          initialState: .init(recipeSections: Recipe.longMock.ingredientSections),
-          reducer: IngredientsListReducer.init
-        ))
-        .padding()
-      }
+#Preview {
+  NavigationStack {
+    ScrollView {
+      IngredientListView(store: .init(
+        initialState: .init(recipeSections: Recipe.longMock.ingredientSections),
+        reducer: IngredientsListReducer.init
+      ))
+      .padding()
     }
   }
 }

@@ -133,22 +133,20 @@ private struct RenameAlert: View {
 }
 
 // MARK: - Preview
-struct RecipeGridItemView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      RecipeGridItemView(
-        store: .init(
-          initialState: .init(recipe: .shortMock),
-          reducer: RecipeGridItemReducer.init
-        ),
-        isEditing: false,
-        isSelected: false
-      )
-      //      .frame(width: 50, height: 50)
-      .padding(50)
-      .onAppear {
-        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
-      }
+#Preview {
+  NavigationStack {
+    RecipeGridItemView(
+      store: .init(
+        initialState: .init(recipe: .shortMock),
+        reducer: RecipeGridItemReducer.init
+      ),
+      isEditing: false,
+      isSelected: false
+    )
+    //      .frame(width: 50, height: 50)
+    .padding(50)
+    .onAppear {
+      UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
     }
   }
 }

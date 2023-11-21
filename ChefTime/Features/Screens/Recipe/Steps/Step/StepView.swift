@@ -105,20 +105,18 @@ struct StepContextMenuPreview: View {
   }
 }
 
-struct StepView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        StepView(store: .init(
-          initialState: .init(
-            step: Recipe.longMock.stepSections.first!.steps.first!
-          ),
-          reducer: StepReducer.init
-        ), index: 0)
-        
-        .padding([.horizontal])
-        Spacer()
-      }
+#Preview {
+  NavigationStack {
+    ScrollView {
+      StepView(store: .init(
+        initialState: .init(
+          step: Recipe.longMock.stepSections.first!.steps.first!
+        ),
+        reducer: StepReducer.init
+      ), index: 0)
+      
+      .padding([.horizontal])
+      Spacer()
     }
   }
 }

@@ -159,19 +159,16 @@ struct IngredientContextMenuPreview: View {
   }
 }
 
-struct IngredientView_Previews: PreviewProvider {
-  static let ingredient = Recipe.longMock.ingredientSections.first!.ingredients.first!
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        IngredientView(store: .init(
-          initialState: .init(
-            ingredient: ingredient
-          ),
-          reducer: IngredientReducer.init
-        ))
-        .padding()
-      }
+#Preview {
+  NavigationStack {
+    ScrollView {
+      IngredientView(store: .init(
+        initialState: .init(
+          ingredient: Recipe.longMock.ingredientSections.first!.ingredients.first!
+        ),
+        reducer: IngredientReducer.init
+      ))
+      .padding()
     }
   }
 }

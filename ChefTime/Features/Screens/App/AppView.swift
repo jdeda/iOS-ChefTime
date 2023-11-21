@@ -31,11 +31,9 @@ struct AppView: View {
 
 
 // MARK: - Preview
-struct AppView_Previews: PreviewProvider {
-  static var previews: some View {
-    AppView(store: .init(
-      initialState: .init(),
-      reducer: AppReducer.init
-    ))
-  }
+#Preview {
+  AppView(store: .init(
+    initialState: .init(),
+    reducer: AppReducer.init
+  ))
 }

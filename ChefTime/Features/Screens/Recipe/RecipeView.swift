@@ -153,16 +153,14 @@ struct RecipeView: View {
 }
 
 // MARK: - Previews
-struct RecipeView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      RecipeView(store: .init(
-        initialState: RecipeReducer.State(
-          recipeID: .init(rawValue: .init(uuidString: "3DF50638-9B9A-48AB-87FF-9D7B943DF494")!)
-        ),
-        reducer: RecipeReducer.init
-      ))
-    }
+#Preview {
+  NavigationStack {
+    RecipeView(store: .init(
+      initialState: RecipeReducer.State(
+        recipeID: .init(rawValue: .init(uuidString: "3DF50638-9B9A-48AB-87FF-9D7B943DF494")!)
+      ),
+      reducer: RecipeReducer.init
+    ))
   }
 }
 

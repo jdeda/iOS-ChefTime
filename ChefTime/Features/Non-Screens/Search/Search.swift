@@ -127,13 +127,11 @@
 //}
 //
 //// MARK: - Preview
-//struct SearchView_Previews: PreviewProvider {
-//  static var previews: some View {
+// #Preview {
 //    SearchView(store: .init(
 //      initialState: .init(query: "", recipes: Folder.longMock.recipes),
 //      reducer: SearchReducer.init
 //    ))
-//  }
 //}
 //
 //
@@ -350,11 +348,9 @@
 //
 ////
 ////// MARK: - Preview
-////struct _SearchView_Previews: PreviewProvider {
-////  static var previews: some View {
+////#Preview {
 ////    SearchView(store: .init(
 ////      initialState: .init(query: "", recipes: Folder.longMock.recipes),
 ////      reducer: SearchReducer.init
 ////    ))
 ////  }
-////}

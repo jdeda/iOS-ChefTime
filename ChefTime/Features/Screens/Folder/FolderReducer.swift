@@ -180,11 +180,11 @@ struct FolderReducer: Reducer {
           
         case .newRecipeButtonTapped:
           let newRecipe = Recipe(
-           id: .init(rawValue: uuid()),
-           name: "New Untitled Recipe",
-           creationDate: date(),
-           lastEditDate: date()
-         )
+            id: .init(rawValue: uuid()),
+            name: "New Untitled Recipe",
+            creationDate: date(),
+            lastEditDate: date()
+          )
           state.folder.recipes.append(newRecipe)
           state.recipeSection.recipes.append(.init(recipe: newRecipe))
           return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
@@ -306,14 +306,11 @@ extension AlertState where Action == FolderReducer.AlertAction {
 }
 
 // MARK: - Previews
-struct Previews_FolderReducer_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      FolderView(store: .init(
-        initialState: .init(folder: Folder.longMock),
-        reducer: FolderReducer.init
-      ))
-    }
+#Preview {
+  NavigationStack {
+    FolderView(store: .init(
+      initialState: .init(folder: Folder.longMock),
+      reducer: FolderReducer.init
+    ))
   }
 }
-

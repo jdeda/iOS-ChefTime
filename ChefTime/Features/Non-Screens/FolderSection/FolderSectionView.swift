@@ -53,19 +53,17 @@ struct FolderSectionView: View {
 }
 
 // MARK: - Preview
-struct FolderSectionView_Previews: PreviewProvider {
-  static var previews: some View {
-    ScrollView {
-      FolderSectionView(
-        store: .init(
-          initialState: .init(
-            title: "My Folder Section", folders: .init(uniqueElements: Folder.longMock.folders)
-          ),
-          reducer: FolderSectionReducer.init
+#Preview {
+  ScrollView {
+    FolderSectionView(
+      store: .init(
+        initialState: .init(
+          title: "My Folder Section", folders: .init(uniqueElements: Folder.longMock.folders)
         ),
-        isEditing: false
-      )
-      .padding(20)
-    }
+        reducer: FolderSectionReducer.init
+      ),
+      isEditing: false
+    )
+    .padding(20)
   }
 }

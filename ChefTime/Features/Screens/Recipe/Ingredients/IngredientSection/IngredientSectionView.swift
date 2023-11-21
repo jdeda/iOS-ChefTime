@@ -97,18 +97,16 @@ private struct IngredientSectionContextMenuPreview: View {
   }
 }
 
-struct IngredientSection_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        IngredientSection(store: .init(
-          initialState: .init(
-            ingredientSection: Recipe.longMock.ingredientSections.first!
-          ),
-          reducer: IngredientSectionReducer.init
-        ))
-        .padding()
-      }
+#Preview {
+  NavigationStack {
+    ScrollView {
+      IngredientSection(store: .init(
+        initialState: .init(
+          ingredientSection: Recipe.longMock.ingredientSections.first!
+        ),
+        reducer: IngredientSectionReducer.init
+      ))
+      .padding()
     }
   }
 }

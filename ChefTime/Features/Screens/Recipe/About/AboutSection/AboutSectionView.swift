@@ -9,22 +9,22 @@ struct AboutSection: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         TextField("...", text: viewStore.$aboutSection.description, axis: .vertical)
-        .focused($focusedField, equals: .description)
-        .accentColor(.accentColor)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
-        .toolbar {
-          if viewStore.focusedField == .description {
-            ToolbarItemGroup(placement: .keyboard) {
-              Spacer()
-              Button {
-                viewStore.send(.keyboardDoneButtonTapped)
-              } label: {
-                Text("done")
+          .focused($focusedField, equals: .description)
+          .accentColor(.accentColor)
+          .autocapitalization(.none)
+          .autocorrectionDisabled()
+          .toolbar {
+            if viewStore.focusedField == .description {
+              ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button {
+                  viewStore.send(.keyboardDoneButtonTapped)
+                } label: {
+                  Text("done")
+                }
               }
             }
           }
-        }
       } label: {
         TextField(
           "Untitled About Section",
@@ -95,30 +95,30 @@ private struct AboutSectionContextMenuPreview: View {
   }
 }
 
-struct AboutSection_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        AboutSection(store: .init(
-          initialState: .init(
-            aboutSection: Recipe.longMock.aboutSections.first!
-          ),
-          reducer: AboutSectionReducer.init
-        ))
-        .padding()
-      }
+#Preview {
+  NavigationStack {
+    ScrollView {
+      AboutSection(store: .init(
+        initialState: .init(
+          aboutSection: Recipe.longMock.aboutSections.first!
+        ),
+        reducer: AboutSectionReducer.init
+      ))
+      .padding()
     }
-    
-    NavigationStack {
-      ScrollView {
-        AboutSection(store: .init(
-          initialState: .init(
-            aboutSection: .init(id: .init(), name: "", description: "")
-          ),
-          reducer: AboutSectionReducer.init
-        ))
-        .padding()
-      }
+  }
+}
+
+#Preview {
+  NavigationStack {
+    ScrollView {
+      AboutSection(store: .init(
+        initialState: .init(
+          aboutSection: .init(id: .init(), name: "", description: "")
+        ),
+        reducer: AboutSectionReducer.init
+      ))
+      .padding()
     }
   }
 }

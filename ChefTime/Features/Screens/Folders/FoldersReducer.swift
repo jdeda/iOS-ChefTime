@@ -72,7 +72,7 @@ struct FoldersReducer: Reducer {
   @Dependency(\.continuousClock) var clock
   @Dependency(\.uuid) var uuid
   @Dependency(\.date) var date
-
+  
   var body: some Reducer<FoldersReducer.State, FoldersReducer.Action> {
     CombineReducers {
       Scope(state: \.systemFoldersSection, action: /Action.systemFoldersSection) {
@@ -221,9 +221,9 @@ struct FoldersReducer: Reducer {
           }
       }
     }
-//    .onChange(of: \.systemFoldersSection.folders) { _, _ in
-//      EmptyReducer() // TODO: ....
-//    }
+    //    .onChange(of: \.systemFoldersSection.folders) { _, _ in
+    //      EmptyReducer() // TODO: ....
+    //    }
   }
 }
 
@@ -237,12 +237,12 @@ extension FoldersReducer.Action {
 
 // MARK: - AlertAction
 extension FoldersReducer {
-//  enum DelegateAction: Equatable {
-//    case addNewFolderDidComplete(Folder.ID)
-//    case addNewRecipeDidComplete(Recipe.ID)
-//    case userFolderTapped(Folder.ID)
-//    case systemFolderTapped(Folder.ID)
-//  }
+  //  enum DelegateAction: Equatable {
+  //    case addNewFolderDidComplete(Folder.ID)
+  //    case addNewRecipeDidComplete(Recipe.ID)
+  //    case userFolderTapped(Folder.ID)
+  //    case systemFolderTapped(Folder.ID)
+  //  }
 }
 
 
@@ -291,13 +291,11 @@ extension FolderSectionReducer.State {
 }
 
 // MARK: - Previews
-struct Previews_FoldersReducer_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      FoldersView(store: .init(
-        initialState: .init(),
-        reducer: FoldersReducer.init
-      ))
-    }
+#Preview {
+  NavigationStack {
+    FoldersView(store: .init(
+      initialState: .init(),
+      reducer: FoldersReducer.init
+    ))
   }
 }

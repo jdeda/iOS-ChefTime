@@ -167,22 +167,20 @@ private struct RenameAlert: View {
 }
 
 // MARK: - Preview
-struct FolderGridItemView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      FolderGridItemView(
-        store: .init(
-          initialState: .init(folder: .shortMock),
-          reducer: FolderGridItemReducer.init
-        ),
-        isEditing: false,
-        isSelected: false
-      )
-      //      .frame(width: 50, height: 50)
-      .padding(50)
-      .onAppear {
-        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
-      }
+#Preview {
+  NavigationStack {
+    FolderGridItemView(
+      store: .init(
+        initialState: .init(folder: .shortMock),
+        reducer: FolderGridItemReducer.init
+      ),
+      isEditing: false,
+      isSelected: false
+    )
+    //      .frame(width: 50, height: 50)
+    .padding(50)
+    .onAppear {
+      UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
     }
   }
 }
