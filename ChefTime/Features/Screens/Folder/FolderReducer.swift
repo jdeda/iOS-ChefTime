@@ -7,8 +7,16 @@ struct FolderReducer: Reducer {
   struct State: Equatable {
     var didLoad = false
     @BindingState var folder: Folder
-    var folderSection: FolderSectionReducer.State
-    var recipeSection: RecipeSectionReducer.State
+    var folderSection: FolderSectionReducer.State {
+      didSet {
+        self.folder.folders = self.folderSection.folders.map(\.folder)
+      }
+    }
+    var recipeSection: RecipeSectionReducer.State {
+      didSet {
+        self.folder.recipes = self.recipeSection.recipes.map(\.recipe)
+      }
+    }
     var isHidingImages: Bool = false
     var scrollViewIndex: Int = 1
     var editStatus: Section?
@@ -69,7 +77,6 @@ struct FolderReducer: Reducer {
     case recipes(RecipeSectionReducer.Action)
     case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
-    case folderUpdate(FolderUpdate)
     case delegate(DelegateAction)
   }
   
@@ -215,27 +222,9 @@ struct FolderReducer: Reducer {
           state.alert = nil
           return .none
           
-        case .folderUpdate(.folders):
-          state.folder.folders = state.folderSection.folders.map(\.folder)
-          return .none
-          
-        case .folderUpdate(.recipes):
-          state.folder.recipes = state.recipeSection.recipes.map(\.recipe)
-          return .none
-          
         case .binding, .folders, .recipes, .alert, .delegate:
           return .none
         }
-      }
-    }
-    .onChange(of: { $0.folderSection.folders.map(\.folder) }) { _, _ in
-      Reduce { _, _ in
-          .send(.folderUpdate(.folders))
-      }
-    }
-    .onChange(of: { $0.recipeSection.recipes.map(\.recipe) }) { _, _ in
-      Reduce { _, _ in
-          .send(.folderUpdate(.recipes))
       }
     }
     .onChange(of: \.folder) { _, newFolder in // TODO: Does newFolder get copied every call?
@@ -251,14 +240,6 @@ struct FolderReducer: Reducer {
           }
       }
     }
-  }
-}
-
-// MARK: - Action.FolderUpdate
-extension FolderReducer.Action {
-  enum FolderUpdate: Equatable {
-    case folders
-    case recipes
   }
 }
 

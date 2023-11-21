@@ -91,7 +91,11 @@ struct IngredientSectionReducer: Reducer  {
     }
     
     var ingredientSection: Recipe.IngredientSection
-    var ingredients: IdentifiedArrayOf<IngredientReducer.State>
+    var ingredients: IdentifiedArrayOf<IngredientReducer.State> {
+      didSet {
+        self.ingredientSection.ingredients = self.ingredients.map(\.ingredient)
+      }
+    }
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
     
@@ -112,7 +116,6 @@ struct IngredientSectionReducer: Reducer  {
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
     case rowTapped(IngredientReducer.State.ID)
-    case ingredientSectionsUpdate
     case delegate(DelegateAction)
   }
   
@@ -197,11 +200,7 @@ struct IngredientSectionReducer: Reducer  {
         state.ingredients.append(s)
         state.focusedField = .row(s.id)
         return .none
-        
-      case .ingredientSectionsUpdate:
-        state.ingredientSection.ingredients = state.ingredients.map(\.ingredient)
-        return .none
-        
+
       case .binding(\.$isExpanded):
         // If we just collapsed the list, nil out any potential focus state to prevent
         // keyboard issues such as duplicate buttons
@@ -219,11 +218,6 @@ struct IngredientSectionReducer: Reducer  {
     }
     .forEach(\.ingredients, action: /Action.ingredient) {
       IngredientReducer()
-    }
-    .onChange(of: { $0.ingredients.map(\.ingredient) }) { _, _ in
-      Reduce { _, _ in
-          .send(.ingredientSectionsUpdate)
-      }
     }
   }
 }

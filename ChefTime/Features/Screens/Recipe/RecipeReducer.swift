@@ -14,10 +14,26 @@ struct RecipeReducer: Reducer {
   struct State: Equatable {
     var didLoad = false
     var recipe: Recipe
-    var photos: PhotosReducer.State
-    var about: AboutListReducer.State
-    var ingredients: IngredientsListReducer.State
-    var steps: StepListReducer.State
+    var photos: PhotosReducer.State {
+      didSet {
+        self.recipe.imageData = self.photos.photos
+      }
+    }
+    var about: AboutListReducer.State {
+      didSet {
+        self.recipe.stepSections = steps.recipeSections
+      }
+    }
+    var ingredients: IngredientsListReducer.State {
+      didSet {
+        self.recipe.stepSections = steps.recipeSections
+      }
+    }
+    var steps: StepListReducer.State {
+      didSet {
+        self.recipe.stepSections = steps.recipeSections
+      }
+    }
     var isHidingImages: Bool
     @BindingState var navigationTitle: String
     @PresentationState var alert: AlertState<AlertAction>?
@@ -52,7 +68,6 @@ struct RecipeReducer: Reducer {
     case setExpansionButtonTapped(Bool)
     case editSectionButtonTapped(Section, SectionEditAction)
     case alert(PresentationAction<AlertAction>)
-    case recipeUpdate(RecipeUpdateAction)
   }
   
   @Dependency(\.continuousClock) var clock
@@ -102,22 +117,6 @@ struct RecipeReducer: Reducer {
           // TODO: ... B -> A
           if state.navigationTitle.isEmpty { state.navigationTitle = "Untitled Recipe" }
           state.recipe.name = state.navigationTitle
-          return .none
-          
-        case .recipeUpdate(.photosUpdated):
-          state.recipe.imageData = state.photos.photos
-          return .none
-          
-        case .recipeUpdate(.aboutUpdated):
-          state.recipe.aboutSections = state.about.recipeSections
-          return .none
-          
-        case .recipeUpdate(.ingredientsUpdated):
-          state.recipe.ingredientSections = state.ingredients.recipeSections
-          return .none
-          
-        case .recipeUpdate(.stepsUpdated):
-          state.recipe.stepSections = state.steps.recipeSections
           return .none
           
         case .toggleHideImages:
@@ -181,26 +180,6 @@ struct RecipeReducer: Reducer {
         case .photos, .about, .ingredients, .steps, .alert, .binding:
           return .none
         }
-      }
-    }
-    .onChange(of: \.photos.photos, { _, _ in
-      Reduce { _, _ in
-          .send(.recipeUpdate(.photosUpdated))
-      }
-    })
-    .onChange(of: \.about.aboutSections) { _, _ in
-      Reduce { _, _ in
-          .send(.recipeUpdate(.aboutUpdated))
-      }
-    }
-    .onChange(of: \.ingredients.ingredientSections) { _, _ in
-      Reduce { _, _ in
-          .send(.recipeUpdate(.ingredientsUpdated))
-      }
-    }
-    .onChange(of: \.steps.stepSections) { _, _ in
-      Reduce { _, _ in
-          .send(.recipeUpdate(.stepsUpdated))
       }
     }
     .onChange(of: \.recipe) { _, newRecipe in // TODO: Does newRecipe get copied every call?

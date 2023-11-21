@@ -107,7 +107,11 @@ struct RecipeGridItemReducer: Reducer {
     }
     
     var recipe: Recipe
-    var photos: PhotosReducer.State
+    var photos: PhotosReducer.State {
+      didSet {
+        self.recipe.imageData = self.photos.photos
+      }
+    }
     @PresentationState var destination: DestinationReducer.State?
     
     init(
@@ -129,7 +133,6 @@ struct RecipeGridItemReducer: Reducer {
     case replacePreviewImage
     case renameButtonTapped
     case renameAcceptButtonTapped(String)
-    case updateRecipePhotos
     case binding(BindingAction<State>)
     case destination(PresentationAction<DestinationReducer.Action>)
     case photos(PhotosReducer.Action)
@@ -162,10 +165,6 @@ struct RecipeGridItemReducer: Reducer {
           state.destination = nil
           return .none
           
-        case .updateRecipePhotos:
-          state.recipe.imageData = state.photos.photos
-          return .none
-          
         case .destination(.presented(.alert(.confirmDeleteButtonTapped))):
           state.destination = nil
           return .run { send in
@@ -182,11 +181,6 @@ struct RecipeGridItemReducer: Reducer {
       }
       .ifLet(\.$destination, action: /Action.destination) {
         DestinationReducer()
-      }
-    }
-    .onChange(of: \.photos.photos) { _, _ in
-      Reduce { _, _ in
-          .send(.updateRecipePhotos)
       }
     }
   }

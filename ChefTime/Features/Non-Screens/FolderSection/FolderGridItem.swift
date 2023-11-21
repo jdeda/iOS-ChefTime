@@ -141,7 +141,11 @@ struct FolderGridItemReducer: Reducer {
     }
     
     var folder: Folder
-    var photos: PhotosReducer.State
+    var photos: PhotosReducer.State {
+      didSet {
+        self.folder.imageData = self.photos.photos.first
+      }
+    }
     @PresentationState var destination: DestinationReducer.State?
     
     init(
@@ -163,7 +167,6 @@ struct FolderGridItemReducer: Reducer {
     case replacePreviewImage
     case renameButtonTapped
     case renameAcceptButtonTapped(String)
-    case updateFolderPhoto
     case binding(BindingAction<State>)
     case destination(PresentationAction<DestinationReducer.Action>)
     case photos(PhotosReducer.Action)
@@ -196,10 +199,6 @@ struct FolderGridItemReducer: Reducer {
           state.destination = nil
           return .none
           
-        case .updateFolderPhoto:
-          state.folder.imageData = state.photos.photos.first
-          return .none
-          
         case .destination(.presented(.alert(.confirmDeleteButtonTapped))):
           state.destination = nil
           return .run { send in
@@ -216,11 +215,6 @@ struct FolderGridItemReducer: Reducer {
       }
       .ifLet(\.$destination, action: /Action.destination) {
         DestinationReducer()
-      }
-    }
-    .onChange(of: \.photos.photos) { _, _ in
-      Reduce { _, _ in
-          .send(.updateFolderPhoto)
       }
     }
   }

@@ -102,7 +102,11 @@ struct StepReducer: Reducer {
     
     @BindingState var step: Recipe.StepSection.Step
     @BindingState var focusedField: FocusField? = nil
-    var photos: PhotosReducer.State
+    var photos: PhotosReducer.State {
+      didSet {
+        self.step.imageData = self.photos.photos
+      }
+    }
     
     init(
       step: Recipe.StepSection.Step,
@@ -152,11 +156,6 @@ struct StepReducer: Reducer {
         PhotosReducer()
       }
     }
-    .onChange(of: \.photos.photos, { _, _ in
-      Reduce { _, _ in
-          .send(.photoImagesDidChange)
-      }
-    })
   }
 }
 

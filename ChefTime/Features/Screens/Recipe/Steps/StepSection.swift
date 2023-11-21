@@ -87,7 +87,11 @@ struct StepSectionReducer: Reducer  {
       self.stepSection.id
     }
     var stepSection: Recipe.StepSection
-    var steps: IdentifiedArrayOf<StepReducer.State>
+    var steps: IdentifiedArrayOf<StepReducer.State> {
+      didSet {
+        self.stepSection.steps = steps.map(\.step)
+      }
+    }
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
     
@@ -202,11 +206,6 @@ struct StepSectionReducer: Reducer  {
     }
     .forEach(\.steps, action: /Action.step) {
       StepReducer()
-    }
-    .onChange(of: { $0.steps.map(\.step) }) { _, _ in
-      Reduce { _, _ in
-          .send(.stepSectionUpdate)
-      }
     }
   }
 }
