@@ -1,8 +1,8 @@
 import ComposableArchitecture
 
-struct IngredientsListReducer: Reducer {
+@Reducer
+struct IngredientsListReducer {
   struct State: Equatable {
-    
     var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State> = []
     var scale: Double = 1.0
     @BindingState var isExpanded: Bool = true
@@ -28,9 +28,15 @@ struct IngredientsListReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case ingredient(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
+    case ingredient(IdentifiedActionOf<IngredientSectionReducer>)
     case scaleStepperButtonTapped(Double)
     case addSectionButtonTapped
+  }
+  
+  @CasePathable
+  @dynamicMemberLookup
+  enum FocusField: Equatable, Hashable {
+    case row(IngredientSectionReducer.State.ID)
   }
   
   @Dependency(\.uuid) var uuid
@@ -39,7 +45,7 @@ struct IngredientsListReducer: Reducer {
     BindingReducer()
     Reduce<IngredientsListReducer.State, IngredientsListReducer.Action> { state, action in
       switch action {
-      case let .ingredient(id, .delegate(action)):
+      case let .ingredient(.element(id: id, action: .delegate(action))):
         switch action {
         case .deleteSectionButtonTapped:
           state.ingredientSections.remove(id: id)
@@ -65,6 +71,7 @@ struct IngredientsListReducer: Reducer {
       case let .scaleStepperButtonTapped(newScale):
         let oldScale = state.scale
         state.scale = newScale
+        // TODO: Make this ID based...
         for i in state.ingredientSections.indices {
           for j in state.ingredientSections[i].ingredients.indices {
             let ingredient = state.ingredientSections[i].ingredients[j]
@@ -105,14 +112,6 @@ struct IngredientsListReducer: Reducer {
         
       }
     }
-    .forEach(\.ingredientSections, action: /Action.ingredient) {
-      IngredientSectionReducer()
-    }
-  }
-}
-
-extension IngredientsListReducer {
-  enum FocusField: Equatable, Hashable {
-    case row(IngredientSectionReducer.State.ID)
+    .forEach(\.ingredientSections, action: \.ingredient, element: IngredientSectionReducer.init)
   }
 }

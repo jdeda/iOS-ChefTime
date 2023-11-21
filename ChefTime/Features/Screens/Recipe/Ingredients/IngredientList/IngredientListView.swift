@@ -38,10 +38,7 @@ struct IngredientListView: View {
             send: { .scaleStepperButtonTapped($0) }
           ))
           
-          ForEachStore(store.scope(
-            state: \.ingredientSections,
-            action: IngredientsListReducer.Action.ingredient
-          )) { childStore in
+          ForEachStore(store.scope(state: \.ingredientSections, action: { .ingredient($0) })) { childStore in
             IngredientSection(store: childStore)
               .contentShape(Rectangle())
               .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))

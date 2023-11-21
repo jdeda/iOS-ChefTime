@@ -1,16 +1,12 @@
 import ComposableArchitecture
 
+@Reducer
 struct IngredientSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
-    var id: Recipe.IngredientSection.ID {
-      self.ingredientSection.id
-    }
-    
+    var id: Recipe.IngredientSection.ID { self.ingredientSection.id }
     var ingredientSection: Recipe.IngredientSection
     var ingredients: IdentifiedArrayOf<IngredientReducer.State> {
-      didSet {
-        self.ingredientSection.ingredients = self.ingredients.map(\.ingredient)
-      }
+      didSet { self.ingredientSection.ingredients = self.ingredients.map(\.ingredient) }
     }
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
@@ -27,12 +23,25 @@ struct IngredientSectionReducer: Reducer  {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case ingredient(IngredientReducer.State.ID, IngredientReducer.Action)
+    case ingredient(IdentifiedActionOf<IngredientReducer>)
     case ingredientSectionNameEdited(String)
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
     case rowTapped(IngredientReducer.State.ID)
+    
     case delegate(DelegateAction)
+    @CasePathable
+    enum DelegateAction: Equatable {
+      case deleteSectionButtonTapped
+      case insertSection(AboveBelow)
+    }
+  }
+  
+  @CasePathable
+  @dynamicMemberLookup
+  enum FocusField: Equatable, Hashable {
+    case row(IngredientReducer.State.ID)
+    case name
   }
   
   @Dependency(\.continuousClock) var clock
@@ -43,19 +52,18 @@ struct IngredientSectionReducer: Reducer  {
     BindingReducer()
     Reduce<IngredientSectionReducer.State, IngredientSectionReducer.Action> { state, action in
       switch action {
-      case let .ingredient(id, .delegate(action)):
+      case let .ingredient(.element(id: id, action: .delegate(action))):
         switch action {
         case .tappedToDelete:
           // TODO: Animation can be a bit clunky, fix.
-          if case let .row(currId) = state.focusedField, id == currId {
+          if state.focusedField?.row == id {
             state.focusedField = nil
           }
           state.ingredients.remove(id: id)
           return .none
           
         case let .insertIngredient(aboveBelow):
-          guard let i = state.ingredients.index(id: id)
-          else { return .none }
+          guard let i = state.ingredients.index(id: id) else { return .none }
           state.ingredients[id: id]?.focusedField = nil
           let s = IngredientReducer.State.init(
             ingredient: .init(id: .init(rawValue: uuid())),
@@ -121,7 +129,7 @@ struct IngredientSectionReducer: Reducer  {
         // If we just collapsed the list, nil out any potential focus state to prevent
         // keyboard issues such as duplicate buttons
         if !state.isExpanded {
-          if case let .row(currId) = state.focusedField {
+          if let currId = state.focusedField?.row {
             state.ingredients[id: currId]?.focusedField = nil
           }
           state.focusedField = nil
@@ -132,22 +140,6 @@ struct IngredientSectionReducer: Reducer  {
         return .none
       }
     }
-    .forEach(\.ingredients, action: /Action.ingredient) {
-      IngredientReducer()
-    }
-  }
-}
-
-extension IngredientSectionReducer {
-  enum DelegateAction: Equatable {
-    case deleteSectionButtonTapped
-    case insertSection(AboveBelow)
-  }
-}
-
-extension IngredientSectionReducer {
-  enum FocusField: Equatable, Hashable {
-    case row(IngredientReducer.State.ID)
-    case name
+    .forEach(\.ingredients, action: \.ingredient, element: IngredientReducer.init)
   }
 }

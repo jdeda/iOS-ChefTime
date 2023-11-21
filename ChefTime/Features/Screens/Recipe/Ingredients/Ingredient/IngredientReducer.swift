@@ -1,11 +1,10 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct IngredientReducer: Reducer {
+@Reducer
+struct IngredientReducer {
   struct State: Equatable, Identifiable {
-    var id: Recipe.IngredientSection.Ingredient.ID {
-      self.ingredient.id
-    }
+    var id: Recipe.IngredientSection.Ingredient.ID { self.ingredient.id }
     
     var ingredient: Recipe.IngredientSection.Ingredient
     @BindingState var ingredientAmountString: String
@@ -32,7 +31,20 @@ struct IngredientReducer: Reducer {
     case isCompleteButtonToggled
     case keyboardDoneButtonTapped
     case keyboardNextButtonTapped
+    
     case delegate(DelegateAction)
+    @CasePathable
+    enum DelegateAction: Equatable {
+      case tappedToDelete
+      case insertIngredient(AboveBelow)
+    }
+  }
+  
+  @CasePathable
+  enum FocusField: Equatable {
+    case name
+    case amount
+    case measure
   }
   
   @Dependency(\.continuousClock) var clock
@@ -142,20 +154,5 @@ struct IngredientReducer: Reducer {
         return .none
       }
     }
-  }
-}
-
-extension IngredientReducer {
-  enum DelegateAction: Equatable {
-    case tappedToDelete
-    case insertIngredient(AboveBelow)
-  }
-}
-
-extension IngredientReducer {
-  enum FocusField: Equatable {
-    case name
-    case amount
-    case measure
   }
 }
