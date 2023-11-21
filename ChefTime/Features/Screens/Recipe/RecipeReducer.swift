@@ -198,7 +198,6 @@ struct RecipeReducer: Reducer {
   }
 }
 
-// MARK: - RecipeUpdateAction
 extension RecipeReducer {
   enum RecipeUpdateAction: Equatable {
     case photosUpdated
@@ -208,16 +207,12 @@ extension RecipeReducer {
   }
 }
 
-
-// MARK: - AlertAction
 extension RecipeReducer {
   enum AlertAction: Equatable {
     case confirmDeleteSectionButtonTapped(Section)
   }
 }
 
-
-// MARK: - AlertState
 extension AlertState where Action == RecipeReducer.AlertAction {
   static let deleteAbout = Self(
     title: {
@@ -270,7 +265,6 @@ extension AlertState where Action == RecipeReducer.AlertAction {
 }
 
 
-// MARK: - Section Helper
 extension RecipeReducer {
   enum Section: Equatable {
     case about

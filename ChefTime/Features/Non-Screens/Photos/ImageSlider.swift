@@ -25,6 +25,20 @@ struct ImageSliderView: View {
   }
 }
 
+private extension Image {
+  func square() -> some View {
+    Rectangle()
+      .fill(.clear)
+      .aspectRatio(1, contentMode: .fit)
+      .overlay(
+        self
+          .resizable()
+          .scaledToFill()
+      )
+      .clipShape(Rectangle())
+  }
+}
+
 
 struct ImageSliderView_Previews: PreviewProvider {
   static var previews: some View {
