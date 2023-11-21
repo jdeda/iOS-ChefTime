@@ -1,7 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 import PhotosUI
-import Combine
 
 // TODO: Animation slide lag
 // TODO: How to play all changes back to original recipe?
@@ -197,7 +196,6 @@ private extension Image {
   }
 }
 
-// MARK: - Preview
 #Preview {
   NavigationStack {
     ScrollView {

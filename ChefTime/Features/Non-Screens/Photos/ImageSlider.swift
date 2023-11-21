@@ -40,13 +40,7 @@ private extension Image {
 }
 
 
-#Preview {
-  ScrollView {
-    MasterView()
-  }
-}
-
-private struct MasterView: View {
+private struct _ImageSliderPreview: View {
   @State var imageDatas: IdentifiedArrayOf<ImageData> = Recipe.longMock.imageData
   @State var selection: ImageData.ID? = nil
   var body: some View {
@@ -55,5 +49,12 @@ private struct MasterView: View {
       selection: $selection
     )
     .frame(width: 350, height: 350)
+  }
+}
+
+
+#Preview {
+  ScrollView {
+    _ImageSliderPreview()
   }
 }

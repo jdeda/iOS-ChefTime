@@ -1,9 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import PhotosUI
-import Combine
 
-// MARK: - Reducer
 @Reducer
 struct PhotosReducer {
   struct State: Equatable {
@@ -44,7 +42,7 @@ struct PhotosReducer {
     case cancelPhotoEdit
     
     case alert(PresentationAction<AlertAction>)
-    // TODO: Do I need @CasePathable?
+    @CasePathable
     enum AlertAction: Equatable {
       case dismiss
     }
@@ -55,21 +53,22 @@ struct PhotosReducer {
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   
-  // TODO: Make @CasePathable?
+  @CasePathable
+  @dynamicMemberLookup
   enum PhotoEditStatus: Equatable {
     case replace(ImageData.ID)
     case add(ImageData.ID)
     case addWhenEmpty
   }
   
-  // TODO: Make @CasePathable?
+  @CasePathable
   enum PhotosError: CaseIterable, Error, Equatable {
     case parseError
     case generalError
     case timeoutError
   }
   
-  // TODO: Make @CasePathable?
+  @CasePathable
   enum PhotosCancelID: Hashable, Equatable {
     case photoEdit
   }
