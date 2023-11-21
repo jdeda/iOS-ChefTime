@@ -10,33 +10,26 @@ import Tagged
 ///     potentially improve the experience.
 /// 2. Load onAppear
 ///
-struct RecipeReducer: Reducer {
+@Reducer
+struct RecipeReducer {
   struct State: Equatable {
     var didLoad = false
     var recipe: Recipe
     var photos: PhotosReducer.State {
-      didSet {
-        self.recipe.imageData = self.photos.photos
-      }
+      didSet { self.recipe.imageData = self.photos.photos }
     }
     var about: AboutListReducer.State {
-      didSet {
-        self.recipe.stepSections = steps.recipeSections
-      }
+      didSet { self.recipe.stepSections = steps.recipeSections }
     }
     var ingredients: IngredientsListReducer.State {
-      didSet {
-        self.recipe.stepSections = steps.recipeSections
-      }
+      didSet { self.recipe.stepSections = steps.recipeSections }
     }
     var steps: StepListReducer.State {
-      didSet {
-        self.recipe.stepSections = steps.recipeSections
-      }
+      didSet { self.recipe.stepSections = steps.recipeSections }
     }
     var isHidingImages: Bool
     @BindingState var navigationTitle: String
-    @PresentationState var alert: AlertState<AlertAction>?
+    @PresentationState var alert: AlertState<Action.AlertAction>?
     
     // TODO: - What to do with the dates here?
     init(recipeID: Recipe.ID) {
@@ -67,26 +60,37 @@ struct RecipeReducer: Reducer {
     case toggleHideImages
     case setExpansionButtonTapped(Bool)
     case editSectionButtonTapped(Section, SectionEditAction)
+
     case alert(PresentationAction<AlertAction>)
+    @CasePathable
+    @dynamicMemberLookup
+    enum AlertAction: Equatable {
+      case confirmDeleteSectionButtonTapped(Section)
+    }
+  }
+
+  @CasePathable
+  enum Section: Equatable {
+    case about
+    case ingredients
+    case steps
   }
   
+  @CasePathable
+  enum SectionEditAction: Equatable {
+    case add
+    case delete
+  }
+
   @Dependency(\.continuousClock) var clock
   @Dependency(\.database) var database
   
   var body: some Reducer<RecipeReducer.State, RecipeReducer.Action> {
     CombineReducers {
-      Scope(state: \.photos, action: /Action.photos) {
-        PhotosReducer()
-      }
-      Scope(state: \.about, action: /Action.about) {
-        AboutListReducer()
-      }
-      Scope(state: \.ingredients, action: /Action.ingredients) {
-        IngredientsListReducer()
-      }
-      Scope(state: \.steps, action: /Action.steps) {
-        StepListReducer()
-      }
+      Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
+      Scope(state: \.about, action: \.about, child: AboutListReducer.init)
+      Scope(state: \.ingredients, action: \.ingredients, child: IngredientsListReducer.init)
+      Scope(state: \.steps, action: \.steps, child: StepListReducer.init)
       BindingReducer()
       Reduce<RecipeReducer.State, RecipeReducer.Action> { state, action in
         switch action {
@@ -114,7 +118,6 @@ struct RecipeReducer: Reducer {
           return .none
           
         case .binding(\.$navigationTitle):
-          // TODO: ... B -> A
           if state.navigationTitle.isEmpty { state.navigationTitle = "Untitled Recipe" }
           state.recipe.name = state.navigationTitle
           return .none
@@ -195,85 +198,5 @@ struct RecipeReducer: Reducer {
           }
       }
     }
-  }
-}
-
-extension RecipeReducer {
-  enum RecipeUpdateAction: Equatable {
-    case photosUpdated
-    case aboutUpdated
-    case ingredientsUpdated
-    case stepsUpdated
-  }
-}
-
-extension RecipeReducer {
-  enum AlertAction: Equatable {
-    case confirmDeleteSectionButtonTapped(Section)
-  }
-}
-
-extension AlertState where Action == RecipeReducer.AlertAction {
-  static let deleteAbout = Self(
-    title: {
-      TextState("Delete About")
-    },
-    actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.about)){
-        TextState("Delete")
-      }
-      ButtonState(role: .cancel) {
-        TextState("Cancel")
-      }
-    },
-    message: {
-      TextState("Are you sure you want to delete this section? All subsections will be deleted.")
-    }
-  )
-  static let deleteIngredients = Self(
-    title: {
-      TextState("Delete Ingredients")
-    },
-    actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.ingredients)){
-        TextState("Delete")
-      }
-      ButtonState(role: .cancel) {
-        TextState("Cancel")
-      }
-    },
-    message: {
-      TextState("Are you sure you want to delete this section? All subsections will be deleted.")
-    }
-  )
-  static let deleteSteps = Self(
-    title: {
-      TextState("Delete Steps")
-    },
-    actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.steps)){
-        TextState("Delete")
-      }
-      ButtonState(role: .cancel) {
-        TextState("Cancel")
-      }
-    },
-    message: {
-      TextState("Are you sure you want to delete this section? All subsections will be deleted.")
-    }
-  )
-}
-
-
-extension RecipeReducer {
-  enum Section: Equatable {
-    case about
-    case ingredients
-    case steps
-  }
-  
-  enum SectionEditAction: Equatable {
-    case add
-    case delete
   }
 }

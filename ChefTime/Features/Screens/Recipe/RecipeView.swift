@@ -45,7 +45,7 @@ struct RecipeView: View {
         
         // PhotosView
         ZStack {
-          PhotosView(store: store.scope(state: \.photos, action: RecipeReducer.Action.photos))
+          PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
             .opacity(!viewStore.isHidingImages ? 1.0 : 0.0)
             .frame(
               width: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0,
@@ -65,7 +65,7 @@ struct RecipeView: View {
         }
         
         // AboutListView
-        AboutListView(store: store.scope(state: \.about, action: RecipeReducer.Action.about))
+        AboutListView(store: store.scope(state: \.about, action: { .about($0) }))
           .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
         if !viewStore.about.isExpanded {
           Divider()
@@ -73,7 +73,7 @@ struct RecipeView: View {
         }
         
         // IngredientListView
-        IngredientListView(store: store.scope(state: \.ingredients, action: RecipeReducer.Action.ingredients))
+        IngredientListView(store: store.scope(state: \.ingredients, action: { .ingredients($0) }))
           .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
         if !viewStore.ingredients.isExpanded {
           Divider()
@@ -81,7 +81,7 @@ struct RecipeView: View {
         }
         
         // StepListView
-        StepListView(store: store.scope(state: \.steps, action: RecipeReducer.Action.steps))
+        StepListView(store: store.scope(state: \.steps, action: { .steps($0) }))
           .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
         if !viewStore.steps.isExpanded {
           Divider()
@@ -90,7 +90,7 @@ struct RecipeView: View {
         
         Spacer()
       }
-      .alert(store: store.scope(state: \.$alert, action: RecipeReducer.Action.alert))
+      .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
       .navigationTitle(viewStore.$navigationTitle)
       .toolbar {
         ToolbarItemGroup(placement: .primaryAction) {
