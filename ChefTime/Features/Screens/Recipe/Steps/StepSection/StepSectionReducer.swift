@@ -1,15 +1,12 @@
 import ComposableArchitecture
 
-struct StepSectionReducer: Reducer  {
+@Reducer
+struct StepSectionReducer  {
   struct State: Equatable, Identifiable {
-    var id: Recipe.StepSection.ID {
-      self.stepSection.id
-    }
+    var id: Recipe.StepSection.ID { self.stepSection.id }
     var stepSection: Recipe.StepSection
     var steps: IdentifiedArrayOf<StepReducer.State> {
-      didSet {
-        self.stepSection.steps = steps.map(\.step)
-      }
+      didSet { self.stepSection.steps = steps.map(\.step) }
     }
     @BindingState var isExpanded: Bool
     @BindingState var focusedField: FocusField?
@@ -23,13 +20,24 @@ struct StepSectionReducer: Reducer  {
   }
   
   enum Action: Equatable, BindableAction {
-    case step(StepReducer.State.ID, StepReducer.Action)
+    case step(IdentifiedActionOf<StepReducer>)
     case binding(BindingAction<State>)
     case stepSectionNameEdited(String)
     case addStep
     case keyboardDoneButtonTapped
     case stepSectionUpdate
+    
     case delegate(DelegateAction)
+    @CasePathable
+    enum DelegateAction: Equatable {
+      case deleteSectionButtonTapped
+      case insertSection(AboveBelow)
+    }
+  }
+  
+  @CasePathable
+  enum FocusField: Equatable, Hashable {
+    case name
   }
   
   private enum AddStepID: Hashable { case timer }
@@ -41,7 +49,7 @@ struct StepSectionReducer: Reducer  {
     BindingReducer()
     Reduce<StepSectionReducer.State, StepSectionReducer.Action> { state, action in
       switch action {
-      case let .step(id, .delegate(action)):
+        case let .step(.element(id: id, action: .delegate(action))):
         switch action  {
         case .deleteButtonTapped:
           state.steps.remove(id: id)
@@ -123,22 +131,6 @@ struct StepSectionReducer: Reducer  {
         return .none
       }
     }
-    .forEach(\.steps, action: /Action.step) {
-      StepReducer()
-    }
+    .forEach(\.steps, action: \.step, element: StepReducer.init)
   }
 }
-
-extension StepSectionReducer {
-  enum DelegateAction: Equatable {
-    case deleteSectionButtonTapped
-    case insertSection(AboveBelow)
-  }
-}
-
-extension StepSectionReducer {
-  enum FocusField: Equatable, Hashable {
-    case name
-  }
-}
-

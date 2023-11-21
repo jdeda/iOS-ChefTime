@@ -1,17 +1,14 @@
 import ComposableArchitecture
 
-struct StepReducer: Reducer {
+@Reducer
+struct StepReducer {
   struct State: Equatable, Identifiable {
-    var id: Recipe.StepSection.Step.ID {
-      self.step.id
-    }
+    var id: Recipe.StepSection.Step.ID { self.step.id }
     
     @BindingState var step: Recipe.StepSection.Step
     @BindingState var focusedField: FocusField? = nil
     var photos: PhotosReducer.State {
-      didSet {
-        self.step.imageData = self.photos.photos
-      }
+      didSet { self.step.imageData = self.photos.photos }
     }
     
     init(
@@ -26,11 +23,21 @@ struct StepReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case delegate(DelegateAction)
     case photos(PhotosReducer.Action)
     case keyboardDoneButtonTapped
     case photoPickerButtonTapped
     case photoImagesDidChange
+
+    case delegate(DelegateAction)
+    @CasePathable
+    enum DelegateAction: Equatable {
+      case insertButtonTapped(AboveBelow)
+      case deleteButtonTapped
+    }
+  }
+  
+  enum FocusField {
+    case description
   }
   
   @Dependency(\.photos) var photosClient
@@ -58,22 +65,7 @@ struct StepReducer: Reducer {
           return .none
         }
       }
-      Scope(state: \.photos, action: /Action.photos) {
-        PhotosReducer()
-      }
+      Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
     }
-  }
-}
-
-extension StepReducer {
-  enum FocusField {
-    case description
-  }
-}
-
-extension StepReducer {
-  enum DelegateAction: Equatable {
-    case insertButtonTapped(AboveBelow)
-    case deleteButtonTapped
   }
 }

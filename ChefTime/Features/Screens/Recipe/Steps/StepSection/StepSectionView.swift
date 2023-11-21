@@ -12,10 +12,7 @@ struct StepSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        ForEachStore(store.scope(
-          state: \.steps,
-          action: StepSectionReducer.Action.step
-        )) { childStore in
+        ForEachStore(store.scope(state: \.steps, action: { .step($0) })) { childStore in
           // TODO: Move this into reducer and test.
           let id = ViewStore(childStore, observe: \.id).state
           let index = viewStore.steps.index(id:id) ?? 0

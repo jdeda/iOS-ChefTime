@@ -1,6 +1,7 @@
 import ComposableArchitecture
 
-struct StepListReducer: Reducer {
+@Reducer
+struct StepListReducer {
   struct State: Equatable {
     var stepSections: IdentifiedArrayOf<StepSectionReducer.State> = []
     @BindingState var isExpanded: Bool = true
@@ -18,10 +19,15 @@ struct StepListReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case stepSection(StepSectionReducer.State.ID, StepSectionReducer.Action)
+    case stepSection(IdentifiedActionOf<StepSectionReducer>)
     case hideImagesToggled
     case addSectionButtonTapped
     case hideImages
+  }
+  
+  @CasePathable
+  enum FocusField: Equatable, Hashable {
+    case row(StepSectionReducer.State.ID)
   }
   
   @Dependency(\.uuid) var uuid
@@ -33,10 +39,10 @@ struct StepListReducer: Reducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .stepSection(id, .delegate(action)):
+      case let .stepSection(.element(id: id, action: .delegate(action))):
         switch action {
         case .deleteSectionButtonTapped:
-          if case .row = state.focusedField {
+          if state.focusedField?.is(\.row) ?? false {
             state.focusedField = nil
           }
           state.stepSections.remove(id: id)
@@ -88,14 +94,6 @@ struct StepListReducer: Reducer {
         return .none
       }
     }
-    .forEach(\.stepSections, action: /Action.stepSection) {
-      StepSectionReducer()
-    }
-  }
-}
-
-extension StepListReducer {
-  enum FocusField: Equatable, Hashable {
-    case row(StepSectionReducer.State.ID)
+    .forEach(\.stepSections, action: \.stepSection, element: StepSectionReducer.init)
   }
 }
