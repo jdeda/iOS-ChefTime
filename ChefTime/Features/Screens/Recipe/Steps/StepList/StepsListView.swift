@@ -42,7 +42,7 @@ struct StepListView: View {
               viewStore.send(.hideImagesToggled)
             }
             
-            ForEachStore(store.scope(state: \.stepSections, action: { .stepSection($0) })) { childStore in
+            ForEachStore(store.scope(state: \.stepSections, action: { .stepSections($0) })) { childStore in
               StepSection(store: childStore)
                 .contentShape(Rectangle())
                 .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))

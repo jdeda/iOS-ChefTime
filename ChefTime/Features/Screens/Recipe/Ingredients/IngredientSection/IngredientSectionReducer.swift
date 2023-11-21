@@ -23,7 +23,7 @@ struct IngredientSectionReducer: Reducer  {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case ingredient(IdentifiedActionOf<IngredientReducer>)
+    case ingredients(IdentifiedActionOf<IngredientReducer>)
     case ingredientSectionNameEdited(String)
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
@@ -52,7 +52,7 @@ struct IngredientSectionReducer: Reducer  {
     BindingReducer()
     Reduce<IngredientSectionReducer.State, IngredientSectionReducer.Action> { state, action in
       switch action {
-      case let .ingredient(.element(id: id, action: .delegate(action))):
+      case let .ingredients(.element(id: id, action: .delegate(action))):
         switch action {
         case .tappedToDelete:
           // TODO: Animation can be a bit clunky, fix.
@@ -136,10 +136,10 @@ struct IngredientSectionReducer: Reducer  {
         }
         return .none
         
-      case .delegate, .binding, .ingredient:
+      case .delegate, .binding, .ingredients:
         return .none
       }
     }
-    .forEach(\.ingredients, action: \.ingredient, element: IngredientReducer.init)
+    .forEach(\.ingredients, action: \.ingredients, element: IngredientReducer.init)
   }
 }

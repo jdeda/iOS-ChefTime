@@ -62,8 +62,8 @@ struct FolderReducer {
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case newRecipeButtonTapped
-    case folders(FolderSectionReducer.Action)
-    case recipes(RecipeSectionReducer.Action)
+    case folderSection(FolderSectionReducer.Action)
+    case recipeSection(RecipeSectionReducer.Action)
     case binding(BindingAction<State>)
 
     case delegate(DelegateAction)
@@ -97,8 +97,8 @@ struct FolderReducer {
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {
     CombineReducers {
-      Scope(state: \.folderSection, action: \.folders, child: FolderSectionReducer.init)
-      Scope(state: \.recipeSection, action: \.recipes, child: RecipeSectionReducer.init)
+      Scope(state: \.folderSection, action: \.folderSection, child: FolderSectionReducer.init)
+      Scope(state: \.recipeSection, action: \.recipeSection, child: RecipeSectionReducer.init)
       BindingReducer()
       Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
         switch action {
@@ -195,14 +195,14 @@ struct FolderReducer {
           state.recipeSection.recipes.append(.init(recipe: newRecipe))
           return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
           
-        case let .folders(.delegate(action)):
+        case let .folderSection(.delegate(action)):
           switch action {
             
           case let .folderTapped(id):
             return .send(.delegate(.folderTapped(id)))
           }
           
-        case let .recipes(.delegate(action)):
+        case let .recipeSection(.delegate(action)):
           switch action {
           case let .recipeTapped(id):
             return .send(.delegate(.recipeTapped(id)))
@@ -228,7 +228,7 @@ struct FolderReducer {
           state.alert = nil
           return .none
           
-        case .binding, .folders, .recipes, .alert, .delegate:
+        case .binding, .folderSection, .recipeSection, .alert, .delegate:
           return .none
         }
       }

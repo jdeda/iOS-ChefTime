@@ -19,7 +19,7 @@ struct StepListReducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case stepSection(IdentifiedActionOf<StepSectionReducer>)
+    case stepSections(IdentifiedActionOf<StepSectionReducer>)
     case hideImagesToggled
     case addSectionButtonTapped
     case hideImages
@@ -39,7 +39,7 @@ struct StepListReducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .stepSection(.element(id: id, action: .delegate(action))):
+      case let .stepSections(.element(id: id, action: .delegate(action))):
         switch action {
         case .deleteSectionButtonTapped:
           if state.focusedField?.is(\.row) ?? false {
@@ -90,10 +90,10 @@ struct StepListReducer {
         }
         return .none
         
-      case .binding, .stepSection:
+      case .binding, .stepSections:
         return .none
       }
     }
-    .forEach(\.stepSections, action: \.stepSection, element: StepSectionReducer.init)
+    .forEach(\.stepSections, action: \.stepSections, element: StepSectionReducer.init)
   }
 }

@@ -23,7 +23,7 @@ struct AboutListReducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case aboutSection(IdentifiedActionOf<AboutSectionReducer>)
+    case aboutSections(IdentifiedActionOf<AboutSectionReducer>)
     case addSectionButtonTapped
   }
   
@@ -39,7 +39,7 @@ struct AboutListReducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .aboutSection(.element(id: id, action: .delegate(action))):
+      case let .aboutSections(.element(id: id, action: .delegate(action))):
         switch action {
         case .deleteSectionButtonTapped:
           if state.focusedField?.is(\.row) ?? false {
@@ -82,10 +82,10 @@ struct AboutListReducer {
         }
         return .none
         
-      case .binding, .aboutSection:
+      case .binding, .aboutSections:
         return .none
       }
     }
-    .forEach(\.aboutSections, action: \.aboutSection, element: AboutSectionReducer.init)
+    .forEach(\.aboutSections, action: \.aboutSections, element: AboutSectionReducer.init)
   }
 }

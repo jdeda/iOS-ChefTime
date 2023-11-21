@@ -13,7 +13,7 @@ struct IngredientSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        ForEachStore(store.scope(state: \.ingredients, action: { .ingredient($0) })) { childStore in
+        ForEachStore(store.scope(state: \.ingredients, action: { .ingredients($0) })) { childStore in
           let id = ViewStore(childStore, observe: \.id).state
           IngredientView(store: childStore)
             .onTapGesture {

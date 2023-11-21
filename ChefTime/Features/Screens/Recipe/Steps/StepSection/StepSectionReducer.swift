@@ -20,7 +20,7 @@ struct StepSectionReducer  {
   }
   
   enum Action: Equatable, BindableAction {
-    case step(IdentifiedActionOf<StepReducer>)
+    case steps(IdentifiedActionOf<StepReducer>)
     case binding(BindingAction<State>)
     case stepSectionNameEdited(String)
     case addStep
@@ -49,7 +49,7 @@ struct StepSectionReducer  {
     BindingReducer()
     Reduce<StepSectionReducer.State, StepSectionReducer.Action> { state, action in
       switch action {
-        case let .step(.element(id: id, action: .delegate(action))):
+        case let .steps(.element(id: id, action: .delegate(action))):
         switch action  {
         case .deleteButtonTapped:
           state.steps.remove(id: id)
@@ -66,9 +66,6 @@ struct StepSectionReducer  {
           state.steps.insert(newStep, at: aboveBelow == .above ? i : i + 1)
           return .none
         }
-        
-      case .step:
-        return .none
         
       case let .stepSectionNameEdited(newName):
         let oldName = state.stepSection.name
@@ -127,10 +124,10 @@ struct StepSectionReducer  {
         }
         return .none
         
-      case .delegate, .binding:
+      case .delegate, .binding, .steps:
         return .none
       }
     }
-    .forEach(\.steps, action: \.step, element: StepReducer.init)
+    .forEach(\.steps, action: \.steps, element: StepReducer.init)
   }
 }

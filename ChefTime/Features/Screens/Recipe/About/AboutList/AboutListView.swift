@@ -32,10 +32,7 @@ struct AboutListView: View {
       }
       else {
         DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-          ForEachStore(store.scope(
-            state: \.aboutSections,
-            action: AboutListReducer.Action.aboutSection
-          )) { childStore in
+          ForEachStore(store.scope(state: \.aboutSections, action: { .aboutSections($0) })) { childStore in
             AboutSection(store: childStore)
               .contentShape(Rectangle())
               .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))

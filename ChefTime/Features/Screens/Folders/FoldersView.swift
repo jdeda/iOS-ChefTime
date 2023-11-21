@@ -45,7 +45,7 @@ struct FoldersView: View {
         }
         .task { await viewStore.send(.task).finish() }
         .environment(\.isHidingImages, viewStore.isHidingImages)
-        .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
+        .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
       }
       .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
     }

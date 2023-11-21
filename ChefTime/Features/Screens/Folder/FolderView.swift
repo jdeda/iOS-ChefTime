@@ -14,7 +14,7 @@ struct FolderView: View {
           // Folders
           let isHidingFolders = viewStore.editStatus == .recipes || viewStore.folderSection.folders.isEmpty
           FolderSectionView(
-            store: store.scope(state: \.folderSection, action: { .folders($0) }),
+            store: store.scope(state: \.folderSection, action: { .folderSection($0) }),
             isEditing: !isHidingFolders && viewStore.editStatus == .folders
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -26,7 +26,7 @@ struct FolderView: View {
           // Recipes.
           let isHidingRecipes = viewStore.editStatus == .folders || viewStore.recipeSection.recipes.isEmpty
           RecipeSectionView(
-            store: store.scope(state: \.recipeSection, action: { .recipes($0 )}),
+            store: store.scope(state: \.recipeSection, action: { .recipeSection($0 )}),
             isEditing: !isHidingRecipes && viewStore.editStatus == .recipes
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
