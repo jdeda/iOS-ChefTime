@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "688BDE78-2B98-49E1-BF59-4E8F1EAE0C13",
+      "name" : "Test Scheme Action",
+      "options" : {
+        "maximumTestRepetitions" : 3
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "maximumTestRepetitions" : 3,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:ChefTime.xcodeproj",
+      "identifier" : "97AD13B32A2E7392002FCE30",
+      "name" : "ChefTime"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:ChefTime.xcodeproj",
+        "identifier" : "97833B982A584E4E002EB24B",
+        "name" : "ChefTimeTests"
+      }
+    }
+  ],
+  "version" : 1
+}
