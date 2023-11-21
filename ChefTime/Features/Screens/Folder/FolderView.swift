@@ -1,7 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: - View
 struct FolderView: View {
   let store: StoreOf<FolderReducer>
   @Environment(\.maxScreenWidth) private var maxScreenWidth
@@ -15,10 +14,7 @@ struct FolderView: View {
           // Folders
           let isHidingFolders = viewStore.editStatus == .recipes || viewStore.folderSection.folders.isEmpty
           FolderSectionView(
-            store: store.scope(
-              state: \.folderSection,
-              action: FolderReducer.Action.folders
-            ),
+            store: store.scope(state: \.folderSection, action: { .folders($0) }),
             isEditing: !isHidingFolders && viewStore.editStatus == .folders
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -30,10 +26,7 @@ struct FolderView: View {
           // Recipes.
           let isHidingRecipes = viewStore.editStatus == .folders || viewStore.recipeSection.recipes.isEmpty
           RecipeSectionView(
-            store: store.scope(
-              state: \.recipeSection,
-              action: FolderReducer.Action.recipes
-            ),
+            store: store.scope(state: \.recipeSection, action: { .recipes($0 )}),
             isEditing: !isHidingRecipes && viewStore.editStatus == .recipes
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -55,10 +48,10 @@ struct FolderView: View {
           }
         }
         .environment(\.isHidingImages, viewStore.isHidingImages)
-        .alert(store: store.scope(state: \.$alert, action: FolderReducer.Action.alert))
+        .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
       }
-      .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
-      .task { await viewStore.send(.task).finish() }
+//      .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
+//      .task { await viewStore.send(.task).finish() }
     }
   }
 }
@@ -145,7 +138,6 @@ extension FolderView {
   }
 }
 
-// MARK: - Preview
 #Preview {
   NavigationStack {
     FolderView(store: .init(

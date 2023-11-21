@@ -1,12 +1,8 @@
 import ComposableArchitecture
-import SwiftUI
-import Tagged
-
 
 // TODO: Deal with seperation of systemFolders, specificSystemFolders, and userFolders.
-
-// MARK: - Reducer
-struct FoldersReducer: Reducer {
+@Reducer
+struct FoldersReducer {
   struct State: Equatable {
     var didLoad = false
     var systemFoldersSection: FolderSectionReducer.State
@@ -14,7 +10,7 @@ struct FoldersReducer: Reducer {
     var scrollViewIndex: Int
     var isHidingImages: Bool
     @BindingState var isEditing: Bool
-    @PresentationState var alert: AlertState<AlertAction>?
+    @PresentationState var alert: AlertState<Action.AlertAction>?
     
     init(
       systemFolders: IdentifiedArrayOf<Folder> = [],
@@ -56,15 +52,23 @@ struct FoldersReducer: Reducer {
     case newRecipeButtonTapped
     case userFoldersSection(FolderSectionReducer.Action)
     case systemFoldersSection(FolderSectionReducer.Action)
-    case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
     
     case delegate(DelegateAction)
+    @CasePathable
+    @dynamicMemberLookup
     enum DelegateAction: Equatable {
       case addNewFolderDidComplete(Folder.ID)
       case addNewRecipeDidComplete(Recipe.ID)
       case userFolderTapped(Folder.ID)
       case systemFolderTapped(Folder.ID)
+    }
+
+    case alert(PresentationAction<AlertAction>)
+    @CasePathable
+    enum AlertAction: Equatable {
+      case cancelButtonTapped
+      case confirmDeleteButtonTapped
     }
   }
   
@@ -75,12 +79,8 @@ struct FoldersReducer: Reducer {
   
   var body: some Reducer<FoldersReducer.State, FoldersReducer.Action> {
     CombineReducers {
-      Scope(state: \.systemFoldersSection, action: /Action.systemFoldersSection) {
-        FolderSectionReducer()
-      }
-      Scope(state: \.userFoldersSection, action: /Action.userFoldersSection) {
-        FolderSectionReducer()
-      }
+      Scope(state: \.systemFoldersSection, action: \.systemFoldersSection, child: FolderSectionReducer.init)
+      Scope(state: \.userFoldersSection, action: \.userFoldersSection, child: FolderSectionReducer.init)
       BindingReducer()
       Reduce<FoldersReducer.State, FoldersReducer.Action> { state, action in
         switch action {
@@ -98,9 +98,7 @@ struct FoldersReducer: Reducer {
           .concatenate(with: .send(.setDidLoad(true)))
           
         case let .fetchFoldersSuccess(folders):
-          state.userFoldersSection.folders = folders.map({
-            .init(folder: $0)
-          })
+          state.userFoldersSection.folders = folders.map({ .init(folder: $0) })
           return .none
           
         case .selectFoldersButtonTapped:
@@ -158,16 +156,12 @@ struct FoldersReducer: Reducer {
         case let .userFoldersSection(.delegate(action)):
           switch action {
           case let .folderTapped(id):
-            guard let _ = state.userFoldersSection.folders[id: id]?.folder
-            else { return .none }
             return .send(.delegate(.userFolderTapped(id)))
           }
           
         case let .systemFoldersSection(.delegate(action)):
           switch action {
           case let .folderTapped(id):
-            guard let _ = state.systemFoldersSection.folders[id: id]?.folder
-            else { return .none }
             return .send(.delegate(.systemFolderTapped(id)))
           }
         case .binding:
@@ -221,41 +215,10 @@ struct FoldersReducer: Reducer {
           }
       }
     }
-    //    .onChange(of: \.systemFoldersSection.folders) { _, _ in
-    //      EmptyReducer() // TODO: ....
-    //    }
   }
 }
 
-// MARK: - Action.FolderUpdate
-extension FoldersReducer.Action {
-  enum FoldersUpdate: Equatable {
-    case systemFolders
-    case userFolders
-  }
-}
-
-// MARK: - AlertAction
-extension FoldersReducer {
-  //  enum DelegateAction: Equatable {
-  //    case addNewFolderDidComplete(Folder.ID)
-  //    case addNewRecipeDidComplete(Recipe.ID)
-  //    case userFolderTapped(Folder.ID)
-  //    case systemFolderTapped(Folder.ID)
-  //  }
-}
-
-
-// MARK: - AlertAction
-extension FoldersReducer {
-  enum AlertAction: Equatable {
-    case cancelButtonTapped
-    case confirmDeleteButtonTapped
-  }
-}
-
-// MARK: - AlertState
-extension AlertState where Action == FoldersReducer.AlertAction {
+extension AlertState where Action == FoldersReducer.Action.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")
@@ -272,30 +235,4 @@ extension AlertState where Action == FoldersReducer.AlertAction {
       TextState("Are you sure you want to delete the selected items?")
     }
   )
-}
-
-// MARK: - FolderSectionReducer.State instances
-extension FolderSectionReducer.State {
-  static let system: Self = {
-    @Dependency(\.uuid) var uuid
-    return Self(
-      title: "System", folders: [
-        //        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "All", folderType: .systemAll)),
-        //        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Standard", folderType: .systemStandard)),
-        //        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Recently Deleted", folderType: .systemRecentlyDeleted))
-      ]
-    )
-  }()
-  
-  static let user = Self(title: "User", folders: [])
-}
-
-// MARK: - Previews
-#Preview {
-  NavigationStack {
-    FoldersView(store: .init(
-      initialState: .init(),
-      reducer: FoldersReducer.init
-    ))
-  }
 }

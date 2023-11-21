@@ -1,7 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-/// MARK: - View
 struct FoldersView: View {
   let store: StoreOf<FoldersReducer>
   @Environment(\.maxScreenWidth) var maxScreenWidth
@@ -14,10 +13,7 @@ struct FoldersView: View {
           
           // System Folders.
           FolderSectionView(
-            store: store.scope(
-              state: \.systemFoldersSection,
-              action: FoldersReducer.Action.systemFoldersSection
-            ),
+            store: store.scope(state: \.systemFoldersSection, action: { .systemFoldersSection($0) }),
             isEditing: viewStore.isEditing
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -27,10 +23,7 @@ struct FoldersView: View {
           
           // User Folders.
           FolderSectionView(
-            store: store.scope(
-              state: \.userFoldersSection,
-              action: FoldersReducer.Action.userFoldersSection
-            ),
+            store: store.scope(state: \.userFoldersSection, action: { .userFoldersSection($0) }),
             isEditing: viewStore.isEditing
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -133,7 +126,6 @@ extension FoldersView {
   }
 }
 
-// MARK: - Preview
 #Preview {
   NavigationStack {
     FoldersView(store: .init(

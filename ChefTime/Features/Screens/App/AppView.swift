@@ -1,7 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: - View
 struct AppView: View {
   let store: StoreOf<AppReducer>
   
@@ -29,8 +28,6 @@ struct AppView: View {
   }
 }
 
-
-// MARK: - Preview
 #Preview {
   AppView(store: .init(
     initialState: .init(),

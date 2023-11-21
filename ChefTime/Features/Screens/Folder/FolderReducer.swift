@@ -1,30 +1,24 @@
 import ComposableArchitecture
-import SwiftUI
-import Tagged
 
-// MARK: - Reducer
-struct FolderReducer: Reducer {
+@Reducer
+struct FolderReducer {
   struct State: Equatable {
     var didLoad = false
     @BindingState var folder: Folder
     var folderSection: FolderSectionReducer.State {
-      didSet {
-        self.folder.folders = self.folderSection.folders.map(\.folder)
-      }
+      didSet { self.folder.folders = self.folderSection.folders.map(\.folder) }
     }
     var recipeSection: RecipeSectionReducer.State {
-      didSet {
-        self.folder.recipes = self.recipeSection.recipes.map(\.recipe)
-      }
+      didSet { self.folder.recipes = self.recipeSection.recipes.map(\.recipe) }
     }
     var isHidingImages: Bool = false
     var scrollViewIndex: Int = 1
     var editStatus: Section?
-    @PresentationState var alert: AlertState<AlertAction>?
+    @PresentationState var alert: AlertState<Action.AlertAction>?
     
     // TODO: - What to do with the dates here?
     init(folderID: Folder.ID) {
-      self.init(folder: .init(id: folderID, creationDate: Date(), lastEditDate: Date()))
+      self.init(folder: .init(id: folderID, creationDate: .init(), lastEditDate: .init()))
     }
     
     init(folder: Folder) {
@@ -55,11 +49,6 @@ struct FolderReducer: Reducer {
     }
   }
   
-  enum Section: Equatable {
-    case folders
-    case recipes
-  }
-  
   enum Action: Equatable, BindableAction {
     case setDidLoad(Bool)
     case task
@@ -75,9 +64,30 @@ struct FolderReducer: Reducer {
     case newRecipeButtonTapped
     case folders(FolderSectionReducer.Action)
     case recipes(RecipeSectionReducer.Action)
-    case alert(PresentationAction<AlertAction>)
     case binding(BindingAction<State>)
+
     case delegate(DelegateAction)
+    @CasePathable
+    @dynamicMemberLookup
+    enum DelegateAction: Equatable {
+      case addNewFolderDidComplete(Folder.ID)
+      case addNewRecipeDidComplete(Recipe.ID)
+      case folderTapped(Folder.ID)
+      case recipeTapped(Recipe.ID)
+      case folderUpdated(FolderReducer.State)
+    }
+
+    case alert(PresentationAction<AlertAction>)
+    @CasePathable
+    enum AlertAction: Equatable {
+      case confirmDeleteSelectedButtonTapped
+    }
+  }
+  
+  @CasePathable
+  enum Section: Equatable {
+    case folders
+    case recipes
   }
   
   @Dependency(\.uuid) var uuid
@@ -87,12 +97,8 @@ struct FolderReducer: Reducer {
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {
     CombineReducers {
-      Scope(state: \.folderSection, action: /Action.folders) {
-        FolderSectionReducer()
-      }
-      Scope(state: \.recipeSection, action: /Action.recipes) {
-        RecipeSectionReducer()
-      }
+      Scope(state: \.folderSection, action: \.folders, child: FolderSectionReducer.init)
+      Scope(state: \.recipeSection, action: \.recipes, child: RecipeSectionReducer.init)
       BindingReducer()
       Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
         switch action {
@@ -243,50 +249,7 @@ struct FolderReducer: Reducer {
   }
 }
 
-// MARK: - DelegateAction
-extension FolderReducer {
-  enum DelegateAction: Equatable {
-    case addNewFolderDidComplete(Folder.ID)
-    case addNewRecipeDidComplete(Recipe.ID)
-    case folderTapped(Folder.ID)
-    case recipeTapped(Recipe.ID)
-    case folderUpdated(FolderReducer.State)
-  }
-}
-
-// MARK: - PathReducer
-extension FolderReducer {
-  struct PathReducer: Reducer {
-    enum State: Equatable {
-      case folder(FolderReducer.State)
-      case recipe(RecipeReducer.State)
-    }
-    
-    enum Action: Equatable {
-      case folder(FolderReducer.Action)
-      case recipe(RecipeReducer.Action)
-    }
-    
-    var body: some ReducerOf<Self> {
-      Scope(state: /State.folder, action: /Action.folder) {
-        FolderReducer()
-      }
-      Scope(state: /State.recipe, action: /Action.recipe) {
-        RecipeReducer()
-      }
-    }
-  }
-}
-
-// MARK: - AlertAction
-extension FolderReducer {
-  enum AlertAction: Equatable {
-    case confirmDeleteSelectedButtonTapped
-  }
-}
-
-// MARK: - AlertState
-extension AlertState where Action == FolderReducer.AlertAction {
+extension AlertState where Action == FolderReducer.Action.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")
@@ -303,14 +266,4 @@ extension AlertState where Action == FolderReducer.AlertAction {
       TextState("Are you sure you want to delete the selected items?")
     }
   )
-}
-
-// MARK: - Previews
-#Preview {
-  NavigationStack {
-    FolderView(store: .init(
-      initialState: .init(folder: Folder.longMock),
-      reducer: FolderReducer.init
-    ))
-  }
 }
