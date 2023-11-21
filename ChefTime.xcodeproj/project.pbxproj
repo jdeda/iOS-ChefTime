@@ -35,6 +35,7 @@
 		9729565F2B0D12F0005A2D3D /* RecipeGridItemReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9729565E2B0D12F0005A2D3D /* RecipeGridItemReducer.swift */; };
 		97402AD42ADB0ED0005204D5 /* IdentifiedArray+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97402AD32ADB0ED0005204D5 /* IdentifiedArray+Extensions.swift */; };
 		9745FCF52AB21D71008CF16F /* FolderGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9745FCF42AB21D71008CF16F /* FolderGridItemView.swift */; };
+		974730572B0D38C800C99D1F /* PhotosReducer+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974730562B0D38C800C99D1F /* PhotosReducer+Extensions.swift */; };
 		975A4EED2A44C23300C9509A /* IngredientSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEC2A44C23300C9509A /* IngredientSectionView.swift */; };
 		975A4EEF2A44C23800C9509A /* IngredientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975A4EEE2A44C23800C9509A /* IngredientView.swift */; };
 		975AC2F32ACB048500B099DC /* RecipeReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975AC2F22ACB048500B099DC /* RecipeReducer.swift */; };
@@ -123,6 +124,7 @@
 		9729565E2B0D12F0005A2D3D /* RecipeGridItemReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeGridItemReducer.swift; sourceTree = "<group>"; };
 		97402AD32ADB0ED0005204D5 /* IdentifiedArray+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IdentifiedArray+Extensions.swift"; sourceTree = "<group>"; };
 		9745FCF42AB21D71008CF16F /* FolderGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderGridItemView.swift; sourceTree = "<group>"; };
+		974730562B0D38C800C99D1F /* PhotosReducer+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosReducer+Extensions.swift"; sourceTree = "<group>"; };
 		975A4EEC2A44C23300C9509A /* IngredientSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSectionView.swift; sourceTree = "<group>"; };
 		975A4EEE2A44C23800C9509A /* IngredientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientView.swift; sourceTree = "<group>"; };
 		975AC2F22ACB048500B099DC /* RecipeReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeReducer.swift; sourceTree = "<group>"; };
@@ -275,6 +277,7 @@
 			children = (
 				9712FB612A43A13800E5E227 /* PhotosView.swift */,
 				972956552B0D116C005A2D3D /* PhotosReducer.swift */,
+				974730562B0D38C800C99D1F /* PhotosReducer+Extensions.swift */,
 				9712FB4F2A438A0B00E5E227 /* ImageSlider.swift */,
 			);
 			path = Photos;
@@ -688,6 +691,7 @@
 				9729565B2B0D12B3005A2D3D /* FolderGridItemReducer.swift in Sources */,
 				9775C1A72B0BA6A200B6F633 /* AppReducer.swift in Sources */,
 				9729564A2B0D0E79005A2D3D /* IngredientSectionReducer.swift in Sources */,
+				974730572B0D38C800C99D1F /* PhotosReducer+Extensions.swift in Sources */,
 				972956562B0D116C005A2D3D /* PhotosReducer.swift in Sources */,
 				9729565D2B0D12E8005A2D3D /* RecipeSectionReducer.swift in Sources */,
 				975A4EED2A44C23300C9509A /* IngredientSectionView.swift in Sources */,

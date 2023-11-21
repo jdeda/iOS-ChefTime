@@ -4,7 +4,8 @@ import PhotosUI
 import Combine
 
 // MARK: - Reducer
-struct PhotosReducer: Reducer {
+@Reducer
+struct PhotosReducer {
   struct State: Equatable {
     var photos: IdentifiedArrayOf<ImageData>
     let supportSinglePhotoOnly: Bool
@@ -14,7 +15,7 @@ struct PhotosReducer: Reducer {
     @BindingState var photoPickerIsPresented: Bool = false
     @BindingState var selection: ImageData.ID?
     @BindingState var photoPickerItem: PhotosPickerItem? = nil
-    @PresentationState var alert: AlertState<AlertAction>?
+    @PresentationState var alert: AlertState<Action.AlertAction>?
     
     init(
       photos: IdentifiedArrayOf<ImageData>,
@@ -39,21 +40,36 @@ struct PhotosReducer: Reducer {
     case addButtonTapped
     case deleteButtonTapped
     case applyPhotoEdit(PhotoEditStatus?, ImageData)
-    case alert(PresentationAction<AlertAction>)
     case photoParseError(PhotosError)
     case cancelPhotoEdit
+    
+    case alert(PresentationAction<AlertAction>)
+    // TODO: Do I need @CasePathable?
+    enum AlertAction: Equatable {
+      case dismiss
+    }
+
   }
   
   @Dependency(\.photos) var photosClient
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   
+  // TODO: Make @CasePathable?
+  enum PhotoEditStatus: Equatable {
+    case replace(ImageData.ID)
+    case add(ImageData.ID)
+    case addWhenEmpty
+  }
+  
+  // TODO: Make @CasePathable?
   enum PhotosError: CaseIterable, Error, Equatable {
     case parseError
     case generalError
     case timeoutError
   }
   
+  // TODO: Make @CasePathable?
   enum PhotosCancelID: Hashable, Equatable {
     case photoEdit
   }
@@ -205,19 +221,7 @@ struct PhotosReducer: Reducer {
   }
 }
 
-extension PhotosReducer {
-  enum PhotoEditStatus: Equatable {
-    case replace(ImageData.ID)
-    case add(ImageData.ID)
-    case addWhenEmpty
-  }
-  
-  enum AlertAction: Equatable {
-    case dismiss
-  }
-}
-
-extension AlertState where Action == PhotosReducer.AlertAction {
+extension AlertState where Action == PhotosReducer.Action.AlertAction {
   static let failedToParseImage = Self(
     title: {
       TextState("Failed to Parse Image")
@@ -233,7 +237,7 @@ extension AlertState where Action == PhotosReducer.AlertAction {
   )
 }
 
-extension AlertState where Action == PhotosReducer.AlertAction {
+extension AlertState where Action == PhotosReducer.Action.AlertAction {
   static let generalError = Self(
     title: {
       TextState("Oops")
@@ -249,7 +253,7 @@ extension AlertState where Action == PhotosReducer.AlertAction {
   )
 }
 
-extension AlertState where Action == PhotosReducer.AlertAction {
+extension AlertState where Action == PhotosReducer.Action.AlertAction {
   static let timeoutError = Self(
     title: {
       TextState("Timeout")
@@ -263,57 +267,4 @@ extension AlertState where Action == PhotosReducer.AlertAction {
       TextState("The image is taking longer than usual to upload, please try again later.")
     }
   )
-}
-
-
-// MARK: - Async Timeout Algorithm.
-extension PhotosReducer {
-  /// What if...we could call an operator on a task, called ".timeout", where given for: TimeInterval (say we provide seconds)
-  /// and an operation that returns some result, after the provided time, cancel the task and throw a cancellation error...
-  /// and...we need to be able to use clocks for this...
-  
-  ///
-  /// Execute an operation in the current task subject to a timeout.
-  ///
-  /// - Parameters:
-  ///   - seconds: The duration in seconds `operation` is allowed to run before timing out.
-  ///   - operation: The async operation to perform.
-  /// - Returns: Returns the result of `operation` if it completed in time.
-  /// - Throws: Throws ``TimedOutError`` if the timeout expires before `operation` completes.
-  ///   If `operation` throws an error before the timeout expires, that error is propagated to the caller.
-  private func withTimeout<R>(
-    for interval: TimeInterval,
-    operation: @escaping @Sendable () async throws -> R
-  ) async throws -> R {
-    return try await withThrowingTaskGroup(of: R.self) { group in
-      let deadline = Date(timeIntervalSinceNow: interval)
-      
-      // Start actual work.
-      group.addTask {
-        let result = try await operation()
-        try Task.checkCancellation()
-        return result
-      }
-      
-      // Start timeout child task.
-      group.addTask {
-        let interval = deadline.timeIntervalSinceNow
-        if interval > 0 {
-          try await clock.sleep(for: .nanoseconds(UInt64(interval * 1_000_000_000)))
-        }
-        try Task.checkCancellation()
-        
-        // We’ve reached the timeout.
-        throw TimedOutError.timedOut
-      }
-      // First finished child task wins, cancel the other task.
-      let result = try await group.next()!
-      group.cancelAll()
-      return result
-    }
-  }
-  
-  private enum TimedOutError: Error, Equatable {
-    case timedOut
-  }
 }
