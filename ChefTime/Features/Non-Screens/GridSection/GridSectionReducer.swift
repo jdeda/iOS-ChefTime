@@ -1,14 +1,14 @@
 import ComposableArchitecture
 
 @Reducer
-struct GridSectionReducer {
+struct GridSectionReducer<ID: Equatable & Hashable> {
   struct State: Equatable {
     let title: String
-    var gridItems: IdentifiedArrayOf<GridItemReducer.State> = []
+    var gridItems: IdentifiedArrayOf<GridItemReducer<ID>.State> = []
     @BindingState var isExpanded: Bool = true
-    @BindingState var selection = Set<GridItemReducer.State.ID>()
+    @BindingState var selection = Set<GridItemReducer<ID>.State.ID>()
     
-    init(title: String = "Recipes", gridItems: IdentifiedArrayOf<GridItemReducer.State>) {
+    init(title: String = "Recipes", gridItems: IdentifiedArrayOf<GridItemReducer<ID>.State>) {
       self.title = title
       self.gridItems = gridItems
       self.isExpanded = true
@@ -17,15 +17,15 @@ struct GridSectionReducer {
   }
   
   enum Action: Equatable, BindableAction {
-    case gridItemSelected(GridItemReducer.State.ID)
-    case gridItems(IdentifiedActionOf<GridItemReducer>)
+    case gridItemSelected(GridItemReducer<ID>.State.ID)
+    case gridItems(IdentifiedActionOf<GridItemReducer<ID>>)
     case binding(BindingAction<State>)
     
     case delegate(DelegateAction)
     @CasePathable
     @dynamicMemberLookup
     enum DelegateAction: Equatable {
-      case gridItemTapped(GridItemReducer.State.ID)
+      case gridItemTapped(GridItemReducer<ID>.State.ID)
     }
   }
   

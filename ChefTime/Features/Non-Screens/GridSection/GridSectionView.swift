@@ -1,8 +1,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct GridSectionView: View {
-  let store: StoreOf<GridSectionReducer>
+struct GridSectionView<ID: Equatable & Hashable>: View {
+  let store: StoreOf<GridSectionReducer<ID>>
   let isEditing: Bool
   private let columns = Array(repeating: GridItem(spacing: 20, alignment: .top), count: 2)
   @Environment(\.isHidingImages) private var isHidingImages
@@ -49,10 +49,10 @@ struct GridSectionView: View {
 
 #Preview {
   ScrollView {
-    GridSectionView(
+    GridSectionView<Folder.ID>(
       store: .init(
         initialState: .init(gridItems: .init(uniqueElements: Folder.shortMock.recipes.map({
-          .init(id: .init(rawValue: $0.id.rawValue), name: $0.name, photos: .init(photos: $0.imageData))
+          .init(id: .init(rawValue: $0.id.rawValue), name: $0.name, imageData: $0.imageData)
         }))),
         reducer: GridSectionReducer.init
       ),

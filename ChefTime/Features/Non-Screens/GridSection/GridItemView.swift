@@ -1,8 +1,8 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct GridItemView: View {
-  let store: StoreOf<GridItemReducer>
+struct GridItemView<ID: Equatable & Hashable>: View {
+  let store: StoreOf<GridItemReducer<ID>>
   let isEditing: Bool
   let isSelected: Bool
   @Environment(\.isHidingImages) var isHidingImages
@@ -136,12 +136,12 @@ private struct RenameAlert: View {
 // MARK: - Preview
 #Preview {
   NavigationStack {
-    GridItemView(
+    GridItemView<Recipe.ID>(
       store: .init(
         initialState: .init(
-          id: .init(rawValue: Recipe.longMock.id.rawValue),
+          id: Recipe.longMock.id,
           name: Recipe.longMock.name,
-          photos: .init(photos: Recipe.longMock.imageData)
+          imageData: Recipe.longMock.imageData
         ),
         reducer: GridItemReducer.init
       ),

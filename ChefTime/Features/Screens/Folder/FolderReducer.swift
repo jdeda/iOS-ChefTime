@@ -5,11 +5,15 @@ struct FolderReducer {
   struct State: Equatable {
     var didLoad = false
     @BindingState var folder: Folder
-    var folderSection: FolderSectionReducer.State {
-      didSet { self.folder.folders = self.folderSection.folders.map(\.folder) }
+    var folderSection: GridSectionReducer<Folder.ID>.State {
+      didSet {
+//        self.folder.folders = self.folderSection.folders.map(\.folder)
+      }
     }
-    var recipeSection: RecipeSectionReducer.State {
-      didSet { self.folder.recipes = self.recipeSection.recipes.map(\.recipe) }
+    var recipeSection: GridSectionReducer<Recipe.ID>.State {
+      didSet { 
+//        self.folder.recipes = self.recipeSection.recipes.map(\.recipe)
+      }
     }
     var isHidingImages: Bool = false
     var scrollViewIndex: Int = 1
@@ -24,8 +28,8 @@ struct FolderReducer {
     init(folder: Folder) {
       print("\(folder.id.uuidString)")
       self.folder = folder
-      self.folderSection = .init(folders: folder.folders)
-      self.recipeSection = .init(recipes: folder.recipes)
+      self.folderSection = .init(title: "Folders", gridItems: folder.folders.map(GridItemReducer.State.init))
+      self.recipeSection = .init(title: "Recipes", gridItems: folder.recipes.map(GridItemReducer.State.init))
       self.isHidingImages = false
       self.editStatus = nil
       self.scrollViewIndex = 1
@@ -34,8 +38,8 @@ struct FolderReducer {
     
     var hasSelectedAll: Bool {
       switch self.editStatus {
-      case .folders: return folderSection.selection.count == folderSection.folders.count
-      case .recipes: return recipeSection.selection.count == recipeSection.recipes.count
+      case .folders: return folderSection.selection.count == folderSection.gridItems.count
+      case .recipes: return recipeSection.selection.count == recipeSection.gridItems.count
       case .none: return false
       }
     }
@@ -62,8 +66,8 @@ struct FolderReducer {
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case newRecipeButtonTapped
-    case folderSection(FolderSectionReducer.Action)
-    case recipeSection(RecipeSectionReducer.Action)
+    case folderSection(GridSectionReducer<Folder.ID>.Action)
+    case recipeSection(GridSectionReducer<Recipe.ID>.Action)
     case binding(BindingAction<State>)
 
     case delegate(DelegateAction)
@@ -97,8 +101,8 @@ struct FolderReducer {
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {
     CombineReducers {
-      Scope(state: \.folderSection, action: \.folderSection, child: FolderSectionReducer.init)
-      Scope(state: \.recipeSection, action: \.recipeSection, child: RecipeSectionReducer.init)
+      Scope(state: \.folderSection, action: \.folderSection, child: GridSectionReducer.init)
+      Scope(state: \.recipeSection, action: \.recipeSection, child: GridSectionReducer.init)
       BindingReducer()
       Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
         switch action {
@@ -153,12 +157,12 @@ struct FolderReducer {
           switch state.editStatus {
           case .folders:
             state.folderSection.selection = .init(
-              state.hasSelectedAll ? [] : state.folderSection.folders.map(\.id)
+              state.hasSelectedAll ? [] : state.folderSection.gridItems.map(\.id)
             )
             break
           case .recipes:
             state.recipeSection.selection = .init(
-              state.hasSelectedAll ? [] : state.recipeSection.recipes.map(\.id)
+              state.hasSelectedAll ? [] : state.recipeSection.gridItems.map(\.id)
             )
             break
           case .none:
@@ -181,7 +185,7 @@ struct FolderReducer {
             lastEditDate: date()
           )
           state.folder.folders.append(newFolder)
-          state.folderSection.folders.append(.init(folder: newFolder))
+          state.folderSection.gridItems.append(.init(newFolder))
           return .send(.delegate(.addNewFolderDidComplete(newFolder.id)), animation: .default)
           
         case .newRecipeButtonTapped:
@@ -192,19 +196,18 @@ struct FolderReducer {
             lastEditDate: date()
           )
           state.folder.recipes.append(newRecipe)
-          state.recipeSection.recipes.append(.init(recipe: newRecipe))
+          state.recipeSection.gridItems.append(.init(newRecipe))
           return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
           
         case let .folderSection(.delegate(action)):
           switch action {
-            
-          case let .folderTapped(id):
+          case let .gridItemTapped(id):
             return .send(.delegate(.folderTapped(id)))
           }
           
         case let .recipeSection(.delegate(action)):
           switch action {
-          case let .recipeTapped(id):
+          case let .gridItemTapped(id):
             return .send(.delegate(.recipeTapped(id)))
           }
           
@@ -213,10 +216,10 @@ struct FolderReducer {
           case .confirmDeleteSelectedButtonTapped:
             switch state.editStatus {
             case .folders:
-              state.folderSection.folders = state.folderSection.folders.filter { !state.folderSection.selection.contains($0.id) }
+              state.folderSection.gridItems = state.folderSection.gridItems.filter { !state.folderSection.selection.contains($0.id) }
               break
             case .recipes:
-              state.recipeSection.recipes = state.recipeSection.recipes.filter { !state.recipeSection.selection.contains($0.id) }
+              state.recipeSection.gridItems = state.recipeSection.gridItems.filter { !state.recipeSection.selection.contains($0.id) }
               break
             case .none:
               break
@@ -267,3 +270,16 @@ extension AlertState where Action == FolderReducer.Action.AlertAction {
     }
   )
 }
+
+private extension GridItemReducer.State where ID == Folder.ID {
+  init(_ folder: Folder) {
+    self.init(id: folder.id, name: folder.name, imageData: folder.imageData.flatMap({[$0]}) ?? [])
+  }
+}
+
+private extension GridItemReducer.State where ID == Recipe.ID {
+  init(_ recipe: Recipe) {
+    self.init(id: recipe.id, name: recipe.name, imageData: recipe.imageData)
+  }
+}
+

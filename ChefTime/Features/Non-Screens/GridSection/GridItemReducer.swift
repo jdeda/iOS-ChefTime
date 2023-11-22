@@ -3,13 +3,19 @@ import ComposableArchitecture
 import Tagged
 
 @Reducer
-struct GridItemReducer {
+struct GridItemReducer<ID: Equatable & Hashable> {
   struct State: Equatable, Identifiable {
-    typealias ID = Tagged<Self, UUID>
     let id: ID
     var name: String
     var photos: PhotosReducer.State
     @PresentationState var destination: DestinationReducer.State?
+    
+    init(id: ID, name: String, imageData: IdentifiedArrayOf<ImageData>, destination: DestinationReducer.State? = nil) {
+      self.id = id
+      self.name = name
+      self.photos = .init(photos: imageData, supportSinglePhotoOnly: true, disableContextMenu: true)
+      self.destination = destination
+    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -38,7 +44,22 @@ struct GridItemReducer {
         switch action {
           
         case .deleteButtonTapped:
-          state.destination = .alert(.delete)
+          state.destination = .alert(.init(
+            title: {
+              TextState("Delete")
+            },
+            actions: {
+              ButtonState(role: .destructive, action: .confirmDeleteButtonTapped) {
+                TextState("Yes")
+              }
+              ButtonState(role: .cancel) {
+                TextState("No")
+              }
+            },
+            message: {
+              TextState("Are you sure you want to delete this?")
+            }
+          ))
           return .none
           
         case .replacePreviewImage:
@@ -94,21 +115,21 @@ struct GridItemReducer {
   }
 }
 
-extension AlertState where Action == GridItemReducer.DestinationReducer.Action.AlertAction {
-  static let delete = Self(
-    title: {
-      TextState("Delete")
-    },
-    actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteButtonTapped) {
-        TextState("Yes")
-      }
-      ButtonState(role: .cancel) {
-        TextState("No")
-      }
-    },
-    message: {
-      TextState("Are you sure you want to delete this?")
-    }
-  )
-}
+//extension AlertState where Action == GridItemReducer<ID>.DestinationReducer.Action.AlertAction {
+//  static let delete = Self(
+//    title: {
+//      TextState("Delete")
+//    },
+//    actions: {
+//      ButtonState(role: .destructive, action: .confirmDeleteButtonTapped) {
+//        TextState("Yes")
+//      }
+//      ButtonState(role: .cancel) {
+//        TextState("No")
+//      }
+//    },
+//    message: {
+//      TextState("Are you sure you want to delete this?")
+//    }
+//  )
+//}
