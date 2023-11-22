@@ -7,7 +7,7 @@ struct AppView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       NavigationStackStore(store.scope(state: \.stack, action: { .stack($0) })) {
-        FoldersView(store: store.scope(state: \.folders, action: { .folders($0) }))
+        RootFoldersView(store: store.scope(state: \.rootFolders, action: { .rootFolders($0) }))
       } destination: { state in
         switch state {
         case .folder:

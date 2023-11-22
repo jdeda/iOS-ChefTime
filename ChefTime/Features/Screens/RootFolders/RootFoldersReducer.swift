@@ -1,8 +1,9 @@
 import ComposableArchitecture
 
+// TODO: Rename FoldersReduer to RootFoldersReducer
 // TODO: Deal with seperation of systemFolders, specificSystemFolders, and userFolders.
 @Reducer
-struct FoldersReducer {
+struct RootFoldersReducer {
   struct State: Equatable {
     var didLoad = false
     var systemFoldersSection: FolderSectionReducer.State
@@ -77,12 +78,12 @@ struct FoldersReducer {
   @Dependency(\.uuid) var uuid
   @Dependency(\.date) var date
   
-  var body: some Reducer<FoldersReducer.State, FoldersReducer.Action> {
+  var body: some Reducer<RootFoldersReducer.State, RootFoldersReducer.Action> {
     CombineReducers {
       Scope(state: \.systemFoldersSection, action: \.systemFoldersSection, child: FolderSectionReducer.init)
       Scope(state: \.userFoldersSection, action: \.userFoldersSection, child: FolderSectionReducer.init)
       BindingReducer()
-      Reduce<FoldersReducer.State, FoldersReducer.Action> { state, action in
+      Reduce<RootFoldersReducer.State, RootFoldersReducer.Action> { state, action in
         switch action {
         case let .setDidLoad(didLoad):
           state.didLoad = didLoad
@@ -218,7 +219,7 @@ struct FoldersReducer {
   }
 }
 
-extension AlertState where Action == FoldersReducer.Action.AlertAction {
+extension AlertState where Action == RootFoldersReducer.Action.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")

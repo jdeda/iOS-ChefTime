@@ -7,11 +7,13 @@ struct FolderReducer {
     @BindingState var folder: Folder
     var folderSection: GridSectionReducer<Folder.ID>.State {
       didSet {
+        // TODO: Fill this in...
 //        self.folder.folders = self.folderSection.folders.map(\.folder)
       }
     }
     var recipeSection: GridSectionReducer<Recipe.ID>.State {
-      didSet { 
+      didSet {
+        // TODO: Fill this in...
 //        self.folder.recipes = self.recipeSection.recipes.map(\.recipe)
       }
     }

@@ -1,8 +1,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct FoldersView: View {
-  let store: StoreOf<FoldersReducer>
+struct RootFoldersView: View {
+  let store: StoreOf<RootFoldersReducer>
   @Environment(\.maxScreenWidth) var maxScreenWidth
   @Environment(\.isHidingImages) var isHidingImages
   
@@ -52,9 +52,9 @@ struct FoldersView: View {
   }
 }
 
-extension FoldersView {
+extension RootFoldersView {
   @ToolbarContentBuilder
-  func toolbar(viewStore: ViewStoreOf<FoldersReducer>) -> some ToolbarContent {
+  func toolbar(viewStore: ViewStoreOf<RootFoldersReducer>) -> some ToolbarContent {
     if viewStore.isEditing {
       ToolbarItemGroup(placement: .primaryAction) {
         Button("Done") {
@@ -128,9 +128,9 @@ extension FoldersView {
 
 #Preview {
   NavigationStack {
-    FoldersView(store: .init(
+    RootFoldersView(store: .init(
       initialState: .init(),
-      reducer: FoldersReducer.init
+      reducer: RootFoldersReducer.init
     ))
   }
 }
