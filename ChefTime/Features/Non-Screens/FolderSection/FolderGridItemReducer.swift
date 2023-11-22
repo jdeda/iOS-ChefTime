@@ -1,17 +1,12 @@
 import ComposableArchitecture
 
-// MARK: - Reducer
-struct FolderGridItemReducer: Reducer {
+@Reducer
+struct FolderGridItemReducer {
   struct State: Equatable, Identifiable {
-    var id: Folder.ID {
-      folder.id
-    }
-    
+    var id: Folder.ID { folder.id }
     var folder: Folder
     var photos: PhotosReducer.State {
-      didSet {
-        self.folder.imageData = self.photos.photos.first
-      }
+      didSet { self.folder.imageData = self.photos.photos.first }
     }
     @PresentationState var destination: DestinationReducer.State?
     
@@ -37,16 +32,20 @@ struct FolderGridItemReducer: Reducer {
     case binding(BindingAction<State>)
     case destination(PresentationAction<DestinationReducer.Action>)
     case photos(PhotosReducer.Action)
+    
     case delegate(DelegateAction)
+    @CasePathable
+    enum DelegateAction: Equatable {
+      case move
+      case delete
+    }
   }
   
   @Dependency(\.dismiss) var dismiss
   
   var body: some ReducerOf<Self> {
     CombineReducers {
-      Scope(state: \.photos, action: /Action.photos) {
-        PhotosReducer()
-      }
+      Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
       Reduce { state, action in
         switch action {
           
@@ -80,24 +79,25 @@ struct FolderGridItemReducer: Reducer {
           return .none
         }
       }
-      .ifLet(\.$destination, action: /Action.destination) {
-        DestinationReducer()
-      }
+      .ifLet(\.$destination, action: \.destination, destination: DestinationReducer.init)
     }
   }
-}
-
-
-extension FolderGridItemReducer {
-  struct DestinationReducer: Reducer {
+  
+  @Reducer
+  struct DestinationReducer {
     enum State: Equatable {
-      case alert(AlertState<AlertAction>)
+      case alert(AlertState<Action.AlertAction>)
       case renameAlert
     }
     
     enum Action: Equatable {
-      case alert(AlertAction)
       case renameAlert
+      
+      case alert(AlertAction)
+      @CasePathable
+      enum AlertAction: Equatable {
+        case confirmDeleteButtonTapped
+      }
     }
     
     var body: some ReducerOf<Self> {
@@ -106,23 +106,7 @@ extension FolderGridItemReducer {
   }
 }
 
-// MARK: - DelegateAction
-extension FolderGridItemReducer {
-  enum DelegateAction: Equatable {
-    case move
-    case delete
-  }
-}
-
-// MARK: - AlertAction
-extension FolderGridItemReducer {
-  enum AlertAction: Equatable {
-    case confirmDeleteButtonTapped
-  }
-}
-
-// MARK: - AlertState
-extension AlertState where Action == FolderGridItemReducer.AlertAction {
+extension AlertState where Action == FolderGridItemReducer.DestinationReducer.Action.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")

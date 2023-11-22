@@ -1,7 +1,7 @@
 import ComposableArchitecture
 
-// MARK: - Reducer
-struct RecipeSectionReducer: Reducer {
+@Reducer
+struct RecipeSectionReducer {
   struct State: Equatable {
     let title: String
     var recipes: IdentifiedArrayOf<RecipeGridItemReducer.State> = []
@@ -18,12 +18,18 @@ struct RecipeSectionReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case recipeSelected(RecipeGridItemReducer.State.ID)
-    case recipes(RecipeGridItemReducer.State.ID, RecipeGridItemReducer.Action)
+    case recipes(IdentifiedActionOf<RecipeGridItemReducer>)
     case binding(BindingAction<State>)
+    
     case delegate(DelegateAction)
+    @CasePathable
+    @dynamicMemberLookup
+    enum DelegateAction: Equatable {
+      case recipeTapped(RecipeGridItemReducer.State.ID)
+    }
   }
   
-  var body: some ReducerOf<Self> {
+  var body: some Reducer<State, Action> {
     BindingReducer()
     Reduce { state, action in
       switch action {
@@ -38,7 +44,7 @@ struct RecipeSectionReducer: Reducer {
         
         return .none
         
-      case let .recipes(id, .delegate(action)):
+      case let .recipes(.element(id: id, action: .delegate(action))):
         switch action {
         case .move:
           break
@@ -53,16 +59,6 @@ struct RecipeSectionReducer: Reducer {
         return .none
       }
     }
-    .forEach(\.recipes, action: /Action.recipes) {
-      RecipeGridItemReducer()
-    }
-    
-  }
-}
-
-// MARK: - DelegateAction
-extension RecipeSectionReducer {
-  enum DelegateAction: Equatable {
-    case recipeTapped(RecipeGridItemReducer.State.ID)
+    .forEach(\.recipes, action: \.recipes, element: RecipeGridItemReducer.init)
   }
 }

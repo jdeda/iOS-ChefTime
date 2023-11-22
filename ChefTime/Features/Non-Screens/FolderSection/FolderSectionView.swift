@@ -1,13 +1,12 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: - View
 struct FolderSectionView: View {
   let store: StoreOf<FolderSectionReducer>
   let isEditing: Bool
   private let columns = Array(repeating: GridItem(spacing: 20, alignment: .top), count: 2)
   @Environment(\.isHidingImages) private var isHidingImages
-
+  
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
@@ -15,12 +14,8 @@ struct FolderSectionView: View {
         send: { .binding(.set(\.$isExpanded, isEditing ? viewStore.isExpanded : $0)) }
       )) {
         LazyVGrid(columns: columns, spacing: 10) {
-          ForEachStore(store.scope(
-            state: \.folders,
-            action: FolderSectionReducer.Action.folders
-          )) { childStore in
+          ForEachStore(store.scope(state: \.folders, action: { .folders($0) })) { childStore in
             let id = ViewStore(childStore, observe: \.id).state
-            
             FolderGridItemView(
               store: childStore,
               isEditing: isEditing,
@@ -52,7 +47,6 @@ struct FolderSectionView: View {
   }
 }
 
-// MARK: - Preview
 #Preview {
   ScrollView {
     FolderSectionView(

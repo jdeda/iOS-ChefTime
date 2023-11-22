@@ -1,7 +1,7 @@
 import ComposableArchitecture
 
-// MARK: - Reducer
-struct FolderSectionReducer: Reducer {
+@Reducer
+struct FolderSectionReducer {
   struct State: Equatable {
     let title: String
     var folders: IdentifiedArrayOf<FolderGridItemReducer.State> = []
@@ -18,18 +18,19 @@ struct FolderSectionReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case folderSelected(FolderGridItemReducer.State.ID)
-    case folders(FolderGridItemReducer.State.ID, FolderGridItemReducer.Action)
+    case folders(IdentifiedActionOf<FolderGridItemReducer>)
     case binding(BindingAction<State>)
-    
     case folderTapped(FolderGridItemReducer.State.ID)
     
     case delegate(DelegateAction)
+    @CasePathable
+    @dynamicMemberLookup
     enum DelegateAction: Equatable {
       case folderTapped(FolderGridItemReducer.State.ID)
     }
   }
   
-  var body: some ReducerOf<Self> {
+  var body: some Reducer<State, Action> {
     BindingReducer()
     Reduce { state, action in
       switch action {
@@ -44,7 +45,7 @@ struct FolderSectionReducer: Reducer {
         
         return .none
         
-      case let .folders(id, .delegate(action)):
+      case let .folders(.element(id: id, action: .delegate(action))):
         switch action {
         case .move:
           break
@@ -62,16 +63,6 @@ struct FolderSectionReducer: Reducer {
         return .none
       }
     }
-    .forEach(\.folders, action: /Action.folders) {
-      FolderGridItemReducer()
-    }
-    
+    .forEach(\.folders, action: \.folders, element: FolderGridItemReducer.init)
   }
-}
-
-// MARK: - DelegateAction
-extension FolderSectionReducer {
-//  enum DelegateAction: Equatable {
-//    case folderTapped(FolderGridItemReducer.State.ID)
-//  }
 }

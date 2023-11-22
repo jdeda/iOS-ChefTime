@@ -1,7 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: - View
 struct RecipeSectionView: View {
   let store: StoreOf<RecipeSectionReducer>
   let isEditing: Bool
@@ -15,10 +14,7 @@ struct RecipeSectionView: View {
         send: { .binding(.set(\.$isExpanded, isEditing ? viewStore.isExpanded : $0)) }
       )) {
         LazyVGrid(columns: columns, spacing: 10) {
-          ForEachStore(store.scope(
-            state: \.recipes,
-            action: RecipeSectionReducer.Action.recipes
-          )) { childStore in
+          ForEachStore(store.scope(state: \.recipes, action: { .recipes($0) })) { childStore in
             let id = ViewStore(childStore, observe: \.id).state
             RecipeGridItemView(
               store: childStore,

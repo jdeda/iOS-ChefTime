@@ -12,7 +12,9 @@ struct RecipeGridItemView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
-          PhotosView(store: store.scope(state: \.photos, action: RecipeGridItemReducer.Action.photos))
+          
+          // TODO: Why are there PhotosViews here???
+          PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
             .opacity(isHidingImages ? 0.0 : 1.0)
           
           PhotosView(store: .init(initialState: .init(photos: .init()), reducer: {}))
@@ -64,9 +66,9 @@ struct RecipeGridItemView: View {
       .clipShape(RoundedRectangle(cornerRadius: 15))
       
       .alert(
-        store: store.scope(state: \.$destination, action: RecipeGridItemReducer.Action.destination),
-        state: /RecipeGridItemReducer.DestinationReducer.State.alert,
-        action: RecipeGridItemReducer.DestinationReducer.Action.alert
+        store: store.scope(state: \.$destination, action: { .destination($0) }),
+        state: \.alert,
+        action: { .alert($0) }
       )
       .alert("Rename", isPresented: viewStore.binding(
         get: { $0.destination == .renameAlert },

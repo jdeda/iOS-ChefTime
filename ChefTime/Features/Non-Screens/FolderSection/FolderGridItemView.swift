@@ -1,7 +1,6 @@
 import ComposableArchitecture
 import SwiftUI
 
-// MARK: - View
 struct FolderGridItemView: View {
   let store: StoreOf<FolderGridItemReducer>
   let isEditing: Bool
@@ -12,7 +11,8 @@ struct FolderGridItemView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
-          PhotosView(store: store.scope(state: \.photos, action: FolderGridItemReducer.Action.photos))
+          // TODO: Why are there two of these PhotosView???
+          PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
             .opacity(isHidingImages ? 0.0 : 1.0)
           
           PhotosView(store: .init(initialState: .init(photos: .init()), reducer: {}))
@@ -64,9 +64,9 @@ struct FolderGridItemView: View {
       .clipShape(RoundedRectangle(cornerRadius: 15))
       
       .alert(
-        store: store.scope(state: \.$destination, action: FolderGridItemReducer.Action.destination),
-        state: /FolderGridItemReducer.DestinationReducer.State.alert,
-        action: FolderGridItemReducer.DestinationReducer.Action.alert
+        store: store.scope(state: \.$destination, action: { .destination($0) }),
+        state: \.alert,
+        action: { .alert($0) }
       )
       .alert("Rename", isPresented: viewStore.binding(
         get: { $0.destination == .renameAlert },
@@ -166,7 +166,6 @@ private struct RenameAlert: View {
   }
 }
 
-// MARK: - Preview
 #Preview {
   NavigationStack {
     FolderGridItemView(
