@@ -1,5 +1,7 @@
 import ComposableArchitecture
 
+
+// TODO: MAKE SURE PARENT IDs work!
 @Reducer
 struct FolderReducer {
   struct State: Equatable {
@@ -7,14 +9,36 @@ struct FolderReducer {
     @BindingState var folder: Folder
     var folderSection: GridSectionReducer<Folder.ID>.State {
       didSet {
-        // TODO: Fill this in...
-//        self.folder.folders = self.folderSection.folders.map(\.folder)
+        // Here, we simply accumulate values.
+        // The GridSection feature can only delete and edit items (name and images),
+        // we assume here that is what happens, we just edit or skip the value
+        // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
+        let newIDs = self.folderSection.gridItems.ids
+        self.folder.folders = self.folder.folders.reduce(into: []) { partial, folder in
+          if newIDs.contains(folder.id) {
+            var mutatedFolder = folder
+            mutatedFolder.name = self.folderSection.gridItems[id: folder.id]!.name
+            mutatedFolder.imageData = self.folderSection.gridItems[id: folder.id]!.photos.photos.first
+            partial.append(folder)
+          }
+        }
       }
     }
     var recipeSection: GridSectionReducer<Recipe.ID>.State {
       didSet {
-        // TODO: Fill this in...
-//        self.folder.recipes = self.recipeSection.recipes.map(\.recipe)
+        // Here, we simply accumulate values.
+        // The GridSection feature can only delete and edit strictly the name,
+        // NOT the images in the case of a recipe.
+        // we assume here that is what happens, we just edit or skip the value
+        // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
+        let newIDs = self.recipeSection.gridItems.ids
+        self.folder.recipes = self.folder.recipes.reduce(into: []) { partial, folder in
+          if newIDs.contains(folder.id) {
+            var mutatedFolder = folder
+            mutatedFolder.name = self.recipeSection.gridItems[id: folder.id]!.name
+            partial.append(folder)
+          }
+        }
       }
     }
     var isHidingImages: Bool = false
@@ -103,8 +127,12 @@ struct FolderReducer {
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {
     CombineReducers {
-      Scope(state: \.folderSection, action: \.folderSection, child: GridSectionReducer.init)
-      Scope(state: \.recipeSection, action: \.recipeSection, child: GridSectionReducer.init)
+      Scope(state: \.folderSection, action: \.folderSection) {
+        GridSectionReducer()
+      }
+      Scope(state: \.recipeSection, action: \.recipeSection) {
+        GridSectionReducer()
+      }
       BindingReducer()
       Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
         switch action {

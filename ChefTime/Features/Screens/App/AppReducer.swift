@@ -13,12 +13,9 @@ struct AppReducer {
   }
   
   var body: some Reducer<AppReducer.State, AppReducer.Action> {
-    Scope(
-      state: \.rootFolders,
-      action: \.rootFolders,
-      child: RootFoldersReducer.init
-    )
-    
+    Scope(state: \.rootFolders, action: \.rootFolders) {
+      RootFoldersReducer()
+    }
     Reduce<AppReducer.State, AppReducer.Action> { state, action in
       switch action {
       case let .stack(.element(id: id, action: .folder(.delegate(delegateAction)))):
@@ -27,15 +24,15 @@ struct AppReducer {
         if let newStackElement: StackReducer.State = {
           switch delegateAction {
           case let .addNewFolderDidComplete(childID):
-             .folder(.init(folderID: folder.folders[id: childID]!.id))
+              .folder(.init(folderID: folder.folders[id: childID]!.id))
           case let .addNewRecipeDidComplete(childID):
-             .recipe(.init(recipeID: folder.recipes[id: childID]!.id))
+              .recipe(.init(recipeID: folder.recipes[id: childID]!.id))
           case let .folderTapped(childID):
-             .folder(.init(folderID: folder.folders[id: childID]!.id))
+              .folder(.init(folderID: folder.folders[id: childID]!.id))
           case let .recipeTapped(childID):
-             .recipe(.init(recipeID: folder.recipes[id: childID]!.id))
+              .recipe(.init(recipeID: folder.recipes[id: childID]!.id))
           case .folderUpdated:
-             nil
+            nil
           }
         }() {
           state.stack.append(newStackElement)
@@ -45,17 +42,16 @@ struct AppReducer {
       case let .rootFolders(.delegate(delegateAction)):
         // TODO: Remove force unwraps before production.
         if let newStackElement: StackReducer.State = {
-          switch delegateAction {
+          let rf = state.rootFolders
+          return switch delegateAction {
           case let .addNewFolderDidComplete(childID):
-              .folder(.init(folderID: state.rootFolders.userFoldersSection.folders[id: childID]!.id))
+              .folder(.init(folderID: rf.userFolders[id: childID]!.id))
           case let .addNewRecipeDidComplete(childID):
-              .recipe(.init(recipeID: state.rootFolders.systemFoldersSection.folders.first(where: {
-                $0.folder.folderType == .systemStandard
-              })!.folder.recipes[id: childID]!.id))
+              .recipe(.init(recipeID: rf.systemFolders[id: rf.systemStandardFolderID]!.recipes[id: childID]!.id))
           case let .userFolderTapped(childID):
-              .folder(.init(folderID: state.rootFolders.userFoldersSection.folders[id: childID]!.id))
+              .folder(.init(folderID: rf.userFolders[id: childID]!.id))
           case let .systemFolderTapped(childID):
-              .folder(.init(folderID: state.rootFolders.systemFoldersSection.folders[id: childID]!.id))
+              .folder(.init(folderID: rf.systemFolders[id: childID]!.id))
           }
         }() {
           state.stack.append(newStackElement)
@@ -66,7 +62,6 @@ struct AppReducer {
         return .none
       }
     }
-    ._printChanges()
     .forEach(\.stack, action: \.stack, destination: StackReducer.init)
   }
 }

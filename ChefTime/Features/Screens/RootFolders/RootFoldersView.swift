@@ -12,7 +12,7 @@ struct RootFoldersView: View {
         ScrollView {
           
           // System Folders.
-          FolderSectionView(
+          GridSectionView(
             store: store.scope(state: \.systemFoldersSection, action: { .systemFoldersSection($0) }),
             isEditing: viewStore.isEditing
           )
@@ -22,13 +22,13 @@ struct RootFoldersView: View {
           .id(1)
           
           // User Folders.
-          FolderSectionView(
+          GridSectionView(
             store: store.scope(state: \.userFoldersSection, action: { .userFoldersSection($0) }),
             isEditing: viewStore.isEditing
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          .opacity(viewStore.userFoldersSection.folders.isEmpty ? 0.0 : 1.0)
-          .frame(maxHeight: viewStore.userFoldersSection.folders.isEmpty ? 0 : .infinity)
+          .opacity(viewStore.userFoldersSection.gridItems.isEmpty ? 0.0 : 1.0)
+          .frame(maxHeight: viewStore.userFoldersSection.gridItems.isEmpty ? 0 : .infinity)
           .id(2)
         }
         
@@ -87,7 +87,7 @@ extension RootFoldersView {
     else {
       ToolbarItemGroup(placement: .primaryAction) {
         Menu {
-          if !viewStore.userFoldersSection.folders.isEmpty {
+          if !viewStore.userFoldersSection.gridItems.isEmpty {
             Button {
               viewStore.send(.selectFoldersButtonTapped, animation: .default)
             } label: {
@@ -113,7 +113,7 @@ extension RootFoldersView {
         .accentColor(.yellow)
         Spacer()
         // TODO: Update this count when all the folders are fetched properly
-        Text("\(viewStore.userFoldersSection.folders.count) folders")
+        Text("\(viewStore.userFoldersSection.gridItems.count) folders")
         Spacer()
         Button {
           viewStore.send(.newRecipeButtonTapped, animation: .default)
