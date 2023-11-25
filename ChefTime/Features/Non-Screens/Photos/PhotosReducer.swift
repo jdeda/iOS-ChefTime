@@ -15,6 +15,12 @@ struct PhotosReducer {
     @BindingState var photoPickerItem: PhotosPickerItem? = nil
     @PresentationState var alert: AlertState<Action.AlertAction>?
     
+    var addButtonIsShowing: Bool {
+      if self.photoEditInFlight { false }
+      else if self.supportSinglePhotoOnly { self.photos.isEmpty }
+      else { true }
+    }
+    
     init(
       photos: IdentifiedArrayOf<ImageData>,
       supportSinglePhotoOnly: Bool = false,
@@ -30,6 +36,7 @@ struct PhotosReducer {
       self.photoPickerItem = nil
       self.alert = nil
     }
+    
   }
   
   enum Action: Equatable, BindableAction {

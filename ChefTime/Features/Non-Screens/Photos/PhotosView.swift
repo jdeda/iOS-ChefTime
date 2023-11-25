@@ -85,15 +85,18 @@ struct PhotosView: View {
                 }
                 .disabled(viewStore.photoEditInFlight)
               }
-              
-              let addButtonIsShowing: Bool = {
-                if viewStore.photoEditInFlight { return false }
-                if viewStore.supportSinglePhotoOnly {
-                  return viewStore.photos.count < 1
-                }
-                else { return true }
-              }()
-              if addButtonIsShowing {
+  
+              // MARK: - DO NOT DELETE THE COMMENTED CODE:
+              // There was a bug where a computed property didn't work or maybe <1
+              // Test to make sure that the computed property works,
+//              let addButtonIsShowing.addButtonIsShowing: Bool = {
+//                if viewStore.photoEditInFlight { return false }
+//                if viewStore.supportSinglePhotoOnly {
+//                  return viewStore.photos.count < 1
+//                }
+//                else { return true }
+//              }()
+              if viewStore.addButtonIsShowing {
                 Button {
                   viewStore.send(.addButtonTapped, animation: .default)
                 } label: {
