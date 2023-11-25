@@ -19,7 +19,7 @@ struct SearchView: View {
               .font(.body)
               .foregroundColor(.secondary)
               .textCase(nil)
-            }
+          }
           .padding(.bottom, 5)
           
           ForEach(viewStore.results.prefix(3)) { result in
@@ -223,20 +223,20 @@ func stringSearchResult(
   length: Int,
   caseInsensitive: Bool = true
 ) -> String? {
-
+  
   let source: String = { caseInsensitive ? sourceRaw.lowercased() : sourceRaw }()
   let query: String = { caseInsensitive ? queryRaw.lowercased() : queryRaw }()
-
+  
   guard let regex: Regex<AnyRegexOutput> = {
     guard let reg = nsRegex(query: query, caseInsensitive: caseInsensitive)
     else { return nil }
     return try? Regex(reg.pattern)
   }()
   else { return nil }
-
+  
   let ranges = source.ranges(of: regex)
   let foundWords: [String] = ranges.compactMap { range -> String? in
-
+    
     // Go back till you find a space, this will be the new range start index
     guard let newStartIdx: Int = {
       let leftSide = source[source.startIndex...range.lowerBound]
@@ -252,7 +252,7 @@ func stringSearchResult(
       return i
     }()
     else { return nil }
-
+    
     // Go back forward till you find a space, this will be the new range end index
     guard let newEndIdx: Int = {
       let rightSide = source[range.upperBound..<source.endIndex]
@@ -268,7 +268,7 @@ func stringSearchResult(
       return i
     }()
     else { return nil }
-
+    
     // Return the extracted string.
     let x = source.index(source.startIndex, offsetBy: newStartIdx)
     let y = source.index(source.startIndex, offsetBy: newEndIdx)
@@ -276,7 +276,7 @@ func stringSearchResult(
     return String(finalStr)
   }
     .map { $0.trimmingCharacters(in: .whitespacesAndNewlines)}
-
+  
   var finalResult = ""
   for word in foundWords {
     let new = finalResult + " " + word + " "
@@ -296,17 +296,17 @@ func stringSearchResultRangeCount(
   length: Int,
   caseInsensitive: Bool = true
 ) -> Int? {
-
+  
   let source: String = { caseInsensitive ? sourceRaw.lowercased() : sourceRaw }()
   let query: String = { caseInsensitive ? queryRaw.lowercased() : queryRaw }()
-
+  
   guard let regex: Regex<AnyRegexOutput> = {
     guard let reg = nsRegex(query: query, caseInsensitive: caseInsensitive)
     else { return nil }
     return try? Regex(reg.pattern)
   }()
   else { return nil }
-
+  
   return source.ranges(of: regex).reduce(0, { $0 + source.distance(from: $1.lowerBound, to: $1.upperBound) })
 }
 
@@ -332,7 +332,7 @@ extension Date {
     dateFormatter.dateFormat = "MM/dd/YY"
     return dateFormatter.string(from: self)
   }
-
+  
   // String representation of a date in "EEEE MMM d, yyyy, h:mm a" format
   var formattedDateVerbose: String {
     let dateFormatter = DateFormatter()
@@ -344,33 +344,30 @@ extension Date {
 // MARK: - Reciper description helper
 private func recipeDescription(_ recipe: Recipe) -> String {
   let s1 = recipe.name.trimmingCharacters(in: .whitespacesAndNewlines)
-
+  
   let s2 = recipe.aboutSections.reduce(into: "", {
     $0 += $1.description + " " + $1.name + " "
   })
     .trimmingCharacters(in: .whitespacesAndNewlines)
-
+  
   let s3 = recipe.ingredientSections.reduce(into: "", {
     let s = $1.ingredients.reduce(into: "", { $0 += $1.name + " " })
     $0 += $1.name + " " + s
   })
     .trimmingCharacters(in: .whitespacesAndNewlines)
-
+  
   let s4 = recipe.stepSections.reduce(into: "", {
     let s = $1.steps.reduce(into: "", { $0 += $1.description + " "})
     $0 += $1.name + " " + s
   }).trimmingCharacters(in: .whitespacesAndNewlines)
-
+  
   return s1 + " " + s2 + " " + s3 + " " + s4
 }
 
 // MARK: - Preview
-struct SearchView_Previews: PreviewProvider {
-  static var previews: some View {
-    SearchView(store: .init(
-      initialState: .init(recipes: Folder.longMock.recipes, query: "burger", length: 25),
-      reducer: SearchReducer.init
-    ))
-  }
+#Preview {
+  SearchView(store: .init(
+    initialState: .init(recipes: Folder.longMock.recipes, query: "burger", length: 25),
+    reducer: SearchReducer.init
+  ))
 }
-

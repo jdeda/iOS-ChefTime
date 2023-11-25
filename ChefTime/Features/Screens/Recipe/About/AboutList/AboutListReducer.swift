@@ -1,70 +1,11 @@
-import SwiftUI
 import ComposableArchitecture
-
-// MARK: - AboutListView
-struct AboutListView: View {
-  let store: StoreOf<AboutListReducer>
-  @FocusState private var focusedField: AboutListReducer.FocusField?
-
-  var body: some View {
-    WithViewStore(store, observe: { $0 }) { viewStore in
-      if viewStore.aboutSections.isEmpty {
-        VStack {
-          HStack {
-            Text("About")
-              .textTitleStyle()
-            Spacer()
-          }
-          HStack {
-            TextField(
-              "Untitled About Section",
-              text: .constant(""),
-              axis: .vertical
-            )
-            .textSubtitleStyle()
-            Spacer()
-            Image(systemName: "plus")
-          }
-          .foregroundColor(.secondary)
-          .onTapGesture {
-            viewStore.send(.addSectionButtonTapped, animation: .default)
-          }
-        }
-      }
-      else {
-        DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-          ForEachStore(store.scope(
-            state: \.aboutSections,
-            action: AboutListReducer.Action.aboutSection
-          )) { childStore in
-            AboutSection(store: childStore)
-              .contentShape(Rectangle())
-              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
-              .accentColor(.accentColor)
-            Divider()
-              .padding([.vertical], 5)
-          }
-        }
-        label : {
-          Text("About")
-            .textTitleStyle()
-          Spacer()
-        }
-        .accentColor(.primary)
-        .synchronize(viewStore.$focusedField, $focusedField)
-        .disclosureGroupStyle(CustomDisclosureGroupStyle())
-      }
-    }
-  }
-}
 
 /// 1. computed property, send a delegate action `aboutSectionsDidChange`, and the parent just reads the computed property
 /// 2. normal property, onChange, send a delegate action `aboutSectionsDidChange`
 ///
 /// X. computed property, onChange, send a delegate action `aboutSectionsDidChange`, and the parent just reads the computed property
-
-// MARK: - AboutListReducer
-struct AboutListReducer: Reducer {
+@Reducer
+struct AboutListReducer {
   struct State: Equatable {
     var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State> = []
     
@@ -82,8 +23,14 @@ struct AboutListReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case aboutSection(AboutSectionReducer.State.ID, AboutSectionReducer.Action)
+    case aboutSections(IdentifiedActionOf<AboutSectionReducer>)
     case addSectionButtonTapped
+  }
+  
+  @CasePathable
+  @dynamicMemberLookup
+  enum FocusField: Equatable, Hashable {
+    case row(AboutSectionReducer.State.ID)
   }
   
   @Dependency(\.uuid) var uuid
@@ -92,10 +39,10 @@ struct AboutListReducer: Reducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .aboutSection(id, .delegate(action)):
+      case let .aboutSections(.element(id: id, action: .delegate(action))):
         switch action {
         case .deleteSectionButtonTapped:
-          if case .row = state.focusedField {
+          if state.focusedField?.is(\.row) ?? false {
             state.focusedField = nil
           }
           state.aboutSections.remove(id: id)
@@ -135,36 +82,10 @@ struct AboutListReducer: Reducer {
         }
         return .none
         
-      case .binding, .aboutSection:
+      case .binding, .aboutSections:
         return .none
       }
     }
-    .forEach(\.aboutSections, action: /Action.aboutSection) {
-      AboutSectionReducer()
-    }
-  }
-}
-
-// MARK: - FocusField
-extension AboutListReducer {
-  enum FocusField: Equatable, Hashable {
-    case row(AboutSectionReducer.State.ID)
-  }
-}
-
-// MARK: - Previews
-struct AboutList_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      ScrollView {
-        AboutListView(store: .init(
-          initialState: .init(
-            recipeSections: Recipe.longMock.aboutSections
-          ),
-          reducer: AboutListReducer.init
-        ))
-        .padding()
-      }
-    }
+    .forEach(\.aboutSections, action: \.aboutSections, element: AboutSectionReducer.init)
   }
 }

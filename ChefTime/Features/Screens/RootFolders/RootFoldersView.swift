@@ -1,9 +1,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-/// MARK: - View
-struct FoldersView: View {
-  let store: StoreOf<FoldersReducer>
+struct RootFoldersView: View {
+  let store: StoreOf<RootFoldersReducer>
   @Environment(\.maxScreenWidth) var maxScreenWidth
   @Environment(\.isHidingImages) var isHidingImages
   
@@ -13,11 +12,8 @@ struct FoldersView: View {
         ScrollView {
           
           // System Folders.
-          FolderSectionView(
-            store: store.scope(
-              state: \.systemFoldersSection,
-              action: FoldersReducer.Action.systemFoldersSection
-            ),
+          GridSectionView(
+            store: store.scope(state: \.systemFoldersSection, action: { .systemFoldersSection($0) }),
             isEditing: viewStore.isEditing
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -26,16 +22,13 @@ struct FoldersView: View {
           .id(1)
           
           // User Folders.
-          FolderSectionView(
-            store: store.scope(
-              state: \.userFoldersSection,
-              action: FoldersReducer.Action.userFoldersSection
-            ),
+          GridSectionView(
+            store: store.scope(state: \.userFoldersSection, action: { .userFoldersSection($0) }),
             isEditing: viewStore.isEditing
           )
           .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          .opacity(viewStore.userFoldersSection.folders.isEmpty ? 0.0 : 1.0)
-          .frame(maxHeight: viewStore.userFoldersSection.folders.isEmpty ? 0 : .infinity)
+          .opacity(viewStore.userFoldersSection.gridItems.isEmpty ? 0.0 : 1.0)
+          .frame(maxHeight: viewStore.userFoldersSection.gridItems.isEmpty ? 0 : .infinity)
           .id(2)
         }
         
@@ -52,16 +45,16 @@ struct FoldersView: View {
         }
         .task { await viewStore.send(.task).finish() }
         .environment(\.isHidingImages, viewStore.isHidingImages)
-        .alert(store: store.scope(state: \.$alert, action: FoldersReducer.Action.alert))
+        .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
       }
       .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
     }
   }
 }
 
-extension FoldersView {
+extension RootFoldersView {
   @ToolbarContentBuilder
-  func toolbar(viewStore: ViewStoreOf<FoldersReducer>) -> some ToolbarContent {
+  func toolbar(viewStore: ViewStoreOf<RootFoldersReducer>) -> some ToolbarContent {
     if viewStore.isEditing {
       ToolbarItemGroup(placement: .primaryAction) {
         Button("Done") {
@@ -94,7 +87,7 @@ extension FoldersView {
     else {
       ToolbarItemGroup(placement: .primaryAction) {
         Menu {
-          if !viewStore.userFoldersSection.folders.isEmpty {
+          if !viewStore.userFoldersSection.gridItems.isEmpty {
             Button {
               viewStore.send(.selectFoldersButtonTapped, animation: .default)
             } label: {
@@ -120,7 +113,7 @@ extension FoldersView {
         .accentColor(.yellow)
         Spacer()
         // TODO: Update this count when all the folders are fetched properly
-        Text("\(viewStore.userFoldersSection.folders.count) folders")
+        Text("\(viewStore.userFoldersSection.gridItems.count) folders")
         Spacer()
         Button {
           viewStore.send(.newRecipeButtonTapped, animation: .default)
@@ -133,14 +126,11 @@ extension FoldersView {
   }
 }
 
-// MARK: - Preview
-struct FoldersView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      FoldersView(store: .init(
-        initialState: .init(),
-        reducer: FoldersReducer.init
-      ))
-    }
+#Preview {
+  NavigationStack {
+    RootFoldersView(store: .init(
+      initialState: .init(),
+      reducer: RootFoldersReducer.init
+    ))
   }
 }

@@ -25,23 +25,36 @@ struct ImageSliderView: View {
   }
 }
 
-
-struct ImageSliderView_Previews: PreviewProvider {
-  static var previews: some View {
-    ScrollView {
-      MasterView()
-    }
-  }
-  
-  struct MasterView: View {
-    @State var imageDatas: IdentifiedArrayOf<ImageData> = Recipe.longMock.imageData
-    @State var selection: ImageData.ID? = nil
-    var body: some View {
-      ImageSliderView(
-        imageDatas: imageDatas,
-        selection: $selection
+private extension Image {
+  func square() -> some View {
+    Rectangle()
+      .fill(.clear)
+      .aspectRatio(1, contentMode: .fit)
+      .overlay(
+        self
+          .resizable()
+          .scaledToFill()
       )
-      .frame(width: 350, height: 350)
-    }
+      .clipShape(Rectangle())
+  }
+}
+
+
+private struct _ImageSliderPreview: View {
+  @State var imageDatas: IdentifiedArrayOf<ImageData> = Recipe.longMock.imageData
+  @State var selection: ImageData.ID? = nil
+  var body: some View {
+    ImageSliderView(
+      imageDatas: imageDatas,
+      selection: $selection
+    )
+    .frame(width: 350, height: 350)
+  }
+}
+
+
+#Preview {
+  ScrollView {
+    _ImageSliderPreview()
   }
 }

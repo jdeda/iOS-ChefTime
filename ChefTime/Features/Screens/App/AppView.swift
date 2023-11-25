@@ -1,14 +1,13 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: - View
 struct AppView: View {
   let store: StoreOf<AppReducer>
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      NavigationStackStore(store.scope(state: \.stack, action: AppReducer.Action.stack)) {
-        FoldersView(store: store.scope(state: \.folders, action: AppReducer.Action.folders))
+      NavigationStackStore(store.scope(state: \.stack, action: { .stack($0) })) {
+        RootFoldersView(store: store.scope(state: \.rootFolders, action: { .rootFolders($0) }))
       } destination: { state in
         switch state {
         case .folder:
@@ -29,13 +28,9 @@ struct AppView: View {
   }
 }
 
-
-// MARK: - Preview
-struct AppView_Previews: PreviewProvider {
-  static var previews: some View {
-    AppView(store: .init(
-      initialState: .init(),
-      reducer: AppReducer.init
-    ))
-  }
+#Preview {
+  AppView(store: .init(
+    initialState: .init(),
+    reducer: AppReducer.init
+  ))
 }

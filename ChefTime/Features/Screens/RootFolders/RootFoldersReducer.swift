@@ -1,27 +1,60 @@
 import ComposableArchitecture
-import SwiftUI
-import Tagged
 
-
+// TODO: Rename FoldersReduer to RootFoldersReducer
 // TODO: Deal with seperation of systemFolders, specificSystemFolders, and userFolders.
-
-// MARK: - Reducer
-struct FoldersReducer: Reducer {
+@Reducer
+struct RootFoldersReducer {
   struct State: Equatable {
     var didLoad = false
-    var systemFoldersSection: FolderSectionReducer.State
-    var userFoldersSection: FolderSectionReducer.State
+    var systemFolders: IdentifiedArrayOf<Folder>
+    var userFolders: IdentifiedArrayOf<Folder>
+    var systemFoldersSection: GridSectionReducer<Folder.ID>.State {
+      didSet {
+        // Here, we simply accumulate values.
+        // The GridSection feature can only delete and edit items (name and images),
+        // we assume here that is what happens, we just edit or skip the value
+        // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
+        let newIDs = self.systemFoldersSection.gridItems.ids
+        self.systemFolders = self.systemFolders.reduce(into: []) { partial, folder in
+          if newIDs.contains(folder.id) {
+            var mutatedFolder = folder
+            mutatedFolder.name = self.systemFoldersSection.gridItems[id: folder.id]!.name
+            mutatedFolder.imageData = self.systemFoldersSection.gridItems[id: folder.id]!.photos.photos.first
+            partial.append(folder)
+          }
+        }
+      }
+    }
+    var userFoldersSection: GridSectionReducer<Folder.ID>.State {
+      didSet {
+        // Here, we simply accumulate values.
+        // The GridSection feature can only delete and edit items (name and images),
+        // we assume here that is what happens, we just edit or skip the value
+        // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
+        let newIDs = self.userFoldersSection.gridItems.ids
+        self.userFolders = self.userFolders.reduce(into: []) { partial, folder in
+          if newIDs.contains(folder.id) {
+            var mutatedFolder = folder
+            mutatedFolder.name = self.userFoldersSection.gridItems[id: folder.id]!.name
+            mutatedFolder.imageData = self.userFoldersSection.gridItems[id: folder.id]!.photos.photos.first
+            partial.append(folder)
+          }
+        }
+      }
+    }
     var scrollViewIndex: Int
     var isHidingImages: Bool
     @BindingState var isEditing: Bool
-    @PresentationState var alert: AlertState<AlertAction>?
+    @PresentationState var alert: AlertState<Action.AlertAction>?
     
     init(
       systemFolders: IdentifiedArrayOf<Folder> = [],
       userFolders: IdentifiedArrayOf<Folder> = []
     ) {
-      self.systemFoldersSection = .init(title: "System", folders: systemFolders)
-      self.userFoldersSection = .init(title: "User", folders: userFolders)
+      self.systemFolders = systemFolders
+      self.userFolders = userFolders
+      self.systemFoldersSection = .init(title: "System", gridItems: systemFolders.map(GridItemReducer.State.init))
+      self.userFoldersSection = .init(title: "User", gridItems: userFolders.map(GridItemReducer.State.init))
       self.scrollViewIndex = 1
       self.isHidingImages = false
       self.isEditing = false
@@ -29,7 +62,7 @@ struct FoldersReducer: Reducer {
     }
     
     var hasSelectedAll: Bool {
-      userFoldersSection.selection.count == userFoldersSection.folders.count
+      userFoldersSection.selection.count == userFoldersSection.gridItems.count
     }
     
     var navigationTitle: String {
@@ -38,7 +71,7 @@ struct FoldersReducer: Reducer {
     }
     
     var systemStandardFolderID: Folder.ID {
-      self.systemFoldersSection.folders.first(where: { $0.folder.folderType == .systemStandard })!.id
+      self.systemFolders.first(where: { $0.folderType == .systemStandard })!.id
     }
   }
   
@@ -54,17 +87,25 @@ struct FoldersReducer: Reducer {
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case newRecipeButtonTapped
-    case userFoldersSection(FolderSectionReducer.Action)
-    case systemFoldersSection(FolderSectionReducer.Action)
-    case alert(PresentationAction<AlertAction>)
+    case userFoldersSection(GridSectionReducer<Folder.ID>.Action)
+    case systemFoldersSection(GridSectionReducer<Folder.ID>.Action)
     case binding(BindingAction<State>)
     
     case delegate(DelegateAction)
+    @CasePathable
+    @dynamicMemberLookup
     enum DelegateAction: Equatable {
       case addNewFolderDidComplete(Folder.ID)
       case addNewRecipeDidComplete(Recipe.ID)
       case userFolderTapped(Folder.ID)
       case systemFolderTapped(Folder.ID)
+    }
+
+    case alert(PresentationAction<AlertAction>)
+    @CasePathable
+    enum AlertAction: Equatable {
+      case cancelButtonTapped
+      case confirmDeleteButtonTapped
     }
   }
   
@@ -72,17 +113,17 @@ struct FoldersReducer: Reducer {
   @Dependency(\.continuousClock) var clock
   @Dependency(\.uuid) var uuid
   @Dependency(\.date) var date
-
-  var body: some Reducer<FoldersReducer.State, FoldersReducer.Action> {
+  
+  var body: some Reducer<RootFoldersReducer.State, RootFoldersReducer.Action> {
     CombineReducers {
-      Scope(state: \.systemFoldersSection, action: /Action.systemFoldersSection) {
-        FolderSectionReducer()
+      Scope(state: \.systemFoldersSection, action: \.systemFoldersSection) {
+        GridSectionReducer()
       }
-      Scope(state: \.userFoldersSection, action: /Action.userFoldersSection) {
-        FolderSectionReducer()
+      Scope(state: \.userFoldersSection, action: \.userFoldersSection) {
+        GridSectionReducer()
       }
       BindingReducer()
-      Reduce<FoldersReducer.State, FoldersReducer.Action> { state, action in
+      Reduce<RootFoldersReducer.State, RootFoldersReducer.Action> { state, action in
         switch action {
         case let .setDidLoad(didLoad):
           state.didLoad = didLoad
@@ -98,9 +139,8 @@ struct FoldersReducer: Reducer {
           .concatenate(with: .send(.setDidLoad(true)))
           
         case let .fetchFoldersSuccess(folders):
-          state.userFoldersSection.folders = folders.map({
-            .init(folder: $0)
-          })
+          state.userFolders.append(contentsOf: folders)
+          state.userFoldersSection.gridItems = folders.map({ .init($0) })
           return .none
           
         case .selectFoldersButtonTapped:
@@ -119,7 +159,7 @@ struct FoldersReducer: Reducer {
           
         case .selectAllButtonTapped:
           state.userFoldersSection.selection = .init(
-            state.hasSelectedAll ? [] : state.userFoldersSection.folders.map(\.id)
+            state.hasSelectedAll ? [] : state.userFoldersSection.gridItems.map(\.id)
           )
           return .none
           
@@ -142,7 +182,8 @@ struct FoldersReducer: Reducer {
             creationDate: date(),
             lastEditDate: date()
           )
-          state.userFoldersSection.folders.append(.init(folder: newFolder))
+          state.userFolders.append(newFolder)
+          state.userFoldersSection.gridItems.append(.init(newFolder))
           return .send(.delegate(.addNewFolderDidComplete(newFolder.id)), animation: .default)
           
         case .newRecipeButtonTapped:
@@ -152,22 +193,18 @@ struct FoldersReducer: Reducer {
             creationDate: date(),
             lastEditDate: date()
           )
-          state.systemFoldersSection.folders[id: state.systemStandardFolderID]!.folder.recipes.append(newRecipe)
+          state.systemFolders[id: state.systemStandardFolderID]!.recipes.append(newRecipe)
           return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
           
         case let .userFoldersSection(.delegate(action)):
           switch action {
-          case let .folderTapped(id):
-            guard let _ = state.userFoldersSection.folders[id: id]?.folder
-            else { return .none }
+          case let .gridItemTapped(id):
             return .send(.delegate(.userFolderTapped(id)))
           }
           
         case let .systemFoldersSection(.delegate(action)):
           switch action {
-          case let .folderTapped(id):
-            guard let _ = state.systemFoldersSection.folders[id: id]?.folder
-            else { return .none }
+          case let .gridItemTapped(id):
             return .send(.delegate(.systemFolderTapped(id)))
           }
         case .binding:
@@ -177,12 +214,13 @@ struct FoldersReducer: Reducer {
           switch action {
           case .cancelButtonTapped:
             return .none
-            
+         
           case .confirmDeleteButtonTapped:
-            state.userFoldersSection.folders = state.userFoldersSection.folders.filter {
+            state.userFoldersSection.gridItems = state.userFoldersSection.gridItems.filter {
               !state.userFoldersSection.selection.contains($0.id)
             }
             state.userFoldersSection.selection = []
+            // TODO: update folders
             return .none
           }
           
@@ -196,7 +234,7 @@ struct FoldersReducer: Reducer {
       }
     }
     .onChange(
-      of: { $0.userFoldersSection.folders.map(\.folder) },
+      of: \.userFolders,
       removeDuplicates: { ($0.isEmpty && !$1.isEmpty) || $0 == $1 }
     ) { oldFolders, newFolders in
       Reduce { _, _ in
@@ -221,41 +259,10 @@ struct FoldersReducer: Reducer {
           }
       }
     }
-//    .onChange(of: \.systemFoldersSection.folders) { _, _ in
-//      EmptyReducer() // TODO: ....
-//    }
   }
 }
 
-// MARK: - Action.FolderUpdate
-extension FoldersReducer.Action {
-  enum FoldersUpdate: Equatable {
-    case systemFolders
-    case userFolders
-  }
-}
-
-// MARK: - AlertAction
-extension FoldersReducer {
-//  enum DelegateAction: Equatable {
-//    case addNewFolderDidComplete(Folder.ID)
-//    case addNewRecipeDidComplete(Recipe.ID)
-//    case userFolderTapped(Folder.ID)
-//    case systemFolderTapped(Folder.ID)
-//  }
-}
-
-
-// MARK: - AlertAction
-extension FoldersReducer {
-  enum AlertAction: Equatable {
-    case cancelButtonTapped
-    case confirmDeleteButtonTapped
-  }
-}
-
-// MARK: - AlertState
-extension AlertState where Action == FoldersReducer.AlertAction {
+extension AlertState where Action == RootFoldersReducer.Action.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")
@@ -274,30 +281,8 @@ extension AlertState where Action == FoldersReducer.AlertAction {
   )
 }
 
-// MARK: - FolderSectionReducer.State instances
-extension FolderSectionReducer.State {
-  static let system: Self = {
-    @Dependency(\.uuid) var uuid
-    return Self(
-      title: "System", folders: [
-        //        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "All", folderType: .systemAll)),
-        //        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Standard", folderType: .systemStandard)),
-        //        .init(id: .init(rawValue: uuid()), folder: .init(id: .init(rawValue: uuid()), name: "Recently Deleted", folderType: .systemRecentlyDeleted))
-      ]
-    )
-  }()
-  
-  static let user = Self(title: "User", folders: [])
-}
-
-// MARK: - Previews
-struct Previews_FoldersReducer_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationStack {
-      FoldersView(store: .init(
-        initialState: .init(),
-        reducer: FoldersReducer.init
-      ))
-    }
+private extension GridItemReducer.State where ID == Folder.ID {
+  init(_ folder: Folder) {
+    self.init(id: folder.id, name: folder.name, imageData: folder.imageData.flatMap({[$0]}) ?? [])
   }
 }
