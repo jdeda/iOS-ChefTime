@@ -44,7 +44,6 @@ struct StepReducer {
   @Dependency(\.uuid) var uuid
   
   var body: some ReducerOf<Self> {
-    CombineReducers {
       BindingReducer()
       Reduce { state, action in
         switch action {
@@ -66,6 +65,5 @@ struct StepReducer {
         }
       }
       Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
-    }
   }
 }

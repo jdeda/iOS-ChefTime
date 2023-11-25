@@ -38,58 +38,56 @@ struct GridItemReducer<ID: Equatable & Hashable> {
   @Dependency(\.dismiss) var dismiss
   
   var body: some ReducerOf<Self> {
-    CombineReducers {
-      Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
-      Reduce { state, action in
-        switch action {
-          
-        case .deleteButtonTapped:
-          state.destination = .alert(.init(
-            title: {
-              TextState("Delete")
-            },
-            actions: {
-              ButtonState(role: .destructive, action: .confirmDeleteButtonTapped) {
-                TextState("Yes")
-              }
-              ButtonState(role: .cancel) {
-                TextState("No")
-              }
-            },
-            message: {
-              TextState("Are you sure you want to delete this?")
+    Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
+    Reduce { state, action in
+      switch action {
+        
+      case .deleteButtonTapped:
+        state.destination = .alert(.init(
+          title: {
+            TextState("Delete")
+          },
+          actions: {
+            ButtonState(role: .destructive, action: .confirmDeleteButtonTapped) {
+              TextState("Yes")
             }
-          ))
-          return .none
-          
-        case .replacePreviewImage:
-          return .none
-          
-        case .renameButtonTapped:
-          state.destination = .renameAlert
-          return .none
-          
-        case let .renameAcceptButtonTapped(newName):
-          state.name = newName
-          state.destination = nil
-          return .none
-          
-        case .destination(.presented(.alert(.confirmDeleteButtonTapped))):
-          state.destination = nil
-          return .run { send in
-            // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
-            // However, this bug seems to happen because you are returning an action in the .presented.
-            // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
-            await dismiss()
-            await send(.delegate(.delete))
+            ButtonState(role: .cancel) {
+              TextState("No")
+            }
+          },
+          message: {
+            TextState("Are you sure you want to delete this?")
           }
-          
-        case .binding, .photos, .delegate, .destination:
-          return .none
+        ))
+        return .none
+        
+      case .replacePreviewImage:
+        return .none
+        
+      case .renameButtonTapped:
+        state.destination = .renameAlert
+        return .none
+        
+      case let .renameAcceptButtonTapped(newName):
+        state.name = newName
+        state.destination = nil
+        return .none
+        
+      case .destination(.presented(.alert(.confirmDeleteButtonTapped))):
+        state.destination = nil
+        return .run { send in
+          // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
+          // However, this bug seems to happen because you are returning an action in the .presented.
+          // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
+          await dismiss()
+          await send(.delegate(.delete))
         }
+        
+      case .binding, .photos, .delegate, .destination:
+        return .none
       }
-      .ifLet(\.$destination, action: \.destination, destination: DestinationReducer.init)
     }
+    .ifLet(\.$destination, action: \.destination, destination: DestinationReducer.init)
   }
   
   @Reducer
@@ -115,6 +113,7 @@ struct GridItemReducer<ID: Equatable & Hashable> {
   }
 }
 
+// TODO: How to make this static instance?
 //extension AlertState where Action == GridItemReducer<ID>.DestinationReducer.Action.AlertAction {
 //  static let delete = Self(
 //    title: {

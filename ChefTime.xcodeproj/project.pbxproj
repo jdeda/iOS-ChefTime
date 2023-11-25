@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9704A18A2AB33D3200E826BB /* RecipeGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9704A1892AB33D3200E826BB /* RecipeGridItemView.swift */; };
-		9704A18E2AB33FD200E826BB /* RecipeSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9704A18D2AB33FD200E826BB /* RecipeSectionView.swift */; };
 		9704A1902AB3421C00E826BB /* FolderReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9704A18F2AB3421C00E826BB /* FolderReducer.swift */; };
 		9704F31C2AFB0F18003D24C1 /* SDClientTests_Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9704F31B2AFB0F18003D24C1 /* SDClientTests_Recipe.swift */; };
 		970BEFF22AF859D100ACD339 /* Model+Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970BEFF12AF859D100ACD339 /* Model+Recipe.swift */; };
@@ -34,12 +32,7 @@
 		972956502B0D0F86005A2D3D /* AboutListReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9729564F2B0D0F86005A2D3D /* AboutListReducer.swift */; };
 		972956522B0D0F8E005A2D3D /* AboutSectionReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972956512B0D0F8E005A2D3D /* AboutSectionReducer.swift */; };
 		972956562B0D116C005A2D3D /* PhotosReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972956552B0D116C005A2D3D /* PhotosReducer.swift */; };
-		972956592B0D1295005A2D3D /* FolderSectionReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972956582B0D1295005A2D3D /* FolderSectionReducer.swift */; };
-		9729565B2B0D12B3005A2D3D /* FolderGridItemReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9729565A2B0D12B3005A2D3D /* FolderGridItemReducer.swift */; };
-		9729565D2B0D12E8005A2D3D /* RecipeSectionReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9729565C2B0D12E8005A2D3D /* RecipeSectionReducer.swift */; };
-		9729565F2B0D12F0005A2D3D /* RecipeGridItemReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9729565E2B0D12F0005A2D3D /* RecipeGridItemReducer.swift */; };
 		97402AD42ADB0ED0005204D5 /* IdentifiedArray+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97402AD32ADB0ED0005204D5 /* IdentifiedArray+Extensions.swift */; };
-		9745FCF52AB21D71008CF16F /* FolderGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9745FCF42AB21D71008CF16F /* FolderGridItemView.swift */; };
 		974730572B0D38C800C99D1F /* PhotosReducer+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974730562B0D38C800C99D1F /* PhotosReducer+Extensions.swift */; };
 		974730592B0D4BB700C99D1F /* RecipeReducer+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974730582B0D4BB700C99D1F /* RecipeReducer+Extensions.swift */; };
 		9747305B2B0D58C700C99D1F /* AppReducer+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9747305A2B0D58C700C99D1F /* AppReducer+Extensions.swift */; };
@@ -59,7 +52,6 @@
 		977633DA2A51C4B0009FD90C /* AboutSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633D92A51C4B0009FD90C /* AboutSectionView.swift */; };
 		977633DC2A51C987009FD90C /* AboutListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977633DB2A51C987009FD90C /* AboutListView.swift */; };
 		9782405B2A3B410000CAC459 /* IngredientListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9782405A2A3B410000CAC459 /* IngredientListView.swift */; };
-		97AB36B02AAA0283001CB9F4 /* FolderSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB36AF2AAA0283001CB9F4 /* FolderSectionView.swift */; };
 		97AD13B82A2E7392002FCE30 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AD13B72A2E7392002FCE30 /* Main.swift */; };
 		97AD13BC2A2E7394002FCE30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BB2A2E7394002FCE30 /* Assets.xcassets */; };
 		97AD13BF2A2E7394002FCE30 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AD13BE2A2E7394002FCE30 /* Preview Assets.xcassets */; };
@@ -101,8 +93,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		9704A1892AB33D3200E826BB /* RecipeGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeGridItemView.swift; sourceTree = "<group>"; };
-		9704A18D2AB33FD200E826BB /* RecipeSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeSectionView.swift; sourceTree = "<group>"; };
 		9704A18F2AB3421C00E826BB /* FolderReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderReducer.swift; sourceTree = "<group>"; };
 		9704F31B2AFB0F18003D24C1 /* SDClientTests_Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDClientTests_Recipe.swift; sourceTree = "<group>"; };
 		970BEFF12AF859D100ACD339 /* Model+Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Model+Recipe.swift"; sourceTree = "<group>"; };
@@ -129,12 +119,7 @@
 		9729564F2B0D0F86005A2D3D /* AboutListReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutListReducer.swift; sourceTree = "<group>"; };
 		972956512B0D0F8E005A2D3D /* AboutSectionReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSectionReducer.swift; sourceTree = "<group>"; };
 		972956552B0D116C005A2D3D /* PhotosReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosReducer.swift; sourceTree = "<group>"; };
-		972956582B0D1295005A2D3D /* FolderSectionReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderSectionReducer.swift; sourceTree = "<group>"; };
-		9729565A2B0D12B3005A2D3D /* FolderGridItemReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderGridItemReducer.swift; sourceTree = "<group>"; };
-		9729565C2B0D12E8005A2D3D /* RecipeSectionReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeSectionReducer.swift; sourceTree = "<group>"; };
-		9729565E2B0D12F0005A2D3D /* RecipeGridItemReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeGridItemReducer.swift; sourceTree = "<group>"; };
 		97402AD32ADB0ED0005204D5 /* IdentifiedArray+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IdentifiedArray+Extensions.swift"; sourceTree = "<group>"; };
-		9745FCF42AB21D71008CF16F /* FolderGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderGridItemView.swift; sourceTree = "<group>"; };
 		974730562B0D38C800C99D1F /* PhotosReducer+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosReducer+Extensions.swift"; sourceTree = "<group>"; };
 		974730582B0D4BB700C99D1F /* RecipeReducer+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecipeReducer+Extensions.swift"; sourceTree = "<group>"; };
 		9747305A2B0D58C700C99D1F /* AppReducer+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppReducer+Extensions.swift"; sourceTree = "<group>"; };
@@ -154,7 +139,6 @@
 		977633DB2A51C987009FD90C /* AboutListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutListView.swift; sourceTree = "<group>"; };
 		9782405A2A3B410000CAC459 /* IngredientListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientListView.swift; sourceTree = "<group>"; };
 		97833B992A584E4E002EB24B /* ChefTimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChefTimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		97AB36AF2AAA0283001CB9F4 /* FolderSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderSectionView.swift; sourceTree = "<group>"; };
 		97AD13B42A2E7392002FCE30 /* ChefTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChefTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AD13B72A2E7392002FCE30 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		97AD13BB2A2E7394002FCE30 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -206,28 +190,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		97033A142AD490F5006C5A54 /* FolderSection */ = {
-			isa = PBXGroup;
-			children = (
-				97AB36AF2AAA0283001CB9F4 /* FolderSectionView.swift */,
-				972956582B0D1295005A2D3D /* FolderSectionReducer.swift */,
-				9745FCF42AB21D71008CF16F /* FolderGridItemView.swift */,
-				9729565A2B0D12B3005A2D3D /* FolderGridItemReducer.swift */,
-			);
-			path = FolderSection;
-			sourceTree = "<group>";
-		};
-		97033A152AD490FE006C5A54 /* RecipeSection */ = {
-			isa = PBXGroup;
-			children = (
-				9704A18D2AB33FD200E826BB /* RecipeSectionView.swift */,
-				9729565C2B0D12E8005A2D3D /* RecipeSectionReducer.swift */,
-				9704A1892AB33D3200E826BB /* RecipeGridItemView.swift */,
-				9729565E2B0D12F0005A2D3D /* RecipeGridItemReducer.swift */,
-			);
-			path = RecipeSection;
-			sourceTree = "<group>";
-		};
 		97033A162AD495BB006C5A54 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
@@ -245,8 +207,6 @@
 				9712FB5E2A4393B100E5E227 /* Photos */,
 				976CBB3A2AB3A05900BE69F5 /* Search */,
 				970D775F2B0D8B2A00149FF2 /* GridSection */,
-				97033A152AD490FE006C5A54 /* RecipeSection */,
-				97033A142AD490F5006C5A54 /* FolderSection */,
 			);
 			path = "Non-Screens";
 			sourceTree = "<group>";
@@ -714,13 +674,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9729565B2B0D12B3005A2D3D /* FolderGridItemReducer.swift in Sources */,
 				9775C1A72B0BA6A200B6F633 /* AppReducer.swift in Sources */,
 				9729564A2B0D0E79005A2D3D /* IngredientSectionReducer.swift in Sources */,
 				970D77612B0D8B5200149FF2 /* GridSectionView.swift in Sources */,
 				974730572B0D38C800C99D1F /* PhotosReducer+Extensions.swift in Sources */,
 				972956562B0D116C005A2D3D /* PhotosReducer.swift in Sources */,
-				9729565D2B0D12E8005A2D3D /* RecipeSectionReducer.swift in Sources */,
 				975A4EED2A44C23300C9509A /* IngredientSectionView.swift in Sources */,
 				97CE0F242AF416600075B46D /* Database+Preview.swift in Sources */,
 				97EE972E2A6853C9001AA88B /* StepSectionView.swift in Sources */,
@@ -735,9 +693,7 @@
 				9704A1902AB3421C00E826BB /* FolderReducer.swift in Sources */,
 				97F9C5072A9D66A60053CAB5 /* MaxScreenWidth.swift in Sources */,
 				97B62F312A4B80480077A5F1 /* CustomDisclosureGroupStyle.swift in Sources */,
-				9729565F2B0D12F0005A2D3D /* RecipeGridItemReducer.swift in Sources */,
 				970BEFF22AF859D100ACD339 /* Model+Recipe.swift in Sources */,
-				9704A18A2AB33D3200E826BB /* RecipeGridItemView.swift in Sources */,
 				972956442B0D0D77005A2D3D /* IngredientReducer.swift in Sources */,
 				97F9C5032A9D66610053CAB5 /* HidingImages.swift in Sources */,
 				97AD13CF2A2E74C2002FCE30 /* RecipeView.swift in Sources */,
@@ -753,11 +709,8 @@
 				970D77692B0E4E4B00149FF2 /* RootFoldersView.swift in Sources */,
 				9767E0FD2AE97E94003B0E2C /* SDClient.swift in Sources */,
 				975F47C42A6B06FC0016BB95 /* Model+ImageData.swift in Sources */,
-				972956592B0D1295005A2D3D /* FolderSectionReducer.swift in Sources */,
 				970D77632B0D8B7900149FF2 /* GridSectionReducer.swift in Sources */,
 				975AC2F32ACB048500B099DC /* RecipeReducer.swift in Sources */,
-				9745FCF52AB21D71008CF16F /* FolderGridItemView.swift in Sources */,
-				9704A18E2AB33FD200E826BB /* RecipeSectionView.swift in Sources */,
 				975F47C22A6AD3BF0016BB95 /* Text+ViewModifier.swift in Sources */,
 				9760CBAF2A9D1AC90077A8F9 /* RootFoldersReducer.swift in Sources */,
 				976CBB3C2AB3A06E00BE69F5 /* Search.swift in Sources */,
@@ -765,7 +718,6 @@
 				97402AD42ADB0ED0005204D5 /* IdentifiedArray+Extensions.swift in Sources */,
 				970BEFF42AF859D800ACD339 /* Model+Folder.swift in Sources */,
 				975A4EEF2A44C23800C9509A /* IngredientView.swift in Sources */,
-				97AB36B02AAA0283001CB9F4 /* FolderSectionView.swift in Sources */,
 				976CBB3E2AB3A64900BE69F5 /* SearchView.swift in Sources */,
 				972956502B0D0F86005A2D3D /* AboutListReducer.swift in Sources */,
 				972956522B0D0F8E005A2D3D /* AboutSectionReducer.swift in Sources */,
