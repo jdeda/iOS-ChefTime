@@ -3,12 +3,31 @@ import ComposableArchitecture
 import CoreData
 import SwiftUI
 
+/// Files
+/// Device
+
+// TODO: Fix this to be easier to work with and work on device
+// 1. Loading data and moving it to bundle should be very simple
+// 2. Should work on device but not actually persist.
+
+
 // Represents the XCode preview oriented version of the database client.
 // Generates and utilizes mock data that resets on reinit.
 extension Database {
   static let preview = {
-    let source = Bundle.main.url(forResource: "sd_mock", withExtension: "store")!
-    let original = Bundle.main.url(forResource: "sd_mock_original", withExtension: "store")!
+//    let bundleURL = Bundle.main.url(forResource: "default", withExtension: "store")!
+//    let fileManager = FileManager.default
+//    let documentDirectoryURL = try! fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+//    let documentURL = documentDirectoryURL.appendingPathComponent("default.store")
+//    
+//    // Only copy the store from the bundle to the Documents directory if it doesn't exist
+//    if !fileManager.fileExists(atPath: documentURL.path) {
+//      try! fileManager.copyItem(at: bundleURL, to: documentURL)
+//    }
+//    let sdc = SDClient(documentURL)!
+    
+    let source = Bundle.main.url(forResource: "default", withExtension: "store")!
+    let original = Bundle.main.url(forResource: "default_original", withExtension: "store")!
     _ = try! FileManager.default.replaceItemAt(source, withItemAt: original)
     let sdc = SDClient(source)!
     

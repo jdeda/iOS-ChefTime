@@ -18,8 +18,9 @@ actor SDClient: ModelActor {
   }
   
   init?(_ url: URL) {
-    guard let container = try? ModelContainer(for: SDFolder.self, SDRecipe.self, configurations: .init(url: url))
-    else { return nil }
+    let container = try! ModelContainer(for: SDFolder.self, SDRecipe.self, configurations: .init(url: url))
+//    guard let container = try? ModelContainer(for: SDFolder.self, SDRecipe.self, configurations: .init(url: url))
+//    else { return nil }
     self.modelContainer = container
     let context = ModelContext(container)
     context.autosaveEnabled = false

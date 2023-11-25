@@ -13,6 +13,8 @@ import Tagged
 // MARK: - Possible Improvements
 /// 1. Consider lazy rendering and limit observation for performance
 /// 2. Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
+/// 3. Refactor special TextFields into reusable TCA feature...this would delete a lot
+/// of convoluted duplicate code
 
 // MARK: - Recipe Feature Animation Bugs
 /// - Sometimes textfield highlight when focused just doesn't appear...
@@ -157,7 +159,7 @@ struct RecipeView: View {
   NavigationStack {
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
-        recipeID: .init(rawValue: .init(uuidString: "3DF50638-9B9A-48AB-87FF-9D7B943DF494")!)
+        recipeID: .init(rawValue: .init(uuidString: "C1F95C7B-CE33-46EB-B0EA-321F31F03672")!)
       ),
       reducer: RecipeReducer.init
     ))
