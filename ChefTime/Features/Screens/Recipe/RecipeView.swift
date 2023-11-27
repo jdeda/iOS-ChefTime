@@ -159,7 +159,7 @@ struct RecipeView: View {
   NavigationStack {
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
-        recipeID: .init(rawValue: .init(uuidString: "53E27CAD-9E19-469F-B24F-4BC2B51AC928")!)
+        recipeID: .init(rawValue: .init(uuidString: "0BA83EA4-BEC6-4537-8227-A0AC03AAFB31")!)
       ),
       reducer: RecipeReducer.init
     ))

@@ -9,6 +9,7 @@ import Tagged
 actor SDClient: ModelActor {
   let modelContainer: ModelContainer
   let modelExecutor: ModelExecutor
+  private(set) var didInitStore: Bool
   
   init?() {
     guard let modelContainer = try? ModelContainer(for: SDFolder.self, SDRecipe.self)
@@ -17,6 +18,7 @@ actor SDClient: ModelActor {
     let context = ModelContext(modelContainer)
     context.autosaveEnabled = false
     self.modelExecutor = DefaultSerialModelExecutor(modelContext: context)
+    self.didInitStore = false
   }
   
   init?(_ url: URL) {
@@ -27,6 +29,7 @@ actor SDClient: ModelActor {
     let context = ModelContext(container)
     context.autosaveEnabled = false
     self.modelExecutor = DefaultSerialModelExecutor(modelContext: context)
+    self.didInitStore = false
   }
   
   enum SDError: Equatable, Error {
@@ -35,26 +38,34 @@ actor SDClient: ModelActor {
     case duplicate
   }
   
-  // Adds entities to the database.
+  // Adds entities to the database if and only if the store is empty.
   func initializeDatabase() async {
     print("SDClient", "initializeDatabase")
+    guard !self.didInitStore 
+    else {
+      print("SDClient", "initializeDatabase already done ...")
+      return
+    }
     let folderFD: FetchDescriptor<SDFolder> = {
       var fd = FetchDescriptor<SDFolder>()
-      fd.fetchLimit = 1
+//      fd.fetchLimit = 1
       fd.propertiesToFetch = [\.id]
       return fd
     }()
     let recipeFD: FetchDescriptor<SDRecipe> = {
       var fd = FetchDescriptor<SDRecipe>()
-      fd.fetchLimit = 1
+//      fd.fetchLimit = 1
       fd.propertiesToFetch = [\.id]
       return fd
     }()
-    guard self.retrieveFolders(folderFD).isEmpty,
-          self.retrieveRecipes(recipeFD).isEmpty
+    let foldersCount = try! self.modelContext.fetchCount(folderFD)
+    let recipesCount = try! self.modelContext.fetchCount(recipeFD)
+    guard foldersCount == 0 && recipesCount == 0
     else {
       print("SDClient", "initializeDatabase already done ...")
-      return }
+      self.didInitStore = true
+      return
+    }
     
     do {
       let gen = MockDataGenerator()
@@ -63,6 +74,7 @@ actor SDClient: ModelActor {
         try self.createFolder(folder)
       }
       print("SDClient", "initializeDatabase succeeded")
+      self.didInitStore = true
     } catch {
       print("SDClient", "initializeDatabase failed: \(error.localizedDescription)")
     }
@@ -331,8 +343,8 @@ extension SDClient {
 fileprivate struct MockDataGenerator {
   // Fetches folder models from local JSON files.
   fileprivate func generateMockFolders() async -> [Folder] {
-    let fetchFolders: (String) async -> [Folder] = {
-      let rootSystemURL = URL(string: $0)!
+    let fetchFolders: (URL) async -> [Folder] = {
+      let rootSystemURL = $0
       let contents = try! FileManager.default.contentsOfDirectory(
         at: rootSystemURL,
         includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
@@ -348,9 +360,9 @@ fileprivate struct MockDataGenerator {
       return folders
     }
     
-    let root = "/Users/jessededa/Downloads/JSON"
-    let f1 = await fetchFolders(root + "/system")
-    let f2 = await fetchFolders(root + "/user")
+    let root = URL(filePath: "/Users/jessededa/Downloads/JSON")
+    let f1 = await fetchFolders(root.appendingPathComponent("system"))
+    let f2 = await fetchFolders(root.appendingPathComponent("user"))
     return f1 + f2
   }
   
