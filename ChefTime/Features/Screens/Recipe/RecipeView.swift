@@ -159,14 +159,9 @@ struct RecipeView: View {
   NavigationStack {
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
-        recipeID: .init(rawValue: .init(uuidString: "C1F95C7B-CE33-46EB-B0EA-321F31F03672")!)
+        recipeID: .init(rawValue: .init(uuidString: "53E27CAD-9E19-469F-B24F-4BC2B51AC928")!)
       ),
       reducer: RecipeReducer.init
     ))
   }
 }
-
-/// This feature inits with a recipe or id
-/// if id is not found, create it
-/// if found, fetch it
-/// i dont want to create my own recipe or have to search for an id, it should already have one

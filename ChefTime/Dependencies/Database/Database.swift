@@ -3,6 +3,11 @@ import ComposableArchitecture
 
 // TODO: - Make Sendable?
 struct Database {
+  /**
+   Will create some default entries
+   */
+  var initializeDatabase: @Sendable () async -> Void
+  
   var retrieveRootFolders: @Sendable () async -> [Folder]
   
   // MARK: - Folder CRUD

@@ -1,5 +1,7 @@
 import Foundation
 import SwiftData
+import ComposableArchitecture
+import Tagged
 
 // Client responsible for all SwiftData operations for the entire app.
 // Performs basic CRUD operations on SDFolders and SDRecipes.
@@ -33,6 +35,39 @@ actor SDClient: ModelActor {
     case duplicate
   }
   
+  // Adds entities to the database.
+  func initializeDatabase() async {
+    print("SDClient", "initializeDatabase")
+    let folderFD: FetchDescriptor<SDFolder> = {
+      var fd = FetchDescriptor<SDFolder>()
+      fd.fetchLimit = 1
+      fd.propertiesToFetch = [\.id]
+      return fd
+    }()
+    let recipeFD: FetchDescriptor<SDRecipe> = {
+      var fd = FetchDescriptor<SDRecipe>()
+      fd.fetchLimit = 1
+      fd.propertiesToFetch = [\.id]
+      return fd
+    }()
+    guard self.retrieveFolders(folderFD).isEmpty,
+          self.retrieveRecipes(recipeFD).isEmpty
+    else {
+      print("SDClient", "initializeDatabase already done ...")
+      return }
+    
+    do {
+      let gen = MockDataGenerator()
+      let folders = await gen.generateMockFolders()
+      for folder in folders {
+        try self.createFolder(folder)
+      }
+      print("SDClient", "initializeDatabase succeeded")
+    } catch {
+      print("SDClient", "initializeDatabase failed: \(error.localizedDescription)")
+    }
+  }
+
   func retrieveRootFolders() -> [Folder] {
     print("SDClient", "retrieveRootFolders")
     let predicate = #Predicate<SDFolder> { $0.parentFolder == nil }
@@ -119,6 +154,7 @@ actor SDClient: ModelActor {
   
   func retrieveRecipe(_ recipeID: Recipe.ID) -> Recipe? {
     print("SDClient", "retrieveRecipe")
+    print(self.retrieveRecipes().map(\.id.rawValue))
     guard let sdRecipe = self._retrieveSDRecipe(recipeID)
     else { return nil }
     return Recipe(sdRecipe)
@@ -287,6 +323,152 @@ extension SDClient {
       sdss.steps.forEach { sds in
         sds.parentStepSection = sdss
       }
+    }
+  }
+}
+
+
+fileprivate struct MockDataGenerator {
+  // Fetches folder models from local JSON files.
+  fileprivate func generateMockFolders() async -> [Folder] {
+    let fetchFolders: (String) async -> [Folder] = {
+      let rootSystemURL = URL(string: $0)!
+      let contents = try! FileManager.default.contentsOfDirectory(
+        at: rootSystemURL,
+        includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
+        options: .skipsHiddenFiles
+      )
+      
+      var folders = [Folder]()
+      for url in contents {
+        guard let folder = await fetchFolder(at: url)
+        else { continue }
+        folders.append(folder)
+      }
+      return folders
+    }
+    
+    let root = "/Users/jessededa/Downloads/JSON"
+    let f1 = await fetchFolders(root + "/system")
+    let f2 = await fetchFolders(root + "/user")
+    return f1 + f2
+  }
+  
+  // TODO: Migrate your old data to the new data, including new dates!
+  // Fetches folder model from local JSON file. Assume directory is a user folder.
+  fileprivate func fetchFolder(at directoryURL: URL) async -> Folder? {
+    guard let contents = try? FileManager.default.contentsOfDirectory(
+      at: directoryURL,
+      includingPropertiesForKeys: [.fileResourceTypeKey, .contentTypeKey, .nameKey],
+      options: .skipsHiddenFiles
+    )
+    else { return nil }
+    
+    var folder = Folder(
+      id: .init(),
+      name: directoryURL.lastPathComponent, folderType: .user,
+      creationDate: .init(),
+      lastEditDate: .init()
+    )
+    for url in contents {
+      if url.hasDirectoryPath {
+        guard let childFolder = await fetchFolder(at: url)
+        else { continue }
+        
+        if folder.imageData == nil {
+          folder.imageData = childFolder.imageData
+        }
+        folder.folders.append(childFolder)
+      }
+      else if url.pathExtension.lowercased() == "json" {
+        guard let recipe = await fetchRecipe(at: url)
+        else { continue }
+        folder.recipes.append(recipe)
+        folder.name = folder.name.capitalized
+        if folder.imageData == nil {
+          folder.imageData = recipe.imageData.first
+        }
+      }
+      else { continue }
+    }
+    if folder.name.lowercased() == "standard" {
+      
+    }
+    folder.name = folder.name.capitalized
+    if folder.imageData == nil {
+      if let imageData = folder.recipes.first(where: { $0.imageData.first != nil })?.imageData.first {
+        folder.imageData = imageData
+      }
+    }
+    return folder
+  }
+  
+  // Fetches recipe model from local JSON file.
+  fileprivate func fetchRecipe(at url: URL) async -> Recipe? {
+    guard let data = try? Data(contentsOf: url),
+          let recipeV0 = try? JSONDecoder().decode(RecipeV0.self, from: data)
+    else { return nil }
+    let recipe = Recipe.init(
+      id: .init(rawValue: recipeV0.id.rawValue),
+      name: recipeV0.name,
+      imageData: recipeV0.imageData,
+      aboutSections: recipeV0.aboutSections,
+      ingredientSections: recipeV0.ingredientSections,
+      stepSections: recipeV0.stepSections,
+      creationDate: .init(),
+      lastEditDate: .init()
+    )
+    return recipe
+  }
+  
+  // Reads and writes recipe to disk given fileName and fileExtension.
+  fileprivate struct ReadWriteIO {
+    let fileName: String
+    let fileExtension: String
+    
+    var fileURL: URL {
+      Bundle.main.url(forResource: fileName, withExtension: fileExtension)!
+    }
+    
+    func writeRecipeToDisk(_ recipe: Recipe) {
+      let encoder = JSONEncoder()
+      encoder.outputFormatting = .prettyPrinted
+      let data = try! encoder.encode(recipe)
+      try! data.write(to: fileURL, options: .atomic)
+    }
+    
+    func readRecipeFromDisk() -> Recipe {
+      let data = try! Data(contentsOf: fileURL)
+      let decoder = JSONDecoder()
+      let recipe = try! decoder.decode(Recipe.self, from: data)
+      return recipe
+    }
+  }
+  
+  struct RecipeV0: Identifiable, Equatable, Codable {
+    typealias ID = Tagged<Self, UUID>
+    
+    let id: ID
+    var name: String = ""
+    var imageData: IdentifiedArrayOf<ImageData> = []
+    var aboutSections: IdentifiedArrayOf<Recipe.AboutSection> = []
+    var ingredientSections: IdentifiedArrayOf<Recipe.IngredientSection> = []
+    var stepSections: IdentifiedArrayOf<Recipe.StepSection> = []
+    
+    init(
+      id: ID,
+      name: String = "",
+      imageData: IdentifiedArrayOf<ImageData> = [],
+      aboutSections: IdentifiedArrayOf<Recipe.AboutSection> = [],
+      ingredientSections: IdentifiedArrayOf<Recipe.IngredientSection> = [],
+      stepSections: IdentifiedArrayOf<Recipe.StepSection> = []
+    ) {
+      self.id = id
+      self.name = name
+      self.imageData = imageData
+      self.aboutSections = aboutSections
+      self.ingredientSections = ingredientSections
+      self.stepSections = stepSections
     }
   }
 }

@@ -3,14 +3,20 @@ import ComposableArchitecture
 @Reducer
 struct AppReducer {
   struct State: Equatable {
+    var isAppReady = false
+    
     var stack = StackState<StackReducer.State>()
     var rootFolders = RootFoldersReducer.State()
   }
   
   enum Action: Equatable {
+    case appDidStart
+    case isAppReady
     case stack(StackAction<StackReducer.State, StackReducer.Action>)
     case rootFolders(RootFoldersReducer.Action)
   }
+  
+  @Dependency(\.database) var database
   
   var body: some Reducer<AppReducer.State, AppReducer.Action> {
     Scope(state: \.rootFolders, action: \.rootFolders) {
@@ -18,6 +24,16 @@ struct AppReducer {
     }
     Reduce<AppReducer.State, AppReducer.Action> { state, action in
       switch action {
+      case .appDidStart:
+        return .run { send in
+          await database.initializeDatabase()
+          await send(.isAppReady)
+        }
+        
+      case .isAppReady:
+        state.isAppReady = true
+        return .none
+        
       case let .stack(.element(id: id, action: .folder(.delegate(delegateAction)))):
         // TODO: Remove force unwraps before production.
         let folder = state.stack[id: id]!.folder!.folder
