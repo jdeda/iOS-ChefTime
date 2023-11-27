@@ -1,5 +1,13 @@
 import SwiftUI
 
+private struct NavigationTitleStyleTextModifier: ViewModifier {
+  func body(content: Content) -> some View {
+    content
+      .font(.largeTitle)
+      .fontWeight(.bold)
+      .foregroundColor(.primary)
+  }
+}
 private struct TitleStyleTextModifier: ViewModifier {
   func body(content: Content) -> some View {
     content
@@ -25,6 +33,9 @@ private struct SubTitleStyleTextModifier: ViewModifier {
 }
 
 extension View {
+  func textNavigationTitleStyle() -> some View {
+    self.modifier(NavigationTitleStyleTextModifier())
+  }
   func textTitleStyle() -> some View {
     self.modifier(TitleStyleTextModifier())
   }

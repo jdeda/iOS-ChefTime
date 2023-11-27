@@ -15,6 +15,9 @@ import Tagged
 /// 2. Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
 /// 3. Refactor special TextFields into reusable TCA feature...this would delete a lot
 /// of convoluted duplicate code
+/// 4. NavigationTitle sucks, editing it is bizzare with that menu, not intuitive, and it doesn't
+///   fit enough lines (should be infinite or max 2-3)
+///  5. Make textfield autocorrect/cap dependency/global value
 
 // MARK: - Recipe Feature Animation Bugs
 /// - Sometimes textfield highlight when focused just doesn't appear...
@@ -45,6 +48,16 @@ struct RecipeView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       ScrollView {
         
+        // Recipe name.
+        TextField("Untitled Recipe", text: viewStore.$navigationTitle, axis: .vertical)
+          .multilineTextAlignment(.leading)
+          .autocapitalization(.none)
+          .autocorrectionDisabled()
+          .textNavigationTitleStyle()
+          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
+
+
         // PhotosView
         ZStack {
           PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
@@ -55,7 +68,8 @@ struct RecipeView: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
+            .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
+//            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
           
           // This allows the expansion toggle animation to work properly.
           Color.clear
@@ -63,7 +77,8 @@ struct RecipeView: View {
             .frame(width: maxScreenWidth.maxWidth, height: 0)
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
+            .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
+//            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
         }
         
         // AboutListView
@@ -93,7 +108,6 @@ struct RecipeView: View {
         Spacer()
       }
       .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
-      .navigationTitle(viewStore.$navigationTitle)
       .toolbar {
         ToolbarItemGroup(placement: .primaryAction) {
           Menu {
