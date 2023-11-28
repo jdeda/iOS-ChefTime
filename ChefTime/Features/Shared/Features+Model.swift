@@ -3,7 +3,17 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
+
+/// A simple enumeration representing if something didLoad, didNotLoad, or isLoading
+@CasePathable
+enum LoadStatus: Equatable {
+  case didNotLoad
+  case isLoading
+  case didLoad
+}
+
 /// A simple enumeration representing a state of above or below.
+@CasePathable
 enum AboveBelow: Equatable {
   case above
   case below
@@ -21,13 +31,13 @@ enum AboveBelow: Equatable {
 /// - didNotSatisfy - if the new value has not satisfied the parameters for a valid return
 /// - beginning - if the value has satisfied the parameters for a valid return, and did so via the beginning
 /// - end - if the value has satisfied the parameters for a valid return, and did so via the end
+@CasePathable
 enum DidEnter: Equatable {
   case didNotSatisfy
   case leading
   case trailing
-}
-
-extension DidEnter {
+  
+  /// Returns a DidEnter value depending on the given strings and whether or not a newline was entered at the end
   /// 1. if leading newline, don't update name and insert above
   /// 2. else trailing newline, don't update name and focus to amount
   /// 3. else, update name
