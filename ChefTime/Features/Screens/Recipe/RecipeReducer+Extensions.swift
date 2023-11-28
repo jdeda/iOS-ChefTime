@@ -6,7 +6,10 @@ extension AlertState where Action == RecipeReducer.Action.AlertAction {
       TextState("Delete Photos")
     },
     actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.photos)){
+      ButtonState(
+        role: .destructive,
+        action: .send(.confirmDeleteSectionButtonTapped(.photos), animation: .default)
+      ){
         TextState("Delete")
       }
       ButtonState(role: .cancel) {
@@ -22,7 +25,10 @@ extension AlertState where Action == RecipeReducer.Action.AlertAction {
       TextState("Delete About")
     },
     actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.about)){
+      ButtonState(
+        role: .destructive,
+        action: .send(.confirmDeleteSectionButtonTapped(.about), animation: .default)
+      ){
         TextState("Delete")
       }
       ButtonState(role: .cancel) {
@@ -38,7 +44,10 @@ extension AlertState where Action == RecipeReducer.Action.AlertAction {
       TextState("Delete Ingredients")
     },
     actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.ingredients)){
+      ButtonState(
+        role: .destructive,
+        action: .send(.confirmDeleteSectionButtonTapped(.ingredients), animation: .default)
+      ){
         TextState("Delete")
       }
       ButtonState(role: .cancel) {
@@ -54,7 +63,10 @@ extension AlertState where Action == RecipeReducer.Action.AlertAction {
       TextState("Delete Steps")
     },
     actions: {
-      ButtonState(role: .destructive, action: .confirmDeleteSectionButtonTapped(.steps)){
+      ButtonState(
+        role: .destructive,
+        action: .send(.confirmDeleteSectionButtonTapped(.steps), animation: .default)
+      ){
         TextState("Delete")
       }
       ButtonState(role: .cancel) {

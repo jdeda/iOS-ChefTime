@@ -64,7 +64,7 @@ struct AboutSection: View {
           Text("Insert Section Below")
         }
         Button(role: .destructive) {
-          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .easeIn(duration: 2.5))
+          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
         } label: {
           Text("Delete")
         }
@@ -133,7 +133,7 @@ struct AboutSectionNonGrouped: View {
             Text("Insert Section Below")
           }
           Button(role: .destructive) {
-            viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .easeIn(duration: 2.5))
+            viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
           } label: {
             Text("Delete")
           }
