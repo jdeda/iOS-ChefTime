@@ -8,53 +8,35 @@ struct IngredientListView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      if viewStore.ingredientSections.isEmpty {
-        VStack {
-          HStack {
-            Text("Ingredients")
-              .textTitleStyle()
-            Spacer()
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
+        IngredientStepper(scale: viewStore.binding(
+          get: { $0.scale },
+          send: { .scaleStepperButtonTapped($0) }
+        ))
+        
+        ForEachStore(store.scope(state: \.ingredientSections, action: { .ingredientSections($0) })) { childStore in
+          if viewStore.ingredientSections.count == 1 {
+            IngredientSectionNonGrouped(store: childStore)
+              .contentShape(Rectangle())
+              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
           }
-          HStack {
-            TextField(
-              "Untitled Ingredient Section",
-              text: .constant(""),
-              axis: .vertical
-            )
-            .textSubtitleStyle()
-            Spacer()
-            Image(systemName: "plus")
-          }
-          .foregroundColor(.secondary)
-          .onTapGesture {
-            viewStore.send(.addSectionButtonTapped, animation: .default)
-          }
-        }
-      }
-      else {
-        DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-          IngredientStepper(scale: viewStore.binding(
-            get: { $0.scale },
-            send: { .scaleStepperButtonTapped($0) }
-          ))
-          
-          ForEachStore(store.scope(state: \.ingredientSections, action: { .ingredientSections($0) })) { childStore in
+          else {
             IngredientSection(store: childStore)
               .contentShape(Rectangle())
               .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
-            Divider()
-              .padding(.bottom, 5)
           }
+          Divider()
+            .padding(.bottom, 5)
         }
-        label : {
-          Text("Ingredients")
-            .textTitleStyle()
-          Spacer()
-        }
-        .accentColor(.primary)
-        .synchronize(viewStore.$focusedField, $focusedField)
-        .disclosureGroupStyle(CustomDisclosureGroupStyle())
       }
+      label : {
+        Text("Ingredients")
+          .textTitleStyle()
+        Spacer()
+      }
+      .accentColor(.primary)
+      .synchronize(viewStore.$focusedField, $focusedField)
+      .disclosureGroupStyle(CustomDisclosureGroupStyle())
     }
   }
 }

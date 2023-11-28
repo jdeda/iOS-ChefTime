@@ -10,7 +10,7 @@ struct AboutSectionReducer {
     
     init(aboutSection: Recipe.AboutSection, focusedField: FocusField? = nil) {
       self.aboutSection = aboutSection
-      self.focusedField = nil
+      self.focusedField = focusedField
     }
   }
   

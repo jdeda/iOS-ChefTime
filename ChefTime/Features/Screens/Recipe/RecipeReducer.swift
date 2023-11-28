@@ -82,6 +82,7 @@ struct RecipeReducer {
     case delete
   }
 
+  @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   @Dependency(\.database) var database
   
@@ -160,9 +161,25 @@ struct RecipeReducer {
             
           case .add:
             switch section {
-            case .about: state.about = .init(recipeSections: [])
-            case .ingredients: state.ingredients = .init(recipeSections: [])
-            case .steps: state.steps = .init(recipeSections: [])
+            case .about: 
+              state.about = .init(recipeSections: [])
+              state.about.aboutSections.append(.init(
+                aboutSection: .init(id: .init(rawValue: uuid())),
+                focusedField: .name
+              ))
+            case .ingredients:
+              state.ingredients = .init(recipeSections: [])
+              state.ingredients.ingredientSections.append(.init(
+                ingredientSection: .init(id: .init(rawValue: uuid())),
+                focusedField: .name
+
+              ))
+            case .steps:
+              state.steps = .init(recipeSections: [])
+              state.steps.stepSections.append(.init(
+                stepSection: .init(id: .init(rawValue: uuid())),
+                focusedField: .name
+              ))
             }
             return .none
           }

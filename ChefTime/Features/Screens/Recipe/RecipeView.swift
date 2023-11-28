@@ -40,6 +40,9 @@ import Tagged
 // your textfields to have, or maybe if really based, it just does it compeltely for you and you don't even have to
 // append that to any of your textfields
 
+
+// TODO: Make sure the dividers between lists appears as intended
+
 struct RecipeView: View {
   let store: StoreOf<RecipeReducer>
   @Environment(\.maxScreenWidth) private var maxScreenWidth
@@ -48,7 +51,9 @@ struct RecipeView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       ScrollView {
         
-        // Recipe name.
+        // Unfournately, navigation title does not work here
+        // because it doesn't support multiple lines in
+        // the way we want it to behave.
         TextField("Untitled Recipe", text: viewStore.$navigationTitle, axis: .vertical)
           .multilineTextAlignment(.leading)
           .autocapitalization(.none)
@@ -57,52 +62,81 @@ struct RecipeView: View {
           .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
           .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
 
-
         // PhotosView
-        ZStack {
-          PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
-            .opacity(!viewStore.isHidingImages ? 1.0 : 0.0)
-            .frame(
-              width: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0,
-              height: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-            .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
-//            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
-          
-          // This allows the expansion toggle animation to work properly.
-          Color.clear
-            .contentShape(Rectangle())
-            .frame(width: maxScreenWidth.maxWidth, height: 0)
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-            .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
-//            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
-        }
-        
-        // AboutListView
-        AboutListView(store: store.scope(state: \.about, action: { .about($0) }))
+        let isHiding: Bool = viewStore.isHidingImages || viewStore.photos.photos.isEmpty
+        PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
+          .opacity(!isHiding ? 1.0 : 0.0)
+          .frame(
+            width: !isHiding ? maxScreenWidth.maxWidth : 0,
+            height: !isHiding ? maxScreenWidth.maxWidth : 0
+          )
+          .clipShape(RoundedRectangle(cornerRadius: 15))
           .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-        if !viewStore.about.isExpanded {
-          Divider()
+          .padding([.bottom], !isHiding ? 10 : 0 )
+
+//        let isHidingPhotosView: Bool = {
+//          if isHidingStepImages { return true }
+//          else if viewStore.photos.photos.isEmpty { return true }
+//          else {
+//            return !(viewStore.photos.photoEditStatus == .addWhenEmpty && viewStore.photos.photoEditInFlight)
+//          }
+//        }()
+//        PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
+//        .frame(height: isHidingPhotosView ? 0 : maxScreenWidth.maxWidth)
+//        .opacity(isHidingPhotosView ? 0 : 1.0)
+//        .clipShape(RoundedRectangle(cornerRadius: 15))
+//        .disabled(isHidingPhotosView)
+        
+//        ZStack {
+//          PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
+//            .opacity(!viewStore.isHidingImages ? 1.0 : 0.0)
+//            .frame(
+//              width: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0,
+//              height: !viewStore.isHidingImages ? maxScreenWidth.maxWidth : 0
+//            )
+//            .clipShape(RoundedRectangle(cornerRadius: 15))
+//            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+//            .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
+//          //            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
+//          
+//          // This allows the expansion toggle animation to work properly.
+//          Color.clear
+//            .contentShape(Rectangle())
+//            .frame(width: maxScreenWidth.maxWidth, height: 0)
+//            .clipShape(RoundedRectangle(cornerRadius: 15))
+//            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+//            .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
+//          //            .padding([.bottom, .top], !viewStore.isHidingImages ? 10 : 0 )
+//        }
+          
+        // AboutListView
+        if !viewStore.about.aboutSections.isEmpty {
+          AboutListView(store: store.scope(state: \.about, action: { .about($0) }))
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          if !viewStore.about.isExpanded {
+            Divider()
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          }
         }
         
         // IngredientListView
-        IngredientListView(store: store.scope(state: \.ingredients, action: { .ingredients($0) }))
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-        if !viewStore.ingredients.isExpanded {
-          Divider()
+        if !viewStore.ingredients.ingredientSections.isEmpty {
+          IngredientListView(store: store.scope(state: \.ingredients, action: { .ingredients($0) }))
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          if !viewStore.ingredients.isExpanded {
+            Divider()
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          }
         }
         
         // StepListView
-        StepListView(store: store.scope(state: \.steps, action: { .steps($0) }))
-          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-        if !viewStore.steps.isExpanded {
-          Divider()
+        if !viewStore.steps.stepSections.isEmpty {
+          StepListView(store: store.scope(state: \.steps, action: { .steps($0) }))
             .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          if !viewStore.steps.isExpanded {
+            Divider()
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          }
         }
         
         Spacer()
@@ -173,7 +207,9 @@ struct RecipeView: View {
   NavigationStack {
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
+//        recipeID: .init()
         recipeID: .init(rawValue: .init(uuidString: "0BA83EA4-BEC6-4537-8227-A0AC03AAFB31")!)
+
       ),
       reducer: RecipeReducer.init
     ))
