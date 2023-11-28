@@ -87,7 +87,7 @@ struct RecipeView: View {
             // AboutListView
             if !viewStore.about.aboutSections.isEmpty {
               AboutListView(store: store.scope(state: \.about, action: { .about($0) }))
-                .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+                .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset)
               if !viewStore.about.isExpanded {
                 Divider()
                   .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
@@ -195,7 +195,7 @@ extension RecipeView {
   NavigationStack {
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
-        //        recipeID: .init()
+//        recipeID: .init()
         recipeID: .init(rawValue: .init(uuidString: "0BA83EA4-BEC6-4537-8227-A0AC03AAFB31")!)
         
       ),
