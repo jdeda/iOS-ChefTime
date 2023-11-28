@@ -159,6 +159,7 @@ extension RecipeView {
           } label: {
             Label(photosIsEmpty ? "Add Photos" : "Delete Photos", systemImage: "photo.stack")
           }
+          .disabled(viewStore.photos.photoEditInFlight)
           
           let aboutIsEmpty = viewStore.about.aboutSections.isEmpty
           Button {
