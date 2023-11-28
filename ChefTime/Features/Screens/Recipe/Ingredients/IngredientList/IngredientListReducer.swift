@@ -3,7 +3,14 @@ import ComposableArchitecture
 @Reducer
 struct IngredientsListReducer {
   struct State: Equatable {
-    var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State> = []
+    var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State> = [] {
+      didSet {
+        if self.ingredientSections.count == 1 &&
+            self.ingredientSections.first!.ingredients.isEmpty {
+          self.ingredientSections = []
+        }
+      }
+    }
     var scale: Double = 1.0
     @BindingState var isExpanded: Bool = true
     @BindingState var focusedField: FocusField? = nil

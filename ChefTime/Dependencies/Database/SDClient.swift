@@ -339,7 +339,6 @@ extension SDClient {
   }
 }
 
-
 fileprivate struct MockDataGenerator {
   // Fetches folder models from local JSON files.
   fileprivate func generateMockFolders() async -> [Folder] {

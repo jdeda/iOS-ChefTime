@@ -3,7 +3,14 @@ import ComposableArchitecture
 @Reducer
 struct StepListReducer {
   struct State: Equatable {
-    var stepSections: IdentifiedArrayOf<StepSectionReducer.State> = []
+    var stepSections: IdentifiedArrayOf<StepSectionReducer.State> = [] {
+      didSet {
+        if self.stepSections.count == 1 &&
+            self.stepSections.first!.steps.isEmpty {
+          self.stepSections = []
+        }
+      }
+    }
     @BindingState var isExpanded: Bool = true
     @BindingState var isHidingStepImages: Bool = false
     @BindingState var focusedField: FocusField? = nil

@@ -165,21 +165,29 @@ struct RecipeReducer {
               state.about = .init(recipeSections: [])
               state.about.aboutSections.append(.init(
                 aboutSection: .init(id: .init(rawValue: uuid())),
-                focusedField: .name
+                focusedField: .description
               ))
             case .ingredients:
               state.ingredients = .init(recipeSections: [])
-              state.ingredients.ingredientSections.append(.init(
-                ingredientSection: .init(id: .init(rawValue: uuid())),
-                focusedField: .name
-
-              ))
+              let ingredient = Recipe.IngredientSection.Ingredient(id: .init(rawValue: uuid()))
+              let ingredientSection = Recipe.IngredientSection(
+                id: .init(rawValue: uuid()),
+                ingredients: [ingredient]
+              )
+              state.ingredients.ingredientSections.append(.init(ingredientSection: ingredientSection))
+              state.ingredients.ingredientSections[id: ingredientSection.id]!
+                .ingredients[id: ingredient.id]!
+                .focusedField = .name
             case .steps:
-              state.steps = .init(recipeSections: [])
-              state.steps.stepSections.append(.init(
-                stepSection: .init(id: .init(rawValue: uuid())),
-                focusedField: .name
-              ))
+              let step = Recipe.StepSection.Step(id: .init(rawValue: uuid()))
+              let stepSection = Recipe.StepSection(
+                id: .init(rawValue: uuid()),
+                steps: [step]
+              )
+              state.steps.stepSections.append(.init(stepSection: stepSection))
+              state.steps.stepSections[id: stepSection.id]!
+                .steps[id: step.id]!
+                .focusedField = .description
             }
             return .none
           }
