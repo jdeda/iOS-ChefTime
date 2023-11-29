@@ -15,16 +15,18 @@ import Tagged
 /// 2. Refactor SectionedListView into resuable TCA feature...this would delete an insane amount of duplicate code.
 /// 3. Refactor special TextFields into reusable TCA feature...this would delete a lot
 /// of convoluted duplicate code
-/// 4. NavigationTitle sucks, editing it is bizzare with that menu, not intuitive, and it doesn't
-///   fit enough lines (should be infinite or max 2-3)
-///  5. Make textfield autocorrect/cap dependency/global value
+/// 4. Possible NavigationTitle refactor, but it doesn't support 2-3 lines or direct click textfield
+///   neither does principal toolbar work, best I could do was a textfield at top of scrollview,
+///   with maybe, someday, calculate when u scroll past it, you hide it and display the text
+///   in the principal toolbar as .inline
+/// 5. Make textfield autocorrect/cap dependency/global value
 
 // MARK: - Recipe Feature Animation Bugs
 /// - Sometimes textfield highlight when focused just doesn't appear...
 /// - Spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
 
 // MARK: - Haunting Bugs
-/// 1. Ingredients still double insert  (sometimes) (refactor all debounces)
+/// 1. Ingredients still double insert (sometimes) (refactor all debounces)
 /// 2. Focus state still breaks (sometimes)
 
 // MARK: - Haunting DisclosureGroup Animation Bugs:
@@ -34,9 +36,12 @@ import Tagged
 /// just go set the UIPreviewTarget.background for an entire view root, you have to specifically create an entire new deleagte
 /// and handle all of the bullshit and nuances literally JUST to set the stupid ass background to clear.
 
-// TODO: Move all the autcorrection stuff into a dependency and possibly write a modifier that you can apply to all
-// your textfields to have, or maybe if really based, it just does it compeltely for you and you don't even have to
-// append that to any of your textfields
+// TODO: Fix tiny preview at PhotosView
+// TODO: Rename photos.photos to photos.imageData
+
+// TODO: Fix delete animation of sections
+// section when collapsed will do a mini-expand for some reason
+// sections fades rather than collapses
 
 // TODO: Make sure the dividers between lists appears as intended
 struct RecipeView: View {
