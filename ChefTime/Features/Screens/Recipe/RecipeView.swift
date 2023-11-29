@@ -24,7 +24,10 @@ import Tagged
 // MARK: - Recipe Feature Animation Bugs
 /// - Sometimes textfield highlight when focused just doesn't appear...
 /// - Spamming the hide images then spamming expand collapse combinations glitch and get the images stuck hidden
-
+/// - Steps deleting a step or section lags and or doesn't animate smooth, and sometimes the images don't fade and collapse
+///   they just pause and dissapear hidiously, it works if u delete the image separately, meaning that you probably
+///   need to do something that tells the image to hide/collapse
+/// - PhotosView for this immediate screen, when you delete the last image, you  don't get the best animation
 // MARK: - Haunting Bugs
 /// 1. Ingredients still double insert (sometimes) (refactor all debounces)
 /// 2. Focus state still breaks (sometimes)
@@ -38,10 +41,6 @@ import Tagged
 
 // TODO: Fix tiny preview at PhotosView
 // TODO: Rename photos.photos to photos.imageData
-
-// TODO: Fix delete animation of sections
-// section when collapsed will do a mini-expand for some reason
-// sections fades rather than collapses
 
 // TODO: Make sure the dividers between lists appears as intended
 struct RecipeView: View {
@@ -66,7 +65,7 @@ struct RecipeView: View {
               .autocorrectionDisabled()
               .textNavigationTitleStyle()
               .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-              .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
+//              .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
                     
             ZStack {
               PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
@@ -191,6 +190,7 @@ extension RecipeView {
         }
       } label: {
         Image(systemName: "ellipsis.circle")
+          .accentColor(.yellow)
       }
       .foregroundColor(.primary)
     }

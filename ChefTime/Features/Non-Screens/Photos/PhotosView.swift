@@ -3,7 +3,6 @@ import ComposableArchitecture
 import PhotosUI
 
 // TODO: Animation slide lag
-// TODO: How to play all changes back to original recipe?
 // TODO: Maybe change order of adding a photo to next rather than inplace.
 // TODO: Fix transition animation from 0 images to 1+ images
 
@@ -49,9 +48,8 @@ struct PhotosView: View {
             }
             .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0)
             .overlay {
-              if viewStore.photoEditInFlight {
-                ProgressView()
-              }
+              ProgressView()
+                .opacity(viewStore.photoEditInFlight ? 1.0 : 0.0)
             }
             .disabled(viewStore.photoEditInFlight)
             

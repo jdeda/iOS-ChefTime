@@ -5,30 +5,17 @@
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
-         <BreakpointContent
-            uuid = "A837B132-1353-4BDA-B1BB-E4C24230C073"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            symbolName = ""
-            moduleName = "">
-            <Locations>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5ECD95CC-5F28-4784-8A65-D98C2CA39868"
+            uuid = "3F02EE00-40F1-4C55-B5EB-ECE798A4377C"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChefTime/Dependencies/Database/SDClient.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "367"
-            endingLineNumber = "367"
+            startingLineNumber = "348"
+            endingLineNumber = "348"
             landmarkName = "generateMockFolders()"
             landmarkType = "7">
          </BreakpointContent>

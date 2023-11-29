@@ -9,7 +9,6 @@ import Tagged
 ///     they must be stored externally (disk or cloud) and only fetched when needed, perhaps with some sort of caching to
 ///     potentially improve the experience.
 /// 2. Load onAppear
-///
 @Reducer
 struct RecipeReducer {
   struct State: Equatable {
@@ -214,17 +213,44 @@ struct RecipeReducer {
           }
           
         case let .alert(.presented(.confirmDeleteSectionButtonTapped(section))):
+          // Reset the states to make sure all in-flight effects are cancelled
+          // and be sure to collapse everything while deleting for nice animations.
           switch section {
-          case .photos: state.photos = .init(photos: [])
-          case .about: state.about = .init(recipeSections: [])
-          case .ingredients: state.ingredients = .init(recipeSections: [])
-          case .steps: state.steps = .init(recipeSections: [])
+          case .photos:
+            state.photos = .init(photos: [])
+          case .about:
+            state.about = .init(recipeSections: [])
+            state.about.isExpanded = false
+            state.about.aboutSections.ids.forEach {
+              state.about.aboutSections[id: $0]?.isExpanded = false
+            }
+            
+          case .ingredients:
+            state.ingredients = .init(recipeSections: [])
+            state.ingredients.isExpanded = false
+            state.ingredients.ingredientSections.ids.forEach {
+              state.ingredients.ingredientSections[id: $0]?.isExpanded = false
+            }
+            
+          case .steps:
+            state.steps = .init(recipeSections: [])
+            state.steps.isExpanded = false
+            state.steps.stepSections.ids.forEach {
+              state.steps.stepSections[id: $0]?.isExpanded = false
+            }
           }
           state.alert = nil
           return .none
           
         case .alert(.dismiss):
           state.alert = nil
+          return .none
+          
+        case .photos(.deleteButtonTapped):
+          if state.photos.photos.count == 1 {
+            // hide, then delete
+            
+          }
           return .none
           
         case .photos, .about, .ingredients, .steps, .alert, .binding:
