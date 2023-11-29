@@ -36,20 +36,23 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
           }
         } label: {
           ZStack {
-            Image(systemName: "chevron.right")
-              .resizable()
-              .scaledToFit()
-              .rotationEffect(configuration.isExpanded ? .degrees(90) : .degrees(0))
-              .animation(.linear(duration: 0.3), value: configuration.isExpanded)
-              .font(.caption)
-              .fontWeight(.bold)
-              .frame(maxWidth : 12, maxHeight: 12, alignment: .trailing)
+            HStack {
+              Spacer()
+              Image(systemName: "chevron.right")
+                .resizable()
+                .scaledToFit()
+                .rotationEffect(configuration.isExpanded ? .degrees(90) : .degrees(0))
+                .animation(.linear(duration: 0.3), value: configuration.isExpanded)
+                .font(.caption)
+                .fontWeight(.bold)
+                .frame(maxWidth : 12, maxHeight: 12, alignment: .trailing)
+            }
             
             Color.clear
           }
-          .frame(maxWidth : 48, maxHeight: 48, alignment: .trailing)
+          .frame(maxWidth : 36, maxHeight: 36, alignment: .trailing)
         }
-        .frame(maxWidth : 48, maxHeight: 48, alignment: .trailing)
+        .frame(maxWidth : 36, maxHeight: 36, alignment: .trailing)
       }
       .contentShape(Rectangle())
       .padding([.bottom], 5)
