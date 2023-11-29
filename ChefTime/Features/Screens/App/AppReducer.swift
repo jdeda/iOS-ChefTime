@@ -79,5 +79,6 @@ struct AppReducer {
       }
     }
     .forEach(\.stack, action: \.stack, destination: StackReducer.init)
+    .signpost()
   }
 }

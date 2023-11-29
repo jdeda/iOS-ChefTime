@@ -80,6 +80,7 @@
 		97EE97302A6853F6001AA88B /* StepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EE972F2A6853F6001AA88B /* StepView.swift */; };
 		97F9C5032A9D66610053CAB5 /* HidingImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F9C5022A9D66610053CAB5 /* HidingImages.swift */; };
 		97F9C5072A9D66A60053CAB5 /* MaxScreenWidth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F9C5062A9D66A60053CAB5 /* MaxScreenWidth.swift */; };
+		FB23B5BC2B1798A300060371 /* default.store in Resources */ = {isa = PBXBuildFile; fileRef = FB23B5BB2B1798A300060371 /* default.store */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -168,6 +169,7 @@
 		97EE972F2A6853F6001AA88B /* StepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepView.swift; sourceTree = "<group>"; };
 		97F9C5022A9D66610053CAB5 /* HidingImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HidingImages.swift; sourceTree = "<group>"; };
 		97F9C5062A9D66A60053CAB5 /* MaxScreenWidth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxScreenWidth.swift; sourceTree = "<group>"; };
+		FB23B5BB2B1798A300060371 /* default.store */ = {isa = PBXFileReference; lastKnownFileType = file; path = default.store; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -348,7 +350,6 @@
 		975A4EF42A44C31000C9509A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				97AD13B72A2E7392002FCE30 /* Main.swift */,
 				971A3B5B2A40FD71009F8002 /* Info.plist */,
 				97AD13BB2A2E7394002FCE30 /* Assets.xcassets */,
 				97AD13BD2A2E7394002FCE30 /* Preview Content */,
@@ -459,6 +460,7 @@
 		97AD13B62A2E7392002FCE30 /* ChefTime */ = {
 			isa = PBXGroup;
 			children = (
+				97AD13B72A2E7392002FCE30 /* Main.swift */,
 				975A4EF52A44C31700C9509A /* SwiftUI */,
 				975A4EF22A44C30500C9509A /* Features */,
 				975A4EF32A44C30B00C9509A /* Dependencies */,
@@ -479,6 +481,7 @@
 			isa = PBXGroup;
 			children = (
 				9767E0FB2AE97E94003B0E2C /* SDClient.swift */,
+				FB23B5BB2B1798A300060371 /* default.store */,
 				97B17BCC2AB7713A009B6378 /* Database.swift */,
 				97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */,
 				97CE0F232AF416600075B46D /* Database+Preview.swift */,
@@ -637,6 +640,7 @@
 				97E8F4C02B03A856000192C7 /* burger_meat_01.jpg in Resources */,
 				9712FB5B2A438E2A00E5E227 /* recipe_01.jpeg in Resources */,
 				97E8F4C12B03A856000192C7 /* burger_meat_02.jpg in Resources */,
+				FB23B5BC2B1798A300060371 /* default.store in Resources */,
 				97C04E6D2A40AA0D00EB7D6D /* burger_bun_05.jpg in Resources */,
 				97E8F4C22B03A856000192C7 /* burger_meat_03.jpg in Resources */,
 			);

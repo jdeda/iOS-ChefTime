@@ -39,9 +39,51 @@ actor SDClient: ModelActor {
   }
   
   // Adds entities to the database if and only if the store is empty.
+    // TODO: move this outside the init of the SDClient
+    // becuase by the time you get here MockDataGenerator.storeFile will be created by core data
   func initializeDatabase() async {
     print("SDClient", "initializeDatabase")
-    guard !self.didInitStore 
+
+//#if DEBUG
+//#if targetEnvironment(simulator)
+//      // in debug, on simulator, the db does not exist
+//      // create it, make a copy to my git
+//      let exist = (try? MockDataGenerator.gitStoreFile.checkResourceIsReachable()) ?? false
+//      if !exist {
+//          do {
+//              let gen = MockDataGenerator()
+//              let folders = await gen.generateMockFolders()
+//              for folder in folders {
+//                  try self.createFolder(folder)
+//              }
+//              print("SDClient", "initializeDatabase succeeded")
+//              self.didInitStore = true
+//              // copy it to git
+//              try FileManager.default.copyItem(at: MockDataGenerator.storeFile, to: MockDataGenerator.gitStoreFile)
+//          } catch {
+//              print("SDClient", "initializeDatabase failed: \(error.localizedDescription)")
+//          }
+//      } else {
+//          // TODO: if the app file is there do not replace it ...
+//          try? FileManager.default.removeItem(at: MockDataGenerator.storeFile)
+//          try? FileManager.default.copyItem(at: MockDataGenerator.gitStoreFile, to: MockDataGenerator.storeFile)
+//      }
+//#else
+//      // in debug, on device
+//      // we just need to copy the embedded db
+//
+//      let exist = (try? MockDataGenerator.storeFile.checkResourceIsReachable()) ?? false
+//      // TODO:
+//      // get smarter on replacing this, since right now we are replacing it
+//      try? FileManager.default.copyItem(at: MockDataGenerator.embeddedFile, to: MockDataGenerator.storeFile)
+//#endif
+//
+//#else
+//      // TODO
+//#endif
+
+
+    guard !self.didInitStore
     else {
       print("SDClient", "initializeDatabase already done ...")
       return
@@ -65,18 +107,6 @@ actor SDClient: ModelActor {
       print("SDClient", "initializeDatabase already done ...")
       self.didInitStore = true
       return
-    }
-    
-    do {
-      let gen = MockDataGenerator()
-      let folders = await gen.generateMockFolders()
-      for folder in folders {
-        try self.createFolder(folder)
-      }
-      print("SDClient", "initializeDatabase succeeded")
-      self.didInitStore = true
-    } catch {
-      print("SDClient", "initializeDatabase failed: \(error.localizedDescription)")
     }
   }
 
@@ -339,7 +369,46 @@ extension SDClient {
   }
 }
 
-fileprivate struct MockDataGenerator {
+internal struct MockDataGenerator {
+    // mock files in git
+    static let jsonFiles = URL(filePath: #file)
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .appendingPathComponent("JSON")
+
+    // default.store file in your git
+    // ../iOS-ChefTime/ChefTime/Dependencies/Database/default.store
+    // a convenience for us to embedd a mock database
+    static let gitStoreFile = URL(filePath: #file)
+        .deletingLastPathComponent()
+        .appendingPathComponent("default.store")
+
+    // default.store file in your app's sandbox
+    // ie: ../Library/Application\ Support/default.store
+    // this is where core data goes
+    // it will be created automagically when you SDClient.init()
+    static let storeFile: URL = {
+        if let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .allDomainsMask).first {
+            print("storeFile: \(folder.path)")
+            return folder.appendingPathComponent("default.store")
+        }
+        return URL.temporaryDirectory
+    }()
+
+    // default.store file in your app's installation
+    // ie: ../Containers/Bundle/Application/7C020228-AA6D-419B-88BE-AD7F7F48BA8F/ChefTime.app/default.store
+    // a convenience for us to embedd a mock database
+    static let embeddedFile: URL = {
+        // get smarter on replacing this, since right now we are replacing it
+        if let embedded = Bundle.main.url(forResource: "default", withExtension: "store") {
+            return embedded
+        }
+        return URL.temporaryDirectory
+    }()
+
+
   // Fetches folder models from local JSON files.
   fileprivate func generateMockFolders() async -> [Folder] {
     let fetchFolders: (URL) async -> [Folder] = {
@@ -359,13 +428,8 @@ fileprivate struct MockDataGenerator {
       return folders
     }
     
-    let root =  URL(filePath: #file)
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .appendingPathComponent("JSON")
-    let f1 = await fetchFolders(root.appendingPathComponent("system"))
-    let f2 = await fetchFolders(root.appendingPathComponent("user"))
+      let f1 = await fetchFolders(Self.jsonFiles.appendingPathComponent("system"))
+    let f2 = await fetchFolders(Self.jsonFiles.appendingPathComponent("user"))
     return f1 + f2
   }
   
