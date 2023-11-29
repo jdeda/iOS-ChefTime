@@ -359,7 +359,11 @@ fileprivate struct MockDataGenerator {
       return folders
     }
     
-    let root = URL(filePath: "/Users/jessededa/Downloads/JSON")
+    let root =  URL(filePath: #file)
+      .deletingLastPathComponent()
+      .deletingLastPathComponent()
+      .deletingLastPathComponent()
+      .appendingPathComponent("JSON")
     let f1 = await fetchFolders(root.appendingPathComponent("system"))
     let f2 = await fetchFolders(root.appendingPathComponent("user"))
     return f1 + f2

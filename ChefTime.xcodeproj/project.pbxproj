@@ -478,11 +478,11 @@
 		97B17BCB2AB770D6009B6378 /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				9767E0FB2AE97E94003B0E2C /* SDClient.swift */,
 				97B17BCC2AB7713A009B6378 /* Database.swift */,
 				97B17C2E2AB8BDBC009B6378 /* Database+Live.swift */,
 				97CE0F232AF416600075B46D /* Database+Preview.swift */,
 				97CE0F252AF43FB90075B46D /* Database+Test.swift */,
-				9767E0FB2AE97E94003B0E2C /* SDClient.swift */,
 				970BEFF72AF85AF200ACD339 /* Model */,
 			);
 			path = Database;
