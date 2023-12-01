@@ -64,7 +64,6 @@ struct RecipeView: View {
               .autocorrectionDisabled()
               .textNavigationTitleStyle()
               .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-//              .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
                     
             ZStack {
               PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
