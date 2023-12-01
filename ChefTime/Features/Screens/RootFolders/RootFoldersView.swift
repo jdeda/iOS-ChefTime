@@ -8,47 +8,54 @@ struct RootFoldersView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      ScrollViewReader { proxy in
-        ScrollView {
-          
-          // System Folders.
-          GridSectionView(
-            store: store.scope(state: \.systemFoldersSection, action: { .systemFoldersSection($0) }),
-            isEditing: viewStore.isEditing
-          )
-          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          .opacity(viewStore.isEditing ? 0.0 : 1.0)
-          .frame(maxHeight: viewStore.isEditing ? 0 : .infinity)
-          .id(1)
-          
-          // User Folders.
-          GridSectionView(
-            store: store.scope(state: \.userFoldersSection, action: { .userFoldersSection($0) }),
-            isEditing: viewStore.isEditing
-          )
-          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          .opacity(viewStore.userFoldersSection.gridItems.isEmpty ? 0.0 : 1.0)
-          .frame(maxHeight: viewStore.userFoldersSection.gridItems.isEmpty ? 0 : .infinity)
-          .id(2)
+      Group {
+        if viewStore.loadStatus == .isLoading {
+          ProgressView()
         }
-        
-        .navigationTitle(viewStore.navigationTitle)
-        .navigationBarBackButtonHidden(viewStore.isEditing)
-        .toolbar { toolbar(viewStore: viewStore) }
-        .searchable(
-          text: .constant(""),
-          placement: .navigationBarDrawer(displayMode: .always)
-        )
-        .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
-          withAnimation {
-            proxy.scrollTo(newScrollViewIndex, anchor: .center)
+        else {
+          ScrollViewReader { proxy in
+            ScrollView {
+              
+              // System Folders.
+              GridSectionView(
+                store: store.scope(state: \.systemFoldersSection, action: { .systemFoldersSection($0) }),
+                isEditing: viewStore.isEditing
+              )
+              .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+              .opacity(viewStore.isEditing ? 0.0 : 1.0)
+              .frame(maxHeight: viewStore.isEditing ? 0 : .infinity)
+              .id(1)
+              
+              // User Folders.
+              GridSectionView(
+                store: store.scope(state: \.userFoldersSection, action: { .userFoldersSection($0) }),
+                isEditing: viewStore.isEditing
+              )
+              .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+              .opacity(viewStore.userFoldersSection.gridItems.isEmpty ? 0.0 : 1.0)
+              .frame(maxHeight: viewStore.userFoldersSection.gridItems.isEmpty ? 0 : .infinity)
+              .id(2)
+            }
+            
+            .navigationTitle(viewStore.navigationTitle)
+            .navigationBarBackButtonHidden(viewStore.isEditing)
+            .toolbar { toolbar(viewStore: viewStore) }
+            .searchable(
+              text: .constant(""),
+              placement: .navigationBarDrawer(displayMode: .always)
+            )
+            .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
+              withAnimation {
+                proxy.scrollTo(newScrollViewIndex, anchor: .center)
+              }
+            }
+            .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
+            .environment(\.isHidingImages, viewStore.isHidingImages)
+            .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
           }
         }
-        .task { await viewStore.send(.task).finish() }
-        .environment(\.isHidingImages, viewStore.isHidingImages)
-        .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
       }
-      .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
+      .task { await viewStore.send(.task).finish() }
     }
   }
 }

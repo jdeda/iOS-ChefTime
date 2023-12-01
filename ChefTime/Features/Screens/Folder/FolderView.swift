@@ -8,50 +8,57 @@ struct FolderView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      ScrollViewReader { proxy in
-        ScrollView {
-          
-          // Folders
-          let isHidingFolders = viewStore.editStatus == .recipes || viewStore.folderSection.gridItems.isEmpty
-          GridSectionView(
-            store: store.scope(state: \.folderSection, action: { .folderSection($0) }),
-            isEditing: !isHidingFolders && viewStore.editStatus == .folders
-          )
-          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          .opacity(isHidingFolders ? 0.0 : 1.0)
-          .frame(maxHeight: isHidingFolders ? 0 : .infinity)
-          .disabled(isHidingFolders)
-          .id(1)
-          
-          // Recipes.
-          let isHidingRecipes = viewStore.editStatus == .folders || viewStore.recipeSection.gridItems.isEmpty
-          GridSectionView(
-            store: store.scope(state: \.recipeSection, action: { .recipeSection($0 )}),
-            isEditing: !isHidingRecipes && viewStore.editStatus == .recipes
-          )
-          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-          .opacity(isHidingRecipes ? 0.0 : 1.0)
-          .frame(maxHeight: isHidingRecipes ? 0 : .infinity)
-          .disabled(isHidingRecipes)
-          .id(2)
+      Group {
+        if viewStore.loadStatus == .isLoading {
+          ProgressView()
         }
-        
-        .navigationTitle(viewStore.navigationTitle)
-        .navigationBarBackButtonHidden(viewStore.editStatus != nil)
-        .toolbar { toolbar(viewStore: viewStore) }
-        .searchable(
-          text: .constant(""),
-          placement: .navigationBarDrawer(displayMode: .always)
-        )
-        .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
-          withAnimation {
-            proxy.scrollTo(newScrollViewIndex, anchor: .center)
+        else {
+          ScrollViewReader { proxy in
+            ScrollView {
+              
+              // Folders
+              let isHidingFolders = viewStore.editStatus == .recipes || viewStore.folderSection.gridItems.isEmpty
+              GridSectionView(
+                store: store.scope(state: \.folderSection, action: { .folderSection($0) }),
+                isEditing: !isHidingFolders && viewStore.editStatus == .folders
+              )
+              .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+              .opacity(isHidingFolders ? 0.0 : 1.0)
+              .frame(maxHeight: isHidingFolders ? 0 : .infinity)
+              .disabled(isHidingFolders)
+              .id(1)
+              
+              // Recipes.
+              let isHidingRecipes = viewStore.editStatus == .folders || viewStore.recipeSection.gridItems.isEmpty
+              GridSectionView(
+                store: store.scope(state: \.recipeSection, action: { .recipeSection($0 )}),
+                isEditing: !isHidingRecipes && viewStore.editStatus == .recipes
+              )
+              .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+              .opacity(isHidingRecipes ? 0.0 : 1.0)
+              .frame(maxHeight: isHidingRecipes ? 0 : .infinity)
+              .disabled(isHidingRecipes)
+              .id(2)
+            }
+            
+            .navigationTitle(viewStore.navigationTitle)
+            .navigationBarBackButtonHidden(viewStore.editStatus != nil)
+            .toolbar { toolbar(viewStore: viewStore) }
+            .searchable(
+              text: .constant(""),
+              placement: .navigationBarDrawer(displayMode: .always)
+            )
+            .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
+              withAnimation {
+                proxy.scrollTo(newScrollViewIndex, anchor: .center)
+              }
+            }
+            .environment(\.isHidingImages, viewStore.isHidingImages)
+            .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
           }
+          .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
         }
-        .environment(\.isHidingImages, viewStore.isHidingImages)
-        .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
       }
-      .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
       .task { await viewStore.send(.task).finish() }
     }
   }
