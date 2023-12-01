@@ -3,20 +3,15 @@ import ComposableArchitecture
 
 // TODO: - Make Sendable?
 struct Database {
-  /**
-   Will create some default entries
-   */
   var initializeDatabase: @Sendable () async -> Void
   
   var retrieveRootFolders: @Sendable () async -> [Folder]
   
-  // MARK: - Folder CRUD
   var createFolder: @Sendable (Folder) async throws -> Void
   var retrieveFolder: @Sendable (Folder.ID) async -> Folder?
   var updateFolder: @Sendable (Folder) async throws -> Void
   var deleteFolder: @Sendable (Folder.ID) async throws -> Void
   
-  // MARK: - Recipe CRUD
   var createRecipe: @Sendable (Recipe) async throws -> Void
   var retrieveRecipe: @Sendable (Recipe.ID) async -> Recipe?
   var updateRecipe: @Sendable (Recipe) async throws -> Void

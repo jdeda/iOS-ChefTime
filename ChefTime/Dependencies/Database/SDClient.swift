@@ -3,6 +3,9 @@ import SwiftData
 import ComposableArchitecture
 import Tagged
 
+
+
+
 // Client responsible for all SwiftData operations for the entire app.
 // Performs basic CRUD operations on SDFolders and SDRecipes.
 // Executes all operations on background thread via ModelActor.
@@ -22,9 +25,8 @@ actor SDClient: ModelActor {
   }
   
   init?(_ url: URL) {
-    let container = try! ModelContainer(for: SDFolder.self, SDRecipe.self, configurations: .init(url: url))
-//    guard let container = try? ModelContainer(for: SDFolder.self, SDRecipe.self, configurations: .init(url: url))
-//    else { return nil }
+    guard let container = try? ModelContainer(for: SDFolder.self, SDRecipe.self, configurations: .init(url: url))
+    else { return nil }
     self.modelContainer = container
     let context = ModelContext(container)
     context.autosaveEnabled = false
@@ -38,76 +40,43 @@ actor SDClient: ModelActor {
     case duplicate
   }
   
-  // Adds entities to the database if and only if the store is empty.
-    // TODO: move this outside the init of the SDClient
-    // becuase by the time you get here MockDataGenerator.storeFile will be created by core data
+  // Adds entities to db only if db did not init yet or is empty.
   func initializeDatabase() async {
     print("SDClient", "initializeDatabase")
-
-//#if DEBUG
-//#if targetEnvironment(simulator)
-//      // in debug, on simulator, the db does not exist
-//      // create it, make a copy to my git
-//      let exist = (try? MockDataGenerator.gitStoreFile.checkResourceIsReachable()) ?? false
-//      if !exist {
-//          do {
-//              let gen = MockDataGenerator()
-//              let folders = await gen.generateMockFolders()
-//              for folder in folders {
-//                  try self.createFolder(folder)
-//              }
-//              print("SDClient", "initializeDatabase succeeded")
-//              self.didInitStore = true
-//              // copy it to git
-//              try FileManager.default.copyItem(at: MockDataGenerator.storeFile, to: MockDataGenerator.gitStoreFile)
-//          } catch {
-//              print("SDClient", "initializeDatabase failed: \(error.localizedDescription)")
-//          }
-//      } else {
-//          // TODO: if the app file is there do not replace it ...
-//          try? FileManager.default.removeItem(at: MockDataGenerator.storeFile)
-//          try? FileManager.default.copyItem(at: MockDataGenerator.gitStoreFile, to: MockDataGenerator.storeFile)
-//      }
-//#else
-//      // in debug, on device
-//      // we just need to copy the embedded db
-//
-//      let exist = (try? MockDataGenerator.storeFile.checkResourceIsReachable()) ?? false
-//      // TODO:
-//      // get smarter on replacing this, since right now we are replacing it
-//      try? FileManager.default.copyItem(at: MockDataGenerator.embeddedFile, to: MockDataGenerator.storeFile)
-//#endif
-//
-//#else
-//      // TODO
-//#endif
-
-
+    
     guard !self.didInitStore
     else {
-      print("SDClient", "initializeDatabase already done ...")
+      print("SDClient", "initializeDatabase already init ...")
       return
     }
-    let folderFD: FetchDescriptor<SDFolder> = {
-      var fd = FetchDescriptor<SDFolder>()
-//      fd.fetchLimit = 1
-      fd.propertiesToFetch = [\.id]
-      return fd
-    }()
-    let recipeFD: FetchDescriptor<SDRecipe> = {
-      var fd = FetchDescriptor<SDRecipe>()
-//      fd.fetchLimit = 1
-      fd.propertiesToFetch = [\.id]
-      return fd
-    }()
-    let foldersCount = try! self.modelContext.fetchCount(folderFD)
-    let recipesCount = try! self.modelContext.fetchCount(recipeFD)
-    guard foldersCount == 0 && recipesCount == 0
+    
+    guard let dbIsEmpty: Bool = {
+      var ffd = FetchDescriptor<SDFolder>()
+      ffd.fetchLimit = 1
+      ffd.propertiesToFetch = [\.id]
+      var rfd = FetchDescriptor<SDRecipe>()
+      rfd.fetchLimit = 1
+      rfd.propertiesToFetch = [\.id]
+      let fCount = try! self.modelContext.fetchCount(ffd)
+      let rCount = try! self.modelContext.fetchCount(rfd)
+      return fCount == 0 && rCount == 0
+    }(), dbIsEmpty
     else {
-      print("SDClient", "initializeDatabase already done ...")
+      print("SDClient", "initializeDatabase not empty so do not inject mock data ...")
       self.didInitStore = true
       return
     }
+    
+    do {
+      for folder in await MockDataGenerator().generateMockFolders() {
+        try self.createFolder(folder)
+      }
+    } catch {
+      print("SDClient", "initializeDatabase failed")
+    }
+    
+    print("SDClient", "initializeDatabase succeeded")
+    self.didInitStore = true
   }
 
   func retrieveRootFolders() -> [Folder] {
@@ -428,8 +397,10 @@ internal struct MockDataGenerator {
       return folders
     }
     
-      let f1 = await fetchFolders(Self.jsonFiles.appendingPathComponent("system"))
-    let f2 = await fetchFolders(Self.jsonFiles.appendingPathComponent("user"))
+//    let jsonDir = Self.jsonFiles
+    let jsonDir = Bundle.main.url(forResource: "JSON", withExtension: nil)!
+    let f1 = await fetchFolders(jsonDir.appendingPathComponent("system"))
+    let f2 = await fetchFolders(jsonDir.appendingPathComponent("user"))
     return f1 + f2
   }
   

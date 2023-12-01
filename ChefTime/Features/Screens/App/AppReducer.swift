@@ -3,15 +3,14 @@ import ComposableArchitecture
 @Reducer
 struct AppReducer {
   struct State: Equatable {
-    var isAppReady = false
-    
+    var isReady = false
     var stack = StackState<StackReducer.State>()
     var rootFolders = RootFoldersReducer.State()
   }
   
   enum Action: Equatable {
-    case appDidStart
-    case isAppReady
+    case task
+    case isReady
     case stack(StackAction<StackReducer.State, StackReducer.Action>)
     case rootFolders(RootFoldersReducer.Action)
   }
@@ -24,14 +23,14 @@ struct AppReducer {
     }
     Reduce<AppReducer.State, AppReducer.Action> { state, action in
       switch action {
-      case .appDidStart:
+      case .task:
         return .run { send in
           await database.initializeDatabase()
-          await send(.isAppReady)
+          await send(.isReady)
         }
         
-      case .isAppReady:
-        state.isAppReady = true
+      case .isReady:
+        state.isReady = true
         return .none
         
       case let .stack(.element(id: id, action: .folder(.delegate(delegateAction)))):
