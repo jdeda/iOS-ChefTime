@@ -192,7 +192,8 @@ extension RecipeView {
         Image(systemName: "ellipsis.circle")
           .accentColor(.yellow)
       }
-      .foregroundColor(.primary)
+      .accentColor(.yellow)
+//      .foregroundColor(.primary)
     }
   }
 }

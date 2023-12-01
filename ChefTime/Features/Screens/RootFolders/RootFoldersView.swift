@@ -33,6 +33,7 @@ struct RootFoldersView: View {
         }
         
         .navigationTitle(viewStore.navigationTitle)
+        .navigationBarBackButtonHidden(viewStore.isEditing)
         .toolbar { toolbar(viewStore: viewStore) }
         .searchable(
           text: .constant(""),

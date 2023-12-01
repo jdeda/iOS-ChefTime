@@ -3,7 +3,6 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-
 /// A simple enumeration representing if something didLoad, didNotLoad, or isLoading
 @CasePathable
 enum LoadStatus: Equatable {

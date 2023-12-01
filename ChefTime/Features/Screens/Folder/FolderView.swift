@@ -37,6 +37,7 @@ struct FolderView: View {
         }
         
         .navigationTitle(viewStore.navigationTitle)
+        .navigationBarBackButtonHidden(viewStore.editStatus != nil)
         .toolbar { toolbar(viewStore: viewStore) }
         .searchable(
           text: .constant(""),
