@@ -59,6 +59,8 @@ struct StepView: View {
         .opacity(isHidingPhotosView ? 0 : 1.0)
         .clipShape(RoundedRectangle(cornerRadius: 15))
         .disabled(isHidingPhotosView)
+        
+        Spacer()
       }
       .animation(.default, value: isHidingStepImages) // TODO: Why?
       .synchronize(viewStore.$focusedField, $focusedField)

@@ -9,11 +9,11 @@ import Tagged
 ///     they must be stored externally (disk or cloud) and only fetched when needed, perhaps with some sort of caching to
 ///     potentially improve the experience.
 /// 2. Load onAppear
-///
 @Reducer
 struct RecipeReducer {
   struct State: Equatable {
-    var didLoad = false
+    var loadStatus = LoadStatus.didNotLoad
+    var isLoading = false
     var recipe: Recipe
     var photos: PhotosReducer.State {
       didSet { self.recipe.imageData = self.photos.photos }
@@ -46,10 +46,22 @@ struct RecipeReducer {
       self.navigationTitle = recipe.name
       self.alert = nil
     }
+    
+    var isHidingPhotosView: Bool {
+      if self.isHidingImages {
+        return true
+      }
+      else if !self.photos.photos.isEmpty {
+        return false
+      }
+      else {
+        return !(self.photos.photoEditStatus == .addWhenEmpty && self.photos.photoEditInFlight)
+      }
+    }
   }
   
   enum Action: Equatable, BindableAction {
-    case setDidLoad(Bool)
+    case didLoad
     case task
     case fetchRecipeSuccess(Recipe)
     case binding(BindingAction<State>)
@@ -71,6 +83,7 @@ struct RecipeReducer {
 
   @CasePathable
   enum Section: Equatable {
+    case photos
     case about
     case ingredients
     case steps
@@ -82,6 +95,7 @@ struct RecipeReducer {
     case delete
   }
 
+  @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   @Dependency(\.database) var database
   
@@ -94,12 +108,13 @@ struct RecipeReducer {
       BindingReducer()
       Reduce<RecipeReducer.State, RecipeReducer.Action> { state, action in
         switch action {
-        case let .setDidLoad(didLoad):
-          state.didLoad = didLoad
+        case .didLoad:
+          state.loadStatus = .didLoad
           return .none
           
         case .task:
-          guard !state.didLoad else { return .none }
+          guard state.loadStatus == .didNotLoad else { return .none }
+          state.loadStatus = .isLoading
           let recipe = state.recipe
           return .run { send in
             // TODO: Might be wise to check if the ID here matches...
@@ -110,8 +125,8 @@ struct RecipeReducer {
               // TODO: - Handle DB errors in future
               try! await self.database.createRecipe(recipe)
             }
+            await send(.didLoad)
           }
-          .concatenate(with: .send(.setDidLoad(true)))
           
         case let .fetchRecipeSuccess(newRecipe):
           state = .init(recipe: newRecipe)
@@ -152,6 +167,7 @@ struct RecipeReducer {
           switch action {
           case .delete:
             switch section {
+            case .photos: state.alert = .deletePhotos
             case .about: state.alert = .deleteAbout
             case .ingredients: state.alert = .deleteIngredients
             case .steps: state.alert = .deleteSteps
@@ -160,24 +176,81 @@ struct RecipeReducer {
             
           case .add:
             switch section {
-            case .about: state.about = .init(recipeSections: [])
-            case .ingredients: state.ingredients = .init(recipeSections: [])
-            case .steps: state.steps = .init(recipeSections: [])
+            case .photos:
+              state.photos = .init(photos: [])
+              state.photos.photoEditStatus = .addWhenEmpty
+              state.photos.photoPickerIsPresented = true
+            case .about:
+              state.about = .init(recipeSections: [])
+              state.about.aboutSections.append(.init(
+                aboutSection: .init(id: .init(rawValue: uuid())),
+                focusedField: .description
+              ))
+            case .ingredients:
+              state.ingredients = .init(recipeSections: [])
+              let ingredient = Recipe.IngredientSection.Ingredient(id: .init(rawValue: uuid()))
+              let ingredientSection = Recipe.IngredientSection(
+                id: .init(rawValue: uuid()),
+                ingredients: [ingredient]
+              )
+              state.ingredients.ingredientSections.append(.init(ingredientSection: ingredientSection))
+              state.ingredients.ingredientSections[id: ingredientSection.id]!
+                .ingredients[id: ingredient.id]!
+                .focusedField = .name
+            case .steps:
+              state.steps = .init(recipeSections: [])
+              let step = Recipe.StepSection.Step(id: .init(rawValue: uuid()))
+              let stepSection = Recipe.StepSection(
+                id: .init(rawValue: uuid()),
+                steps: [step]
+              )
+              state.steps.stepSections.append(.init(stepSection: stepSection))
+              state.steps.stepSections[id: stepSection.id]!
+                .steps[id: step.id]!
+                .focusedField = .description
             }
             return .none
           }
           
         case let .alert(.presented(.confirmDeleteSectionButtonTapped(section))):
+          // Reset the states to make sure all in-flight effects are cancelled
+          // and be sure to collapse everything while deleting for nice animations.
           switch section {
-          case .about: state.about.aboutSections = []
-          case .ingredients: state.ingredients.ingredientSections = []
-          case .steps: state.steps.stepSections = []
+          case .photos:
+            state.photos = .init(photos: [])
+          case .about:
+            state.about = .init(recipeSections: [])
+            state.about.isExpanded = false
+            state.about.aboutSections.ids.forEach {
+              state.about.aboutSections[id: $0]?.isExpanded = false
+            }
+            
+          case .ingredients:
+            state.ingredients = .init(recipeSections: [])
+            state.ingredients.isExpanded = false
+            state.ingredients.ingredientSections.ids.forEach {
+              state.ingredients.ingredientSections[id: $0]?.isExpanded = false
+            }
+            
+          case .steps:
+            state.steps = .init(recipeSections: [])
+            state.steps.isExpanded = false
+            state.steps.stepSections.ids.forEach {
+              state.steps.stepSections[id: $0]?.isExpanded = false
+            }
           }
           state.alert = nil
           return .none
           
         case .alert(.dismiss):
           state.alert = nil
+          return .none
+          
+        case .photos(.deleteButtonTapped):
+          if state.photos.photos.count == 1 {
+            // hide, then delete
+            
+          }
           return .none
           
         case .photos, .about, .ingredients, .steps, .alert, .binding:

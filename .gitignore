@@ -5,3 +5,8 @@ ChefTime.xcodeproj/project.xcworkspace/xcuserdata/jessededa.xcuserdatad/UserInte
 ChefTime/Resources/JSON
 ChefTime/Resources/SDMockStore
 ChefTime/Dependencies/Database/Database+Mock
+/target/
+.DS_Store
+xcuserdata/
+Package.resolved
+build

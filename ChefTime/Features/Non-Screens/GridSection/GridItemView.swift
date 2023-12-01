@@ -63,7 +63,6 @@ struct GridItemView<ID: Equatable & Hashable>: View {
       }
       .background(Color.primary.colorInvert())
       .clipShape(RoundedRectangle(cornerRadius: 15))
-      
       .alert(
         store: store.scope(state: \.$destination, action: { .destination($0) }),
         state: \.alert,
@@ -78,25 +77,66 @@ struct GridItemView<ID: Equatable & Hashable>: View {
         }
       }
       .contextMenu {
-        Button {
-          viewStore.send(.renameButtonTapped, animation: .default)
-        } label: {
-          Text("Rename")
+        if viewStore.enabledContextMenuActions.contains(.editPhotos) {
+          if viewStore.photos.photoEditInFlight {
+            Button {
+              viewStore.send(.photos(.cancelPhotoEdit), animation: .default)
+            } label: {
+              Text("Cancel Image Upload")
+            }
+          }
+          else {
+            Menu {
+              if viewStore.photos.photos.count == 1 {
+                Button {
+                  viewStore.send(.photos(.replaceButtonTapped), animation: .default)
+                } label: {
+                  Text("Replace Image")
+                }
+                Button(role: .destructive) {
+                  viewStore.send(.photos(.deleteButtonTapped), animation: .default)
+                } label: {
+                  Text("Delete Image")
+                }
+              }
+              else {
+                Button {
+                  viewStore.send(.photos(.addButtonTapped), animation: .default)
+                } label: {
+                  Text("Add Image")
+                }
+              }
+            } label: {
+              Text("Edit Image")
+            }
+          }
         }
-        Button {
-          viewStore.send(.delegate(.move), animation: .default)
-        } label: {
-          Text("Move")
+        if viewStore.enabledContextMenuActions.contains(.rename) {
+          Button {
+            viewStore.send(.renameButtonTapped, animation: .default)
+          } label: {
+            Text("Rename")
+          }
         }
-        Button(role: .destructive) {
-          viewStore.send(.deleteButtonTapped, animation: .default)
-        } label: {
-          Text("Delete")
+        if viewStore.enabledContextMenuActions.contains(.move) {
+          Button {
+            viewStore.send(.delegate(.move), animation: .default)
+          } label: {
+            Text("Move")
+          }
+        }
+        if viewStore.enabledContextMenuActions.contains(.delete) {
+          Button(role: .destructive) {
+            viewStore.send(.deleteButtonTapped, animation: .default)
+          } label: {
+            Text("Delete")
+          }
         }
       }
     }
   }
 }
+
 
 // MARK: - AlertView
 private struct RenameAlert: View {
@@ -141,7 +181,7 @@ private struct RenameAlert: View {
         initialState: .init(
           id: Recipe.longMock.id,
           name: Recipe.longMock.name,
-          imageData: Recipe.longMock.imageData
+          imageData: Recipe.longMock.imageData.first
         ),
         reducer: GridItemReducer.init
       ),

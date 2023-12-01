@@ -51,9 +51,9 @@ struct GridSectionView<ID: Equatable & Hashable>: View {
   ScrollView {
     GridSectionView<Folder.ID>(
       store: .init(
-        initialState: .init(gridItems: .init(uniqueElements: Folder.shortMock.recipes.map({
-          .init(id: .init(rawValue: $0.id.rawValue), name: $0.name, imageData: $0.imageData)
-        }))),
+        initialState: .init(gridItems: Folder.shortMock.recipes.map({
+          .init(id: .init(rawValue: $0.id.rawValue), name: $0.name, imageData: $0.imageData.first)
+        })),
         reducer: GridSectionReducer.init
       ),
       isEditing: false

@@ -2,12 +2,15 @@ import Foundation
 import ComposableArchitecture
 import CoreData
 
-// MARK: - Database.live
+// MARK: - Database.livean
 // Represents the production version of the database client.
 extension Database {
   static let live = {
-    let sdc = SDClient()! // MARK: - If this fail the app should be obliterated.
+    let sdc = SDClient()!
     return Self(
+      initializeDatabase: {
+        await sdc.initializeDatabase()
+      },
       retrieveRootFolders: {
         await sdc.retrieveRootFolders()
       },

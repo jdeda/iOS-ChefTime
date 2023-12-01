@@ -64,7 +64,7 @@ struct AboutSection: View {
           Text("Insert Section Below")
         }
         Button(role: .destructive) {
-          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .easeIn(duration: 2.5))
+          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
         } label: {
           Text("Delete")
         }
@@ -94,6 +94,62 @@ private struct AboutSectionContextMenuPreview: View {
     .accentColor(.primary)
   }
 }
+
+// Represents the AboutSection without a DisclosureGroup.
+struct AboutSectionNonGrouped: View {
+  let store: StoreOf<AboutSectionReducer>
+  @FocusState private var focusedField: AboutSectionReducer.FocusField?
+  
+  var body: some View {
+    WithViewStore(store, observe: { $0 }) { viewStore in
+      TextField("...", text: viewStore.$aboutSection.description, axis: .vertical)
+        .focused($focusedField, equals: .description)
+        .accentColor(.accentColor)
+        .autocapitalization(.none)
+        .autocorrectionDisabled()
+        .toolbar {
+          if viewStore.focusedField == .description {
+            ToolbarItemGroup(placement: .keyboard) {
+              Spacer()
+              Button {
+                viewStore.send(.keyboardDoneButtonTapped)
+              } label: {
+                Text("done")
+              }
+            }
+          }
+        }
+        .synchronize(viewStore.$focusedField, $focusedField)
+        .accentColor(.primary)
+        .contextMenu {
+          Button {
+            viewStore.send(.delegate(.insertSection(.above)), animation: .default)
+          } label: {
+            Text("Insert Section Above")
+          }
+          Button {
+            viewStore.send(.delegate(.insertSection(.below)), animation: .default)
+          } label: {
+            Text("Insert Section Below")
+          }
+          Button(role: .destructive) {
+            viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+          } label: {
+            Text("Delete")
+          }
+        } preview: {
+          let d = viewStore.aboutSection.description
+          Text(!d.isEmpty ? d : "...")
+            .lineLimit(4)
+            .autocapitalization(.none)
+            .autocorrectionDisabled()
+            .frame(width: 200)
+            .padding()
+        }
+    }
+  }
+}
+
 
 #Preview {
   NavigationStack {

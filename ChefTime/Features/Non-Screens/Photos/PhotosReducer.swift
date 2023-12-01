@@ -2,6 +2,8 @@ import SwiftUI
 import ComposableArchitecture
 import PhotosUI
 
+// TODO: If supporting only a single photo,
+// there should be measures here to ensure that we only have a single photo.
 @Reducer
 struct PhotosReducer {
   struct State: Equatable {

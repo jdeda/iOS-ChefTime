@@ -3,7 +3,6 @@ import ComposableArchitecture
 import PhotosUI
 
 // TODO: Animation slide lag
-// TODO: How to play all changes back to original recipe?
 // TODO: Maybe change order of adding a photo to next rather than inplace.
 // TODO: Fix transition animation from 0 images to 1+ images
 
@@ -34,12 +33,7 @@ struct PhotosView: View {
                 
                   .foregroundColor(Color(uiColor: .systemGray4))
                   .padding()
-                //            Text(viewStore.supportSinglePhotoOnly ? "Add Image" : "Add Images")
-                //              .fontWeight(.bold)
-                //              .foregroundColor(Color(uiColor: .systemGray4))
-                //              .padding(.bottom)
               }
-              //          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
               .background(Color(uiColor: .systemGray6))
               .accentColor(.accentColor)
               .clipShape(RoundedRectangle(cornerRadius: 15))
@@ -49,15 +43,13 @@ struct PhotosView: View {
                 imageDatas: viewStore.photos,
                 selection: viewStore.$selection
               )
-              //          .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
               .clipShape(RoundedRectangle(cornerRadius: 15))
               .opacity(!viewStore.photos.isEmpty ? 1.0 : 0.0 )
             }
             .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0)
             .overlay {
-              if viewStore.photoEditInFlight {
-                ProgressView()
-              }
+              ProgressView()
+                .opacity(viewStore.photoEditInFlight ? 1.0 : 0.0)
             }
             .disabled(viewStore.photoEditInFlight)
             
@@ -66,7 +58,6 @@ struct PhotosView: View {
             Color.clear
               .contentShape(Rectangle())
           }
-          //      .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
           .clipShape(RoundedRectangle(cornerRadius: 15))
           .if(!viewStore.disableContextMenu, transform: {
             $0.contextMenu(menuItems: {
@@ -115,6 +106,7 @@ struct PhotosView: View {
               }
             }, preview: {
               PhotosView(store: store)
+                .frame(width: 200, height: 200)
               // TODO: The context menu preview version of this view won't update in real-time...
               // So we have to use the original view
             })
@@ -142,7 +134,8 @@ private extension View {
   ///   - condition: The condition to evaluate.
   ///   - transform: The transform to apply to the source `View`.
   /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
-  @ViewBuilder func `if`<Content: View>(_ condition: @autoclosure () -> Bool, transform: (Self) -> Content) -> some View {
+  @ViewBuilder 
+  func `if`<Content: View>(_ condition: @autoclosure () -> Bool, transform: (Self) -> Content) -> some View {
     if condition() {
       transform(self)
     } else {
@@ -151,39 +144,42 @@ private extension View {
   }
 }
 
-private struct PhotosContextMenuPreview: View {
-  let state: PhotosReducer.State
-  @Environment(\.maxScreenWidth) var maxScreenWidth
-  
-  var body: some View {
-    VStack {
-      if state.photos.isEmpty {
-        VStack {
-          Image(systemName: "photo.stack")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 75, height: 75)
-            .clipped()
-            .foregroundColor(Color(uiColor: .systemGray4))
-            .padding()
-          Text("Add Images")
-            .fontWeight(.bold)
-            .foregroundColor(Color(uiColor: .systemGray4))
-        }
-        .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 15))
-        .accentColor(.accentColor)
-      }
-      else  {
-        ImageSliderView(
-          imageDatas: state.photos,
-          selection: .constant(state.selection)
-        )
-      }
-    }
-  }
-}
+// MARK: - PhotosContextMenuPreview (deprecated)
+// Does not refresh in time during inflight/real-time update of
+// photos feature, thus is no longer used.
+//private struct PhotosContextMenuPreview: View {
+//  let state: PhotosReducer.State
+//  @Environment(\.maxScreenWidth) var maxScreenWidth
+//  
+//  var body: some View {
+//    VStack {
+//      if state.photos.isEmpty {
+//        VStack {
+//          Image(systemName: "photo.stack")
+//            .resizable()
+//            .scaledToFit()
+//            .frame(width: 75, height: 75)
+//            .clipped()
+//            .foregroundColor(Color(uiColor: .systemGray4))
+//            .padding()
+//          Text("Add Images")
+//            .fontWeight(.bold)
+//            .foregroundColor(Color(uiColor: .systemGray4))
+//        }
+//        .frame(width: maxScreenWidth.maxWidth, height: maxScreenWidth.maxWidth)
+//        .background(.ultraThinMaterial)
+//        .clipShape(RoundedRectangle(cornerRadius: 15))
+//        .accentColor(.accentColor)
+//      }
+//      else  {
+//        ImageSliderView(
+//          imageDatas: state.photos,
+//          selection: .constant(state.selection)
+//        )
+//      }
+//    }
+//  }
+//}
 
 private extension Image {
   func square() -> some View {

@@ -35,14 +35,24 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
             await toggleExpanded()
           }
         } label: {
-          Image(systemName: "chevron.right")
-            .rotationEffect(configuration.isExpanded ? .degrees(90) : .degrees(0))
-            .animation(.linear(duration: 0.3), value: configuration.isExpanded)
-            .font(.caption)
-            .fontWeight(.bold)
-            .frame(maxWidth : 60, maxHeight: .infinity, alignment: .trailing)
+          ZStack {
+            HStack {
+              Spacer()
+              Image(systemName: "chevron.right")
+                .resizable()
+                .scaledToFit()
+                .rotationEffect(configuration.isExpanded ? .degrees(90) : .degrees(0))
+                .animation(.linear(duration: 0.3), value: configuration.isExpanded)
+                .font(.caption)
+                .fontWeight(.bold)
+                .frame(maxWidth : 12, maxHeight: 12, alignment: .trailing)
+            }
+            
+            Color.clear
+          }
+          .frame(maxWidth : 36, maxHeight: 36, alignment: .trailing)
         }
-        .frame(maxWidth : 60, maxHeight: .infinity, alignment: .trailing)
+        .frame(maxWidth : 36, maxHeight: 36, alignment: .trailing)
       }
       .contentShape(Rectangle())
       .padding([.bottom], 5)
@@ -51,8 +61,8 @@ struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
         configuration.content
 //          .frame(maxHeight: configuration.isExpanded ? .infinity : 0)
 //          .opacity(configuration.isExpanded ? 1.0 : 0)
-
       }
+      Spacer()
     }
     .contentShape(ContentShapeKinds.contextMenuPreview, RoundedRectangle(cornerRadius: 5))
   }

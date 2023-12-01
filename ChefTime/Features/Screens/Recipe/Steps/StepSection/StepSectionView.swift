@@ -94,6 +94,55 @@ private struct StepSectionContextMenuPreview: View {
   }
 }
 
+// Represents the StepSection without a DisclosureGroup.
+struct StepSectionNonGrouped: View {
+  let store: StoreOf<StepSectionReducer>
+  @FocusState private var focusedField: StepSectionReducer.FocusField?
+  
+  var body: some View {
+    WithViewStore(store, observe: { $0 }) { viewStore in
+      ForEachStore(store.scope(state: \.steps, action: { .steps($0) })) { childStore in
+        // TODO: Move this into reducer and test.
+        let id = ViewStore(childStore, observe: \.id).state
+        let index = viewStore.steps.index(id:id) ?? 0
+        StepView(store: childStore, index: index)
+          .accentColor(.accentColor)
+        if let lastId = viewStore.steps.last?.id, lastId != id {
+          Divider()
+        }
+      }
+      .synchronize(viewStore.$focusedField, $focusedField)
+      .accentColor(.primary)
+      .contextMenu {
+        Button {
+          viewStore.send(.delegate(.insertSection(.above)), animation: .default)
+        } label: {
+          Text("Insert Section Above")
+        }
+        Button {
+          viewStore.send(.delegate(.insertSection(.below)), animation: .default)
+        } label: {
+          Text("Insert Section Below")
+        }
+        Button(role: .destructive) {
+          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+        } label: {
+          Text("Delete")
+        }
+      } preview: {
+        ForEach(viewStore.steps.prefix(4)) { step in
+          let index = viewStore.steps.index(id: step.id) ?? 0
+          StepContextMenuPreview(state: step, index: index)
+          Divider() // TODO: Dont render last divier
+        }
+        .accentColor(.primary)
+        .frame(width: 200)
+        .padding()
+      }
+    }
+  }
+}
+
 #Preview {
   NavigationStack {
     ScrollView {

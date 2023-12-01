@@ -8,6 +8,7 @@ import XCTestDynamicOverlay
 extension Database {
   static let test = {
     Self(
+      initializeDatabase: unimplemented("Database.initializeDatabase"),
       retrieveRootFolders: unimplemented("Database.retrieveRootFolders"),
       createFolder: unimplemented("Database.createFolder"),
       retrieveFolder: unimplemented("Database.retrieveFolder"),

@@ -303,13 +303,22 @@ extension AlertState where Action == FolderReducer.Action.AlertAction {
 
 private extension GridItemReducer.State where ID == Folder.ID {
   init(_ folder: Folder) {
-    self.init(id: folder.id, name: folder.name, imageData: folder.imageData.flatMap({[$0]}) ?? [])
+    self.init(
+      id: folder.id,
+      name: folder.name,
+      imageData: folder.imageData
+    )
   }
 }
 
 private extension GridItemReducer.State where ID == Recipe.ID {
   init(_ recipe: Recipe) {
-    self.init(id: recipe.id, name: recipe.name, imageData: recipe.imageData)
+    self.init(
+      id: recipe.id,
+      name: recipe.name,
+      imageData: recipe.imageData.first,
+      enabledContextMenuActions: .init(arrayLiteral: .rename, .move, .delete)
+    )
   }
 }
 

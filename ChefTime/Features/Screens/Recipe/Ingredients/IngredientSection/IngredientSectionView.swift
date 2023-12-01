@@ -94,6 +94,55 @@ private struct IngredientSectionContextMenuPreview: View {
   }
 }
 
+// Represents the IngredientSection without a DisclosureGroup.
+struct IngredientSectionNonGrouped: View {
+  let store: StoreOf<IngredientSectionReducer>
+  @FocusState private var focusedField: IngredientSectionReducer.FocusField?
+  
+  var body: some View {
+    WithViewStore(store, observe: { $0 }) { viewStore in
+        ForEachStore(store.scope(state: \.ingredients, action: { .ingredients($0) })) { childStore in
+          let id = ViewStore(childStore, observe: \.id).state
+          IngredientView(store: childStore)
+            .onTapGesture {
+              viewStore.send(.rowTapped(id))
+            }
+            .focused($focusedField, equals: .row(id))
+          if let lastId = viewStore.ingredients.last?.id, lastId != id {
+            Divider()
+          }
+        }
+      .synchronize(viewStore.$focusedField, $focusedField)
+      .accentColor(.primary)
+      .contextMenu {
+        Button {
+          viewStore.send(.delegate(.insertSection(.above)), animation: .default)
+        } label: {
+          Text("Insert Section Above")
+        }
+        Button {
+          viewStore.send(.delegate(.insertSection(.below)), animation: .default)
+        } label: {
+          Text("Insert Section Below")
+        }
+        Button(role: .destructive) {
+          viewStore.send(.delegate(.deleteSectionButtonTapped), animation: .default)
+        } label: {
+          Text("Delete")
+        }
+      } preview: {
+        ForEach(viewStore.ingredients.prefix(4)) { ingredient in
+          IngredientContextMenuPreview(state: ingredient)
+          Divider()
+        }
+        .accentColor(.primary)
+          .frame(width: 200)
+          .padding()
+      }
+    }
+  }
+}
+
 #Preview {
   NavigationStack {
     ScrollView {

@@ -7,49 +7,32 @@ struct AboutListView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      if viewStore.aboutSections.isEmpty {
-        VStack {
-          HStack {
-            Text("About")
-              .textTitleStyle()
-            Spacer()
+      DisclosureGroup(isExpanded: viewStore.$isExpanded) {
+        ForEachStore(store.scope(state: \.aboutSections, action: { .aboutSections($0) })) { childStore in
+          if viewStore.aboutSections.count == 1 {
+            AboutSectionNonGrouped(store: childStore)
+              .contentShape(Rectangle())
+              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
+              .accentColor(.accentColor)
           }
-          HStack {
-            TextField(
-              "Untitled About Section",
-              text: .constant(""),
-              axis: .vertical
-            )
-            .textSubtitleStyle()
-            Spacer()
-            Image(systemName: "plus")
-          }
-          .foregroundColor(.secondary)
-          .onTapGesture {
-            viewStore.send(.addSectionButtonTapped, animation: .default)
-          }
-        }
-      }
-      else {
-        DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-          ForEachStore(store.scope(state: \.aboutSections, action: { .aboutSections($0) })) { childStore in
+          else {
             AboutSection(store: childStore)
               .contentShape(Rectangle())
               .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
               .accentColor(.accentColor)
-            Divider()
-              .padding([.vertical], 5)
           }
+          Divider()
+            .padding([.vertical], 5)
         }
-        label : {
-          Text("About")
-            .textTitleStyle()
-          Spacer()
-        }
-        .accentColor(.primary)
-        .synchronize(viewStore.$focusedField, $focusedField)
-        .disclosureGroupStyle(CustomDisclosureGroupStyle())
       }
+      label : {
+        Text("About")
+          .textTitleStyle()
+        Spacer()
+      }
+      .accentColor(.primary)
+      .synchronize(viewStore.$focusedField, $focusedField)
+      .disclosureGroupStyle(CustomDisclosureGroupStyle())
     }
   }
 }
