@@ -5,7 +5,7 @@ import ComposableArchitecture
 @Reducer
 struct RootFoldersReducer {
   struct State: Equatable {
-    var didLoad = false
+    var loadStatus = LoadStatus.didNotLoad
     var systemFolders: IdentifiedArrayOf<Folder>
     var userFolders: IdentifiedArrayOf<Folder>
     var systemFoldersSection: GridSectionReducer<Folder.ID>.State {
@@ -76,7 +76,7 @@ struct RootFoldersReducer {
   }
   
   enum Action: Equatable, BindableAction {
-    case setDidLoad(Bool)
+    case didLoad
     case task
     case fetchFoldersSuccess(IdentifiedArrayOf<Folder>)
     case selectFoldersButtonTapped
@@ -125,18 +125,19 @@ struct RootFoldersReducer {
       BindingReducer()
       Reduce<RootFoldersReducer.State, RootFoldersReducer.Action> { state, action in
         switch action {
-        case let .setDidLoad(didLoad):
-          state.didLoad = didLoad
+        case .didLoad:
+          state.loadStatus = .didLoad
           return .none
           
         case .task:
-          guard !state.didLoad else { return .none }
+          guard state.loadStatus == .didNotLoad else { return .none }
+          state.loadStatus = .isLoading
           return .run { send in
             // TODO: Might be nicer to make this a stream...
             let folders = await database.retrieveRootFolders()
             await send(.fetchFoldersSuccess(.init(uniqueElements: folders)))
+            await send(.didLoad)
           }
-          .concatenate(with: .send(.setDidLoad(true)))
           
         case let .fetchFoldersSuccess(folders):
           state.userFolders.append(contentsOf: folders)

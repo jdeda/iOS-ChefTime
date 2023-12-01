@@ -55,7 +55,6 @@ struct RecipeView: View {
         }
         else {
           ScrollView {
-            
             // Unfournately, navigation title does not work here
             // because it doesn't support multiple lines in
             // the way we want it to behave.

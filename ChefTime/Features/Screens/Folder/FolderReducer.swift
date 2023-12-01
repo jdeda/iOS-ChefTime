@@ -5,7 +5,7 @@ import ComposableArchitecture
 @Reducer
 struct FolderReducer {
   struct State: Equatable {
-    var didLoad = false
+    var loadStatus = LoadStatus.didNotLoad
     @BindingState var folder: Folder
     var folderSection: GridSectionReducer<Folder.ID>.State {
       didSet {
@@ -80,7 +80,7 @@ struct FolderReducer {
   }
   
   enum Action: Equatable, BindableAction {
-    case setDidLoad(Bool)
+    case didLoad
     case task
     case fetchFolderSuccess(Folder)
     case toggleHideImagesButtonTapped
@@ -136,12 +136,13 @@ struct FolderReducer {
       BindingReducer()
       Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
         switch action {
-        case let .setDidLoad(didLoad):
-          state.didLoad = didLoad
+        case .didLoad:
+          state.loadStatus = .didLoad
           return .none
           
         case .task:
-          guard !state.didLoad else { return .none }
+          guard state.loadStatus == .didNotLoad else { return .none }
+          state.loadStatus = .isLoading
           let folder = state.folder
           return .run { send in
             if let newFolder = await self.database.retrieveFolder(folder.id) {
@@ -151,8 +152,8 @@ struct FolderReducer {
               // TODO: - Handle DB errors in future
               try! await self.database.createFolder(folder)
             }
+            await send(.didLoad)
           }
-          .concatenate(with: .send(.setDidLoad(true)))
           
         case let .fetchFolderSuccess(newFolder):
           dump(newFolder)

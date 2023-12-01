@@ -7,7 +7,7 @@ struct AppView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       Group {
-        if !viewStore.isReady {
+        if viewStore.loadStatus == .isLoading {
           ProgressView()
         } else {
           NavigationStackStore(store.scope(state: \.stack, action: { .stack($0) })) {
