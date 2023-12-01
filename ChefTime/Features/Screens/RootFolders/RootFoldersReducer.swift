@@ -100,7 +100,7 @@ struct RootFoldersReducer {
       case userFolderTapped(Folder.ID)
       case systemFolderTapped(Folder.ID)
     }
-
+    
     case alert(PresentationAction<AlertAction>)
     @CasePathable
     enum AlertAction: Equatable {
@@ -214,7 +214,7 @@ struct RootFoldersReducer {
           switch action {
           case .cancelButtonTapped:
             return .none
-         
+            
           case .confirmDeleteButtonTapped:
             state.userFoldersSection.gridItems = state.userFoldersSection.gridItems.filter {
               !state.userFoldersSection.selection.contains($0.id)
@@ -283,6 +283,21 @@ extension AlertState where Action == RootFoldersReducer.Action.AlertAction {
 
 private extension GridItemReducer.State where ID == Folder.ID {
   init(_ folder: Folder) {
-    self.init(id: folder.id, name: folder.name, imageData: folder.imageData.flatMap({[$0]}) ?? [])
+    let imageData: IdentifiedArrayOf<ImageData> = folder.imageData.flatMap({[$0]}) ?? []
+    let actions: Set<GridItemReducer.ContextMenuActions> = {
+      if folder.folderType.isSystem {
+        .init(arrayLiteral: .editPhotos)
+      }
+      else {
+        .init(GridItemReducer.ContextMenuActions.allCases)
+      }
+    }()
+    self.init(id: folder.id, name: folder.name, imageData: imageData, enabledContextMenuActions: actions)
+    self.init(
+      id: folder.id,
+      name: folder.name,
+      imageData: imageData,
+      enabledContextMenuActions: actions
+    )
   }
 }

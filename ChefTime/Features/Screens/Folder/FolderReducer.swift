@@ -309,7 +309,12 @@ private extension GridItemReducer.State where ID == Folder.ID {
 
 private extension GridItemReducer.State where ID == Recipe.ID {
   init(_ recipe: Recipe) {
-    self.init(id: recipe.id, name: recipe.name, imageData: recipe.imageData)
+    self.init(
+      id: recipe.id,
+      name: recipe.name,
+      imageData: recipe.imageData,
+      enabledContextMenuActions: .init(arrayLiteral: .rename, .move, .delete)
+    )
   }
 }
 

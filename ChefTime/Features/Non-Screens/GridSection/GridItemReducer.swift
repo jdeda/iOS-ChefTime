@@ -8,13 +8,21 @@ struct GridItemReducer<ID: Equatable & Hashable> {
     let id: ID
     var name: String
     var photos: PhotosReducer.State
+    let enabledContextMenuActions: Set<ContextMenuActions>
     @PresentationState var destination: DestinationReducer.State?
     
-    init(id: ID, name: String, imageData: IdentifiedArrayOf<ImageData>, destination: DestinationReducer.State? = nil) {
+    init(
+      id: ID,
+      name: String,
+      imageData: IdentifiedArrayOf<ImageData>,
+      enabledContextMenuActions: Set<ContextMenuActions> = .init(ContextMenuActions.allCases),
+      destination: DestinationReducer.State? = nil
+    ) {
       self.id = id
       self.name = name
       self.photos = .init(photos: imageData, supportSinglePhotoOnly: true, disableContextMenu: true)
       self.destination = destination
+      self.enabledContextMenuActions = enabledContextMenuActions
     }
   }
   
@@ -33,6 +41,14 @@ struct GridItemReducer<ID: Equatable & Hashable> {
       case move
       case delete
     }
+  }
+  
+  @CasePathable
+  enum ContextMenuActions: CaseIterable, Hashable {
+    case rename
+    case move
+    case delete
+    case editPhotos
   }
   
   @Dependency(\.dismiss) var dismiss
