@@ -283,7 +283,6 @@ extension AlertState where Action == RootFoldersReducer.Action.AlertAction {
 
 private extension GridItemReducer.State where ID == Folder.ID {
   init(_ folder: Folder) {
-    let imageData: IdentifiedArrayOf<ImageData> = folder.imageData.flatMap({[$0]}) ?? []
     let actions: Set<GridItemReducer.ContextMenuActions> = {
       if folder.folderType.isSystem {
         .init(arrayLiteral: .editPhotos)
@@ -292,11 +291,10 @@ private extension GridItemReducer.State where ID == Folder.ID {
         .init(GridItemReducer.ContextMenuActions.allCases)
       }
     }()
-    self.init(id: folder.id, name: folder.name, imageData: imageData, enabledContextMenuActions: actions)
     self.init(
       id: folder.id,
       name: folder.name,
-      imageData: imageData,
+      imageData: folder.imageData,
       enabledContextMenuActions: actions
     )
   }

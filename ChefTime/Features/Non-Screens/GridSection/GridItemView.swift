@@ -181,7 +181,7 @@ private struct RenameAlert: View {
         initialState: .init(
           id: Recipe.longMock.id,
           name: Recipe.longMock.name,
-          imageData: Recipe.longMock.imageData
+          imageData: Recipe.longMock.imageData.first
         ),
         reducer: GridItemReducer.init
       ),

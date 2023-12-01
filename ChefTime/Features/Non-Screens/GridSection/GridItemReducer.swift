@@ -14,13 +14,17 @@ struct GridItemReducer<ID: Equatable & Hashable> {
     init(
       id: ID,
       name: String,
-      imageData: IdentifiedArrayOf<ImageData>,
+      imageData: ImageData? = nil,
       enabledContextMenuActions: Set<ContextMenuActions> = .init(ContextMenuActions.allCases),
       destination: DestinationReducer.State? = nil
     ) {
       self.id = id
       self.name = name
-      self.photos = .init(photos: imageData, supportSinglePhotoOnly: true, disableContextMenu: true)
+      self.photos = .init(
+        photos: imageData.flatMap({[$0]}) ?? [],
+        supportSinglePhotoOnly: true,
+        disableContextMenu: true
+      )
       self.destination = destination
       self.enabledContextMenuActions = enabledContextMenuActions
     }
