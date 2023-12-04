@@ -156,7 +156,7 @@ struct FolderReducer {
           }
           
         case let .fetchFolderSuccess(newFolder):
-          dump(newFolder)
+          // dump(newFolder)
           state = .init(folder: newFolder)
           return .none
           
@@ -280,6 +280,7 @@ struct FolderReducer {
           }
       }
     }
+    .signpost()
   }
 }
 

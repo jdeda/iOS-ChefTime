@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import XCTestDynamicOverlay
+import Log4swift
 
 @main
 struct ChefTimeApp: App {
@@ -9,6 +10,11 @@ struct ChefTimeApp: App {
     reducer: AppReducer.init
   )
   
+    init() {
+        Log4swift.configure(appName: "ChefTime")
+        Log4swift[Self.self].info("")
+    }
+
   var body: some Scene {
     WindowGroup {
       if _XCTIsTesting {

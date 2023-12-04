@@ -60,5 +60,6 @@ struct GridSectionReducer<ID: Equatable & Hashable> {
       }
     }
     .forEach(\.gridItems, action: \.gridItems, element: GridItemReducer.init)
+    .signpost()
   }
 }

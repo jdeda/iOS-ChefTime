@@ -260,6 +260,7 @@ struct RootFoldersReducer {
           }
       }
     }
+    .signpost()
   }
 }
 

@@ -78,6 +78,10 @@
             argument = "-com.apple.CoreData.SQLDebug 1 "
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-standardLog true"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

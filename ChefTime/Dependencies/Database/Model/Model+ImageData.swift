@@ -18,6 +18,12 @@ struct SDData: Equatable, Codable, Identifiable {
     self.data = imageData.data
     self.positionPriority = positionPriority
   }
+//
+//    // UPDATE PROTOCOL
+//    func updateFromValueType(_ value: ImageData) {
+//        self.data = value.data
+//        self.positionPriority = value.positionPriority
+//    }
 }
 
 // MARK: - ImageData
