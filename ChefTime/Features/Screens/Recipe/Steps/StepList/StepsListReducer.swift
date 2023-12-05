@@ -102,5 +102,6 @@ struct StepListReducer {
       }
     }
     .forEach(\.stepSections, action: \.stepSections, element: StepSectionReducer.init)
+    .signpost()
   }
 }

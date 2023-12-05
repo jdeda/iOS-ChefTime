@@ -226,6 +226,7 @@ struct PhotosReducer {
         return .cancel(id: PhotosCancelID.photoEdit)
       }
     }
+    .signpost()
   }
 }
 

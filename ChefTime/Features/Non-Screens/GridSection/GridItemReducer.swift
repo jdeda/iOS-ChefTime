@@ -108,6 +108,7 @@ struct GridItemReducer<ID: Equatable & Hashable> {
       }
     }
     .ifLet(\.$destination, action: \.destination, destination: DestinationReducer.init)
+    .signpost()
   }
   
   @Reducer

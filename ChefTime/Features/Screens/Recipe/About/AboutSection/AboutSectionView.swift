@@ -8,7 +8,7 @@ struct AboutSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        TextField("...", text: viewStore.$aboutSection.description, axis: .vertical)
+        TextField("...", text: viewStore.$description, axis: .vertical)
           .focused($focusedField, equals: .description)
           .accentColor(.accentColor)
           .autocapitalization(.none)

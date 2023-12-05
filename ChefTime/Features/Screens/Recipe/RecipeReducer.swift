@@ -271,6 +271,7 @@ struct RecipeReducer {
           }
       }
     }
+    .signpost()
   }
 }
 

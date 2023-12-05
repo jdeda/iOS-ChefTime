@@ -141,5 +141,6 @@ struct IngredientSectionReducer: Reducer  {
       }
     }
     .forEach(\.ingredients, action: \.ingredients, element: IngredientReducer.init)
+    .signpost()
   }
 }

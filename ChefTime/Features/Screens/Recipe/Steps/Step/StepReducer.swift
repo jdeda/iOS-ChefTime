@@ -64,6 +64,7 @@ struct StepReducer {
           return .none
         }
       }
+      .signpost()
       Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
   }
 }

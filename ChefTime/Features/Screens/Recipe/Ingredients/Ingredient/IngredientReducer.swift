@@ -154,5 +154,6 @@ struct IngredientReducer {
         return .none
       }
     }
+    .signpost()
   }
 }
