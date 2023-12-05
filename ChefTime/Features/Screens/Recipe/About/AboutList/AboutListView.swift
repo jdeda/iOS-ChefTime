@@ -8,21 +8,23 @@ struct AboutListView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        ForEachStore(store.scope(state: \.aboutSections, action: { .aboutSections($0) })) { childStore in
-          if viewStore.aboutSections.count == 1 {
-            AboutSectionNonGrouped(store: childStore)
-              .contentShape(Rectangle())
-              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
-              .accentColor(.accentColor)
+        LazyVStack {
+          ForEachStore(store.scope(state: \.aboutSections, action: { .aboutSections($0) })) { childStore in
+            if viewStore.aboutSections.count == 1 {
+              AboutSectionNonGrouped(store: childStore)
+                .contentShape(Rectangle())
+                .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
+                .accentColor(.accentColor)
+            }
+            else {
+              AboutSection(store: childStore)
+                .contentShape(Rectangle())
+                .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
+                .accentColor(.accentColor)
+            }
+            Divider()
+              .padding([.vertical], 5)
           }
-          else {
-            AboutSection(store: childStore)
-              .contentShape(Rectangle())
-              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
-              .accentColor(.accentColor)
-          }
-          Divider()
-            .padding([.vertical], 5)
         }
       }
       label : {

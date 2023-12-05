@@ -18,21 +18,23 @@ struct StepListView: View {
             viewStore.send(.hideImagesToggled)
           }
           
-          ForEachStore(store.scope(state: \.stepSections, action: { .stepSections($0) })) { childStore in
-            if viewStore.stepSections.count == 1 {
-              StepSectionNonGrouped(store: childStore)
-                .contentShape(Rectangle())
-                .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
-                .accentColor(.accentColor)
+          LazyVStack {
+            ForEachStore(store.scope(state: \.stepSections, action: { .stepSections($0) })) { childStore in
+              if viewStore.stepSections.count == 1 {
+                StepSectionNonGrouped(store: childStore)
+                  .contentShape(Rectangle())
+                  .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
+                  .accentColor(.accentColor)
+              }
+              else {
+                StepSection(store: childStore)
+                  .contentShape(Rectangle())
+                  .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
+                  .accentColor(.accentColor)
+              }
+              Divider()
+                .padding(.bottom, 5)
             }
-            else {
-              StepSection(store: childStore)
-                .contentShape(Rectangle())
-                .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
-                .accentColor(.accentColor)
-            }
-            Divider()
-              .padding(.bottom, 5)
           }
         }
         label : {

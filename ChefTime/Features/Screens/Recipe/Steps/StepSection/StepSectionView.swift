@@ -12,14 +12,16 @@ struct StepSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        ForEachStore(store.scope(state: \.steps, action: { .steps($0) })) { childStore in
-          // TODO: Move this into reducer and test.
-          let id = ViewStore(childStore, observe: \.id).state
-          let index = viewStore.steps.index(id:id) ?? 0
-          StepView(store: childStore, index: index)
-            .accentColor(.accentColor)
-          if let lastId = viewStore.steps.last?.id, lastId != id {
-            Divider()
+        LazyVStack {
+          ForEachStore(store.scope(state: \.steps, action: { .steps($0) })) { childStore in
+            // TODO: Move this into reducer and test.
+            let id = ViewStore(childStore, observe: \.id).state
+            let index = viewStore.steps.index(id:id) ?? 0
+            StepView(store: childStore, index: index)
+              .accentColor(.accentColor)
+            if let lastId = viewStore.steps.last?.id, lastId != id {
+              Divider()
+            }
           }
         }
       } label: {

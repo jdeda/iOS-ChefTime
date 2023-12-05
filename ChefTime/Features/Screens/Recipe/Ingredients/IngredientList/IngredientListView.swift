@@ -13,20 +13,21 @@ struct IngredientListView: View {
           get: { $0.scale },
           send: { .scaleStepperButtonTapped($0) }
         ))
-        
-        ForEachStore(store.scope(state: \.ingredientSections, action: { .ingredientSections($0) })) { childStore in
-          if viewStore.ingredientSections.count == 1 {
-            IngredientSectionNonGrouped(store: childStore)
-              .contentShape(Rectangle())
-              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
+        LazyVStack {
+          ForEachStore(store.scope(state: \.ingredientSections, action: { .ingredientSections($0) })) { childStore in
+            if viewStore.ingredientSections.count == 1 {
+              IngredientSectionNonGrouped(store: childStore)
+                .contentShape(Rectangle())
+                .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
+            }
+            else {
+              IngredientSection(store: childStore)
+                .contentShape(Rectangle())
+                .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
+            }
+            Divider()
+              .padding(.bottom, 5)
           }
-          else {
-            IngredientSection(store: childStore)
-              .contentShape(Rectangle())
-              .focused($focusedField, equals: .row(ViewStore(childStore, observe: \.id).state))
-          }
-          Divider()
-            .padding(.bottom, 5)
         }
       }
       label : {
