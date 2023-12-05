@@ -10,6 +10,7 @@ struct GridItemReducer<ID: Equatable & Hashable> {
     var photos: PhotosReducer.State
     let enabledContextMenuActions: Set<ContextMenuActions>
     @PresentationState var destination: DestinationReducer.State?
+    var isSelected: Bool
     
     init(
       id: ID,
@@ -27,10 +28,12 @@ struct GridItemReducer<ID: Equatable & Hashable> {
       )
       self.destination = destination
       self.enabledContextMenuActions = enabledContextMenuActions
+      self.isSelected = false
     }
   }
   
   enum Action: Equatable, BindableAction {
+    case gridItemSelected
     case deleteButtonTapped
     case replacePreviewImage
     case renameButtonTapped
@@ -42,6 +45,8 @@ struct GridItemReducer<ID: Equatable & Hashable> {
     case delegate(DelegateAction)
     @CasePathable
     enum DelegateAction: Equatable {
+      case gridItemTapped
+      case gridItemSelected
       case move
       case delete
     }
@@ -61,6 +66,10 @@ struct GridItemReducer<ID: Equatable & Hashable> {
     Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
     Reduce { state, action in
       switch action {
+        
+      case .gridItemSelected:
+        state.isSelected.toggle()
+        return .send(.delegate(.gridItemSelected), animation: .default)
         
       case .deleteButtonTapped:
         state.destination = .alert(.init(

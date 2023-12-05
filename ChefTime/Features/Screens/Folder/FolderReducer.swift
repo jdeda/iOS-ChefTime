@@ -1,6 +1,5 @@
 import ComposableArchitecture
 
-
 // TODO: MAKE SURE PARENT IDs work!
 @Reducer
 struct FolderReducer {
@@ -77,6 +76,15 @@ struct FolderReducer {
       case .none: return folder.name
       }
     }
+    
+    var isHidingFolders: Bool {
+      editStatus == .recipes || folderSection.gridItems.isEmpty
+    }
+    
+    var isHidingRecipes: Bool {
+      editStatus == .folders || recipeSection.gridItems.isEmpty
+    }
+
   }
   
   enum Action: Equatable, BindableAction {

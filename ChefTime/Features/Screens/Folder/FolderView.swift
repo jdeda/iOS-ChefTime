@@ -7,6 +7,7 @@ struct FolderView: View {
   @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
+    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       Group {
         if viewStore.loadStatus == .isLoading {
@@ -16,28 +17,28 @@ struct FolderView: View {
           ScrollViewReader { proxy in
             ScrollView {
               
+              
               // Folders
-              let isHidingFolders = viewStore.editStatus == .recipes || viewStore.folderSection.gridItems.isEmpty
               GridSectionView(
                 store: store.scope(state: \.folderSection, action: { .folderSection($0) }),
-                isEditing: !isHidingFolders && viewStore.editStatus == .folders
+                isEditing: !viewStore.isHidingFolders && viewStore.editStatus == .folders
               )
               .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-              .opacity(isHidingFolders ? 0.0 : 1.0)
-              .frame(maxHeight: isHidingFolders ? 0 : .infinity)
-              .disabled(isHidingFolders)
+              .opacity(viewStore.isHidingFolders ? 0.0 : 1.0)
+              .frame(maxHeight: viewStore.isHidingFolders ? 0 : .infinity)
+              .disabled(viewStore.isHidingFolders)
               .id(1)
+//              .background(.random)
               
               // Recipes.
-              let isHidingRecipes = viewStore.editStatus == .folders || viewStore.recipeSection.gridItems.isEmpty
               GridSectionView(
                 store: store.scope(state: \.recipeSection, action: { .recipeSection($0 )}),
-                isEditing: !isHidingRecipes && viewStore.editStatus == .recipes
+                isEditing: !viewStore.isHidingRecipes && viewStore.editStatus == .recipes
               )
               .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-              .opacity(isHidingRecipes ? 0.0 : 1.0)
-              .frame(maxHeight: isHidingRecipes ? 0 : .infinity)
-              .disabled(isHidingRecipes)
+              .opacity(viewStore.isHidingRecipes ? 0.0 : 1.0)
+              .frame(maxHeight: viewStore.isHidingRecipes ? 0 : .infinity)
+              .disabled(viewStore.isHidingRecipes)
               .id(2)
             }
             
@@ -153,4 +154,14 @@ extension FolderView {
       reducer: FolderReducer.init
     ))
   }
+}
+
+extension ShapeStyle where Self == Color {
+    static var random: Color {
+        Color(
+            red: .random(in: 0...1),
+            green: .random(in: 0...1),
+            blue: .random(in: 0...1)
+        )
+    }
 }

@@ -8,31 +8,36 @@ struct GridSectionView<ID: Equatable & Hashable>: View {
   @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
+    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: \.isExpanded,
         send: { .binding(.set(\.$isExpanded, isEditing ? viewStore.isExpanded : $0)) }
       )) {
         LazyVGrid(columns: columns, spacing: 10) {
+          // I have IDs that I need to use to perform certain actions...
           ForEachStore(store.scope(state: \.gridItems, action: { .gridItems($0) })) { childStore in
-            let id = ViewStore(childStore, observe: \.id).state
+            // It appears that whenever I select a value, the entire array of child views is completely redrawn (from scratch?)
+//            let id = ViewStore(childStore, observe: \.id).state
             GridItemView(
               store: childStore,
-              isEditing: isEditing,
-              isSelected: viewStore.selection.contains(id)
+              isEditing: isEditing
+//              isSelected: viewStore.selection.contains(id)
             )
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxHeight: viewStore.isExpanded ? .infinity : 0.0, alignment: .top)
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .opacity(viewStore.isExpanded ? 1.0 : 0.0)
-            .onTapGesture {
-              if isEditing {
-                viewStore.send(.gridItemSelected(id), animation: .default)
-              }
-              else {
-                viewStore.send(.delegate(.gridItemTapped(id)), animation: .default)
-              }
-            }
+//            .padding()
+//            .background(.random)
+//            .onTapGesture {
+//              if isEditing {
+//                viewStore.send(.gridItemSelected(id), animation: .default)
+//              }
+//              else {
+//                viewStore.send(.delegate(.gridItemTapped(id)), animation: .default)
+//              }
+//            }
           }
         }
         .animation(.default, value: viewStore.gridItems.count)
