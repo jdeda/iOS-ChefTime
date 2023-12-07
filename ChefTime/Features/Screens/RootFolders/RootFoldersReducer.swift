@@ -156,6 +156,13 @@ struct RootFoldersReducer {
           state.systemFoldersSection.isExpanded = true
           state.userFoldersSection.selection = []
           state.scrollViewIndex = 1
+          // You shouldn't be able to select these items anyway.
+          for id in state.systemFoldersSection.gridItems.ids {
+            state.systemFoldersSection.gridItems[id: id]?.isSelected = false
+          }
+          for id in state.userFoldersSection.gridItems.ids {
+            state.userFoldersSection.gridItems[id: id]?.isSelected = false
+          }
           return .none
           
         case .selectAllButtonTapped:

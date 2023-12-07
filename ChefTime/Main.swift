@@ -21,10 +21,10 @@ struct ChefTimeApp: App {
         Text("XCTIsTesting")
       }
       else {
-//        AppView(store: store)
-//          .onAppear {
-//            UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
-//          }
+        AppView(store: store)
+          .onAppear {
+            UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor(.yellow)
+          }
 //        NavigationStack {
 //          RecipeView(store: .init(
 //            initialState: RecipeReducer.State(
@@ -33,12 +33,12 @@ struct ChefTimeApp: App {
 //            reducer: RecipeReducer.init
 //          ))
 //        }
-        NavigationStack {
-          FolderView(store: .init(
-            initialState: .init(folder: Folder.longMock),
-            reducer: FolderReducer.init
-          ))
-        }
+//        NavigationStack {
+//          FolderView(store: .init(
+//            initialState: .init(folder: Folder.longMock),
+//            reducer: FolderReducer.init
+//          ))
+//        }
       }
     }
   }

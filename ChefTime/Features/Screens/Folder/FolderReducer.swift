@@ -189,6 +189,12 @@ struct FolderReducer {
           state.folderSection.selection = []
           state.recipeSection.selection = []
           state.folderSection.isExpanded = true
+          for id in state.folderSection.gridItems.ids {
+            state.folderSection.gridItems[id: id]?.isSelected = false
+          }
+          for id in state.recipeSection.gridItems.ids {
+            state.recipeSection.gridItems[id: id]?.isSelected = false
+          }
           state.recipeSection.isExpanded = true
           return .none
           
