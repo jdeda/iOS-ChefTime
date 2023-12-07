@@ -70,6 +70,8 @@
 		97CE0F262AF43FB90075B46D /* Database+Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CE0F252AF43FB90075B46D /* Database+Test.swift */; };
 		97D699092B1BF72B000C1260 /* JSON in Resources */ = {isa = PBXBuildFile; fileRef = 97D699082B1BF72B000C1260 /* JSON */; };
 		97D8CCFF2A55EED60031E760 /* PhotosClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97D8CCFE2A55EED60031E760 /* PhotosClient.swift */; };
+		97E17ACA2B22817400063AF3 /* CasePaths in Frameworks */ = {isa = PBXBuildFile; productRef = 97E17AC92B22817400063AF3 /* CasePaths */; };
+		97E17ACD2B2282C600063AF3 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 97E17ACC2B2282C600063AF3 /* Dependencies */; };
 		97E8F4C02B03A856000192C7 /* burger_meat_01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97E8F4BC2B03A856000192C7 /* burger_meat_01.jpg */; };
 		97E8F4C12B03A856000192C7 /* burger_meat_02.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97E8F4BD2B03A856000192C7 /* burger_meat_02.jpg */; };
 		97E8F4C22B03A856000192C7 /* burger_meat_03.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 97E8F4BE2B03A856000192C7 /* burger_meat_03.jpg */; };
@@ -183,7 +185,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97E17ACD2B2282C600063AF3 /* Dependencies in Frameworks */,
 				975CB55C2A8E9C980049BA07 /* ComposableArchitecture in Frameworks */,
+				97E17ACA2B22817400063AF3 /* CasePaths in Frameworks */,
 				97AD13CC2A2E7447002FCE30 /* Tagged in Frameworks */,
 				FBAE49372B1C094700099CBB /* Log4swift in Frameworks */,
 			);
@@ -559,6 +563,8 @@
 				97AD13CB2A2E7447002FCE30 /* Tagged */,
 				975CB55B2A8E9C980049BA07 /* ComposableArchitecture */,
 				FBAE49362B1C094700099CBB /* Log4swift */,
+				97E17AC92B22817400063AF3 /* CasePaths */,
+				97E17ACC2B2282C600063AF3 /* Dependencies */,
 			);
 			productName = ChefTime;
 			productReference = 97AD13B42A2E7392002FCE30 /* ChefTime.app */;
@@ -597,6 +603,9 @@
 				97AD13CA2A2E7447002FCE30 /* XCRemoteSwiftPackageReference "swift-tagged" */,
 				975CB55A2A8E9C980049BA07 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				FBAE49352B1C094700099CBB /* XCRemoteSwiftPackageReference "idd-log4-swift" */,
+				97E17AC82B22817400063AF3 /* XCRemoteSwiftPackageReference "swift-case-paths" */,
+				97E17ACB2B2282C600063AF3 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
+				97E17ACE2B22831000063AF3 /* XCRemoteSwiftPackageReference "swiftui-navigation" */,
 			);
 			productRefGroup = 97AD13B52A2E7392002FCE30 /* Products */;
 			projectDirPath = "";
@@ -990,6 +999,30 @@
 				minimumVersion = 0.10.0;
 			};
 		};
+		97E17AC82B22817400063AF3 /* XCRemoteSwiftPackageReference "swift-case-paths" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-case-paths";
+			requirement = {
+				kind = exactVersion;
+				version = 1.0.0;
+			};
+		};
+		97E17ACB2B2282C600063AF3 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
+			requirement = {
+				kind = exactVersion;
+				version = 1.0.0;
+			};
+		};
+		97E17ACE2B22831000063AF3 /* XCRemoteSwiftPackageReference "swiftui-navigation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swiftui-navigation";
+			requirement = {
+				kind = exactVersion;
+				version = 1.0.0;
+			};
+		};
 		FBAE49352B1C094700099CBB /* XCRemoteSwiftPackageReference "idd-log4-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kdeda/idd-log4-swift.git";
@@ -1010,6 +1043,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 97AD13CA2A2E7447002FCE30 /* XCRemoteSwiftPackageReference "swift-tagged" */;
 			productName = Tagged;
+		};
+		97E17AC92B22817400063AF3 /* CasePaths */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 97E17AC82B22817400063AF3 /* XCRemoteSwiftPackageReference "swift-case-paths" */;
+			productName = CasePaths;
+		};
+		97E17ACC2B2282C600063AF3 /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 97E17ACB2B2282C600063AF3 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
 		};
 		FBAE49362B1C094700099CBB /* Log4swift */ = {
 			isa = XCSwiftPackageProductDependency;
