@@ -1,7 +1,6 @@
 import ComposableArchitecture
 
-@Reducer
-struct StepReducer {
+struct StepReducer: Reducer {
   struct State: Equatable, Identifiable {
     var id: Recipe.StepSection.Step.ID { self.step.id }
     
@@ -29,7 +28,7 @@ struct StepReducer {
     case photoImagesDidChange
 
     case delegate(DelegateAction)
-    @CasePathable
+    
     enum DelegateAction: Equatable {
       case insertButtonTapped(AboveBelow)
       case deleteButtonTapped
@@ -64,6 +63,8 @@ struct StepReducer {
           return .none
         }
       }
-      Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
+    Scope(state: \.photos, action: /StepReducer.Action.photos)  {
+      PhotosReducer()
+    }
   }
 }

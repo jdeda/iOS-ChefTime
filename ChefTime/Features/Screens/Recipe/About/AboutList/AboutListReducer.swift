@@ -4,8 +4,7 @@ import ComposableArchitecture
 /// 2. normal property, onChange, send a delegate action `aboutSectionsDidChange`
 ///
 /// X. computed property, onChange, send a delegate action `aboutSectionsDidChange`, and the parent just reads the computed property
-@Reducer
-struct AboutListReducer {
+struct AboutListReducer: Reducer {
   struct State: Equatable {
     var aboutSections: IdentifiedArrayOf<AboutSectionReducer.State> = []
     
@@ -23,12 +22,12 @@ struct AboutListReducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case aboutSections(IdentifiedActionOf<AboutSectionReducer>)
+    case aboutSections(AboutSectionReducer.State.ID, AboutSectionReducer.Action)
     case addSectionButtonTapped
   }
   
-  @CasePathable
-  @dynamicMemberLookup
+  
+  
   enum FocusField: Equatable, Hashable {
     case row(AboutSectionReducer.State.ID)
   }
@@ -39,10 +38,10 @@ struct AboutListReducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .aboutSections(.element(id: id, action: .delegate(action))):
+      case let .aboutSections(id, .delegate(action)):
         switch action {
         case .deleteSectionButtonTapped:
-          if state.focusedField?.is(\.row) ?? false {
+          if case .row = state.focusedField {
             state.focusedField = nil
           }
           state.aboutSections.remove(id: id)
@@ -66,7 +65,7 @@ struct AboutListReducer {
         
         let newSection_: Recipe.AboutSection =  .init(id: .init(rawValue: uuid()), name: "", description: "")
         let newSection = AboutSectionReducer.State(aboutSection: newSection_, focusedField: .name)
-
+        
         state.aboutSections.append(newSection)
         state.focusedField = .row(newSection.id)
         return .none
@@ -86,6 +85,8 @@ struct AboutListReducer {
         return .none
       }
     }
-    .forEach(\.aboutSections, action: \.aboutSections, element: AboutSectionReducer.init)
+    .forEach(\.aboutSections, action: /AboutListReducer.Action.aboutSections) {
+      AboutSectionReducer()
+    }
   }
 }

@@ -9,8 +9,7 @@ import Tagged
 ///     they must be stored externally (disk or cloud) and only fetched when needed, perhaps with some sort of caching to
 ///     potentially improve the experience.
 /// 2. Load onAppear
-@Reducer
-struct RecipeReducer {
+struct RecipeReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad
     var isLoading = false
@@ -74,14 +73,14 @@ struct RecipeReducer {
     case editSectionButtonTapped(Section, SectionEditAction)
 
     case alert(PresentationAction<AlertAction>)
-    @CasePathable
-    @dynamicMemberLookup
+    
+    
     enum AlertAction: Equatable {
       case confirmDeleteSectionButtonTapped(Section)
     }
   }
 
-  @CasePathable
+  
   enum Section: Equatable {
     case photos
     case about
@@ -89,7 +88,7 @@ struct RecipeReducer {
     case steps
   }
   
-  @CasePathable
+  
   enum SectionEditAction: Equatable {
     case add
     case delete
@@ -101,10 +100,18 @@ struct RecipeReducer {
   
   var body: some Reducer<RecipeReducer.State, RecipeReducer.Action> {
     CombineReducers {
-      Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
-      Scope(state: \.about, action: \.about, child: AboutListReducer.init)
-      Scope(state: \.ingredients, action: \.ingredients, child: IngredientsListReducer.init)
-      Scope(state: \.steps, action: \.steps, child: StepListReducer.init)
+      Scope(state: \.photos, action: /RecipeReducer.Action.photos) {
+        PhotosReducer()
+      }
+      Scope(state: \.about, action: /RecipeReducer.Action.about) {
+        AboutListReducer()
+      }
+      Scope(state: \.ingredients, action: /RecipeReducer.Action.ingredients) {
+        IngredientsListReducer()
+      }
+      Scope(state: \.steps, action: /RecipeReducer.Action.steps) {
+        StepListReducer()
+      }
       BindingReducer()
       Reduce<RecipeReducer.State, RecipeReducer.Action> { state, action in
         switch action {

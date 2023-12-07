@@ -119,7 +119,7 @@ struct PhotosView: View {
             preferredItemEncoding: .compatible,
             photoLibrary: .shared()
           )
-          .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
+          .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
         }
     }
   }

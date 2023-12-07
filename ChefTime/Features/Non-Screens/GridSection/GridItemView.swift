@@ -12,7 +12,7 @@ struct GridItemView<ID: Equatable & Hashable>: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
-          PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
+          PhotosView(store: store.scope(state: \.photos, action: GridItemReducer.Action.photos))
             .opacity(isHidingImages ? 0.0 : 1.0)
           PhotosView(store: .init(initialState: .init(photos: .init()), reducer: {}))
             .disabled(true)
@@ -60,9 +60,9 @@ struct GridItemView<ID: Equatable & Hashable>: View {
       .background(Color.primary.colorInvert())
       .clipShape(RoundedRectangle(cornerRadius: 15))
       .alert(
-        store: store.scope(state: \.$destination, action: { .destination($0) }),
-        state: \.alert,
-        action: { .alert($0) }
+        store: store.scope(state: \.$destination, action: GridItemReducer.Action.destination),
+        state: /GridItemReducer.DestinationReducer.State.alert,
+        action: GridItemReducer.DestinationReducer.Action.alert
       )
       .alert("Rename", isPresented: viewStore.binding(
         get: { $0.destination == .renameAlert },

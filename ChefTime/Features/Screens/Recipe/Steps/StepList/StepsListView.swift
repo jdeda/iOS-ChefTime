@@ -19,7 +19,7 @@ struct StepListView: View {
           }
           
           LazyVStack {
-            ForEachStore(store.scope(state: \.stepSections, action: { .stepSections($0) })) { childStore in
+            ForEachStore(store.scope(state: \.stepSections, action: StepListReducer.Action.stepSections)) { childStore in
               if viewStore.stepSections.count == 1 {
                 StepSectionNonGrouped(store: childStore)
                   .contentShape(Rectangle())

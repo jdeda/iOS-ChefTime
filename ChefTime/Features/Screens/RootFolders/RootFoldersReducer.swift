@@ -2,8 +2,7 @@ import ComposableArchitecture
 
 // TODO: Rename FoldersReduer to RootFoldersReducer
 // TODO: Deal with seperation of systemFolders, specificSystemFolders, and userFolders.
-@Reducer
-struct RootFoldersReducer {
+struct RootFoldersReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad
     var systemFolders: IdentifiedArrayOf<Folder>
@@ -92,8 +91,8 @@ struct RootFoldersReducer {
     case binding(BindingAction<State>)
     
     case delegate(DelegateAction)
-    @CasePathable
-    @dynamicMemberLookup
+    
+    
     enum DelegateAction: Equatable {
       case addNewFolderDidComplete(Folder.ID)
       case addNewRecipeDidComplete(Recipe.ID)
@@ -102,7 +101,7 @@ struct RootFoldersReducer {
     }
     
     case alert(PresentationAction<AlertAction>)
-    @CasePathable
+    
     enum AlertAction: Equatable {
       case cancelButtonTapped
       case confirmDeleteButtonTapped
@@ -116,10 +115,10 @@ struct RootFoldersReducer {
   
   var body: some Reducer<RootFoldersReducer.State, RootFoldersReducer.Action> {
     CombineReducers {
-      Scope(state: \.systemFoldersSection, action: \.systemFoldersSection) {
+      Scope(state: \.systemFoldersSection, action: /RootFoldersReducer.Action.systemFoldersSection) {
         GridSectionReducer()
       }
-      Scope(state: \.userFoldersSection, action: \.userFoldersSection) {
+      Scope(state: \.userFoldersSection, action: /RootFoldersReducer.Action.userFoldersSection) {
         GridSectionReducer()
       }
       BindingReducer()

@@ -10,8 +10,8 @@ struct AppView: View {
         if viewStore.loadStatus == .isLoading {
           ProgressView()
         } else {
-          NavigationStackStore(store.scope(state: \.stack, action: { .stack($0) })) {
-            RootFoldersView(store: store.scope(state: \.rootFolders, action: { .rootFolders($0) }))
+          NavigationStackStore(store.scope(state: \.stack, action: AppReducer.Action.stack)) {
+            RootFoldersView(store: store.scope(state: \.rootFolders, action: AppReducer.Action.rootFolders))
           } destination: { state in
             switch state {
             case .folder:

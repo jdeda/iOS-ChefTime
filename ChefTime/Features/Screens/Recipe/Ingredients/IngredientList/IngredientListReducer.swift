@@ -1,7 +1,6 @@
 import ComposableArchitecture
 
-@Reducer
-struct IngredientsListReducer {
+struct IngredientsListReducer: Reducer {
   struct State: Equatable {
     var ingredientSections: IdentifiedArrayOf<IngredientSectionReducer.State> = [] {
       didSet {
@@ -35,13 +34,13 @@ struct IngredientsListReducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case ingredientSections(IdentifiedActionOf<IngredientSectionReducer>)
+    case ingredientSections(IngredientSectionReducer.State.ID, IngredientSectionReducer.Action)
     case scaleStepperButtonTapped(Double)
     case addSectionButtonTapped
   }
   
-  @CasePathable
-  @dynamicMemberLookup
+  
+  
   enum FocusField: Equatable, Hashable {
     case row(IngredientSectionReducer.State.ID)
   }
@@ -52,7 +51,7 @@ struct IngredientsListReducer {
     BindingReducer()
     Reduce<IngredientsListReducer.State, IngredientsListReducer.Action> { state, action in
       switch action {
-      case let .ingredientSections(.element(id: id, action: .delegate(action))):
+      case let .ingredientSections(id, .delegate(action)):
         switch action {
         case .deleteSectionButtonTapped:
           state.ingredientSections.remove(id: id)
@@ -119,6 +118,8 @@ struct IngredientsListReducer {
         
       }
     }
-    .forEach(\.ingredientSections, action: \.ingredientSections, element: IngredientSectionReducer.init)
+    .forEach(\.ingredientSections, action: /IngredientsListReducer.Action.ingredientSections) {
+      IngredientSectionReducer()
+    }
   }
 }

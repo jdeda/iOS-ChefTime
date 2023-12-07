@@ -14,7 +14,7 @@ struct IngredientListView: View {
           send: { .scaleStepperButtonTapped($0) }
         ))
         LazyVStack {
-          ForEachStore(store.scope(state: \.ingredientSections, action: { .ingredientSections($0) })) { childStore in
+          ForEachStore(store.scope(state: \.ingredientSections, action: IngredientsListReducer.Action.ingredientSections)) { childStore in
             if viewStore.ingredientSections.count == 1 {
               IngredientSectionNonGrouped(store: childStore)
                 .contentShape(Rectangle())

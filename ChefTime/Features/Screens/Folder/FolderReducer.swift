@@ -1,8 +1,7 @@
 import ComposableArchitecture
 
 // TODO: MAKE SURE PARENT IDs work!
-@Reducer
-struct FolderReducer {
+struct FolderReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad
     @BindingState var folder: Folder
@@ -105,8 +104,8 @@ struct FolderReducer {
     case binding(BindingAction<State>)
 
     case delegate(DelegateAction)
-    @CasePathable
-    @dynamicMemberLookup
+    
+    
     enum DelegateAction: Equatable {
       case addNewFolderDidComplete(Folder.ID)
       case addNewRecipeDidComplete(Recipe.ID)
@@ -116,13 +115,13 @@ struct FolderReducer {
     }
 
     case alert(PresentationAction<AlertAction>)
-    @CasePathable
+    
     enum AlertAction: Equatable {
       case confirmDeleteSelectedButtonTapped
     }
   }
   
-  @CasePathable
+  
   enum Section: Equatable {
     case folders
     case recipes
@@ -135,10 +134,10 @@ struct FolderReducer {
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {
     CombineReducers {
-      Scope(state: \.folderSection, action: \.folderSection) {
+      Scope(state: \.folderSection, action: /FolderReducer.Action.folderSection) {
         GridSectionReducer()
       }
-      Scope(state: \.recipeSection, action: \.recipeSection) {
+      Scope(state: \.recipeSection, action: /FolderReducer.Action.recipeSection) {
         GridSectionReducer()
       }
       BindingReducer()

@@ -16,7 +16,7 @@ struct GridSectionView<ID: Equatable & Hashable>: View {
       )) {
         LazyVGrid(columns: columns, spacing: 10) {
           // I have IDs that I need to use to perform certain actions...
-          ForEachStore(store.scope(state: \.gridItems, action: { .gridItems($0) })) { childStore in
+          ForEachStore(store.scope(state: \.gridItems, action: GridSectionReducer.Action.gridItems)) { childStore in
             // It appears that whenever I select a value, the entire array of child views is completely redrawn (from scratch?)
 //            let id = ViewStore(childStore, observe: \.id).state
             GridItemView(

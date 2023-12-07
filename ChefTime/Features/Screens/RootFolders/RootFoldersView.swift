@@ -18,7 +18,7 @@ struct RootFoldersView: View {
               
               // System Folders.
               GridSectionView(
-                store: store.scope(state: \.systemFoldersSection, action: { .systemFoldersSection($0) }),
+                store: store.scope(state: \.systemFoldersSection, action: RootFoldersReducer.Action.systemFoldersSection),
                 isEditing: viewStore.isEditing
               )
               .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -28,7 +28,7 @@ struct RootFoldersView: View {
               
               // User Folders.
               GridSectionView(
-                store: store.scope(state: \.userFoldersSection, action: { .userFoldersSection($0) }),
+                store: store.scope(state: \.userFoldersSection, action: RootFoldersReducer.Action.userFoldersSection),
                 isEditing: viewStore.isEditing
               )
               .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -49,7 +49,7 @@ struct RootFoldersView: View {
                 proxy.scrollTo(newScrollViewIndex, anchor: .center)
               }
             }
-            .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
+            .alert(store: store.scope(state: \.$alert, action: RootFoldersReducer.Action.alert))
             .environment(\.isHidingImages, viewStore.isHidingImages)
             .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
           }

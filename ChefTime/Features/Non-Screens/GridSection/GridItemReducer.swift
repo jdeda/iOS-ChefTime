@@ -2,8 +2,7 @@ import Foundation
 import ComposableArchitecture
 import Tagged
 
-@Reducer
-struct GridItemReducer<ID: Equatable & Hashable> {
+struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
   struct State: Equatable, Identifiable {
     let id: ID
     var name: String
@@ -43,7 +42,7 @@ struct GridItemReducer<ID: Equatable & Hashable> {
     case photos(PhotosReducer.Action)
     
     case delegate(DelegateAction)
-    @CasePathable
+    
     enum DelegateAction: Equatable {
       case gridItemTapped
       case gridItemSelected
@@ -52,7 +51,7 @@ struct GridItemReducer<ID: Equatable & Hashable> {
     }
   }
   
-  @CasePathable
+  
   enum ContextMenuActions: CaseIterable, Hashable {
     case rename
     case move
@@ -63,7 +62,9 @@ struct GridItemReducer<ID: Equatable & Hashable> {
   @Dependency(\.dismiss) var dismiss
   
   var body: some ReducerOf<Self> {
-    Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
+    Scope(state: \.photos, action: /GridItemReducer.Action.photos) {
+      PhotosReducer()
+    }
     Reduce { state, action in
       switch action {
         
@@ -116,11 +117,12 @@ struct GridItemReducer<ID: Equatable & Hashable> {
         return .none
       }
     }
-    .ifLet(\.$destination, action: \.destination, destination: DestinationReducer.init)
+    .ifLet(\.$destination, action: /GridItemReducer.Action.destination) {
+      DestinationReducer()
+    }
   }
   
-  @Reducer
-  struct DestinationReducer {
+  struct DestinationReducer: Reducer {
     enum State: Equatable {
       case alert(AlertState<Action.AlertAction>)
       case renameAlert
@@ -130,7 +132,7 @@ struct GridItemReducer<ID: Equatable & Hashable> {
       case renameAlert
       
       case alert(AlertAction)
-      @CasePathable
+      
       enum AlertAction: Equatable {
         case confirmDeleteButtonTapped
       }

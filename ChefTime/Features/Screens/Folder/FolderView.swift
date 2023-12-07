@@ -20,7 +20,7 @@ struct FolderView: View {
               
               // Folders
               GridSectionView(
-                store: store.scope(state: \.folderSection, action: { .folderSection($0) }),
+                store: store.scope(state: \.folderSection, action: FolderReducer.Action.folderSection),
                 isEditing: !viewStore.isHidingFolders && viewStore.editStatus == .folders
               )
               .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -32,7 +32,7 @@ struct FolderView: View {
               
               // Recipes.
               GridSectionView(
-                store: store.scope(state: \.recipeSection, action: { .recipeSection($0 )}),
+                store: store.scope(state: \.recipeSection, action: FolderReducer.Action.recipeSection),
                 isEditing: !viewStore.isHidingRecipes && viewStore.editStatus == .recipes
               )
               .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
@@ -55,7 +55,7 @@ struct FolderView: View {
               }
             }
             .environment(\.isHidingImages, viewStore.isHidingImages)
-            .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
+            .alert(store: store.scope(state: \.$alert, action: FolderReducer.Action.alert))
           }
           .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
         }

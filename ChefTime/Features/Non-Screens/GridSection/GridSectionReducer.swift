@@ -1,7 +1,6 @@
 import ComposableArchitecture
 
-@Reducer
-struct GridSectionReducer<ID: Equatable & Hashable> {
+struct GridSectionReducer<ID: Equatable & Hashable>: Reducer {
   struct State: Equatable {
     let title: String
     var gridItems: IdentifiedArrayOf<GridItemReducer<ID>.State> = []
@@ -18,12 +17,12 @@ struct GridSectionReducer<ID: Equatable & Hashable> {
   
   enum Action: Equatable, BindableAction {
 //    case gridItemSelected(GridItemReducer<ID>.State.ID)
-    case gridItems(IdentifiedActionOf<GridItemReducer<ID>>)
+    case gridItems(GridItemReducer<ID>.State.ID, GridItemReducer<ID>.Action)
     case binding(BindingAction<State>)
     
     case delegate(DelegateAction)
-    @CasePathable
-    @dynamicMemberLookup
+    
+    
     enum DelegateAction: Equatable {
       case gridItemTapped(GridItemReducer<ID>.State.ID)
     }
@@ -47,7 +46,7 @@ struct GridSectionReducer<ID: Equatable & Hashable> {
 //        
 //        return .none
         
-      case let .gridItems(.element(id: id, action: .delegate(action))):
+      case let .gridItems(id, .delegate(action)):
         switch action {
         case .gridItemTapped:
           return .send(.delegate(.gridItemTapped(id)), animation: .default)
@@ -75,7 +74,9 @@ struct GridSectionReducer<ID: Equatable & Hashable> {
         return .none
       }
     }
-    .forEach(\.gridItems, action: \.gridItems, element: GridItemReducer.init)
+    .forEach(\.gridItems, action: /GridSectionReducer.Action.gridItems) {
+      GridItemReducer()
+    }
     .signpost()
   }
 }

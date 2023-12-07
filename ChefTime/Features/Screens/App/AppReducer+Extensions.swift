@@ -1,8 +1,7 @@
 import ComposableArchitecture
 
 extension AppReducer {
-  @Reducer
-  struct StackReducer {
+  struct StackReducer: Reducer {
     enum State: Equatable {
       case folder(FolderReducer.State)
       case recipe(RecipeReducer.State)
@@ -14,8 +13,12 @@ extension AppReducer {
     }
     
     var body: some ReducerOf<Self> {
-      Scope(state: \.folder, action: \.folder, child: FolderReducer.init)
-      Scope(state: \.recipe, action: \.recipe, child: RecipeReducer.init)
+      Scope(state: /StackReducer.State.folder, action: /StackReducer.Action.folder) {
+        FolderReducer()
+      }
+      Scope(state: /StackReducer.State.recipe, action: /StackReducer.Action.recipe) {
+        RecipeReducer()
+      }
     }
   }
 }

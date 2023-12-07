@@ -54,7 +54,7 @@ struct StepView: View {
             return !(viewStore.photos.photoEditStatus == .addWhenEmpty && viewStore.photos.photoEditInFlight)
           }
         }()
-        PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
+        PhotosView(store: store.scope(state: \.photos, action: StepReducer.Action.photos))
         .frame(height: isHidingPhotosView ? 0 : maxScreenWidth.maxWidth)
         .opacity(isHidingPhotosView ? 0 : 1.0)
         .clipShape(RoundedRectangle(cornerRadius: 15))

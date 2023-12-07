@@ -13,7 +13,7 @@ struct StepSection: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         LazyVStack {
-          ForEachStore(store.scope(state: \.steps, action: { .steps($0) })) { childStore in
+          ForEachStore(store.scope(state: \.steps, action: StepSectionReducer.Action.steps)) { childStore in
             // TODO: Move this into reducer and test.
             let id = ViewStore(childStore, observe: \.id).state
             let index = viewStore.steps.index(id:id) ?? 0
@@ -103,7 +103,7 @@ struct StepSectionNonGrouped: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      ForEachStore(store.scope(state: \.steps, action: { .steps($0) })) { childStore in
+      ForEachStore(store.scope(state: \.steps, action: StepSectionReducer.Action.steps)) { childStore in
         // TODO: Move this into reducer and test.
         let id = ViewStore(childStore, observe: \.id).state
         let index = viewStore.steps.index(id:id) ?? 0

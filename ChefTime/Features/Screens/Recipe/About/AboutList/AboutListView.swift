@@ -9,7 +9,7 @@ struct AboutListView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         LazyVStack {
-          ForEachStore(store.scope(state: \.aboutSections, action: { .aboutSections($0) })) { childStore in
+          ForEachStore(store.scope(state: \.aboutSections, action: AboutListReducer.Action.aboutSections)) { childStore in
             if viewStore.aboutSections.count == 1 {
               AboutSectionNonGrouped(store: childStore)
                 .contentShape(Rectangle())
