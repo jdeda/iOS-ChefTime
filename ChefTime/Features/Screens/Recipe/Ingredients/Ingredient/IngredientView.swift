@@ -33,35 +33,35 @@ struct IngredientView: View {
         .focused($focusedField, equals: .name)
         .onTapGesture { viewStore.send(.binding(.set(\.$focusedField, .name))) }
         
-        Rectangle()
-          .fill(.clear)
-          .frame(width: 50)
-        
-        // Amount
-        TextField("...", text: viewStore.$ingredientAmountString)
-          .keyboardType(.decimalPad)
-          .numbersOnly(viewStore.$ingredientAmountString, includeDecimal: true)
-          .submitLabel(.next)
-          .fixedSize()
-          .autocapitalization(.none)
-          .autocorrectionDisabled()
-          .focused($focusedField, equals: .amount)
-          .onTapGesture { viewStore.send(.binding(.set(\.$focusedField, .amount))) }
-        
-        // Measurement
-        TextField("...", text: viewStore.binding(
-          get: { $0.ingredient.measure },
-          send: { .ingredientMeasureEdited($0) }
-        ))
-        .fixedSize()
-        .submitLabel(.next)
-        .autocapitalization(.none)
-        .autocorrectionDisabled()
-        .focused($focusedField, equals: .measure)
-        .onSubmit {
-          viewStore.send(.delegate(.insertIngredient(.below)), animation: .default)
-        }
-        .onTapGesture { viewStore.send(.binding(.set(\.$focusedField, .measure))) }
+//        Rectangle()
+//          .fill(.clear)
+//          .frame(width: 50)
+//        
+//        // Amount
+//        TextField("...", text: viewStore.$ingredientAmountString)
+//          .keyboardType(.decimalPad)
+//          .numbersOnly(viewStore.$ingredientAmountString, includeDecimal: true)
+//          .submitLabel(.next)
+//          .fixedSize()
+//          .autocapitalization(.none)
+//          .autocorrectionDisabled()
+//          .focused($focusedField, equals: .amount)
+//          .onTapGesture { viewStore.send(.binding(.set(\.$focusedField, .amount))) }
+//        
+//        // Measurement
+//        TextField("...", text: viewStore.binding(
+//          get: { $0.ingredient.measure },
+//          send: { .ingredientMeasureEdited($0) }
+//        ))
+//        .fixedSize()
+//        .submitLabel(.next)
+//        .autocapitalization(.none)
+//        .autocorrectionDisabled()
+//        .focused($focusedField, equals: .measure)
+//        .onSubmit {
+//          viewStore.send(.delegate(.insertIngredient(.below)), animation: .default)
+//        }
+//        .onTapGesture { viewStore.send(.binding(.set(\.$focusedField, .measure))) }
         
       }
       .synchronize(viewStore.$focusedField, $focusedField)
