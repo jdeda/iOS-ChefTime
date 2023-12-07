@@ -1,7 +1,6 @@
 import ComposableArchitecture
 
-@Reducer
-struct GridSectionReducer<ID: Equatable & Hashable> {
+struct GridSectionReducer<ID: Equatable & Hashable>: Reducer {
   struct State: Equatable {
     let title: String
     var gridItems: IdentifiedArrayOf<GridItemReducer<ID>.State> = []
@@ -17,13 +16,13 @@ struct GridSectionReducer<ID: Equatable & Hashable> {
   }
   
   enum Action: Equatable, BindableAction {
-    case gridItemSelected(GridItemReducer<ID>.State.ID)
-    case gridItems(IdentifiedActionOf<GridItemReducer<ID>>)
+//    case gridItemSelected(GridItemReducer<ID>.State.ID)
+    case gridItems(GridItemReducer<ID>.State.ID, GridItemReducer<ID>.Action)
     case binding(BindingAction<State>)
     
     case delegate(DelegateAction)
-    @CasePathable
-    @dynamicMemberLookup
+    
+    
     enum DelegateAction: Equatable {
       case gridItemTapped(GridItemReducer<ID>.State.ID)
     }
@@ -33,19 +32,35 @@ struct GridSectionReducer<ID: Equatable & Hashable> {
     BindingReducer()
     Reduce { state, action in
       switch action {
+//        
+//      case let .gridItemSelected(id):
+//        // TODO: Check force unwraps?
+//        if state.selection.contains(id) {
+//          state.selection.remove(id)
+//          state.gridItems[id: id]!.isSelected = false
+//        }
+//        else {
+//          state.selection.insert(id)
+//          state.gridItems[id: id]!.isSelected = true
+//        }
+//        
+//        return .none
         
-      case let .gridItemSelected(id):
-        if state.selection.contains(id) {
-          state.selection.remove(id)
-        }
-        else {
-          state.selection.insert(id)
-        }
-        
-        return .none
-        
-      case let .gridItems(.element(id: id, action: .delegate(action))):
+      case let .gridItems(id, .delegate(action)):
         switch action {
+        case .gridItemTapped:
+          return .send(.delegate(.gridItemTapped(id)), animation: .default)
+          
+        case .gridItemSelected:
+          if state.selection.contains(id) {
+            state.selection.remove(id)
+            state.gridItems[id: id]!.isSelected = false
+          }
+          else {
+            state.selection.insert(id)
+            state.gridItems[id: id]!.isSelected = true
+          }
+          return .none
         case .move:
           break
         case .delete:
@@ -59,6 +74,9 @@ struct GridSectionReducer<ID: Equatable & Hashable> {
         return .none
       }
     }
-    .forEach(\.gridItems, action: \.gridItems, element: GridItemReducer.init)
+    .forEach(\.gridItems, action: /GridSectionReducer.Action.gridItems) {
+      GridItemReducer()
+    }
+    .signpost()
   }
 }

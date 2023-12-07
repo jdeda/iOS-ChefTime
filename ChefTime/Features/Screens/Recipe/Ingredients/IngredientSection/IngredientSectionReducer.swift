@@ -1,6 +1,5 @@
 import ComposableArchitecture
 
-@Reducer
 struct IngredientSectionReducer: Reducer  {
   struct State: Equatable, Identifiable {
     var id: Recipe.IngredientSection.ID { self.ingredientSection.id }
@@ -23,22 +22,22 @@ struct IngredientSectionReducer: Reducer  {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case ingredients(IdentifiedActionOf<IngredientReducer>)
+    case ingredients(IngredientReducer.State.ID, IngredientReducer.Action)
     case ingredientSectionNameEdited(String)
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
     case rowTapped(IngredientReducer.State.ID)
     
     case delegate(DelegateAction)
-    @CasePathable
+    
     enum DelegateAction: Equatable {
       case deleteSectionButtonTapped
       case insertSection(AboveBelow)
     }
   }
   
-  @CasePathable
-  @dynamicMemberLookup
+  
+  
   enum FocusField: Equatable, Hashable {
     case row(IngredientReducer.State.ID)
     case name
@@ -52,11 +51,11 @@ struct IngredientSectionReducer: Reducer  {
     BindingReducer()
     Reduce<IngredientSectionReducer.State, IngredientSectionReducer.Action> { state, action in
       switch action {
-      case let .ingredients(.element(id: id, action: .delegate(action))):
+      case let .ingredients(id, .delegate(action)):
         switch action {
         case .tappedToDelete:
           // TODO: Animation can be a bit clunky, fix.
-          if state.focusedField?.row == id {
+          if case .row = state.focusedField  {
             state.focusedField = nil
           }
           state.ingredients.remove(id: id)
@@ -129,7 +128,7 @@ struct IngredientSectionReducer: Reducer  {
         // If we just collapsed the list, nil out any potential focus state to prevent
         // keyboard issues such as duplicate buttons
         if !state.isExpanded {
-          if let currId = state.focusedField?.row {
+          if case let .row(currId) = state.focusedField {
             state.ingredients[id: currId]?.focusedField = nil
           }
           state.focusedField = nil
@@ -140,6 +139,8 @@ struct IngredientSectionReducer: Reducer  {
         return .none
       }
     }
-    .forEach(\.ingredients, action: \.ingredients, element: IngredientReducer.init)
+    .forEach(\.ingredients, action: /IngredientSectionReducer.Action.ingredients) {
+      IngredientReducer()
+    }
   }
 }

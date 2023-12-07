@@ -68,6 +68,19 @@ final class SDFolder: Identifiable, Equatable {
       lastEditDate: folder.lastEditDate
     )
   }
+
+    // UPDATE PROTOCOL
+    // shallow
+    // update immediate attributes and not go into children attributes
+    // if child value, update it, if child class do not descend into
+    func updateFromValueType(_ value: Folder) {
+        self.name = value.name
+        //        self.recipes.forEach { sdRecipe in
+        //            let value = value.recipes.first(where: { $0.id.rawValue == sdRecipe.id })
+        //            sdRecipe.updateFromValueType(value!)
+        //        }
+        // self.imageData.updateFromValueType(value.imageData)
+    }
 }
 
 

@@ -2,14 +2,14 @@ import Foundation
 import ComposableArchitecture
 import Tagged
 
-@Reducer
-struct GridItemReducer<ID: Equatable & Hashable> {
+struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
   struct State: Equatable, Identifiable {
     let id: ID
     var name: String
     var photos: PhotosReducer.State
     let enabledContextMenuActions: Set<ContextMenuActions>
     @PresentationState var destination: DestinationReducer.State?
+    var isSelected: Bool
     
     init(
       id: ID,
@@ -27,10 +27,12 @@ struct GridItemReducer<ID: Equatable & Hashable> {
       )
       self.destination = destination
       self.enabledContextMenuActions = enabledContextMenuActions
+      self.isSelected = false
     }
   }
   
   enum Action: Equatable, BindableAction {
+    case gridItemSelected
     case deleteButtonTapped
     case replacePreviewImage
     case renameButtonTapped
@@ -40,14 +42,16 @@ struct GridItemReducer<ID: Equatable & Hashable> {
     case photos(PhotosReducer.Action)
     
     case delegate(DelegateAction)
-    @CasePathable
+    
     enum DelegateAction: Equatable {
+      case gridItemTapped
+      case gridItemSelected
       case move
       case delete
     }
   }
   
-  @CasePathable
+  
   enum ContextMenuActions: CaseIterable, Hashable {
     case rename
     case move
@@ -58,9 +62,15 @@ struct GridItemReducer<ID: Equatable & Hashable> {
   @Dependency(\.dismiss) var dismiss
   
   var body: some ReducerOf<Self> {
-    Scope(state: \.photos, action: \.photos, child: PhotosReducer.init)
+    Scope(state: \.photos, action: /GridItemReducer.Action.photos) {
+      PhotosReducer()
+    }
     Reduce { state, action in
       switch action {
+        
+      case .gridItemSelected:
+        state.isSelected.toggle()
+        return .send(.delegate(.gridItemSelected), animation: .default)
         
       case .deleteButtonTapped:
         state.destination = .alert(.init(
@@ -107,11 +117,12 @@ struct GridItemReducer<ID: Equatable & Hashable> {
         return .none
       }
     }
-    .ifLet(\.$destination, action: \.destination, destination: DestinationReducer.init)
+    .ifLet(\.$destination, action: /GridItemReducer.Action.destination) {
+      DestinationReducer()
+    }
   }
   
-  @Reducer
-  struct DestinationReducer {
+  struct DestinationReducer: Reducer {
     enum State: Equatable {
       case alert(AlertState<Action.AlertAction>)
       case renameAlert
@@ -121,7 +132,7 @@ struct GridItemReducer<ID: Equatable & Hashable> {
       case renameAlert
       
       case alert(AlertAction)
-      @CasePathable
+      
       enum AlertAction: Equatable {
         case confirmDeleteButtonTapped
       }

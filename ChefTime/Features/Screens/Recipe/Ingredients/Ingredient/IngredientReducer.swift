@@ -1,8 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-@Reducer
-struct IngredientReducer {
+struct IngredientReducer: Reducer {
   struct State: Equatable, Identifiable {
     var id: Recipe.IngredientSection.Ingredient.ID { self.ingredient.id }
     
@@ -33,14 +32,14 @@ struct IngredientReducer {
     case keyboardNextButtonTapped
     
     case delegate(DelegateAction)
-    @CasePathable
+    
     enum DelegateAction: Equatable {
       case tappedToDelete
       case insertIngredient(AboveBelow)
     }
   }
   
-  @CasePathable
+  
   enum FocusField: Equatable {
     case name
     case amount

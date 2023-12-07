@@ -1,9 +1,7 @@
 import ComposableArchitecture
 
-
 // TODO: MAKE SURE PARENT IDs work!
-@Reducer
-struct FolderReducer {
+struct FolderReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad
     @BindingState var folder: Folder
@@ -77,6 +75,15 @@ struct FolderReducer {
       case .none: return folder.name
       }
     }
+    
+    var isHidingFolders: Bool {
+      editStatus == .recipes || folderSection.gridItems.isEmpty
+    }
+    
+    var isHidingRecipes: Bool {
+      editStatus == .folders || recipeSection.gridItems.isEmpty
+    }
+
   }
   
   enum Action: Equatable, BindableAction {
@@ -97,8 +104,8 @@ struct FolderReducer {
     case binding(BindingAction<State>)
 
     case delegate(DelegateAction)
-    @CasePathable
-    @dynamicMemberLookup
+    
+    
     enum DelegateAction: Equatable {
       case addNewFolderDidComplete(Folder.ID)
       case addNewRecipeDidComplete(Recipe.ID)
@@ -108,13 +115,13 @@ struct FolderReducer {
     }
 
     case alert(PresentationAction<AlertAction>)
-    @CasePathable
+    
     enum AlertAction: Equatable {
       case confirmDeleteSelectedButtonTapped
     }
   }
   
-  @CasePathable
+  
   enum Section: Equatable {
     case folders
     case recipes
@@ -127,10 +134,10 @@ struct FolderReducer {
   
   var body: some Reducer<FolderReducer.State, FolderReducer.Action> {
     CombineReducers {
-      Scope(state: \.folderSection, action: \.folderSection) {
+      Scope(state: \.folderSection, action: /FolderReducer.Action.folderSection) {
         GridSectionReducer()
       }
-      Scope(state: \.recipeSection, action: \.recipeSection) {
+      Scope(state: \.recipeSection, action: /FolderReducer.Action.recipeSection) {
         GridSectionReducer()
       }
       BindingReducer()
@@ -156,7 +163,7 @@ struct FolderReducer {
           }
           
         case let .fetchFolderSuccess(newFolder):
-          dump(newFolder)
+          // dump(newFolder)
           state = .init(folder: newFolder)
           return .none
           
@@ -181,6 +188,12 @@ struct FolderReducer {
           state.folderSection.selection = []
           state.recipeSection.selection = []
           state.folderSection.isExpanded = true
+          for id in state.folderSection.gridItems.ids {
+            state.folderSection.gridItems[id: id]?.isSelected = false
+          }
+          for id in state.recipeSection.gridItems.ids {
+            state.recipeSection.gridItems[id: id]?.isSelected = false
+          }
           state.recipeSection.isExpanded = true
           return .none
           
@@ -280,6 +293,7 @@ struct FolderReducer {
           }
       }
     }
+    .signpost()
   }
 }
 

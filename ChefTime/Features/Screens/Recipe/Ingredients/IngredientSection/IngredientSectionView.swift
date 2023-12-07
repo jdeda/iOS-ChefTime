@@ -13,15 +13,17 @@ struct IngredientSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        ForEachStore(store.scope(state: \.ingredients, action: { .ingredients($0) })) { childStore in
-          let id = ViewStore(childStore, observe: \.id).state
-          IngredientView(store: childStore)
-            .onTapGesture {
-              viewStore.send(.rowTapped(id))
+        LazyVStack {
+          ForEachStore(store.scope(state: \.ingredients, action: IngredientSectionReducer.Action.ingredients)) { childStore in
+            let id = ViewStore(childStore, observe: \.id).state
+            IngredientView(store: childStore)
+              .onTapGesture {
+                viewStore.send(.rowTapped(id))
+              }
+              .focused($focusedField, equals: .row(id))
+            if let lastId = viewStore.ingredients.last?.id, lastId != id {
+              Divider()
             }
-            .focused($focusedField, equals: .row(id))
-          if let lastId = viewStore.ingredients.last?.id, lastId != id {
-            Divider()
           }
         }
       } label: {
@@ -101,7 +103,7 @@ struct IngredientSectionNonGrouped: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-        ForEachStore(store.scope(state: \.ingredients, action: { .ingredients($0) })) { childStore in
+      ForEachStore(store.scope(state: \.ingredients, action: IngredientSectionReducer.Action.ingredients)) { childStore in
           let id = ViewStore(childStore, observe: \.id).state
           IngredientView(store: childStore)
             .onTapGesture {

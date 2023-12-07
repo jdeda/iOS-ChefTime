@@ -1,7 +1,6 @@
 import ComposableArchitecture
 
-@Reducer
-struct StepListReducer {
+struct StepListReducer: Reducer {
   struct State: Equatable {
     var stepSections: IdentifiedArrayOf<StepSectionReducer.State> = [] {
       didSet {
@@ -26,13 +25,13 @@ struct StepListReducer {
   
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case stepSections(IdentifiedActionOf<StepSectionReducer>)
+    case stepSections(StepSectionReducer.State.ID, StepSectionReducer.Action)
     case hideImagesToggled
     case addSectionButtonTapped
     case hideImages
   }
   
-  @CasePathable
+  
   enum FocusField: Equatable, Hashable {
     case row(StepSectionReducer.State.ID)
   }
@@ -46,10 +45,10 @@ struct StepListReducer {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case let .stepSections(.element(id: id, action: .delegate(action))):
+      case let .stepSections(id, .delegate(action)):
         switch action {
         case .deleteSectionButtonTapped:
-          if state.focusedField?.is(\.row) ?? false {
+          if case .row = state.focusedField {
             state.focusedField = nil
           }
           state.stepSections.remove(id: id)
@@ -101,6 +100,8 @@ struct StepListReducer {
         return .none
       }
     }
-    .forEach(\.stepSections, action: \.stepSections, element: StepSectionReducer.init)
+    .forEach(\.stepSections, action: /StepListReducer.Action.stepSections) {
+      StepSectionReducer()
+    }
   }
 }

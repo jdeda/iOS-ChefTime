@@ -1,7 +1,6 @@
 import ComposableArchitecture
 
-@Reducer
-struct AppReducer {
+struct AppReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad
     var stack = StackState<StackReducer.State>()
@@ -18,7 +17,7 @@ struct AppReducer {
   @Dependency(\.database) var database
   
   var body: some Reducer<AppReducer.State, AppReducer.Action> {
-    Scope(state: \.rootFolders, action: \.rootFolders) {
+    Scope(state: \.rootFolders, action: /AppReducer.Action.rootFolders) {
       RootFoldersReducer()
     }
     Reduce<AppReducer.State, AppReducer.Action> { state, action in
@@ -35,7 +34,15 @@ struct AppReducer {
         
       case let .stack(.element(id: id, action: .folder(.delegate(delegateAction)))):
         // TODO: Remove force unwraps before production.
-        let folder = state.stack[id: id]!.folder!.folder
+        let folder: Folder! = {
+          if case let .folder(folder) = state.stack[id: id]! {
+            return folder.folder
+          }
+          else {
+            return nil
+          }
+        }()
+//        let folder = state.stack[id: id]!.folder!.folder
         if let newStackElement: StackReducer.State = {
           switch delegateAction {
           case let .addNewFolderDidComplete(childID):
@@ -77,7 +84,9 @@ struct AppReducer {
         return .none
       }
     }
-    .forEach(\.stack, action: \.stack, destination: StackReducer.init)
+    .forEach(\.stack, action: /AppReducer.Action.stack) {
+      StackReducer()
+    }
     .signpost()
   }
 }

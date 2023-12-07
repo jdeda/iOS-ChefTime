@@ -65,7 +65,13 @@ final class SDRecipe: Identifiable, Equatable {
       lastEditDate: recipe.lastEditDate
     )
   }
-  
+
+    // UPDATE PROTOCOL
+    func updateFromValueType(_ value: Recipe) {
+        self.name = value.name
+        // self.imageData.updateFromValueType(value.imageData)
+    }
+
   @Model
   final class SDAboutSection: Identifiable, Equatable {
     let id: UUID

@@ -4,8 +4,7 @@ import PhotosUI
 
 // TODO: If supporting only a single photo,
 // there should be measures here to ensure that we only have a single photo.
-@Reducer
-struct PhotosReducer {
+struct PhotosReducer: Reducer {
   struct State: Equatable {
     var photos: IdentifiedArrayOf<ImageData>
     let supportSinglePhotoOnly: Bool
@@ -51,7 +50,7 @@ struct PhotosReducer {
     case cancelPhotoEdit
     
     case alert(PresentationAction<AlertAction>)
-    @CasePathable
+    
     enum AlertAction: Equatable {
       case dismiss
     }
@@ -62,22 +61,22 @@ struct PhotosReducer {
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   
-  @CasePathable
-  @dynamicMemberLookup
+  
+  
   enum PhotoEditStatus: Equatable {
     case replace(ImageData.ID)
     case add(ImageData.ID)
     case addWhenEmpty
   }
   
-  @CasePathable
+  
   enum PhotosError: CaseIterable, Error, Equatable {
     case parseError
     case generalError
     case timeoutError
   }
   
-  @CasePathable
+  
   enum PhotosCancelID: Hashable, Equatable {
     case photoEdit
   }

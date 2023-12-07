@@ -4,18 +4,16 @@ import SwiftUI
 struct GridItemView<ID: Equatable & Hashable>: View {
   let store: StoreOf<GridItemReducer<ID>>
   let isEditing: Bool
-  let isSelected: Bool
+//  let isSelected: Bool
   @Environment(\.isHidingImages) var isHidingImages
   
   var body: some View {
+    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
-          
-          // TODO: Why are there PhotosViews here???
-          PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
+          PhotosView(store: store.scope(state: \.photos, action: GridItemReducer.Action.photos))
             .opacity(isHidingImages ? 0.0 : 1.0)
-          
           PhotosView(store: .init(initialState: .init(photos: .init()), reducer: {}))
             .disabled(true)
             .opacity(!isHidingImages ? 0.0 : 1.0)
@@ -24,30 +22,28 @@ struct GridItemView<ID: Equatable & Hashable>: View {
           if isEditing {
             ZStack(alignment: .bottom) {
               let width: CGFloat = 20
-              if isSelected {
-                ZStack(alignment: .bottom) {
-                  RoundedRectangle(cornerRadius: 15)
-                    .strokeBorder(Color.accentColor, lineWidth: 5)
-                  
-                  Circle()
-                    .fill(.primary)
-                    .colorInvert()
-                    .frame(width: width, height: width)
-                    .overlay {
-                      Image(systemName: "checkmark.circle")
-                        .resizable()
-                        .frame(width: width, height: width)
-                        .foregroundColor(.accentColor)
-                    }
-                    .padding(.bottom)
-                }
-              }
-              else {
-                Image(systemName: "circle")
+              ZStack(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: 15)
+                  .strokeBorder(Color.accentColor, lineWidth: 5)
+                
+                Circle()
+                  .fill(.primary)
+                  .colorInvert()
                   .frame(width: width, height: width)
-                  .foregroundColor(.secondary)
+                  .overlay {
+                    Image(systemName: "checkmark.circle")
+                      .resizable()
+                      .frame(width: width, height: width)
+                      .foregroundColor(.accentColor)
+                  }
                   .padding(.bottom)
               }
+              .opacity(viewStore.isSelected ? 1.0:  0.0)
+              Image(systemName: "circle")
+                .frame(width: width, height: width)
+                .foregroundColor(.secondary)
+                .padding(.bottom)
+                .opacity(viewStore.isSelected ? 0.0:  1.0)
             }
           }
         }
@@ -56,7 +52,7 @@ struct GridItemView<ID: Equatable & Hashable>: View {
           .lineLimit(2)
           .font(.title3)
           .fontWeight(.bold)
-        Text("Created 8/13/23")
+        Text("Created 8/13/23") // TODO: Put real dates here.
           .lineLimit(2)
           .font(.body)
           .foregroundColor(.secondary)
@@ -64,9 +60,9 @@ struct GridItemView<ID: Equatable & Hashable>: View {
       .background(Color.primary.colorInvert())
       .clipShape(RoundedRectangle(cornerRadius: 15))
       .alert(
-        store: store.scope(state: \.$destination, action: { .destination($0) }),
-        state: \.alert,
-        action: { .alert($0) }
+        store: store.scope(state: \.$destination, action: GridItemReducer.Action.destination),
+        state: /GridItemReducer.DestinationReducer.State.alert,
+        action: GridItemReducer.DestinationReducer.Action.alert
       )
       .alert("Rename", isPresented: viewStore.binding(
         get: { $0.destination == .renameAlert },
@@ -76,7 +72,15 @@ struct GridItemView<ID: Equatable & Hashable>: View {
           viewStore.send(.renameAcceptButtonTapped($0), animation: .default)
         }
       }
-      .contextMenu {
+      .onTapGesture {
+        if isEditing {
+          viewStore.send(.gridItemSelected, animation: .default)
+        }
+        else {
+          viewStore.send(.delegate(.gridItemTapped), animation: .default)
+        }
+      }
+      .contextMenu { // TODO: Move this into extension
         if viewStore.enabledContextMenuActions.contains(.editPhotos) {
           if viewStore.photos.photoEditInFlight {
             Button {
@@ -185,8 +189,8 @@ private struct RenameAlert: View {
         ),
         reducer: GridItemReducer.init
       ),
-      isEditing: false,
-      isSelected: false
+      isEditing: false
+//      isSelected: false
     )
     .padding(50)
     .onAppear {

@@ -18,13 +18,18 @@ struct SDData: Equatable, Codable, Identifiable {
     self.data = imageData.data
     self.positionPriority = positionPriority
   }
+//    // UPDATE PROTOCOL
+//    func updateFromValueType(_ value: ImageData) {
+//        self.data = value.data
+//        self.positionPriority = value.positionPriority
+//    }
 }
 
 // MARK: - ImageData
 /// Essentially a `Data` wrapper, that when an instance is successfully created,
 /// the **immutable data** stored is **fully image compatible.**
 ///
-/// This type cannot initialize succefully unless the data can be converted into a `UIImage`, which even
+/// This type cannot initialize successfully unless the data can be converted into a `UIImage`, which even
 /// works when being encoded or decoded (`Codable`)
 ///
 /// `Image` computed property force unwraps based on premise of initialization
@@ -54,13 +59,11 @@ struct ImageData: Equatable, Codable, Identifiable {
   
   let id: ID
   let data: Data
-  
-  var image: Image {
-    .init(uiImage: UIImage(data: data)!)
-  }
+  let image: Image
   
   init?(id: ID, data: Data) {
-    guard let _ = UIImage(data: data) else { return nil }
+    guard let uiImage = UIImage(data: data) else { return nil }
+    self.image = Image(uiImage: uiImage)
     self.data = data
     self.id = id
   }
@@ -70,8 +73,8 @@ struct ImageData: Equatable, Codable, Identifiable {
   }
   
   enum CodingKeys: CodingKey {
-    case data
     case id
+    case data
   }
   
   enum ParseError: Error { case failure }
@@ -81,8 +84,8 @@ struct ImageData: Equatable, Codable, Identifiable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.id = try container.decode(ID.self, forKey: .id)
     self.data = try container.decode(Data.self, forKey: .data)
-    guard let _ = UIImage(data: data) else { throw ParseError.failure  }
-    
+    guard let uiImage = UIImage(data: data) else { throw ParseError.failure  }
+    self.image = Image(uiImage: uiImage)
   }
   
   func encode(to encoder: Encoder) throws {

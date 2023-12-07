@@ -64,10 +64,9 @@ struct RecipeView: View {
               .autocorrectionDisabled()
               .textNavigationTitleStyle()
               .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-//              .padding([.bottom], !viewStore.isHidingImages ? 10 : 0 )
                     
             ZStack {
-              PhotosView(store: store.scope(state: \.photos, action: { .photos($0) }))
+              PhotosView(store: store.scope(state: \.photos, action: RecipeReducer.Action.photos))
                 .opacity(viewStore.isHidingPhotosView ? 0 : 1.0)
                 .frame(
                   width: viewStore.isHidingPhotosView ? 0 : maxScreenWidth.maxWidth,
@@ -89,7 +88,7 @@ struct RecipeView: View {
             
             // AboutListView
             if !viewStore.about.aboutSections.isEmpty {
-              AboutListView(store: store.scope(state: \.about, action: { .about($0) }))
+              AboutListView(store: store.scope(state: \.about, action: RecipeReducer.Action.about))
                 .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset)
               if !viewStore.about.isExpanded {
                 Divider()
@@ -99,7 +98,7 @@ struct RecipeView: View {
             
             // IngredientListView
             if !viewStore.ingredients.ingredientSections.isEmpty {
-              IngredientListView(store: store.scope(state: \.ingredients, action: { .ingredients($0) }))
+              IngredientListView(store: store.scope(state: \.ingredients, action: RecipeReducer.Action.ingredients))
                 .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
               if !viewStore.ingredients.isExpanded {
                 Divider()
@@ -109,7 +108,7 @@ struct RecipeView: View {
             
             // StepListView
             if !viewStore.steps.stepSections.isEmpty {
-              StepListView(store: store.scope(state: \.steps, action: { .steps($0) }))
+              StepListView(store: store.scope(state: \.steps, action: RecipeReducer.Action.steps))
                 .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
               if !viewStore.steps.isExpanded {
                 Divider()
@@ -119,7 +118,7 @@ struct RecipeView: View {
             
             Spacer()
           }
-          .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
+          .alert(store: store.scope(state: \.$alert, action: RecipeReducer.Action.alert))
           .toolbar { toolbar(viewStore: viewStore) }
         }
       }

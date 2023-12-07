@@ -1,7 +1,6 @@
 import ComposableArchitecture
 
-@Reducer
-struct AboutSectionReducer {
+struct AboutSectionReducer: Reducer {
   struct State: Equatable, Identifiable {
     var id: Recipe.AboutSection.ID { aboutSection.id }
     @BindingState var aboutSection: Recipe.AboutSection
@@ -20,14 +19,14 @@ struct AboutSectionReducer {
     case keyboardDoneButtonTapped
 
     case delegate(DelegateAction)
-    @CasePathable
+    
     enum DelegateAction: Equatable {
       case deleteSectionButtonTapped
       case insertSection(AboveBelow)
     }
   }
   
-  @CasePathable
+  
   enum FocusField: Equatable, Hashable {
     case name
     case description

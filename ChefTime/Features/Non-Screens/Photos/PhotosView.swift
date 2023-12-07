@@ -12,6 +12,7 @@ struct PhotosView: View {
   @Environment(\.maxScreenWidth) var maxScreenWidth
   
   var body: some View {
+    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       Rectangle()
         .fill(.clear)
@@ -118,7 +119,7 @@ struct PhotosView: View {
             preferredItemEncoding: .compatible,
             photoLibrary: .shared()
           )
-          .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
+          .alert(store: store.scope(state: \.$alert, action: PhotosReducer.Action.alert))
         }
     }
   }

@@ -4,7 +4,7 @@ import ComposableArchitecture
 import SwiftUI
 
 /// A simple enumeration representing if something didLoad, didNotLoad, or isLoading
-@CasePathable
+
 enum LoadStatus: Equatable {
   case didNotLoad
   case isLoading
@@ -12,7 +12,7 @@ enum LoadStatus: Equatable {
 }
 
 /// A simple enumeration representing a state of above or below.
-@CasePathable
+
 enum AboveBelow: Equatable {
   case above
   case below
@@ -30,7 +30,7 @@ enum AboveBelow: Equatable {
 /// - didNotSatisfy - if the new value has not satisfied the parameters for a valid return
 /// - beginning - if the value has satisfied the parameters for a valid return, and did so via the beginning
 /// - end - if the value has satisfied the parameters for a valid return, and did so via the end
-@CasePathable
+
 enum DidEnter: Equatable {
   case didNotSatisfy
   case leading

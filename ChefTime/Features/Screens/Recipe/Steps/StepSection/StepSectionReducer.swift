@@ -1,7 +1,6 @@
 import ComposableArchitecture
 
-@Reducer
-struct StepSectionReducer  {
+struct StepSectionReducer: Reducer {
   struct State: Equatable, Identifiable {
     var id: Recipe.StepSection.ID { self.stepSection.id }
     var stepSection: Recipe.StepSection
@@ -20,7 +19,7 @@ struct StepSectionReducer  {
   }
   
   enum Action: Equatable, BindableAction {
-    case steps(IdentifiedActionOf<StepReducer>)
+    case steps(StepReducer.State.ID, StepReducer.Action)
     case binding(BindingAction<State>)
     case stepSectionNameEdited(String)
     case addStep
@@ -28,14 +27,14 @@ struct StepSectionReducer  {
     case stepSectionUpdate
     
     case delegate(DelegateAction)
-    @CasePathable
+    
     enum DelegateAction: Equatable {
       case deleteSectionButtonTapped
       case insertSection(AboveBelow)
     }
   }
   
-  @CasePathable
+  
   enum FocusField: Equatable, Hashable {
     case name
   }
@@ -49,7 +48,7 @@ struct StepSectionReducer  {
     BindingReducer()
     Reduce<StepSectionReducer.State, StepSectionReducer.Action> { state, action in
       switch action {
-        case let .steps(.element(id: id, action: .delegate(action))):
+        case let .steps(id, .delegate(action)):
         switch action  {
         case .deleteButtonTapped:
           state.steps.remove(id: id)
@@ -128,6 +127,8 @@ struct StepSectionReducer  {
         return .none
       }
     }
-    .forEach(\.steps, action: \.steps, element: StepReducer.init)
+    .forEach(\.steps, action: /StepSectionReducer.Action.steps) {
+      StepReducer()
+    }
   }
 }

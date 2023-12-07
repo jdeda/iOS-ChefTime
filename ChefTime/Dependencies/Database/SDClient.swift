@@ -2,6 +2,7 @@ import Foundation
 import SwiftData
 import ComposableArchitecture
 import Tagged
+import Log4swift
 
 
 
@@ -42,11 +43,11 @@ actor SDClient: ModelActor {
   
   // Adds entities to db only if db did not init yet or is empty.
   func initializeDatabase() async {
-    print("SDClient", "initializeDatabase")
+      Log4swift[Self.self].info("initializeDatabase")
     
     guard !self.didInitStore
     else {
-      print("SDClient", "initializeDatabase already init ...")
+        Log4swift[Self.self].info("initializeDatabase already init ...")
       return
     }
     
@@ -62,7 +63,7 @@ actor SDClient: ModelActor {
       return fCount == 0 && rCount == 0
     }(), dbIsEmpty
     else {
-      print("SDClient", "initializeDatabase not empty so do not inject mock data ...")
+        Log4swift[Self.self].info("initializeDatabase not empty so do not inject mock data ...")
       self.didInitStore = true
       return
     }
@@ -72,15 +73,15 @@ actor SDClient: ModelActor {
         try self.createFolder(folder)
       }
     } catch {
-      print("SDClient", "initializeDatabase failed")
+        Log4swift[Self.self].info("initializeDatabase failed")
     }
     
-    print("SDClient", "initializeDatabase succeeded")
+      Log4swift[Self.self].info("initializeDatabase succeeded")
     self.didInitStore = true
   }
 
   func retrieveRootFolders() -> [Folder] {
-    print("SDClient", "retrieveRootFolders")
+      Log4swift[Self.self].info("retrieveRootFolders")
     let predicate = #Predicate<SDFolder> { $0.parentFolder == nil }
     let fetchDescriptor = FetchDescriptor<SDFolder>(predicate: predicate)
     let sdFolders = (try? self.modelContext.fetch(fetchDescriptor)) ?? []
@@ -89,7 +90,7 @@ actor SDClient: ModelActor {
   
   // MARK: - Folder CRUD
   func createFolder(_ folder: Folder) throws {
-    print("SDClient", "createFolder")
+      Log4swift[Self.self].info("createFolder")
     if self._containsDuplicateIDs(folder: folder) {
       throw SDError.duplicate // TODO: Need to check all child persistent model IDS...
     }
@@ -109,35 +110,55 @@ actor SDClient: ModelActor {
   }
   
   func retrieveFolder(_ folderID: Folder.ID) -> Folder? {
-    print("SDClient", "retrieveFolder")
+      Log4swift[Self.self].info("retrieveFolder")
     guard let sdFolder = self._retrieveSDFolder(folderID)
     else { return nil }
     return Folder(sdFolder)
   }
   
   func retrieveFolders(_ fetchDescriptor: FetchDescriptor<SDFolder> = .init()) -> [Folder] {
-    print("SDClient", "retrieveFolders")
+      Log4swift[Self.self].info("retrieveFolders")
     let sdFolder = (try? self.modelContext.fetch(fetchDescriptor)) ?? []
     return sdFolder.map(Folder.init)
   }
   
-  func updateFolder(_ folder: Folder) throws {
-    print("SDClient", "updateFolder")
-    guard let original = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
-    let originalFolder = Folder(original)
-    try self.deleteFolder(folder.id)
-    do {
-      try self.createFolder(folder)
+    /**
+     map the value type, ie: Folder to an existing class inside the modelContext
+     apply the new values from the folder into the class
+     save changes
+     do not give a ff to children values, stick to top level attributes
+     */
+
+
+    /**
+     You have update for the main object.
+     You have add/remove on the main object one to many relations
+     */
+    func updateFolder(_ folder: Folder) throws {
+        let start = Date()
+        defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+
+        Log4swift[Self.self].info("updateFolder")
+        guard let original = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
+
+        // original.name = original.name + ","
+        // update this instance with folder
+
+
+        //    let originalFolder = Folder(original)
+        //    try self.deleteFolder(folder.id)
+        //    do {
+        //      try self.createFolder(folder)
+        //    }
+        //    catch {
+        //      try self.createFolder(originalFolder)
+        //      throw error
+        //    }
+        try self.modelContext.save()
     }
-    catch {
-      try self.createFolder(originalFolder)
-      throw error
-    }
-    try self.modelContext.save()
-  }
   
   func deleteFolder(_ folderID: Folder.ID) throws {
-    print("SDClient", "deleteFolder")
+      Log4swift[Self.self].info("deleteFolder")
     guard let sdFolder = self._retrieveSDFolder(folderID)
     else { throw SDError.notFound }
     sdFolder.folders.forEach {
@@ -152,7 +173,10 @@ actor SDClient: ModelActor {
   
   // MARK: - Recipe CRUD
   func createRecipe(_ recipe: Recipe) throws {
-    print("SDClient", "createRecipe")
+      let start = Date()
+      defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+
+      Log4swift[Self.self].info("createRecipe")
     if self._containsDuplicateIDs(recipe: recipe) {
       throw SDError.duplicate // TODO: Need to check all child persistent model IDS...
     }
@@ -164,7 +188,7 @@ actor SDClient: ModelActor {
   }
   
   func retrieveRecipe(_ recipeID: Recipe.ID) -> Recipe? {
-    print("SDClient", "retrieveRecipe")
+      Log4swift[Self.self].info("retrieveRecipe")
     print(self.retrieveRecipes().map(\.id.rawValue))
     guard let sdRecipe = self._retrieveSDRecipe(recipeID)
     else { return nil }
@@ -172,13 +196,16 @@ actor SDClient: ModelActor {
   }
   
   func retrieveRecipes(_ fetchDescriptor: FetchDescriptor<SDRecipe> = .init()) -> [Recipe] {
-    print("SDClient", "retrieveRecipes")
+      let start = Date()
+      defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+
+      Log4swift[Self.self].info("retrieveRecipes")
     let sdRecipes = (try? self.modelContext.fetch(fetchDescriptor)) ?? []
     return sdRecipes.map(Recipe.init)
   }
   
   func updateRecipe(_ recipe: Recipe) throws {
-    print("SDClient", "updateRecipe")
+      Log4swift[Self.self].info("updateRecipe")
     guard let original = self._retrieveSDRecipe(recipe.id) else { throw SDError.notFound }
     let originalRecipe = Recipe(original)
     try self.deleteRecipe(recipe.id)
@@ -193,7 +220,7 @@ actor SDClient: ModelActor {
   }
   
   func deleteRecipe(_ recipeID: Recipe.ID) throws {
-    print("SDClient", "deleteRecipe")
+      Log4swift[Self.self].info("deleteRecipe")
     guard let sdRecipe = self._retrieveSDRecipe(recipeID)
     else { throw SDError.notFound }
     sdRecipe.aboutSections.forEach { sdas in
@@ -292,14 +319,17 @@ extension SDClient {
 // MARK: - Private retrieve methods for fetching PersistentModels by their ID
 extension SDClient {
   private func _retrieveSDFolder(_ folderID: Folder.ID) -> SDFolder? {
-    print("SDClient", "_retrieveSDFolder")
+      let start = Date()
+      defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+
+      Log4swift[Self.self].info("_retrieveSDFolder")
     let predicate = #Predicate<SDFolder> { $0.id == folderID.rawValue }
     let fetchDescriptor = FetchDescriptor<SDFolder>(predicate: predicate)
     return try? self.modelContext.fetch(fetchDescriptor).first
   }
   
   private func _retrieveSDRecipe(_ recipeID: Recipe.ID) -> SDRecipe? {
-    print("SDClient", "_retrieveSDRecipe")
+      Log4swift[Self.self].info("_retrieveSDRecipe")
     let predicate = #Predicate<SDRecipe> { $0.id == recipeID.rawValue }
     let fetchDescriptor = FetchDescriptor<SDRecipe>(predicate: predicate)
     return try? self.modelContext.fetch(fetchDescriptor).first
@@ -521,4 +551,11 @@ internal struct MockDataGenerator {
       self.stepSections = stepSections
     }
   }
+}
+
+extension Date {
+    var elapsedTime: String {
+        let ms = -self.timeIntervalSinceNow * 1000.0
+        return String(format: "%.3f ms", ms)
+    }
 }
