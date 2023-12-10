@@ -249,7 +249,8 @@ private extension GridItemReducer.State where ID == Folder.ID {
     }()
     self.init(
       id: folder.id,
-      name: folder.name,
+      name: folder.name, 
+      description: "\(folder.recipes.count) Recipes",
       imageData: folder.imageData,
       enabledContextMenuActions: actions
     )
