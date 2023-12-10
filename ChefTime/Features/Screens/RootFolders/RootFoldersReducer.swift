@@ -5,25 +5,7 @@ import ComposableArchitecture
 struct RootFoldersReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad
-    var systemFolders: IdentifiedArrayOf<Folder>
     var userFolders: IdentifiedArrayOf<Folder>
-    var systemFoldersSection: GridSectionReducer<Folder.ID>.State {
-      didSet {
-        // Here, we simply accumulate values.
-        // The GridSection feature can only delete and edit items (name and images),
-        // we assume here that is what happens, we just edit or skip the value
-        // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
-        let newIDs = self.systemFoldersSection.gridItems.ids
-        self.systemFolders = self.systemFolders.reduce(into: []) { partial, folder in
-          if newIDs.contains(folder.id) {
-            var mutatedFolder = folder
-            mutatedFolder.name = self.systemFoldersSection.gridItems[id: folder.id]!.name
-            mutatedFolder.imageData = self.systemFoldersSection.gridItems[id: folder.id]!.photos.photos.first
-            partial.append(folder)
-          }
-        }
-      }
-    }
     var userFoldersSection: GridSectionReducer<Folder.ID>.State {
       didSet {
         // Here, we simply accumulate values.
@@ -50,9 +32,7 @@ struct RootFoldersReducer: Reducer {
       systemFolders: IdentifiedArrayOf<Folder> = [],
       userFolders: IdentifiedArrayOf<Folder> = []
     ) {
-      self.systemFolders = systemFolders
       self.userFolders = userFolders
-      self.systemFoldersSection = .init(title: "System", gridItems: systemFolders.map(GridItemReducer.State.init))
       self.userFoldersSection = .init(title: "User", gridItems: userFolders.map(GridItemReducer.State.init))
       self.scrollViewIndex = 1
       self.isHidingImages = false
@@ -68,10 +48,6 @@ struct RootFoldersReducer: Reducer {
       let value = isEditing && userFoldersSection.selection.count > 0
       return value ? "\(userFoldersSection.selection.count) Selected": "Folders"
     }
-    
-    var systemStandardFolderID: Folder.ID {
-      self.systemFolders.first(where: { $0.folderType == .systemStandard })!.id
-    }
   }
   
   enum Action: Equatable, BindableAction {
@@ -85,9 +61,7 @@ struct RootFoldersReducer: Reducer {
     case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
-    case newRecipeButtonTapped
     case userFoldersSection(GridSectionReducer<Folder.ID>.Action)
-    case systemFoldersSection(GridSectionReducer<Folder.ID>.Action)
     case binding(BindingAction<State>)
     
     case delegate(DelegateAction)
@@ -95,9 +69,7 @@ struct RootFoldersReducer: Reducer {
     
     enum DelegateAction: Equatable {
       case addNewFolderDidComplete(Folder.ID)
-      case addNewRecipeDidComplete(Recipe.ID)
       case userFolderTapped(Folder.ID)
-      case systemFolderTapped(Folder.ID)
     }
     
     case alert(PresentationAction<AlertAction>)
@@ -115,9 +87,6 @@ struct RootFoldersReducer: Reducer {
   
   var body: some Reducer<RootFoldersReducer.State, RootFoldersReducer.Action> {
     CombineReducers {
-      Scope(state: \.systemFoldersSection, action: /RootFoldersReducer.Action.systemFoldersSection) {
-        GridSectionReducer()
-      }
       Scope(state: \.userFoldersSection, action: /RootFoldersReducer.Action.userFoldersSection) {
         GridSectionReducer()
       }
@@ -145,20 +114,14 @@ struct RootFoldersReducer: Reducer {
           
         case .selectFoldersButtonTapped:
           state.isEditing = true
-          state.systemFoldersSection.isExpanded = false
           state.userFoldersSection.isExpanded = true
           state.scrollViewIndex = 1
           return .none
           
         case .doneButtonTapped:
           state.isEditing = false
-          state.systemFoldersSection.isExpanded = true
           state.userFoldersSection.selection = []
           state.scrollViewIndex = 1
-          // You shouldn't be able to select these items anyway.
-          for id in state.systemFoldersSection.gridItems.ids {
-            state.systemFoldersSection.gridItems[id: id]?.isSelected = false
-          }
           for id in state.userFoldersSection.gridItems.ids {
             state.userFoldersSection.gridItems[id: id]?.isSelected = false
           }
@@ -192,28 +155,13 @@ struct RootFoldersReducer: Reducer {
           state.userFolders.append(newFolder)
           state.userFoldersSection.gridItems.append(.init(newFolder))
           return .send(.delegate(.addNewFolderDidComplete(newFolder.id)), animation: .default)
-          
-        case .newRecipeButtonTapped:
-          let newRecipe = Recipe(
-            id: .init(rawValue: uuid()),
-            name: "New Untitled Recipe",
-            creationDate: date(),
-            lastEditDate: date()
-          )
-          state.systemFolders[id: state.systemStandardFolderID]!.recipes.append(newRecipe)
-          return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
-          
+                    
         case let .userFoldersSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
             return .send(.delegate(.userFolderTapped(id)))
           }
           
-        case let .systemFoldersSection(.delegate(action)):
-          switch action {
-          case let .gridItemTapped(id):
-            return .send(.delegate(.systemFolderTapped(id)))
-          }
         case .binding:
           return .none
           
@@ -235,7 +183,7 @@ struct RootFoldersReducer: Reducer {
           state.alert = nil
           return .none
           
-        case .alert, .systemFoldersSection, .userFoldersSection, .delegate:
+        case .alert, .userFoldersSection, .delegate:
           return .none
         }
       }

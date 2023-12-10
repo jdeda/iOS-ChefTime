@@ -68,12 +68,8 @@ struct AppReducer: Reducer {
           return switch delegateAction {
           case let .addNewFolderDidComplete(childID):
               .folder(.init(folderID: rf.userFolders[id: childID]!.id))
-          case let .addNewRecipeDidComplete(childID):
-              .recipe(.init(recipeID: rf.systemFolders[id: rf.systemStandardFolderID]!.recipes[id: childID]!.id))
           case let .userFolderTapped(childID):
               .folder(.init(folderID: rf.userFolders[id: childID]!.id))
-          case let .systemFolderTapped(childID):
-              .folder(.init(folderID: rf.systemFolders[id: childID]!.id))
           }
         }() {
           state.stack.append(newStackElement)

@@ -15,26 +15,14 @@ struct RootFoldersView: View {
         else {
           ScrollViewReader { proxy in
             ScrollView {
-              
-              // System Folders.
-              GridSectionView(
-                store: store.scope(state: \.systemFoldersSection, action: RootFoldersReducer.Action.systemFoldersSection),
-                isEditing: viewStore.isEditing
-              )
-              .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-              .opacity(viewStore.isEditing ? 0.0 : 1.0)
-              .frame(maxHeight: viewStore.isEditing ? 0 : .infinity)
-              .id(1)
-              
-              // User Folders.
-              GridSectionView(
+              GridSectionNonGroupedView(
                 store: store.scope(state: \.userFoldersSection, action: RootFoldersReducer.Action.userFoldersSection),
                 isEditing: viewStore.isEditing
               )
               .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
               .opacity(viewStore.userFoldersSection.gridItems.isEmpty ? 0.0 : 1.0)
               .frame(maxHeight: viewStore.userFoldersSection.gridItems.isEmpty ? 0 : .infinity)
-              .id(2)
+              .id(1)
             }
             
             .navigationTitle(viewStore.navigationTitle)
@@ -123,12 +111,6 @@ extension RootFoldersView {
         // TODO: Update this count when all the folders are fetched properly
         Text("\(viewStore.userFoldersSection.gridItems.count) folders")
         Spacer()
-        Button {
-          viewStore.send(.newRecipeButtonTapped, animation: .default)
-        } label: {
-          Image(systemName: "square.and.pencil")
-        }
-        .accentColor(.yellow)
       }
     }
   }

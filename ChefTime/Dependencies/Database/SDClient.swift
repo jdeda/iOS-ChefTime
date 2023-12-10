@@ -429,9 +429,10 @@ internal struct MockDataGenerator {
     
 //    let jsonDir = Self.jsonFiles
     let jsonDir = Bundle.main.url(forResource: "JSON", withExtension: nil)!
-    let f1 = await fetchFolders(jsonDir.appendingPathComponent("system"))
+//    let f1 = await fetchFolders(jsonDir.appendingPathComponent("system"))
     let f2 = await fetchFolders(jsonDir.appendingPathComponent("user"))
-    return f1 + f2
+    return f2
+//    return f1 + f2
   }
   
   // TODO: Migrate your old data to the new data, including new dates!
