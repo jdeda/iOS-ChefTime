@@ -9,10 +9,6 @@ struct IngredientListView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        IngredientStepper(scale: viewStore.binding(
-          get: { $0.scale },
-          send: { .scaleStepperButtonTapped($0) }
-        ))
         LazyVStack {
           ForEachStore(store.scope(state: \.ingredientSections, action: IngredientsListReducer.Action.ingredientSections)) { childStore in
             if viewStore.ingredientSections.count == 1 {
