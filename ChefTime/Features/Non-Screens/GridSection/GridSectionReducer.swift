@@ -61,8 +61,6 @@ struct GridSectionReducer<ID: Equatable & Hashable>: Reducer {
             state.gridItems[id: id]!.isSelected = true
           }
           return .none
-        case .move:
-          break
         case .delete:
           state.gridItems.remove(id: id)
           break

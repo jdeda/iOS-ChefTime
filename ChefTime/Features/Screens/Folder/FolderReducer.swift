@@ -95,7 +95,6 @@ struct FolderReducer: Reducer {
     case selectRecipesButtonTapped
     case doneButtonTapped
     case selectAllButtonTapped
-    case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case newRecipeButtonTapped
@@ -212,9 +211,6 @@ struct FolderReducer: Reducer {
           case .none:
             break
           }
-          return .none
-          
-        case .moveSelectedButtonTapped:
           return .none
           
         case .deleteSelectedButtonTapped:
@@ -334,7 +330,7 @@ private extension GridItemReducer.State where ID == Recipe.ID {
       name: recipe.name, 
       description: recipe.lastEditDate.formattedDate,
       imageData: recipe.imageData.first,
-      enabledContextMenuActions: .init(arrayLiteral: .rename, .move, .delete)
+      enabledContextMenuActions: .init(arrayLiteral: .rename, .delete)
     )
   }
 }

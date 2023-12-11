@@ -58,7 +58,6 @@ struct RootFoldersReducer: Reducer {
     case doneButtonTapped
     case selectAllButtonTapped
     case hideImagesButtonTapped
-    case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case userFoldersSection(GridSectionReducer<Folder.ID>.Action)
@@ -135,9 +134,6 @@ struct RootFoldersReducer: Reducer {
           
         case .hideImagesButtonTapped:
           state.isHidingImages.toggle()
-          return .none
-          
-        case .moveSelectedButtonTapped:
           return .none
           
         case .deleteSelectedButtonTapped:

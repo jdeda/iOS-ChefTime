@@ -49,7 +49,6 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
     enum DelegateAction: Equatable {
       case gridItemTapped
       case gridItemSelected
-      case move
       case delete
     }
   }
@@ -57,7 +56,6 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
   
   enum ContextMenuActions: CaseIterable, Hashable {
     case rename
-    case move
     case delete
     case editPhotos
   }
