@@ -67,11 +67,6 @@ extension RootFoldersView {
       }
       
       ToolbarItemGroup(placement: .bottomBar) {
-        Button("Move") {
-          viewStore.send(.moveSelectedButtonTapped, animation: .default)
-        }
-        .disabled(viewStore.userFoldersSection.selection.isEmpty)
-        .accentColor(.yellow)
         Spacer()
         Button("Delete") {
           viewStore.send(.deleteSelectedButtonTapped, animation: .default)
