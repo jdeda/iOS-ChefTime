@@ -4,11 +4,9 @@ import SwiftUI
 struct GridItemView<ID: Equatable & Hashable>: View {
   let store: StoreOf<GridItemReducer<ID>>
   let isEditing: Bool
-  //  let isSelected: Bool
   @Environment(\.isHidingImages) var isHidingImages
   
   var body: some View {
-    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
@@ -121,13 +119,6 @@ struct GridItemView<ID: Equatable & Hashable>: View {
             viewStore.send(.renameButtonTapped, animation: .default)
           } label: {
             Text("Rename")
-          }
-        }
-        if viewStore.enabledContextMenuActions.contains(.move) {
-          Button {
-            viewStore.send(.delegate(.move), animation: .default)
-          } label: {
-            Text("Move")
           }
         }
         if viewStore.enabledContextMenuActions.contains(.delete) {

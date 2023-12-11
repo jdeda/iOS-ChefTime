@@ -16,6 +16,8 @@ struct Database {
   var retrieveRecipe: @Sendable (Recipe.ID) async -> Recipe?
   var updateRecipe: @Sendable (Recipe) async throws -> Void
   var deleteRecipe: @Sendable (Recipe.ID) async throws -> Void
+  
+  var searchRecipes: @Sendable (String) async -> [Recipe]
 }
 
 extension Database: DependencyKey {

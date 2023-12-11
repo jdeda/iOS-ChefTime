@@ -1,6 +1,5 @@
 import Foundation
 import ComposableArchitecture
-import CoreData
 import SwiftUI
 
 // TODO: Fix this to be easier to work with and work on device
@@ -61,6 +60,10 @@ extension Database {
       deleteRecipe: { recipeID in
         await sdc.initializeDatabase()
         try await sdc.deleteRecipe(recipeID)
+      },
+      searchRecipes: { query in
+        await sdc.initializeDatabase()
+        return await sdc.searchRecipes(containing: query)
       }
     )
   }()

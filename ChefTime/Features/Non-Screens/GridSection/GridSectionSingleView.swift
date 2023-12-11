@@ -8,7 +8,6 @@ struct GridSectionNonGroupedView<ID: Equatable & Hashable>: View {
   @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
-    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       LazyVGrid(columns: columns, spacing: 10) {
         // I have IDs that I need to use to perform certain actions...

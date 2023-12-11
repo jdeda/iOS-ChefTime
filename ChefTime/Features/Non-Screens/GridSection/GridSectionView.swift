@@ -8,7 +8,6 @@ struct GridSectionView<ID: Equatable & Hashable>: View {
   @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
-    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: \.isExpanded,

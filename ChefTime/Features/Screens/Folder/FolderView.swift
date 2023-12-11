@@ -7,7 +7,6 @@ struct FolderView: View {
   @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
-    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       Group {
         if viewStore.loadStatus == .isLoading {

@@ -121,6 +121,7 @@ actor SDClient: ModelActor {
     let sdFolder = (try? self.modelContext.fetch(fetchDescriptor)) ?? []
     return sdFolder.map(Folder.init)
   }
+
   
     /**
      map the value type, ie: Folder to an existing class inside the modelContext
@@ -240,6 +241,12 @@ actor SDClient: ModelActor {
     }
     self.modelContext.delete(sdRecipe)
     try self.modelContext.save()
+  }
+  
+  func searchRecipes(containing query: String) -> [Recipe] {
+    self.retrieveRecipes(FetchDescriptor<SDRecipe>(predicate: #Predicate<SDRecipe> {
+      $0.searchString.localizedStandardContains(query)
+    }))
   }
   
   func printAll() {

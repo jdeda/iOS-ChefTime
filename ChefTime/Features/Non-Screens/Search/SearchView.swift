@@ -2,8 +2,43 @@ import SwiftUI
 import ComposableArchitecture
 import Tagged
 
-// MARK: - View
+/// Search Feature
+/// 1. Whenever a user types, he is writing to a Binding<String> which the reducer recieves and
+/// immediately begins a stream of any recipes that "contain" this string. Whenever a new string is recieved
+/// that is different (perhaps excluding trailing or leading whitespace and newlines) it clears all its results
+/// and tears down the current stream replacing it with a new one with the new query.
+///
+
 struct SearchView: View {
+  let store: StoreOf<SearchReducer>
+  
+  var body: some View {
+    WithViewStore(store, observe: { $0 }) { viewStore in
+      Group {
+        switch viewStore.loadStatus {
+        case .didLoad:
+          if viewStore.results.isEmpty {
+            Text("Top Results")
+              .textTitleStyle()
+          }
+          else {
+            CoreSearchView(store: store)
+          }
+        case .didNotLoad:
+          Text("Nothing Found.")
+            .textTitleStyle()
+        case .isLoading:
+          ProgressView()
+        }
+      }
+      .task {
+        await viewStore.send(.task, animation: .default).finish()
+      }
+    }
+  }
+}
+// MARK: - View
+private struct CoreSearchView: View {
   let store: StoreOf<SearchReducer>
   @Environment(\.maxScreenWidth) var maxScreenWidth
   
@@ -25,7 +60,7 @@ struct SearchView: View {
           ForEach(viewStore.results.prefix(3)) { result in
             HStack {
               VStack(alignment: .leading) {
-                HighlightedText(result.recipe.name, matching: viewStore.query, caseInsensitive: true)
+                HighlightedText(result.title, matching: viewStore.query, caseInsensitive: true)
                   .lineLimit(1)
                   .fontWeight(.medium)
                 HStack(spacing: 4) {
@@ -69,7 +104,7 @@ struct SearchView: View {
           ForEach(viewStore.results) { result in
             HStack {
               VStack(alignment: .leading) {
-                HighlightedText(result.recipe.name, matching: viewStore.query, caseInsensitive: true)
+                HighlightedText(result.title, matching: viewStore.query, caseInsensitive: true)
                   .lineLimit(1)
                   .fontWeight(.medium)
                 HStack(spacing: 4) {
@@ -83,12 +118,12 @@ struct SearchView: View {
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
-                HStack(spacing: 4)  {
-                  Image(systemName: "folder")
-                  Text("Standard")
-                }
-                .font(.caption)
-                .foregroundColor(.secondary)
+                //                HStack(spacing: 4)  {
+                //                  Image(systemName: "folder")
+                //                  Text("Standard")
+                //                }
+                //                .font(.caption)
+                //                .foregroundColor(.secondary)
               }
               Spacer()
             }
@@ -97,9 +132,6 @@ struct SearchView: View {
         }
         .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
         .accentColor(.yellow)
-      }
-      .task {
-        await viewStore.send(.task, animation: .default).finish()
       }
     }
   }
@@ -138,37 +170,53 @@ struct HighlightedText: View {
 // MARK: - Reducer
 struct SearchReducer: Reducer {
   struct State: Equatable {
-    var recipes: IdentifiedArrayOf<Recipe>
-    var results: IdentifiedArrayOf<SearchResult> = []
     var query: String
     var length: Int
+    var results: IdentifiedArrayOf<SearchResult>
+    var loadStatus: LoadStatus
+    
+    init(query: String) {
+      self.query = query
+      self.length = 25 // TODO: Magic number
+      self.results = []
+      self.loadStatus = .didNotLoad
+    }
   }
   
   enum Action: Equatable {
     case task
-    case resultSuccess(SearchResult)
+    case fetchRecipes
+    case fetchRecipesSuccess([Recipe])
   }
   
-  @Dependency(\.uuid) var uuid
+  @Dependency(\.database) var database
+  @Dependency(\.continuousClock) var clock
   
-  var body: some ReducerOf<Self> {
-    Reduce { state, action in
+  enum FetchRecipesID: Hashable { case debounce }
+  
+  var body: some Reducer<SearchReducer.State, SearchReducer.Action> {
+    Reduce<SearchReducer.State, SearchReducer.Action> { state, action in
       switch action {
       case .task:
-        guard state.results.isEmpty else { return .none }
-        return .run { [recipes = state.recipes] send in
-          await withTaskGroup(of: Void.self) { taskGroup in
-            for recipe in recipes {
-              taskGroup.addTask {
-                let r = SearchResult(id: .init(rawValue: uuid()), recipe: recipe)
-                await send(.resultSuccess(r), animation: .default)
-              }
-            }
-          }
-        }
+        return .send(.fetchRecipes)
         
-      case let .resultSuccess(searchResult):
-        state.results.append(searchResult)
+      case .fetchRecipes:
+        guard state.results.isEmpty else { return .none }
+        state.results = []
+        state.loadStatus = .isLoading
+        return .run { [query = state.query] send in
+          try await self.clock.sleep(for: .seconds(1))
+          guard !Task.isCancelled else { return }
+          let recipes = await database.searchRecipes(query.lowercased())
+          await send(.fetchRecipesSuccess(recipes), animation: .default)
+        }
+        .cancellable(id: FetchRecipesID.debounce, cancelInFlight: true)
+        
+      case let .fetchRecipesSuccess(recipes):
+        state.results = .init(uniqueElements: recipes.map({
+          .init(id: $0.id.rawValue, title: $0.name, description: "")
+        }))
+        state.loadStatus = .didLoad
         return .none
       }
     }
@@ -176,11 +224,9 @@ struct SearchReducer: Reducer {
 }
 
 struct SearchResult: Identifiable, Equatable {
-  typealias ID = Tagged<Self, UUID>
-  
-  let id: ID
-  let recipe: Recipe
-  var description: String = ""
+  let id: UUID
+  let title: String
+  let description: String
 }
 
 // MARK: - Search Result Functionality√
@@ -367,7 +413,7 @@ private func recipeDescription(_ recipe: Recipe) -> String {
 // MARK: - Preview
 #Preview {
   SearchView(store: .init(
-    initialState: .init(recipes: Folder.longMock.recipes, query: "burger", length: 25),
+    initialState: .init(query: "burger"),
     reducer: SearchReducer.init
   ))
 }

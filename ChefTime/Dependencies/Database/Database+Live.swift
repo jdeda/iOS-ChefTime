@@ -37,6 +37,9 @@ extension Database {
       },
       deleteRecipe: { recipeID in
         try await sdc.deleteRecipe(recipeID)
+      },
+      searchRecipes: { query in
+        await sdc.searchRecipes(containing: query)
       }
     )
   }()
