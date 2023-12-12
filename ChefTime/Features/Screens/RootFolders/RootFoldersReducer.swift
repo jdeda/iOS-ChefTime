@@ -23,17 +23,16 @@ struct RootFoldersReducer: Reducer {
         }
       }
     }
+    var search: SearchReducer.State
     var scrollViewIndex: Int
     var isHidingImages: Bool
     @BindingState var isEditing: Bool
     @PresentationState var alert: AlertState<Action.AlertAction>?
     
-    init(
-      systemFolders: IdentifiedArrayOf<Folder> = [],
-      userFolders: IdentifiedArrayOf<Folder> = []
-    ) {
+    init(userFolders: IdentifiedArrayOf<Folder> = []) {
       self.userFolders = userFolders
       self.userFoldersSection = .init(title: "User", gridItems: userFolders.map(GridItemReducer.State.init))
+      self.search = .init(query: "")
       self.scrollViewIndex = 1
       self.isHidingImages = false
       self.isEditing = false
@@ -61,18 +60,16 @@ struct RootFoldersReducer: Reducer {
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case userFoldersSection(GridSectionReducer<Folder.ID>.Action)
+    case search(SearchReducer.Action)
     case binding(BindingAction<State>)
     
     case delegate(DelegateAction)
-    
-    
     enum DelegateAction: Equatable {
       case addNewFolderDidComplete(Folder.ID)
       case userFolderTapped(Folder.ID)
     }
     
     case alert(PresentationAction<AlertAction>)
-    
     enum AlertAction: Equatable {
       case cancelButtonTapped
       case confirmDeleteButtonTapped
@@ -88,6 +85,9 @@ struct RootFoldersReducer: Reducer {
     CombineReducers {
       Scope(state: \.userFoldersSection, action: /RootFoldersReducer.Action.userFoldersSection) {
         GridSectionReducer()
+      }
+      Scope(state: \.search, action: /RootFoldersReducer.Action.search) {
+        SearchReducer()
       }
       BindingReducer()
       Reduce<RootFoldersReducer.State, RootFoldersReducer.Action> { state, action in
@@ -158,6 +158,10 @@ struct RootFoldersReducer: Reducer {
             return .send(.delegate(.userFolderTapped(id)))
           }
           
+        case let .search(.delegate(.searchResultTapped(id))):
+          // TODO: .... NAV
+          return .none
+
         case .binding:
           return .none
           
@@ -179,7 +183,7 @@ struct RootFoldersReducer: Reducer {
           state.alert = nil
           return .none
           
-        case .alert, .userFoldersSection, .delegate:
+        case .alert, .userFoldersSection, .delegate, .search:
           return .none
         }
       }

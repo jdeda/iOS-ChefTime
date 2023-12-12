@@ -7,14 +7,26 @@ struct SearchReducer: Reducer {
     var query: String
     var length: Int
     var results: IdentifiedArrayOf<SearchResult>
-    var loadStatus: LoadStatus
+    var fetchInFlight: Bool
     
     // TODO: Make sure this string always gets recieved to be lowercased.
     init(query: String) {
-      self.query = query.lowercased()
+      self.query = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
       self.length = 25 // TODO: Magic number
       self.results = []
-      self.loadStatus = .didNotLoad
+      self.fetchInFlight = false
+    }
+    
+    var resultCountString: String {
+      if self.query.isEmpty {
+        return "Empty Query"
+      }
+      else if self.results.isEmpty {
+        return "None Found"
+      }
+      else {
+        return "\(self.results.count) Found"
+      }
     }
   }
   
@@ -22,6 +34,7 @@ struct SearchReducer: Reducer {
     case task
     case fetchRecipes
     case fetchRecipesSuccess([Recipe])
+    case setQuery(String)
     case delegate(DelegateAction)
     
     enum DelegateAction: Equatable {
@@ -40,19 +53,27 @@ struct SearchReducer: Reducer {
       case .task:
         return .send(.fetchRecipes)
         
+        // TODO: We wwant another effect -- if they keep typing, we shoudl cache,
+        // only reset if the delete a non-white-space-newline character
+        // and dont clear until we get a new fetch result
       case .fetchRecipes:
-        guard state.results.isEmpty else { return .none }
-        state.results = []
-        state.loadStatus = .isLoading
+        guard !state.query.isEmpty 
+        else {
+          state.results = []
+          state.fetchInFlight = false
+          return .cancel(id: FetchRecipesID.debounce)
+        }
+        state.fetchInFlight = true
         return .run { [query = state.query] send in
           try await self.clock.sleep(for: .seconds(1))
-          guard !Task.isCancelled else { return }
+          guard !Task.isCancelled else { return } // TODO: Do I need this?, if so, make sure u set inFlight to false
           let recipes = await database.searchRecipes(query)
           await send(.fetchRecipesSuccess(recipes), animation: .default)
         }
         .cancellable(id: FetchRecipesID.debounce, cancelInFlight: true)
         
       case let .fetchRecipesSuccess(recipes):
+        state.fetchInFlight = false
         let sorted = recipes.sorted { r1, r2 in
           guard let l1 = stringSearchResultRangeCount(source: recipeDescription(r1), query: state.query, length: state.length) 
           else { return true }
@@ -73,15 +94,20 @@ struct SearchReducer: Reducer {
           )
         })
         state.results = .init(uniqueElements: newResults)
-        state.loadStatus = .didLoad
         return .none
+        
+      case let .setQuery(query):
+        state.query = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return .concatenate(
+          .cancel(id: FetchRecipesID.debounce),
+          .send(.fetchRecipes, animation: .default)
+        )
         
       case .delegate:
         return .none
       }
     }
   }
-  
 }
 
 // TODO: Could be extended into having more information, such as folder name, etc

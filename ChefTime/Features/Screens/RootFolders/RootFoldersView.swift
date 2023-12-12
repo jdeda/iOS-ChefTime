@@ -29,9 +29,17 @@ struct RootFoldersView: View {
             .navigationBarBackButtonHidden(viewStore.isEditing)
             .toolbar { toolbar(viewStore: viewStore) }
             .searchable(
-              text: .constant(""),
+              text: viewStore.binding(
+                get: { $0.search.query },
+                send: { .search(.setQuery($0) )}
+              ),
               placement: .navigationBarDrawer(displayMode: .always)
-            )
+            ) {
+              SearchView(store: store.scope(
+                state: \.search,
+                action: RootFoldersReducer.Action.search
+              ))
+            }
             .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
               withAnimation {
                 proxy.scrollTo(newScrollViewIndex, anchor: .center)

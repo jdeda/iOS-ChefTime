@@ -9,30 +9,34 @@ import Tagged
 /// and tears down the current stream replacing it with a new one with the new query.
 ///
 
+/// Here's how it works:
+/// if query.isEmpty { suggestedview }
+/// else {
+///   coresearchview
+/// }
 struct SearchView: View {
   let store: StoreOf<SearchReducer>
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       Group {
-        switch viewStore.loadStatus {
-        case .didLoad:
-          if viewStore.results.isEmpty {
-            Text("Top Results")
-              .textTitleStyle()
-          }
-          else {
-            CoreSearchView(store: store)
-          }
-        case .didNotLoad:
-          Text("Nothing Found.")
-            .textTitleStyle()
-        case .isLoading:
-          ProgressView()
-        }
-      }
-      .task {
-        await viewStore.send(.task, animation: .default).finish()
+        CoreSearchView(store: store)
+//        switch viewStore.loadStatus {
+//        case .didLoad:
+//          CoreSearchView(store: store)
+//        case .didNotLoad:
+//          VStack {
+//            HStack {
+//              Text("ChefTime")
+//                .textTitleStyle()
+//              Spacer()
+//            }
+//            Spacer()
+//          }
+//          .padding(.bottom, 5)
+//        case .isLoading:
+//          ProgressView()
+//        }
       }
     }
   }
@@ -50,33 +54,19 @@ private struct CoreSearchView: View {
             Text("Results")
               .textTitleStyle()
             Spacer()
-            Text("\(viewStore.results.count) Found")
-              .font(.body)
-              .foregroundColor(.secondary)
-              .textCase(nil)
+            if viewStore.fetchInFlight {
+             ProgressView()
+            }
+            else {
+              Text(viewStore.resultCountString)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .textCase(nil)
+            }
           }
           .padding(.bottom, 5)
           
           ForEach(viewStore.results) { result in
-//            HStack {
-//              VStack(alignment: .leading) {
-//                HighlightedText(result.title, matching: viewStore.query, caseInsensitive: true)
-//                  .lineLimit(1)
-//                  .fontWeight(.medium)
-//                HStack(spacing: 4) {
-//                  Text(result.description)
-//                    .font(.caption)
-//                    .foregroundColor(.secondary)
-//                  HighlightedText(result.description, matching: viewStore.query, caseInsensitive: true)
-//                    .lineLimit(1)
-//                    .font(.caption)
-//                    .foregroundColor(.secondary)
-//                }
-//                .font(.caption)
-//                .foregroundColor(.secondary)
-//              }
-//              Spacer()
-//            }
             VStack(alignment: .leading) {
               HighlightedText(result.title, matching: viewStore.query, caseInsensitive: true)
                 .lineLimit(1)
@@ -100,7 +90,6 @@ private struct CoreSearchView: View {
             Divider()
           }
         }
-        .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
         .accentColor(.yellow)
       }
     }
@@ -141,4 +130,5 @@ struct HighlightedText: View {
     initialState: .init(query: "onion"),
     reducer: SearchReducer.init
   ))
+  .padding(.horizontal, MaxScreenWidth.width * 0.075)
 }
