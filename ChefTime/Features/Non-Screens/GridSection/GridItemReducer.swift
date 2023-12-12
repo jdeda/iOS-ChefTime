@@ -6,6 +6,7 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
   struct State: Equatable, Identifiable {
     let id: ID
     var name: String
+    var description: String
     var photos: PhotosReducer.State
     let enabledContextMenuActions: Set<ContextMenuActions>
     @PresentationState var destination: DestinationReducer.State?
@@ -14,12 +15,14 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
     init(
       id: ID,
       name: String,
+      description: String,
       imageData: ImageData? = nil,
       enabledContextMenuActions: Set<ContextMenuActions> = .init(ContextMenuActions.allCases),
       destination: DestinationReducer.State? = nil
     ) {
       self.id = id
       self.name = name
+      self.description = description
       self.photos = .init(
         photos: imageData.flatMap({[$0]}) ?? [],
         supportSinglePhotoOnly: true,
@@ -46,7 +49,6 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
     enum DelegateAction: Equatable {
       case gridItemTapped
       case gridItemSelected
-      case move
       case delete
     }
   }
@@ -54,7 +56,6 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
   
   enum ContextMenuActions: CaseIterable, Hashable {
     case rename
-    case move
     case delete
     case editPhotos
   }

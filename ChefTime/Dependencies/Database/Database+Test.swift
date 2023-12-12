@@ -17,7 +17,8 @@ extension Database {
       createRecipe: unimplemented("Database.createRecipe"),
       retrieveRecipe: unimplemented("Database.retrieveRecipe"),
       updateRecipe: unimplemented("Database.updateRecipe"),
-      deleteRecipe: unimplemented("Database.deleteRecipe")
+      deleteRecipe: unimplemented("Database.deleteRecipe"),
+      searchRecipes: unimplemented("Database.searchRecipes")
     )
   }()
 }

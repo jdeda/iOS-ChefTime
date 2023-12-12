@@ -31,6 +31,8 @@ final class SDRecipe: Identifiable, Equatable {
   
   var lastEditDate: Date
   
+  var searchString: String
+  
   init(
     id: UUID,
     name: String,
@@ -40,7 +42,8 @@ final class SDRecipe: Identifiable, Equatable {
     stepSections: [SDStepSection],
     parentFolder: SDFolder? = nil,
     creationDate: Date,
-    lastEditDate: Date
+    lastEditDate: Date,
+    searchString: String
   ) {
     self.id = id
     self.name = name
@@ -51,6 +54,7 @@ final class SDRecipe: Identifiable, Equatable {
     self.parentFolder = parentFolder
     self.creationDate = creationDate
     self.lastEditDate = lastEditDate
+    self.searchString = searchString
   }
   
   convenience init(_ recipe: Recipe) {
@@ -62,15 +66,22 @@ final class SDRecipe: Identifiable, Equatable {
       ingredientSections: recipe.ingredientSections.enumerated().map({SDRecipe.SDIngredientSection($0.element, $0.offset)}),
       stepSections: recipe.stepSections.enumerated().map({SDRecipe.SDStepSection($0.element, $0.offset)}),
       creationDate: recipe.creationDate,
-      lastEditDate: recipe.lastEditDate
+      lastEditDate: recipe.lastEditDate,
+      searchString: [
+        recipe.name,
+        recipe.aboutSections.reduce("", { $0 + " " + $1.name + " " + $1.description }),
+        recipe.ingredientSections.reduce("", { $0 + " " + $1.name + " " + $1.ingredients.map(\.name).joined(separator: " ") }),
+        recipe.stepSections.reduce("", { $0 + " " + $1.name + " " + $1.steps.map(\.description).joined(separator: " ") }),
+      ]
+        .joined(separator: " ")
+        .lowercased()
     )
   }
-
-    // UPDATE PROTOCOL
-    func updateFromValueType(_ value: Recipe) {
-        self.name = value.name
-        // self.imageData.updateFromValueType(value.imageData)
-    }
+  // UPDATE PROTOCOL
+  func updateFromValueType(_ value: Recipe) {
+    self.name = value.name
+    // self.imageData.updateFromValueType(value.imageData)
+  }
 
   @Model
   final class SDAboutSection: Identifiable, Equatable {

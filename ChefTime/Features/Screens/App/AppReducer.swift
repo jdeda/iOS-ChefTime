@@ -32,52 +32,20 @@ struct AppReducer: Reducer {
         state.loadStatus = .didLoad
         return .none
         
-      case let .stack(.element(id: id, action: .folder(.delegate(delegateAction)))):
-        // TODO: Remove force unwraps before production.
-        let folder: Folder! = {
-          if case let .folder(folder) = state.stack[id: id]! {
-            return folder.folder
-          }
-          else {
-            return nil
-          }
-        }()
-//        let folder = state.stack[id: id]!.folder!.folder
-        if let newStackElement: StackReducer.State = {
-          switch delegateAction {
-          case let .addNewFolderDidComplete(childID):
-              .folder(.init(folderID: folder.folders[id: childID]!.id))
-          case let .addNewRecipeDidComplete(childID):
-              .recipe(.init(recipeID: folder.recipes[id: childID]!.id))
-          case let .folderTapped(childID):
-              .folder(.init(folderID: folder.folders[id: childID]!.id))
-          case let .recipeTapped(childID):
-              .recipe(.init(recipeID: folder.recipes[id: childID]!.id))
-          case .folderUpdated:
-            nil
-          }
-        }() {
-          state.stack.append(newStackElement)
-        }
+      case let .stack(.element(_, action: .folder(.delegate(.navigateToFolder(id))))):
+        state.stack.append(.folder(.init(folderID: id)))
         return .none
         
-      case let .rootFolders(.delegate(delegateAction)):
-        // TODO: Remove force unwraps before production.
-        if let newStackElement: StackReducer.State = {
-          let rf = state.rootFolders
-          return switch delegateAction {
-          case let .addNewFolderDidComplete(childID):
-              .folder(.init(folderID: rf.userFolders[id: childID]!.id))
-          case let .addNewRecipeDidComplete(childID):
-              .recipe(.init(recipeID: rf.systemFolders[id: rf.systemStandardFolderID]!.recipes[id: childID]!.id))
-          case let .userFolderTapped(childID):
-              .folder(.init(folderID: rf.userFolders[id: childID]!.id))
-          case let .systemFolderTapped(childID):
-              .folder(.init(folderID: rf.systemFolders[id: childID]!.id))
-          }
-        }() {
-          state.stack.append(newStackElement)
-        }
+      case let .stack(.element(_, action: .folder(.delegate(.navigateToRecipe(id))))):
+        state.stack.append(.recipe(.init(recipeID: id)))
+        return .none
+        
+      case let .rootFolders(.delegate(.navigateToFolder(id))):
+        state.stack.append(.folder(.init(folderID: id)))
+        return .none
+        
+      case let .rootFolders(.delegate(.navigateToRecipe(id))):
+        state.stack.append(.recipe(.init(recipeID: id)))
         return .none
         
       case .rootFolders, .stack:

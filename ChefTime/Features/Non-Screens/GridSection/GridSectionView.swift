@@ -8,7 +8,6 @@ struct GridSectionView<ID: Equatable & Hashable>: View {
   @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
-    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.binding(
         get: \.isExpanded,
@@ -57,7 +56,7 @@ struct GridSectionView<ID: Equatable & Hashable>: View {
     GridSectionView<Folder.ID>(
       store: .init(
         initialState: .init(gridItems: Folder.shortMock.recipes.map({
-          .init(id: .init(rawValue: $0.id.rawValue), name: $0.name, imageData: $0.imageData.first)
+          .init(id: .init(rawValue: $0.id.rawValue), name: $0.name, description: $0.lastEditDate.formattedDate, imageData: $0.imageData.first)
         })),
         reducer: GridSectionReducer.init
       ),

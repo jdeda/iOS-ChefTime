@@ -43,6 +43,7 @@ struct FolderReducer: Reducer {
     var scrollViewIndex: Int = 1
     var editStatus: Section?
     @PresentationState var alert: AlertState<Action.AlertAction>?
+    var search: SearchReducer.State
     
     // TODO: - What to do with the dates here?
     init(folderID: Folder.ID) {
@@ -58,6 +59,7 @@ struct FolderReducer: Reducer {
       self.editStatus = nil
       self.scrollViewIndex = 1
       self.alert = nil
+      self.search = .init(query: "")
     }
     
     var hasSelectedAll: Bool {
@@ -95,22 +97,20 @@ struct FolderReducer: Reducer {
     case selectRecipesButtonTapped
     case doneButtonTapped
     case selectAllButtonTapped
-    case moveSelectedButtonTapped
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case newRecipeButtonTapped
     case folderSection(GridSectionReducer<Folder.ID>.Action)
     case recipeSection(GridSectionReducer<Recipe.ID>.Action)
+    case search(SearchReducer.Action)
     case binding(BindingAction<State>)
 
     case delegate(DelegateAction)
     
     
     enum DelegateAction: Equatable {
-      case addNewFolderDidComplete(Folder.ID)
-      case addNewRecipeDidComplete(Recipe.ID)
-      case folderTapped(Folder.ID)
-      case recipeTapped(Recipe.ID)
+      case navigateToFolder(Folder.ID)
+      case navigateToRecipe(Recipe.ID)
       case folderUpdated(FolderReducer.State)
     }
 
@@ -139,6 +139,9 @@ struct FolderReducer: Reducer {
       }
       Scope(state: \.recipeSection, action: /FolderReducer.Action.recipeSection) {
         GridSectionReducer()
+      }
+      Scope(state: \.search, action: /FolderReducer.Action.search) {
+        SearchReducer()
       }
       BindingReducer()
       Reduce<FolderReducer.State, FolderReducer.Action> { state, action in
@@ -214,9 +217,6 @@ struct FolderReducer: Reducer {
           }
           return .none
           
-        case .moveSelectedButtonTapped:
-          return .none
-          
         case .deleteSelectedButtonTapped:
           state.alert = .delete
           return .none
@@ -230,7 +230,7 @@ struct FolderReducer: Reducer {
           )
           state.folder.folders.append(newFolder)
           state.folderSection.gridItems.append(.init(newFolder))
-          return .send(.delegate(.addNewFolderDidComplete(newFolder.id)), animation: .default)
+          return .send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
           
         case .newRecipeButtonTapped:
           let newRecipe = Recipe(
@@ -241,18 +241,18 @@ struct FolderReducer: Reducer {
           )
           state.folder.recipes.append(newRecipe)
           state.recipeSection.gridItems.append(.init(newRecipe))
-          return .send(.delegate(.addNewRecipeDidComplete(newRecipe.id)), animation: .default)
+          return .send(.delegate(.navigateToRecipe(newRecipe.id)), animation: .default)
           
         case let .folderSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.folderTapped(id)))
+            return .send(.delegate(.navigateToFolder(id)))
           }
           
         case let .recipeSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.recipeTapped(id)))
+            return .send(.delegate(.navigateToRecipe(id)))
           }
           
         case let .alert(.presented(action)):
@@ -275,7 +275,11 @@ struct FolderReducer: Reducer {
           state.alert = nil
           return .none
           
-        case .binding, .folderSection, .recipeSection, .alert, .delegate:
+          
+        case let .search(.delegate(.searchResultTapped(id))):
+          return .send(.delegate(.navigateToRecipe(id)))
+          
+        case .binding, .folderSection, .recipeSection, .alert, .search, .delegate:
           return .none
         }
       }
@@ -320,7 +324,8 @@ private extension GridItemReducer.State where ID == Folder.ID {
   init(_ folder: Folder) {
     self.init(
       id: folder.id,
-      name: folder.name,
+      name: folder.name, 
+      description: "\(folder.recipes.count) Recipes",
       imageData: folder.imageData
     )
   }
@@ -330,9 +335,10 @@ private extension GridItemReducer.State where ID == Recipe.ID {
   init(_ recipe: Recipe) {
     self.init(
       id: recipe.id,
-      name: recipe.name,
+      name: recipe.name, 
+      description: recipe.lastEditDate.formattedDate,
       imageData: recipe.imageData.first,
-      enabledContextMenuActions: .init(arrayLiteral: .rename, .move, .delete)
+      enabledContextMenuActions: .init(arrayLiteral: .rename, .delete)
     )
   }
 }

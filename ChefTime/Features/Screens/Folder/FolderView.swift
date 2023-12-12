@@ -7,7 +7,6 @@ struct FolderView: View {
   @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
-    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       Group {
         if viewStore.loadStatus == .isLoading {
@@ -46,9 +45,17 @@ struct FolderView: View {
             .navigationBarBackButtonHidden(viewStore.editStatus != nil)
             .toolbar { toolbar(viewStore: viewStore) }
             .searchable(
-              text: .constant(""),
+              text: viewStore.binding(
+                get: { $0.search.query },
+                send: { .search(.setQuery($0) )}
+              ),
               placement: .navigationBarDrawer(displayMode: .always)
-            )
+            ) {
+              SearchView(store: store.scope(
+                state: \.search,
+                action: FolderReducer.Action.search
+              ))
+            }
             .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
               withAnimation {
                 proxy.scrollTo(newScrollViewIndex, anchor: .center)
@@ -85,11 +92,6 @@ extension FolderView {
       }
       
       ToolbarItemGroup(placement: .bottomBar) {
-        Button("Move") {
-          viewStore.send(.moveSelectedButtonTapped, animation: .default)
-        }
-        //        .disabled(viewStore.userFoldersSection.selection.isEmpty)
-        .accentColor(.yellow)
         Spacer()
         Button("Delete") {
           viewStore.send(.deleteSelectedButtonTapped, animation: .default)

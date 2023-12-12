@@ -5,7 +5,7 @@ struct StepView: View {
   let store: StoreOf<StepReducer>
   let index: Int // Immutable index representing positon in list.
   @Environment(\.maxScreenWidth) var maxScreenWidth
-  @Environment(\.isHidingStepImages) var isHidingStepImages
+  @Environment(\.isHidingImages) var isHidingImages
   @FocusState private var focusedField: StepReducer.FocusField?
   
   var body: some View {
@@ -21,8 +21,8 @@ struct StepView: View {
               Image(systemName: "camera.fill")
                 .accentColor(.primary)
             }
-            .disabled(isHidingStepImages || !viewStore.photos.photos.isEmpty || viewStore.photos.photoEditInFlight)
-            .opacity(isHidingStepImages ? 0.0 : 1.0)
+            .disabled(isHidingImages || !viewStore.photos.photos.isEmpty || viewStore.photos.photoEditInFlight)
+            .opacity(isHidingImages ? 0.0 : 1.0)
           }
           .fontWeight(.medium)
           .padding(.bottom, 1)
@@ -48,7 +48,7 @@ struct StepView: View {
         // Display the photos only if we are not hiding the photos
         // and if we have photos or we are uploading the first photo.
         let isHidingPhotosView: Bool = {
-          if isHidingStepImages { return true }
+          if isHidingImages { return true }
           else if !viewStore.photos.photos.isEmpty { return false }
           else {
             return !(viewStore.photos.photoEditStatus == .addWhenEmpty && viewStore.photos.photoEditInFlight)
@@ -62,7 +62,7 @@ struct StepView: View {
         
         Spacer()
       }
-      .animation(.default, value: isHidingStepImages) // TODO: Why?
+      .animation(.default, value: isHidingImages) // TODO: Why?
       .synchronize(viewStore.$focusedField, $focusedField)
       .contextMenu {
         Button {

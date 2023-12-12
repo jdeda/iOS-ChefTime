@@ -11,7 +11,7 @@ struct StepListReducer: Reducer {
       }
     }
     @BindingState var isExpanded: Bool = true
-    @BindingState var isHidingStepImages: Bool = false
+    @BindingState var isHidingImages: Bool = false
     @BindingState var focusedField: FocusField? = nil
     
     init(recipeSections: IdentifiedArrayOf<Recipe.StepSection>) {
@@ -82,7 +82,7 @@ struct StepListReducer: Reducer {
         return .none
         
       case .hideImages:
-        state.isHidingStepImages.toggle()
+        state.isHidingImages.toggle()
         return .none
         
       case .binding(\.$isExpanded):

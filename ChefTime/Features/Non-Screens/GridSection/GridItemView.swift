@@ -4,11 +4,9 @@ import SwiftUI
 struct GridItemView<ID: Equatable & Hashable>: View {
   let store: StoreOf<GridItemReducer<ID>>
   let isEditing: Bool
-//  let isSelected: Bool
   @Environment(\.isHidingImages) var isHidingImages
   
   var body: some View {
-    let _ = Self._printChanges()
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         ZStack {
@@ -52,7 +50,8 @@ struct GridItemView<ID: Equatable & Hashable>: View {
           .lineLimit(2)
           .font(.title3)
           .fontWeight(.bold)
-        Text("Created 8/13/23") // TODO: Put real dates here.
+        
+        Text(viewStore.description)
           .lineLimit(2)
           .font(.body)
           .foregroundColor(.secondary)
@@ -122,13 +121,6 @@ struct GridItemView<ID: Equatable & Hashable>: View {
             Text("Rename")
           }
         }
-        if viewStore.enabledContextMenuActions.contains(.move) {
-          Button {
-            viewStore.send(.delegate(.move), animation: .default)
-          } label: {
-            Text("Move")
-          }
-        }
         if viewStore.enabledContextMenuActions.contains(.delete) {
           Button(role: .destructive) {
             viewStore.send(.deleteButtonTapped, animation: .default)
@@ -185,12 +177,13 @@ private struct RenameAlert: View {
         initialState: .init(
           id: Recipe.longMock.id,
           name: Recipe.longMock.name,
+          description: Recipe.longMock.lastEditDate.formattedDate,
           imageData: Recipe.longMock.imageData.first
         ),
         reducer: GridItemReducer.init
       ),
       isEditing: false
-//      isSelected: false
+      //      isSelected: false
     )
     .padding(50)
     .onAppear {

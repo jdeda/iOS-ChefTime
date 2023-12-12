@@ -4,20 +4,11 @@ import ComposableArchitecture
 struct StepListView: View {
   let store: StoreOf<StepListReducer>
   @FocusState private var focusedField: StepListReducer.FocusField?
-  @Environment(\.isHidingStepImages) var isHidingStepImages
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-          Toggle(isOn: .constant(viewStore.isHidingStepImages)) {
-            Text("Hide Images")
-              .textSubtitleStyle()
-          } // onTapGesture because regular Toggle just breaks and you can't click it.
-          .onTapGesture {
-            viewStore.send(.hideImagesToggled)
-          }
-          
           LazyVStack {
             ForEachStore(store.scope(state: \.stepSections, action: StepListReducer.Action.stepSections)) { childStore in
               if viewStore.stepSections.count == 1 {
@@ -46,7 +37,6 @@ struct StepListView: View {
         .disclosureGroupStyle(CustomDisclosureGroupStyle())
       }
       .synchronize(viewStore.$focusedField, $focusedField)
-      .environment(\.isHidingStepImages, viewStore.isHidingStepImages)
     }
   }
 }

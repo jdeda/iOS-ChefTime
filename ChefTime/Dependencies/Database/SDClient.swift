@@ -121,6 +121,7 @@ actor SDClient: ModelActor {
     let sdFolder = (try? self.modelContext.fetch(fetchDescriptor)) ?? []
     return sdFolder.map(Folder.init)
   }
+
   
     /**
      map the value type, ie: Folder to an existing class inside the modelContext
@@ -240,6 +241,12 @@ actor SDClient: ModelActor {
     }
     self.modelContext.delete(sdRecipe)
     try self.modelContext.save()
+  }
+  
+  func searchRecipes(containing query: String) -> [Recipe] {
+    self.retrieveRecipes(FetchDescriptor<SDRecipe>(predicate: #Predicate<SDRecipe> {
+      $0.searchString.localizedStandardContains(query)
+    }))
   }
   
   func printAll() {
@@ -429,9 +436,10 @@ internal struct MockDataGenerator {
     
 //    let jsonDir = Self.jsonFiles
     let jsonDir = Bundle.main.url(forResource: "JSON", withExtension: nil)!
-    let f1 = await fetchFolders(jsonDir.appendingPathComponent("system"))
+//    let f1 = await fetchFolders(jsonDir.appendingPathComponent("system"))
     let f2 = await fetchFolders(jsonDir.appendingPathComponent("user"))
-    return f1 + f2
+    return f2
+//    return f1 + f2
   }
   
   // TODO: Migrate your old data to the new data, including new dates!
