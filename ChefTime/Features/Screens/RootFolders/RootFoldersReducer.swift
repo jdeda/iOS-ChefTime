@@ -65,8 +65,8 @@ struct RootFoldersReducer: Reducer {
     
     case delegate(DelegateAction)
     enum DelegateAction: Equatable {
-      case addNewFolderDidComplete(Folder.ID)
-      case userFolderTapped(Folder.ID)
+      case navigateToFolder(Folder.ID)
+      case navigateToRecipe(Recipe.ID)
     }
     
     case alert(PresentationAction<AlertAction>)
@@ -150,17 +150,16 @@ struct RootFoldersReducer: Reducer {
           )
           state.userFolders.append(newFolder)
           state.userFoldersSection.gridItems.append(.init(newFolder))
-          return .send(.delegate(.addNewFolderDidComplete(newFolder.id)), animation: .default)
+          return .send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
                     
         case let .userFoldersSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.userFolderTapped(id)))
+            return .send(.delegate(.navigateToFolder(id)))
           }
           
         case let .search(.delegate(.searchResultTapped(id))):
-          // TODO: .... NAV
-          return .none
+          return .send(.delegate(.navigateToRecipe(id)))
 
         case .binding:
           return .none

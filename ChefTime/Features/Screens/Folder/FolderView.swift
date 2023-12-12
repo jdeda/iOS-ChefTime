@@ -45,9 +45,17 @@ struct FolderView: View {
             .navigationBarBackButtonHidden(viewStore.editStatus != nil)
             .toolbar { toolbar(viewStore: viewStore) }
             .searchable(
-              text: .constant(""),
+              text: viewStore.binding(
+                get: { $0.search.query },
+                send: { .search(.setQuery($0) )}
+              ),
               placement: .navigationBarDrawer(displayMode: .always)
-            )
+            ) {
+              SearchView(store: store.scope(
+                state: \.search,
+                action: FolderReducer.Action.search
+              ))
+            }
             .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
               withAnimation {
                 proxy.scrollTo(newScrollViewIndex, anchor: .center)
