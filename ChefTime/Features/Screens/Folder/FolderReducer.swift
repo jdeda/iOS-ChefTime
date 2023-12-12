@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Log4swift
 
 // TODO: MAKE SURE PARENT IDs work!
 struct FolderReducer: Reducer {
@@ -156,10 +157,12 @@ struct FolderReducer: Reducer {
           let folder = state.folder
           return .run { send in
             if let newFolder = await self.database.retrieveFolder(folder.id) {
+              Log4swift[Self.self].info("fetchFolderSuccess...")
               await send(.fetchFolderSuccess(newFolder))
             }
             else {
               // TODO: - Handle DB errors in future
+              Log4swift[Self.self].info("createFolder...")
               try! await self.database.createFolder(folder)
             }
             await send(.didLoad)

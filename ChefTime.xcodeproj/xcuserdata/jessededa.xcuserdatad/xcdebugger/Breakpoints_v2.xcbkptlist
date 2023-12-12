@@ -3,4 +3,164 @@
    uuid = "AD1F4572-D5E1-40FA-B5A9-E6595D7996CA"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AD60B766-1234-4146-85CE-053050B4FD23"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Screens/App/AppReducer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "44"
+            endingLineNumber = "44"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C1B89364-CC61-4700-B859-AB36FC860C1B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Screens/Folder/FolderReducer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "155"
+            endingLineNumber = "155"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "331C5999-4174-45A2-9E7D-F850FE9A891C"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Screens/Folder/FolderReducer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "52FC57A9-DC52-4169-AD56-47B57F34C1A8"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Screens/Folder/FolderReducer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "166"
+            endingLineNumber = "166"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "52FC57A9-DC52-4169-AD56-47B57F34C1A8 - a7ce316fd53b9828"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.FolderReducer.Action&gt;) async -&gt; () in closure #4 (inout ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.FolderReducer.Action&gt; in closure #1 () -&gt; ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.GridSectionReducer&lt;Tagged.Tagged&lt;ChefTime.Folder, Foundation.UUID&gt;&gt;&gt;, ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.GridSectionReducer&lt;Tagged.Tagged&lt;ChefTime.Recipe, Foundation.UUID&gt;&gt;&gt;&gt;, ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.SearchReducer&gt;&gt;, ComposableArchitecture.BindingReducer&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.FolderReducer.Action&gt;&gt;, ComposableArchitecture.Reduce&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;&gt; in ChefTime.FolderReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Screens/Folder/FolderReducer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "166"
+                  endingLineNumber = "166"
+                  offsetFromSymbolStart = "440">
+               </Location>
+               <Location
+                  uuid = "52FC57A9-DC52-4169-AD56-47B57F34C1A8 - 2238847517d76f45"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) await resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.FolderReducer.Action&gt;) async -&gt; () in closure #4 (inout ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.FolderReducer.Action&gt; in closure #1 () -&gt; ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.GridSectionReducer&lt;Tagged.Tagged&lt;ChefTime.Folder, Foundation.UUID&gt;&gt;&gt;, ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.GridSectionReducer&lt;Tagged.Tagged&lt;ChefTime.Recipe, Foundation.UUID&gt;&gt;&gt;&gt;, ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.SearchReducer&gt;&gt;, ComposableArchitecture.BindingReducer&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.FolderReducer.Action&gt;&gt;, ComposableArchitecture.Reduce&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;&gt; in ChefTime.FolderReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Screens/Folder/FolderReducer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "166"
+                  endingLineNumber = "166"
+                  offsetFromSymbolStart = "44">
+               </Location>
+               <Location
+                  uuid = "52FC57A9-DC52-4169-AD56-47B57F34C1A8 - 52168a21408e102c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(7) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.FolderReducer.Action&gt;) async -&gt; () in closure #4 (inout ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.FolderReducer.Action&gt; in closure #1 () -&gt; ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.GridSectionReducer&lt;Tagged.Tagged&lt;ChefTime.Folder, Foundation.UUID&gt;&gt;&gt;, ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.GridSectionReducer&lt;Tagged.Tagged&lt;ChefTime.Recipe, Foundation.UUID&gt;&gt;&gt;&gt;, ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.SearchReducer&gt;&gt;, ComposableArchitecture.BindingReducer&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.FolderReducer.Action&gt;&gt;, ComposableArchitecture.Reduce&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;&gt; in ChefTime.FolderReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Screens/Folder/FolderReducer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "166"
+                  endingLineNumber = "166"
+                  offsetFromSymbolStart = "44">
+               </Location>
+               <Location
+                  uuid = "52FC57A9-DC52-4169-AD56-47B57F34C1A8 - a96ac4eed3155b65"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(10) suspend resume partial function for closure #1 @Sendable (ComposableArchitecture.Send&lt;ChefTime.FolderReducer.Action&gt;) async -&gt; () in closure #4 (inout ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action) -&gt; ComposableArchitecture.Effect&lt;ChefTime.FolderReducer.Action&gt; in closure #1 () -&gt; ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.ReducerBuilder&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;._Sequence&lt;ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.GridSectionReducer&lt;Tagged.Tagged&lt;ChefTime.Folder, Foundation.UUID&gt;&gt;&gt;, ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.GridSectionReducer&lt;Tagged.Tagged&lt;ChefTime.Recipe, Foundation.UUID&gt;&gt;&gt;&gt;, ComposableArchitecture.Scope&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.SearchReducer&gt;&gt;, ComposableArchitecture.BindingReducer&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action, ChefTime.FolderReducer.Action&gt;&gt;, ComposableArchitecture.Reduce&lt;ChefTime.FolderReducer.State, ChefTime.FolderReducer.Action&gt;&gt; in ChefTime.FolderReducer.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Developement/Swift/03_Apps_TCA/ChefTime/ChefTime/Features/Screens/Folder/FolderReducer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "166"
+                  endingLineNumber = "166"
+                  offsetFromSymbolStart = "44">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DC45AEAD-6B43-40E0-91B6-7D3962529FDF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Screens/Folder/FolderReducer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "151"
+            endingLineNumber = "151"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B5C298E7-960C-4DE7-9FF8-3A9438B9DB8A"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Screens/Folder/FolderReducer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "173"
+            endingLineNumber = "173"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

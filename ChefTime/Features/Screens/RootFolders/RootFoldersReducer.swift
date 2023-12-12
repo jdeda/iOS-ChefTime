@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Log4swift
 
 // TODO: Rename FoldersReduer to RootFoldersReducer
 // TODO: Deal with seperation of systemFolders, specificSystemFolders, and userFolders.
@@ -6,23 +7,7 @@ struct RootFoldersReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad
     var userFolders: IdentifiedArrayOf<Folder>
-    var userFoldersSection: GridSectionReducer<Folder.ID>.State {
-      didSet {
-        // Here, we simply accumulate values.
-        // The GridSection feature can only delete and edit items (name and images),
-        // we assume here that is what happens, we just edit or skip the value
-        // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
-        let newIDs = self.userFoldersSection.gridItems.ids
-        self.userFolders = self.userFolders.reduce(into: []) { partial, folder in
-          if newIDs.contains(folder.id) {
-            var mutatedFolder = folder
-            mutatedFolder.name = self.userFoldersSection.gridItems[id: folder.id]!.name
-            mutatedFolder.imageData = self.userFoldersSection.gridItems[id: folder.id]!.photos.photos.first
-            partial.append(folder)
-          }
-        }
-      }
-    }
+    var userFoldersSection: GridSectionReducer<Folder.ID>.State
     var search: SearchReducer.State
     var scrollViewIndex: Int
     var isHidingImages: Bool
@@ -150,17 +135,33 @@ struct RootFoldersReducer: Reducer {
           )
           state.userFolders.append(newFolder)
           state.userFoldersSection.gridItems.append(.init(newFolder))
-          return .send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
-                    
+          return .run { send in
+            try! await self.database.createFolder(newFolder)
+            await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
+          }
+          
         case let .userFoldersSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
             return .send(.delegate(.navigateToFolder(id)))
           }
           
+        case .userFoldersSection:
+          let oldFolders = state.userFolders
+          let newIDs = state.userFoldersSection.gridItems.ids
+          state.userFolders = state.userFolders.reduce(into: []) { partial, folder in
+            if newIDs.contains(folder.id) {
+              var mutatedFolder = folder
+              mutatedFolder.name = state.userFoldersSection.gridItems[id: folder.id]!.name
+              mutatedFolder.imageData = state.userFoldersSection.gridItems[id: folder.id]!.photos.photos.first
+              partial.append(folder)
+            }
+          }
+          return self.persistFolders(oldFolders: oldFolders, newFolders: state.userFolders)
+          
         case let .search(.delegate(.searchResultTapped(id))):
           return .send(.delegate(.navigateToRecipe(id)))
-
+          
         case .binding:
           return .none
           
@@ -170,50 +171,57 @@ struct RootFoldersReducer: Reducer {
             return .none
             
           case .confirmDeleteButtonTapped:
+            let deletionIDs = state.userFoldersSection.selection
             state.userFoldersSection.gridItems = state.userFoldersSection.gridItems.filter {
-              !state.userFoldersSection.selection.contains($0.id)
+              !deletionIDs.contains($0.id)
             }
             state.userFoldersSection.selection = []
-            // TODO: update folders
-            return .none
+            return .run { send in
+              for id in deletionIDs {
+                try! await self.database.deleteFolder(id)
+              }
+            }
           }
           
         case .alert(.dismiss):
           state.alert = nil
           return .none
           
-        case .alert, .userFoldersSection, .delegate, .search:
+        case .alert, .delegate, .search:
           return .none
         }
       }
     }
-    .onChange(
-      of: \.userFolders,
-      removeDuplicates: { ($0.isEmpty && !$1.isEmpty) || $0 == $1 }
-    ) { oldFolders, newFolders in
-      Reduce { _, _ in
-          .run { _ in
-            enum UserFoldersUpdateID: Hashable { case debounce }
-            try await withTaskCancellation(id: UserFoldersUpdateID.debounce, cancelInFlight: true) {
-              // TODO: - Handle DB errors in future
-              try await self.clock.sleep(for: .seconds(1))
-              for updatedFolder in newFolders.intersectionByID(oldFolders).filter({ newFolders[id: $0.id] != oldFolders[id: $0.id] }) {
-                try! await self.database.updateFolder(updatedFolder)
-                print("Updated folder \(updatedFolder.id.uuidString)")
-              }
-              for addedFolder in newFolders.symmetricDifferenceByID(oldFolders) {
-                try! await self.database.createFolder(addedFolder)
-                print("Created folder \(addedFolder.id.uuidString)")
-              }
-              for removedFolder in oldFolders.symmetricDifferenceByID(newFolders) {
-                try! await self.database.deleteFolder(removedFolder.id)
-                print("Deleted folder \(removedFolder.id.uuidString)")
-              }
-            }
-          }
+    .signpost()
+  }
+}
+
+extension RootFoldersReducer {
+  func persistFolders(
+    oldFolders: IdentifiedArrayOf<Folder>,
+    newFolders: IdentifiedArrayOf<Folder>
+  ) -> Effect<Action> {
+    let removeDuplicates = (oldFolders.isEmpty && !newFolders.isEmpty) || oldFolders == newFolders
+    guard removeDuplicates else { return .none }
+    return .run { _ in
+      enum UserFoldersUpdateID: Hashable { case debounce }
+      try await withTaskCancellation(id: UserFoldersUpdateID.debounce, cancelInFlight: true) {
+        // TODO: - Handle DB errors in future
+        try await self.clock.sleep(for: .seconds(1))
+        for updatedFolder in newFolders.intersectionByID(oldFolders).filter({ newFolders[id: $0.id] != oldFolders[id: $0.id] }) {
+          try! await self.database.updateFolder(updatedFolder)
+          Log4swift[Self.self].info("Updated folder \(updatedFolder.id.uuidString)")
+        }
+        for addedFolder in newFolders.symmetricDifferenceByID(oldFolders) {
+          try! await self.database.createFolder(addedFolder)
+          Log4swift[Self.self].info("Created folder \(addedFolder.id.uuidString)")
+        }
+        for removedFolder in oldFolders.symmetricDifferenceByID(newFolders) {
+          try! await self.database.deleteFolder(removedFolder.id)
+          Log4swift[Self.self].info("Deleted folder \(removedFolder.id.uuidString)")
+        }
       }
     }
-    .signpost()
   }
 }
 
@@ -248,7 +256,7 @@ private extension GridItemReducer.State where ID == Folder.ID {
     }()
     self.init(
       id: folder.id,
-      name: folder.name, 
+      name: folder.name,
       description: "\(folder.recipes.count) Recipes",
       imageData: folder.imageData,
       enabledContextMenuActions: actions
