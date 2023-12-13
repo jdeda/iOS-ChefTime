@@ -58,9 +58,16 @@ struct FolderView: View {
             state: /FolderReducer.DestinationReducer.State.alert,
             action: FolderReducer.DestinationReducer.Action.alert
           )
-          .alert("New Folder", isPresented: .constant(viewStore.destination == .renameFolderAlert), actions: {
+          .alert("Rename", isPresented: .constant(viewStore.destination == .renameFolderAlert)) {
             RenameAlert(name: viewStore.folder.name) {
               viewStore.send(.acceptFolderNameButtonTapped($0), animation: .default)
+            } cancel: {
+              viewStore.send(.destination(.dismiss), animation: .default)
+            }
+          }
+          .alert("New Folder", isPresented: .constant(viewStore.destination == .nameNewFolderAlert), actions: {
+            RenameAlert(name: "") {
+              viewStore.send(.acceptNewFolderNameButtonTapped($0), animation: .default)
             } cancel: {
               viewStore.send(.destination(.dismiss), animation: .default)
             }

@@ -69,6 +69,7 @@ struct FolderReducer: Reducer {
     case newRecipeButtonTapped
     case renameFolderButtonTapped
     case acceptFolderNameButtonTapped(String)
+    case acceptNewFolderNameButtonTapped(String)
     case folderSection(GridSectionReducer<Folder.ID>.Action)
     case recipeSection(GridSectionReducer<Recipe.ID>.Action)
     case search(SearchReducer.Action)
@@ -195,19 +196,8 @@ struct FolderReducer: Reducer {
           
             // TODO: XXX Persist here directly
         case .newFolderButtonTapped:
-          let newFolder = Folder(
-            id: .init(rawValue: uuid()),
-            parentFolderID: state.folder.id,
-            name: "New Untitled Folder",
-            creationDate: date(),
-            lastEditDate: date()
-          )
-          state.folder.folders.append(newFolder)
-          state.folderSection.gridItems.append(.init(newFolder))
-          return .run { send in
-            try! await self.database.createFolder(newFolder)
-            await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
-          }
+          state.destination = .nameNewFolderAlert
+          return .none
           
           // TODO: XXX Persist here directly
         case .newRecipeButtonTapped:
@@ -234,6 +224,25 @@ struct FolderReducer: Reducer {
           state.folder.name = newName
           return .run { [folder = state.folder] send in
             try! await database.updateFolder(folder)
+          }
+          
+        case let .acceptNewFolderNameButtonTapped(name):
+          state.destination = nil
+          let newFolder = Folder(
+            id: .init(rawValue: uuid()),
+            parentFolderID: state.folder.id,
+            name: name,
+            creationDate: date(),
+            lastEditDate: date()
+          )
+          state.folder.folders.append(newFolder)
+          state.folderSection.gridItems.append(.init(newFolder))
+          return .run { send in
+            try! await self.database.createFolder(newFolder)
+            // We sleep briefly here to see the folder get inserted into the UI
+            try await clock.sleep(for: .milliseconds(500))
+
+            await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
           }
           
         case let .folderSection(.delegate(action)):
@@ -343,10 +352,12 @@ extension FolderReducer {
     enum State: Equatable {
       case alert(AlertState<Action.AlertAction>)
       case renameFolderAlert
+      case nameNewFolderAlert
     }
     
     enum Action: Equatable {
       case renameFolderAlert
+      case nameNewFolderAlert
       case alert(AlertAction)
       enum AlertAction: Equatable {
         case confirmDeleteSelectedButtonTapped
