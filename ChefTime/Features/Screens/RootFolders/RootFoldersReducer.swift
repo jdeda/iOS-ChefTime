@@ -15,7 +15,7 @@ struct RootFoldersReducer: Reducer {
     
     init(userFolders: IdentifiedArrayOf<Folder> = []) {
       self.userFolders = userFolders
-      self.userFoldersSection = .init(title: "User", gridItems: userFolders.map(GridItemReducer.State.init))
+      self.userFoldersSection = .init(title: "Folders", gridItems: userFolders.map(GridItemReducer.State.init))
       self.search = .init(query: "")
       self.isHidingImages = false
       self.isEditing = false
@@ -28,7 +28,7 @@ struct RootFoldersReducer: Reducer {
     
     var navigationTitle: String {
       let value = isEditing && userFoldersSection.selection.count > 0
-      return value ? "\(userFoldersSection.selection.count) Selected": "Folders"
+      return value ? "\(userFoldersSection.selection.count) Selected": "Home"
     }
   }
   

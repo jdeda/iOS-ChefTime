@@ -14,7 +14,7 @@ struct RootFoldersView: View {
         }
         else {
           ScrollView {
-            GridSectionNonGroupedView(
+            GridSectionView(
               store: store.scope(state: \.userFoldersSection, action: RootFoldersReducer.Action.userFoldersSection),
               isEditing: viewStore.isEditing
             )
