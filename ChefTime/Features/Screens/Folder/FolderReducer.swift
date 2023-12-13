@@ -11,7 +11,7 @@ struct FolderReducer: Reducer {
     var isHidingImages: Bool = false
     var scrollViewIndex: Int = 1
     var editStatus: Section?
-    @PresentationState var alert: AlertState<Action.AlertAction>?
+    @PresentationState var destination: DestinationReducer.State?
     var search: SearchReducer.State
     
     // TODO: - What to do with the dates here?
@@ -27,7 +27,7 @@ struct FolderReducer: Reducer {
       self.isHidingImages = false
       self.editStatus = nil
       self.scrollViewIndex = 1
-      self.alert = nil
+      self.destination = nil
       self.search = .init(query: "")
     }
     
@@ -69,6 +69,8 @@ struct FolderReducer: Reducer {
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case newRecipeButtonTapped
+    case renameFolderButtonTapped
+    case acceptFolderNameButtonTapped(String)
     case folderSection(GridSectionReducer<Folder.ID>.Action)
     case recipeSection(GridSectionReducer<Recipe.ID>.Action)
     case search(SearchReducer.Action)
@@ -82,11 +84,7 @@ struct FolderReducer: Reducer {
       case folderUpdated(FolderReducer.State)
     }
 
-    case alert(PresentationAction<AlertAction>)
-    
-    enum AlertAction: Equatable {
-      case confirmDeleteSelectedButtonTapped
-    }
+    case destination(PresentationAction<DestinationReducer.Action>)
   }
   
   
@@ -188,7 +186,7 @@ struct FolderReducer: Reducer {
           return .none
           
         case .deleteSelectedButtonTapped:
-          state.alert = .delete
+          state.destination = .alert(.delete)
           return .none
           
             // TODO: XXX Persist here directly
@@ -221,6 +219,17 @@ struct FolderReducer: Reducer {
           return .run { send in
             try! await self.database.createRecipe(newRecipe)
             await send(.delegate(.navigateToRecipe(newRecipe.id)), animation: .default)
+          }
+          
+        case .renameFolderButtonTapped:
+          state.destination = .renameFolderAlert
+          return .none
+          
+        case let .acceptFolderNameButtonTapped(newName):
+          state.destination = nil
+          state.folder.name = newName
+          return .run { [folder = state.folder] send in
+            try! await database.updateFolder(folder)
           }
           
         case let .folderSection(.delegate(action)):
@@ -272,7 +281,7 @@ struct FolderReducer: Reducer {
           return self.persistRecipes(oldRecipes: oldRecipes, newRecipes: state.folder.recipes)
 
 
-        case let .alert(.presented(action)):
+        case let .destination(.presented(.alert(action))):
           switch action {
             // TODO: XXX Persist here directly
           case .confirmDeleteSelectedButtonTapped:
@@ -304,20 +313,45 @@ struct FolderReducer: Reducer {
             }
           }
           
-        case .alert(.dismiss):
-          state.alert = nil
+        case .destination(.dismiss):
+          state.destination = nil
           return .none
           
           
         case let .search(.delegate(.searchResultTapped(id))):
           return .send(.delegate(.navigateToRecipe(id)))
           
-        case .binding, .alert, .search, .delegate:
+        case .binding, .destination, .search, .delegate:
           return .none
         }
       }
+      .ifLet(\.$destination, action: /FolderReducer.Action.destination) {
+        DestinationReducer()
+      }
     }
+    
     .signpost()
+  }
+}
+
+extension FolderReducer {
+  struct DestinationReducer: Reducer {
+    enum State: Equatable {
+      case alert(AlertState<Action.AlertAction>)
+      case renameFolderAlert
+    }
+    
+    enum Action: Equatable {
+      case renameFolderAlert
+      case alert(AlertAction)
+      enum AlertAction: Equatable {
+        case confirmDeleteSelectedButtonTapped
+      }
+    }
+    
+    var body: some ReducerOf<Self> {
+      EmptyReducer()
+    }
   }
 }
 
@@ -377,7 +411,7 @@ extension FolderReducer {
   }
 }
 
-extension AlertState where Action == FolderReducer.Action.AlertAction {
+extension AlertState where Action == FolderReducer.DestinationReducer.Action.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")

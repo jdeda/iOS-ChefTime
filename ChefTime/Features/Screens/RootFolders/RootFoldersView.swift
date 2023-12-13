@@ -15,6 +15,10 @@ struct RootFoldersView: View {
         else {
           ScrollViewReader { proxy in
             ScrollView {
+              Rectangle()
+                .fill(.clear)
+                .frame(maxWidth: .infinity, maxHeight: 5)
+                .id(1)
               GridSectionNonGroupedView(
                 store: store.scope(state: \.userFoldersSection, action: RootFoldersReducer.Action.userFoldersSection),
                 isEditing: viewStore.isEditing
@@ -22,9 +26,13 @@ struct RootFoldersView: View {
               .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
               .opacity(viewStore.userFoldersSection.gridItems.isEmpty ? 0.0 : 1.0)
               .frame(maxHeight: viewStore.userFoldersSection.gridItems.isEmpty ? 0 : .infinity)
-              .id(1)
+              .id(0)
+              
+              Rectangle()
+                .fill(.clear)
+                .frame(maxWidth: .infinity, maxHeight: 5)
+                .id(2)
             }
-            
             .navigationTitle(viewStore.navigationTitle)
             .navigationBarBackButtonHidden(viewStore.isEditing)
             .toolbar { toolbar(viewStore: viewStore) }
@@ -40,12 +48,26 @@ struct RootFoldersView: View {
                 action: RootFoldersReducer.Action.search
               ))
             }
+            .alert(
+              store: store.scope(state: \.$destination, action: RootFoldersReducer.Action.destination),
+              state: /RootFoldersReducer.DestinationReducer.State.alert,
+              action: RootFoldersReducer.DestinationReducer.Action.alert
+            )
+            .alert("New Folder", isPresented: .constant(viewStore.destination == .nameNewFolderAlert), actions: {
+              RenameAlert(name: "") {
+                viewStore.send(.acceptFolderNameButtonTapped($0), animation: .default)
+              } cancel: {
+                viewStore.send(.destination(.dismiss), animation: .default)
+              }
+            }, message: {
+              Text("Enter a name for this folder.")
+            })
             .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
               withAnimation {
+                print("scrolling...")
                 proxy.scrollTo(newScrollViewIndex, anchor: .center)
               }
             }
-            .alert(store: store.scope(state: \.$alert, action: RootFoldersReducer.Action.alert))
             .environment(\.isHidingImages, viewStore.isHidingImages)
             .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
           }

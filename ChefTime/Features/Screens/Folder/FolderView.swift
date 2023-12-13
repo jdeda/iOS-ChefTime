@@ -16,7 +16,6 @@ struct FolderView: View {
           ScrollViewReader { proxy in
             ScrollView {
               
-              
               // Folders
               GridSectionView(
                 store: store.scope(state: \.folderSection, action: FolderReducer.Action.folderSection),
@@ -27,7 +26,6 @@ struct FolderView: View {
               .frame(maxHeight: viewStore.isHidingFolders ? 0 : .infinity)
               .disabled(viewStore.isHidingFolders)
               .id(1)
-//              .background(.random)
               
               // Recipes.
               GridSectionView(
@@ -56,13 +54,26 @@ struct FolderView: View {
                 action: FolderReducer.Action.search
               ))
             }
+            .alert(
+              store: store.scope(state: \.$destination, action: FolderReducer.Action.destination),
+              state: /FolderReducer.DestinationReducer.State.alert,
+              action: FolderReducer.DestinationReducer.Action.alert
+            )
+            .alert("New Folder", isPresented: .constant(viewStore.destination == .renameFolderAlert), actions: {
+              RenameAlert(name: viewStore.folder.name) {
+                viewStore.send(.acceptFolderNameButtonTapped($0), animation: .default)
+              } cancel: {
+                viewStore.send(.destination(.dismiss), animation: .default)
+              }
+            }, message: {
+              Text("Enter a name for this folder.")
+            })
             .onChange(of: viewStore.scrollViewIndex) { _, newScrollViewIndex in
               withAnimation {
                 proxy.scrollTo(newScrollViewIndex, anchor: .center)
               }
             }
             .environment(\.isHidingImages, viewStore.isHidingImages)
-            .alert(store: store.scope(state: \.$alert, action: FolderReducer.Action.alert))
           }
           .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
         }
@@ -121,6 +132,11 @@ extension FolderView {
             viewStore.send(.toggleHideImagesButtonTapped, animation: .default)
           } label: {
             Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
+          }
+          Button {
+            viewStore.send(.renameFolderButtonTapped, animation: .default)
+          } label: {
+            Label("Rename", systemImage: "pencil")
           }
         } label: {
           Image(systemName: "ellipsis.circle")

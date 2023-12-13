@@ -12,7 +12,7 @@ struct RootFoldersReducer: Reducer {
     var scrollViewIndex: Int
     var isHidingImages: Bool
     @BindingState var isEditing: Bool
-    @PresentationState var alert: AlertState<Action.AlertAction>?
+    @PresentationState var destination: DestinationReducer.State?
     
     init(userFolders: IdentifiedArrayOf<Folder> = []) {
       self.userFolders = userFolders
@@ -21,7 +21,7 @@ struct RootFoldersReducer: Reducer {
       self.scrollViewIndex = 1
       self.isHidingImages = false
       self.isEditing = false
-      self.alert = nil
+      self.destination = nil
     }
     
     var hasSelectedAll: Bool {
@@ -44,6 +44,7 @@ struct RootFoldersReducer: Reducer {
     case hideImagesButtonTapped
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
+    case acceptFolderNameButtonTapped(String)
     case userFoldersSection(GridSectionReducer<Folder.ID>.Action)
     case search(SearchReducer.Action)
     case binding(BindingAction<State>)
@@ -54,11 +55,7 @@ struct RootFoldersReducer: Reducer {
       case navigateToRecipe(Recipe.ID)
     }
     
-    case alert(PresentationAction<AlertAction>)
-    enum AlertAction: Equatable {
-      case cancelButtonTapped
-      case confirmDeleteButtonTapped
-    }
+    case destination(PresentationAction<DestinationReducer.Action>)
   }
   
   @Dependency(\.database) var database
@@ -122,23 +119,33 @@ struct RootFoldersReducer: Reducer {
           return .none
           
         case .deleteSelectedButtonTapped:
-          state.alert = .delete
+          state.destination = .alert(.delete)
           return .none
           
         case .newFolderButtonTapped:
+          state.destination = .nameNewFolderAlert
+          return .none
+          
+        case let .acceptFolderNameButtonTapped(name):
+          state.destination = nil
           let newFolder = Folder(
             id: .init(rawValue: uuid()),
-            name: "New Untitled Folder",
+            name: name,
             folderType: .user,
             creationDate: date(),
             lastEditDate: date()
           )
           state.userFolders.append(newFolder)
           state.userFoldersSection.gridItems.append(.init(newFolder))
+          state.scrollViewIndex = 2
           return .run { send in
             try! await self.database.createFolder(newFolder)
+            // We sleep briefly here to see the folder get inserted into the UI
+            // TODO: Scroll to bottom...
+            try await clock.sleep(for: .milliseconds(500))
             await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
           }
+          
           
         case let .userFoldersSection(.delegate(action)):
           switch action {
@@ -165,7 +172,7 @@ struct RootFoldersReducer: Reducer {
         case .binding:
           return .none
           
-        case let .alert(.presented(action)):
+        case let .destination(.presented(.alert(action))):
           switch action {
           case .cancelButtonTapped:
             return .none
@@ -183,13 +190,21 @@ struct RootFoldersReducer: Reducer {
             }
           }
           
-        case .alert(.dismiss):
-          state.alert = nil
+          // TODO: Make sure dismissal works
+        case .destination(.dismiss):
+          state.destination = nil
           return .none
           
-        case .alert, .delegate, .search:
+//        case .alert(.dismiss):
+//          state.alert = nil
+//          return .none
+          
+        case .destination, .delegate, .search:
           return .none
         }
+      }
+      .ifLet(\.$destination, action: /RootFoldersReducer.Action.destination) {
+        DestinationReducer()
       }
     }
     .signpost()
@@ -225,7 +240,29 @@ extension RootFoldersReducer {
   }
 }
 
-extension AlertState where Action == RootFoldersReducer.Action.AlertAction {
+extension RootFoldersReducer {
+  struct DestinationReducer: Reducer {
+    enum State: Equatable {
+      case alert(AlertState<Action.AlertAction>)
+      case nameNewFolderAlert
+    }
+    
+    enum Action: Equatable {
+      case nameNewFolderAlert
+      case alert(AlertAction)
+      enum AlertAction: Equatable {
+        case cancelButtonTapped // TODO: Rename this
+        case confirmDeleteButtonTapped
+      }
+    }
+    
+    var body: some ReducerOf<Self> {
+      EmptyReducer()
+    }
+  }
+}
+
+extension AlertState where Action == RootFoldersReducer.DestinationReducer.Action.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")
