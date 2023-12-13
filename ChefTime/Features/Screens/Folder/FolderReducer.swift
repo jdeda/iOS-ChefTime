@@ -9,7 +9,6 @@ struct FolderReducer: Reducer {
     var folderSection: GridSectionReducer<Folder.ID>.State
     var recipeSection: GridSectionReducer<Recipe.ID>.State
     var isHidingImages: Bool = false
-    var scrollViewIndex: Int = 1
     var editStatus: Section?
     @PresentationState var destination: DestinationReducer.State?
     var search: SearchReducer.State
@@ -26,7 +25,6 @@ struct FolderReducer: Reducer {
       self.recipeSection = .init(title: "Recipes", gridItems: folder.recipes.map(GridItemReducer.State.init))
       self.isHidingImages = false
       self.editStatus = nil
-      self.scrollViewIndex = 1
       self.destination = nil
       self.search = .init(query: "")
     }

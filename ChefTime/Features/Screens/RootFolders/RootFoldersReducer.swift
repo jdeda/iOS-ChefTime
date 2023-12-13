@@ -9,7 +9,6 @@ struct RootFoldersReducer: Reducer {
     var userFolders: IdentifiedArrayOf<Folder>
     var userFoldersSection: GridSectionReducer<Folder.ID>.State
     var search: SearchReducer.State
-    var scrollViewIndex: Int
     var isHidingImages: Bool
     @BindingState var isEditing: Bool
     @PresentationState var destination: DestinationReducer.State?
@@ -18,7 +17,6 @@ struct RootFoldersReducer: Reducer {
       self.userFolders = userFolders
       self.userFoldersSection = .init(title: "User", gridItems: userFolders.map(GridItemReducer.State.init))
       self.search = .init(query: "")
-      self.scrollViewIndex = 1
       self.isHidingImages = false
       self.isEditing = false
       self.destination = nil
@@ -96,13 +94,11 @@ struct RootFoldersReducer: Reducer {
         case .selectFoldersButtonTapped:
           state.isEditing = true
           state.userFoldersSection.isExpanded = true
-          state.scrollViewIndex = 1
           return .none
           
         case .doneButtonTapped:
           state.isEditing = false
           state.userFoldersSection.selection = []
-          state.scrollViewIndex = 1
           for id in state.userFoldersSection.gridItems.ids {
             state.userFoldersSection.gridItems[id: id]?.isSelected = false
           }
@@ -137,11 +133,9 @@ struct RootFoldersReducer: Reducer {
           )
           state.userFolders.append(newFolder)
           state.userFoldersSection.gridItems.append(.init(newFolder))
-          state.scrollViewIndex = 2
           return .run { send in
             try! await self.database.createFolder(newFolder)
             // We sleep briefly here to see the folder get inserted into the UI
-            // TODO: Scroll to bottom...
             try await clock.sleep(for: .milliseconds(500))
             await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
           }

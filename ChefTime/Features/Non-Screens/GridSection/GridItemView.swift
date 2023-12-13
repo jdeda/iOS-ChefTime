@@ -43,6 +43,7 @@ struct GridItemView<ID: Equatable & Hashable>: View {
                 .padding(.bottom)
                 .opacity(viewStore.isSelected ? 0.0:  1.0)
             }
+            .accentColor(.yellow)
           }
         }
         
