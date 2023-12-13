@@ -108,6 +108,9 @@ struct RootFoldersReducer: Reducer {
           state.userFoldersSection.selection = .init(
             state.hasSelectedAll ? [] : state.userFoldersSection.gridItems.map(\.id)
           )
+          state.userFoldersSection.gridItems.ids.forEach { id in
+            state.userFoldersSection.gridItems[id: id]!.isSelected = state.hasSelectedAll
+          }
           return .none
           
         case .hideImagesButtonTapped:

@@ -172,11 +172,17 @@ struct FolderReducer: Reducer {
             state.folderSection.selection = .init(
               state.hasSelectedAll ? [] : state.folderSection.gridItems.map(\.id)
             )
+            state.folderSection.gridItems.ids.forEach { id in
+              state.folderSection.gridItems[id: id]!.isSelected = state.hasSelectedAll
+            }
             break
           case .recipes:
             state.recipeSection.selection = .init(
               state.hasSelectedAll ? [] : state.recipeSection.gridItems.map(\.id)
             )
+            state.recipeSection.gridItems.ids.forEach { id in
+              state.recipeSection.gridItems[id: id]!.isSelected = state.hasSelectedAll
+            }
             break
           case .none:
             break
