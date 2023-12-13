@@ -63,12 +63,11 @@ struct GridItemView<ID: Equatable & Hashable>: View {
         state: /GridItemReducer.DestinationReducer.State.alert,
         action: GridItemReducer.DestinationReducer.Action.alert
       )
-      .alert("Rename", isPresented: viewStore.binding(
-        get: { $0.destination == .renameAlert },
-        send: { _ in .destination(.dismiss) }
-      )) {
+      .alert("Rename", isPresented: .constant(viewStore.destination == .renameAlert)) {
         RenameAlert(name: viewStore.name) {
           viewStore.send(.renameAcceptButtonTapped($0), animation: .default)
+        } cancel: {
+          viewStore.send(.destination(.dismiss), animation: .default)
         }
       }
       .onTapGesture {
@@ -140,6 +139,8 @@ private struct RenameAlert: View {
   @FocusState private var isTextFieldFocused: Bool
   
   var submitName: (_ name: String) -> Void = unimplemented("RenameAlert.submitName")
+  var cancel: () -> Void = unimplemented("RenameAlert.cancel")
+
   
   var body: some View {
     
@@ -155,6 +156,7 @@ private struct RenameAlert: View {
       }
     
     Button {
+      cancel()
     } label: {
       Text("Cancel")
         .fontWeight(.bold) // MARK: - Alert ignores these style modifiers...

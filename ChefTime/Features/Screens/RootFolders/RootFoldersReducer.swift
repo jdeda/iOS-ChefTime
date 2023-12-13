@@ -154,7 +154,7 @@ struct RootFoldersReducer: Reducer {
               var mutatedFolder = folder
               mutatedFolder.name = state.userFoldersSection.gridItems[id: folder.id]!.name
               mutatedFolder.imageData = state.userFoldersSection.gridItems[id: folder.id]!.photos.photos.first
-              partial.append(folder)
+              partial.append(mutatedFolder)
             }
           }
           return self.persistFolders(oldFolders: oldFolders, newFolders: state.userFolders)
@@ -201,8 +201,8 @@ extension RootFoldersReducer {
     oldFolders: IdentifiedArrayOf<Folder>,
     newFolders: IdentifiedArrayOf<Folder>
   ) -> Effect<Action> {
-    let removeDuplicates = (oldFolders.isEmpty && !newFolders.isEmpty) || oldFolders == newFolders
-    guard removeDuplicates else { return .none }
+    let removeDuplicates = oldFolders == newFolders
+    guard !removeDuplicates else { return .none }
     return .run { _ in
       enum UserFoldersUpdateID: Hashable { case debounce }
       try await withTaskCancellation(id: UserFoldersUpdateID.debounce, cancelInFlight: true) {

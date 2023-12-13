@@ -67,7 +67,7 @@ final class SDRecipe: Identifiable, Equatable {
       stepSections: recipe.stepSections.enumerated().map({SDRecipe.SDStepSection($0.element, $0.offset)}),
       creationDate: recipe.creationDate,
       lastEditDate: recipe.lastEditDate,
-      searchString: [
+      searchString: [ // TODO: This is bad and needs to be replaced
         recipe.name,
         recipe.aboutSections.reduce("", { $0 + " " + $1.name + " " + $1.description }),
         recipe.ingredientSections.reduce("", { $0 + " " + $1.name + " " + $1.ingredients.map(\.name).joined(separator: " ") }),
@@ -274,6 +274,7 @@ struct Recipe: Identifiable, Equatable, Codable {
   typealias ID = Tagged<Self, UUID>
   
   let id: ID
+  var parentFolderID: Folder.ID?
   var name: String = ""
   var imageData: IdentifiedArrayOf<ImageData> = []
   var aboutSections: IdentifiedArrayOf<AboutSection> = []
@@ -284,6 +285,7 @@ struct Recipe: Identifiable, Equatable, Codable {
   
   init(
     id: ID,
+    parentFolderID: Folder.ID? = nil,
     name: String = "",
     imageData: IdentifiedArrayOf<ImageData> = [],
     aboutSections: IdentifiedArrayOf<AboutSection> = [],
@@ -293,6 +295,7 @@ struct Recipe: Identifiable, Equatable, Codable {
     lastEditDate: Date
   ) {
     self.id = id
+    self.parentFolderID = parentFolderID
     self.name = name
     self.imageData = imageData
     self.aboutSections = aboutSections
@@ -304,8 +307,10 @@ struct Recipe: Identifiable, Equatable, Codable {
   
   // TODO: This probably needs proper ordering...
   init(_ sdRecipe: SDRecipe) {
+    let _id: UUID? = sdRecipe.parentFolder?.id
     self.init(
       id: .init(rawValue: sdRecipe.id),
+      parentFolderID: _id.flatMap({.init(rawValue: $0)}) ?? nil,
       name: sdRecipe.name,
       imageData: .init(uniqueElements: sdRecipe.imageData.sorted(using: KeyPathComparator(\.positionPriority)).compactMap(ImageData.init)),
       aboutSections: .init(uniqueElements: sdRecipe.aboutSections.sorted(using: KeyPathComparator(\.positionPriority)).map(Recipe.AboutSection.init)),
