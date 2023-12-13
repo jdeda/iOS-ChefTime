@@ -60,7 +60,7 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
     case editPhotos
   }
   
-  @Dependency(\.dismiss) var dismiss
+  @Dependency(\.continuousClock) var clock
   
   var body: some ReducerOf<Self> {
     Scope(state: \.photos, action: /GridItemReducer.Action.photos) {
@@ -110,7 +110,7 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
           // This dismiss fixes bug where alert will reappear and dismiss immediately upon sending .delegate(.delegate)
           // However, this bug seems to happen because you are returning an action in the .presented.
           // Niling the destination state then returning the delegate, all synchronously does not solve the problem!
-          await dismiss()
+          try await self.clock.sleep(for: .microseconds(1))
           await send(.delegate(.delete))
         }
         
@@ -131,9 +131,7 @@ struct GridItemReducer<ID: Equatable & Hashable>: Reducer {
     
     enum Action: Equatable {
       case renameAlert
-      
       case alert(AlertAction)
-      
       enum AlertAction: Equatable {
         case confirmDeleteButtonTapped
       }

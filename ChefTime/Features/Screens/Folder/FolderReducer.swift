@@ -1,48 +1,16 @@
 import ComposableArchitecture
+import Log4swift
 
 // TODO: MAKE SURE PARENT IDs work!
 struct FolderReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad
     @BindingState var folder: Folder
-    var folderSection: GridSectionReducer<Folder.ID>.State {
-      didSet {
-        // Here, we simply accumulate values.
-        // The GridSection feature can only delete and edit items (name and images),
-        // we assume here that is what happens, we just edit or skip the value
-        // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
-        let newIDs = self.folderSection.gridItems.ids
-        self.folder.folders = self.folder.folders.reduce(into: []) { partial, folder in
-          if newIDs.contains(folder.id) {
-            var mutatedFolder = folder
-            mutatedFolder.name = self.folderSection.gridItems[id: folder.id]!.name
-            mutatedFolder.imageData = self.folderSection.gridItems[id: folder.id]!.photos.photos.first
-            partial.append(folder)
-          }
-        }
-      }
-    }
-    var recipeSection: GridSectionReducer<Recipe.ID>.State {
-      didSet {
-        // Here, we simply accumulate values.
-        // The GridSection feature can only delete and edit strictly the name,
-        // NOT the images in the case of a recipe.
-        // we assume here that is what happens, we just edit or skip the value
-        // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
-        let newIDs = self.recipeSection.gridItems.ids
-        self.folder.recipes = self.folder.recipes.reduce(into: []) { partial, folder in
-          if newIDs.contains(folder.id) {
-            var mutatedFolder = folder
-            mutatedFolder.name = self.recipeSection.gridItems[id: folder.id]!.name
-            partial.append(folder)
-          }
-        }
-      }
-    }
+    var folderSection: GridSectionReducer<Folder.ID>.State
+    var recipeSection: GridSectionReducer<Recipe.ID>.State
     var isHidingImages: Bool = false
-    var scrollViewIndex: Int = 1
     var editStatus: Section?
-    @PresentationState var alert: AlertState<Action.AlertAction>?
+    @PresentationState var destination: DestinationReducer.State?
     var search: SearchReducer.State
     
     // TODO: - What to do with the dates here?
@@ -57,8 +25,7 @@ struct FolderReducer: Reducer {
       self.recipeSection = .init(title: "Recipes", gridItems: folder.recipes.map(GridItemReducer.State.init))
       self.isHidingImages = false
       self.editStatus = nil
-      self.scrollViewIndex = 1
-      self.alert = nil
+      self.destination = nil
       self.search = .init(query: "")
     }
     
@@ -100,6 +67,9 @@ struct FolderReducer: Reducer {
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case newRecipeButtonTapped
+    case renameFolderButtonTapped
+    case acceptFolderNameButtonTapped(String)
+    case acceptNewFolderNameButtonTapped(String)
     case folderSection(GridSectionReducer<Folder.ID>.Action)
     case recipeSection(GridSectionReducer<Recipe.ID>.Action)
     case search(SearchReducer.Action)
@@ -107,18 +77,13 @@ struct FolderReducer: Reducer {
 
     case delegate(DelegateAction)
     
-    
     enum DelegateAction: Equatable {
       case navigateToFolder(Folder.ID)
       case navigateToRecipe(Recipe.ID)
       case folderUpdated(FolderReducer.State)
     }
 
-    case alert(PresentationAction<AlertAction>)
-    
-    enum AlertAction: Equatable {
-      case confirmDeleteSelectedButtonTapped
-    }
+    case destination(PresentationAction<DestinationReducer.Action>)
   }
   
   
@@ -156,10 +121,12 @@ struct FolderReducer: Reducer {
           let folder = state.folder
           return .run { send in
             if let newFolder = await self.database.retrieveFolder(folder.id) {
+              Log4swift[Self.self].info("fetchFolderSuccess...")
               await send(.fetchFolderSuccess(newFolder))
             }
             else {
               // TODO: - Handle DB errors in future
+              Log4swift[Self.self].info("createFolder...")
               try! await self.database.createFolder(folder)
             }
             await send(.didLoad)
@@ -206,11 +173,17 @@ struct FolderReducer: Reducer {
             state.folderSection.selection = .init(
               state.hasSelectedAll ? [] : state.folderSection.gridItems.map(\.id)
             )
+            state.folderSection.gridItems.ids.forEach { id in
+              state.folderSection.gridItems[id: id]!.isSelected = state.hasSelectedAll
+            }
             break
           case .recipes:
             state.recipeSection.selection = .init(
               state.hasSelectedAll ? [] : state.recipeSection.gridItems.map(\.id)
             )
+            state.recipeSection.gridItems.ids.forEach { id in
+              state.recipeSection.gridItems[id: id]!.isSelected = state.hasSelectedAll
+            }
             break
           case .none:
             break
@@ -218,30 +191,59 @@ struct FolderReducer: Reducer {
           return .none
           
         case .deleteSelectedButtonTapped:
-          state.alert = .delete
+          state.destination = .alert(.delete)
           return .none
           
+            // TODO: XXX Persist here directly
         case .newFolderButtonTapped:
-          let newFolder = Folder(
-            id: .init(rawValue: uuid()),
-            name: "New Untitled Folder",
-            creationDate: date(),
-            lastEditDate: date()
-          )
-          state.folder.folders.append(newFolder)
-          state.folderSection.gridItems.append(.init(newFolder))
-          return .send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
+          state.destination = .nameNewFolderAlert
+          return .none
           
+          // TODO: XXX Persist here directly
         case .newRecipeButtonTapped:
           let newRecipe = Recipe(
             id: .init(rawValue: uuid()),
+            parentFolderID: state.folder.id,
             name: "New Untitled Recipe",
             creationDate: date(),
             lastEditDate: date()
           )
           state.folder.recipes.append(newRecipe)
           state.recipeSection.gridItems.append(.init(newRecipe))
-          return .send(.delegate(.navigateToRecipe(newRecipe.id)), animation: .default)
+          return .run { send in
+            try! await self.database.createRecipe(newRecipe)
+            await send(.delegate(.navigateToRecipe(newRecipe.id)), animation: .default)
+          }
+          
+        case .renameFolderButtonTapped:
+          state.destination = .renameFolderAlert
+          return .none
+          
+        case let .acceptFolderNameButtonTapped(newName):
+          state.destination = nil
+          state.folder.name = newName
+          return .run { [folder = state.folder] send in
+            try! await database.updateFolder(folder)
+          }
+          
+        case let .acceptNewFolderNameButtonTapped(name):
+          state.destination = nil
+          let newFolder = Folder(
+            id: .init(rawValue: uuid()),
+            parentFolderID: state.folder.id,
+            name: name,
+            creationDate: date(),
+            lastEditDate: date()
+          )
+          state.folder.folders.append(newFolder)
+          state.folderSection.gridItems.append(.init(newFolder))
+          return .run { send in
+            try! await self.database.createFolder(newFolder)
+            // We sleep briefly here to see the folder get inserted into the UI
+            try await clock.sleep(for: .milliseconds(500))
+
+            await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
+          }
           
         case let .folderSection(.delegate(action)):
           switch action {
@@ -249,59 +251,182 @@ struct FolderReducer: Reducer {
             return .send(.delegate(.navigateToFolder(id)))
           }
           
+          // TODO: XXX Persist here directly
+        case .folderSection:
+          // Here, we simply accumulate values.
+          // The GridSection feature can only delete and edit items (name and images),
+          // we assume here that is what happens, we just edit or skip the value
+          // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
+          let oldFolders = state.folder.folders
+          let newIDs = state.folderSection.gridItems.ids
+          state.folder.folders = state.folder.folders.reduce(into: []) { partial, folder in
+            if newIDs.contains(folder.id) {
+              var mutatedFolder = folder
+              mutatedFolder.name = state.folderSection.gridItems[id: folder.id]!.name
+              mutatedFolder.imageData = state.folderSection.gridItems[id: folder.id]!.photos.photos.first
+              partial.append(mutatedFolder)
+            }
+          }
+          return self.persistFolders(oldFolders: oldFolders, newFolders: state.folder.folders)
+          
         case let .recipeSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
             return .send(.delegate(.navigateToRecipe(id)))
           }
           
-        case let .alert(.presented(action)):
+          // TODO: XXX Persist here directly
+        case .recipeSection:
+          // Here, we simply accumulate values.
+          // The GridSection feature can only delete and edit strictly the name,
+          // NOT the images in the case of a recipe.
+          // we assume here that is what happens, we just edit or skip the value
+          // MARK: - Force unwrapping, because if IDs don't match something is very wrong.
+          let oldRecipes = state.folder.recipes
+          let newIDs = state.recipeSection.gridItems.ids
+          state.folder.recipes = state.folder.recipes.reduce(into: []) { partial, folder in
+            if newIDs.contains(folder.id) {
+              var mutatedFolder = folder
+              mutatedFolder.name = state.recipeSection.gridItems[id: folder.id]!.name
+              partial.append(mutatedFolder)
+            }
+          }
+          return self.persistRecipes(oldRecipes: oldRecipes, newRecipes: state.folder.recipes)
+
+
+        case let .destination(.presented(.alert(action))):
           switch action {
+            // TODO: XXX Persist here directly
           case .confirmDeleteSelectedButtonTapped:
             switch state.editStatus {
             case .folders:
-              state.folderSection.gridItems = state.folderSection.gridItems.filter { !state.folderSection.selection.contains($0.id) }
-              break
+              let deletionIDs = state.folderSection.selection
+              state.folderSection.gridItems = state.folderSection.gridItems.filter {
+                !deletionIDs.contains($0.id)
+              }
+              state.folderSection.selection = []
+              return .run { send in
+                for id in deletionIDs {
+                  try! await self.database.deleteFolder(id)
+                }
+              }
             case .recipes:
-              state.recipeSection.gridItems = state.recipeSection.gridItems.filter { !state.recipeSection.selection.contains($0.id) }
-              break
+              let deletionIDs = state.recipeSection.selection
+              state.recipeSection.gridItems = state.recipeSection.gridItems.filter {
+                !deletionIDs.contains($0.id)
+              }
+              state.recipeSection.selection = []
+              return .run { send in
+                for id in deletionIDs {
+                  try! await self.database.deleteRecipe(id)
+                }
+              }
             case .none:
-              break
+              return .none
             }
-            return .none
           }
           
-        case .alert(.dismiss):
-          state.alert = nil
+        case .destination(.dismiss):
+          state.destination = nil
           return .none
           
           
         case let .search(.delegate(.searchResultTapped(id))):
           return .send(.delegate(.navigateToRecipe(id)))
           
-        case .binding, .folderSection, .recipeSection, .alert, .search, .delegate:
+        case .binding, .destination, .search, .delegate:
           return .none
         }
       }
-    }
-    .onChange(of: \.folder) { _, newFolder in // TODO: Does newFolder get copied every call?
-      Reduce { _, _ in
-          .run { _ in
-            enum FolderUpdateID: Hashable { case debounce }
-            try await withTaskCancellation(id: FolderUpdateID.debounce, cancelInFlight: true) {
-              try await self.clock.sleep(for: .seconds(1))
-              print("Updated folder \(newFolder.id.uuidString)")
-              // TODO: - Handle DB errors in future
-              try! await database.updateFolder(newFolder)
-            }
-          }
+      .ifLet(\.$destination, action: /FolderReducer.Action.destination) {
+        DestinationReducer()
       }
     }
+    
     .signpost()
   }
 }
 
-extension AlertState where Action == FolderReducer.Action.AlertAction {
+extension FolderReducer {
+  struct DestinationReducer: Reducer {
+    enum State: Equatable {
+      case alert(AlertState<Action.AlertAction>)
+      case renameFolderAlert
+      case nameNewFolderAlert
+    }
+    
+    enum Action: Equatable {
+      case renameFolderAlert
+      case nameNewFolderAlert
+      case alert(AlertAction)
+      enum AlertAction: Equatable {
+        case confirmDeleteSelectedButtonTapped
+      }
+    }
+    
+    var body: some ReducerOf<Self> {
+      EmptyReducer()
+    }
+  }
+}
+
+extension FolderReducer {
+  func persistFolders(
+    oldFolders: IdentifiedArrayOf<Folder>,
+    newFolders: IdentifiedArrayOf<Folder>
+  ) -> Effect<Action> {
+    let removeDuplicates = oldFolders == newFolders
+    guard !removeDuplicates else { return .none }
+    return .run { _ in
+      enum UserFoldersUpdateID: Hashable { case debounce }
+      try await withTaskCancellation(id: UserFoldersUpdateID.debounce, cancelInFlight: true) {
+        // TODO: - Handle DB errors in future
+        try await self.clock.sleep(for: .seconds(1))
+        for updatedFolder in newFolders.intersectionByID(oldFolders).filter({ newFolders[id: $0.id] != oldFolders[id: $0.id] }) {
+          try! await self.database.updateFolder(updatedFolder)
+          Log4swift[Self.self].info("Updated folder \(updatedFolder.id.uuidString)")
+        }
+        for addedFolder in newFolders.symmetricDifferenceByID(oldFolders) {
+          try! await self.database.createFolder(addedFolder)
+          Log4swift[Self.self].info("Created folder \(addedFolder.id.uuidString)")
+        }
+        for removedFolder in oldFolders.symmetricDifferenceByID(newFolders) {
+          try! await self.database.deleteFolder(removedFolder.id)
+          Log4swift[Self.self].info("Deleted folder \(removedFolder.id.uuidString)")
+        }
+      }
+    }
+  }
+  
+  func persistRecipes(
+    oldRecipes: IdentifiedArrayOf<Recipe>,
+    newRecipes: IdentifiedArrayOf<Recipe>
+  ) -> Effect<Action> {
+    let removeDuplicates = oldRecipes == newRecipes
+    guard !removeDuplicates else { return .none }
+    return .run { _ in
+      enum UserFoldersUpdateID: Hashable { case debounce }
+      try await withTaskCancellation(id: UserFoldersUpdateID.debounce, cancelInFlight: true) {
+        // TODO: - Handle DB errors in future
+        try await self.clock.sleep(for: .seconds(1))
+        for updatedRecipe in newRecipes.intersectionByID(oldRecipes).filter({ newRecipes[id: $0.id] != oldRecipes[id: $0.id] }) {
+          try! await self.database.updateRecipe(updatedRecipe)
+          Log4swift[Self.self].info("Updated folder \(updatedRecipe.id.uuidString)")
+        }
+        for addedRecipe in newRecipes.symmetricDifferenceByID(oldRecipes) {
+          try! await self.database.createRecipe(addedRecipe)
+          Log4swift[Self.self].info("Created folder \(addedRecipe.id.uuidString)")
+        }
+        for removedRecipe in oldRecipes.symmetricDifferenceByID(newRecipes) {
+          try! await self.database.deleteRecipe(removedRecipe.id)
+          Log4swift[Self.self].info("Deleted folder \(removedRecipe.id.uuidString)")
+        }
+      }
+    }
+  }
+}
+
+extension AlertState where Action == FolderReducer.DestinationReducer.Action.AlertAction {
   static let delete = Self(
     title: {
       TextState("Delete")

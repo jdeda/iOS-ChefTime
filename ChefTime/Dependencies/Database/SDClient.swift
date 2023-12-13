@@ -90,7 +90,7 @@ actor SDClient: ModelActor {
   
   // MARK: - Folder CRUD
   func createFolder(_ folder: Folder) throws {
-      Log4swift[Self.self].info("createFolder")
+    Log4swift[Self.self].info("createFolder")
     if self._containsDuplicateIDs(folder: folder) {
       throw SDError.duplicate // TODO: Need to check all child persistent model IDS...
     }
@@ -98,65 +98,71 @@ actor SDClient: ModelActor {
     // TODO: You could replace the value if it already exists e.g. upsert
     /// What happens if we create folderA and folderB. We move folderB into folderA. Now we have 2 folderBs.
     /// We need to prevent that from happening, so we can upsert.
-
+    
     /// Sadly we have to do manual upserts because CloudKit doesn't allow upserting. So we have to do a lot of brute force work:
     /// 1. Iterate over all child PModels and if they already exist, delete them (because we will replace them)
     /// 2. Convert the Model to PModel
     let sdFolder = SDFolder(folder)
     self.modelContext.insert(sdFolder)
     try self.modelContext.save()
+    /// Link all children parents recursively
     self._linkSDFolder(sdFolder)
+    /// Link this folder to its parent.
+    if let parentFolderID = folder.parentFolderID {
+      sdFolder.parentFolder = self._retrieveSDFolder(parentFolderID)
+    }
     try self.modelContext.save()
   }
   
   func retrieveFolder(_ folderID: Folder.ID) -> Folder? {
-      Log4swift[Self.self].info("retrieveFolder")
+    Log4swift[Self.self].info("retrieveFolder")
     guard let sdFolder = self._retrieveSDFolder(folderID)
     else { return nil }
     return Folder(sdFolder)
   }
   
   func retrieveFolders(_ fetchDescriptor: FetchDescriptor<SDFolder> = .init()) -> [Folder] {
-      Log4swift[Self.self].info("retrieveFolders")
+    Log4swift[Self.self].info("retrieveFolders")
     let sdFolder = (try? self.modelContext.fetch(fetchDescriptor)) ?? []
     return sdFolder.map(Folder.init)
   }
-
   
-    /**
-     map the value type, ie: Folder to an existing class inside the modelContext
-     apply the new values from the folder into the class
-     save changes
-     do not give a ff to children values, stick to top level attributes
-     */
-
-
-    /**
-     You have update for the main object.
-     You have add/remove on the main object one to many relations
-     */
-    func updateFolder(_ folder: Folder) throws {
-        let start = Date()
-        defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
-
-        Log4swift[Self.self].info("updateFolder")
-        guard let original = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
-
-        // original.name = original.name + ","
-        // update this instance with folder
-
-
-        //    let originalFolder = Folder(original)
-        //    try self.deleteFolder(folder.id)
-        //    do {
-        //      try self.createFolder(folder)
-        //    }
-        //    catch {
-        //      try self.createFolder(originalFolder)
-        //      throw error
-        //    }
-        try self.modelContext.save()
-    }
+  
+  /**
+   map the value type, ie: Folder to an existing class inside the modelContext
+   apply the new values from the folder into the class
+   save changes
+   do not give a ff to children values, stick to top level attributes
+   */
+  
+  
+  /**
+   You have update for the main object.
+   You have add/remove on the main object one to many relations
+   */
+  func updateFolder(_ folder: Folder) throws {
+    let start = Date()
+    defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+    
+    Log4swift[Self.self].info("updateFolder")
+    guard let original = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
+    original.name = folder.name
+    original.imageData = folder.imageData.flatMap({.init($0)})
+    original.lastEditDate = Date()
+    // guard let original = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
+    // original.name = original.name + ","
+    // update this instance with folder
+    //    let originalFolder = Folder(original)
+    //    try self.deleteFolder(folder.id)
+    //    do {
+    //      try self.createFolder(folder)
+    //    }
+    //    catch {
+    //      try self.createFolder(originalFolder)
+    //      throw error
+    //    }
+    try self.modelContext.save()
+  }
   
   func deleteFolder(_ folderID: Folder.ID) throws {
       Log4swift[Self.self].info("deleteFolder")
@@ -184,7 +190,13 @@ actor SDClient: ModelActor {
     let sdRecipe = SDRecipe(recipe)
     self.modelContext.insert(sdRecipe)
     try self.modelContext.save()
+    /// Link all children parents recursively
     self._linkSDRecipe(sdRecipe)
+    /// Link this folder to its parent.
+    if let parentFolderID = recipe.parentFolderID {
+      sdRecipe.parentFolder = self._retrieveSDFolder(parentFolderID)
+    }
+    // TODO: Link to parent folder
     try self.modelContext.save()
   }
   

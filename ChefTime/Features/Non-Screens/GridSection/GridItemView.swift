@@ -43,6 +43,7 @@ struct GridItemView<ID: Equatable & Hashable>: View {
                 .padding(.bottom)
                 .opacity(viewStore.isSelected ? 0.0:  1.0)
             }
+            .accentColor(.yellow)
           }
         }
         
@@ -63,12 +64,11 @@ struct GridItemView<ID: Equatable & Hashable>: View {
         state: /GridItemReducer.DestinationReducer.State.alert,
         action: GridItemReducer.DestinationReducer.Action.alert
       )
-      .alert("Rename", isPresented: viewStore.binding(
-        get: { $0.destination == .renameAlert },
-        send: { _ in .destination(.dismiss) }
-      )) {
+      .alert("Rename", isPresented: .constant(viewStore.destination == .renameAlert)) {
         RenameAlert(name: viewStore.name) {
           viewStore.send(.renameAcceptButtonTapped($0), animation: .default)
+        } cancel: {
+          viewStore.send(.destination(.dismiss), animation: .default)
         }
       }
       .onTapGesture {
@@ -129,42 +129,6 @@ struct GridItemView<ID: Equatable & Hashable>: View {
           }
         }
       }
-    }
-  }
-}
-
-
-// MARK: - AlertView
-private struct RenameAlert: View {
-  @State var name: String
-  @FocusState private var isTextFieldFocused: Bool
-  
-  var submitName: (_ name: String) -> Void = unimplemented("RenameAlert.submitName")
-  
-  var body: some View {
-    
-    // MARK: - Runtime crash if textfield is wrapped in other views
-    TextField("", text: $name)
-      .onAppear { self.isTextFieldFocused = true } // MARK: - uncontrolled onAppear
-      .focused($isTextFieldFocused)
-    // ( •_•) This beautifully understandable block of code allows one to preselect the whole name (⁎❛ᴗ❛⁎ )
-      .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
-        if let textField = obj.object as? UITextField {
-          textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
-        }
-      }
-    
-    Button {
-    } label: {
-      Text("Cancel")
-        .fontWeight(.bold) // MARK: - Alert ignores these style modifiers...
-    }
-    
-    Button {
-      submitName(name)
-    } label: {
-      Text("Save")
-        .fontWeight(.medium) // MARK: - Alert ignores these style modifiers...
     }
   }
 }

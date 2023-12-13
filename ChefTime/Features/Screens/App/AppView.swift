@@ -1,6 +1,8 @@
 import SwiftUI
 import ComposableArchitecture
 
+// TODO: Make sure to refresh when nav back to screen.
+
 struct AppView: View {
   let store: StoreOf<AppReducer>
   

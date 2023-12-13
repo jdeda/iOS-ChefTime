@@ -11,8 +11,8 @@ struct ChefTimeApp: App {
   )
   
   init() {
-    Log4swift.configure(appName: "ChefTime")
-    Log4swift[Self.self].info("")
+//    Log4swift.configure(appName: "ChefTime")
+//    Log4swift[Self.self].info("")
   }
   
   var body: some Scene {
