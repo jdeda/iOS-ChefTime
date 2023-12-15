@@ -87,7 +87,7 @@ struct RootFoldersReducer: Reducer {
           }
           
         case let .fetchFoldersSuccess(folders):
-          state.userFolders.append(contentsOf: folders)
+          state.userFolders = .init(uniqueElements: folders)
           state.userFoldersSection.gridItems = folders.map({ .init($0) })
           return .none
           

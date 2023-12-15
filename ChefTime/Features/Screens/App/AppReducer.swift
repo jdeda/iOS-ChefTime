@@ -15,6 +15,7 @@ struct AppReducer: Reducer {
   }
   
   @Dependency(\.database) var database
+  @Dependency(\.continuousClock) var clock
   
   var body: some Reducer<AppReducer.State, AppReducer.Action> {
     Scope(state: \.rootFolders, action: /AppReducer.Action.rootFolders) {
@@ -32,6 +33,25 @@ struct AppReducer: Reducer {
         state.loadStatus = .didLoad
         return .none
         
+      case let .stack(.popFrom(id)):
+        state.stack.pop(from: id)
+        if state.stack.isEmpty {
+          state.rootFolders.loadStatus = .didNotLoad
+          return .send(.rootFolders(.task))
+        }
+        return .none
+        
+        
+      case let .rootFolders(.delegate(.navigateToFolder(id))):
+        state.rootFolders.loadStatus = .isLoading
+        state.stack.append(.folder(.init(folderID: id)))
+        return .none
+        
+      case let .rootFolders(.delegate(.navigateToRecipe(id))):
+        state.rootFolders.loadStatus = .isLoading
+        state.stack.append(.recipe(.init(recipeID: id)))
+        return .none
+        
       case let .stack(.element(_, action: .folder(.delegate(.navigateToFolder(id))))):
         state.stack.append(.folder(.init(folderID: id)))
         return .none
@@ -39,15 +59,7 @@ struct AppReducer: Reducer {
       case let .stack(.element(_, action: .folder(.delegate(.navigateToRecipe(id))))):
         state.stack.append(.recipe(.init(recipeID: id)))
         return .none
-        
-      case let .rootFolders(.delegate(.navigateToFolder(id))):
-        state.stack.append(.folder(.init(folderID: id)))
-        return .none
-        
-      case let .rootFolders(.delegate(.navigateToRecipe(id))):
-        state.stack.append(.recipe(.init(recipeID: id)))
-        return .none
-        
+      
       case .rootFolders, .stack:
         return .none
       }
