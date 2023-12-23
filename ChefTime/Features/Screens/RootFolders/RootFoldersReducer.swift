@@ -288,10 +288,11 @@ private extension GridItemReducer.State where ID == Folder.ID {
         .init(GridItemReducer.ContextMenuActions.allCases)
       }
     }()
+    let count = folder.recipes.count
     self.init(
       id: folder.id,
       name: folder.name,
-      description: "\(folder.recipes.count) Recipes",
+      description: "\(count) \(count == 1 ? "Recipe" : "Recipes")",
       imageData: folder.imageData,
       enabledContextMenuActions: actions
     )

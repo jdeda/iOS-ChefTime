@@ -447,10 +447,11 @@ extension AlertState where Action == FolderReducer.DestinationReducer.Action.Ale
 
 private extension GridItemReducer.State where ID == Folder.ID {
   init(_ folder: Folder) {
+    let count = folder.recipes.count
     self.init(
       id: folder.id,
       name: folder.name, 
-      description: "\(folder.recipes.count) Recipes",
+      description: "\(count) \(count == 1 ? "Recipe" : "Recipes")",
       imageData: folder.imageData
     )
   }
