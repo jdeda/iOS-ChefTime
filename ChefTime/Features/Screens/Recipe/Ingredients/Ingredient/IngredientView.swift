@@ -141,23 +141,46 @@ struct IngredientContextMenuPreview: View {
         .lineLimit(1)
       
       Spacer()
-      
-      Rectangle()
-        .fill(.clear)
-        .frame(width: 50)
-      
-      // Amount
-      Text(!state.ingredientAmountString.isEmpty ? state.ingredientAmountString : "...")
-        .lineLimit(1)
-      
-      // Measurement
-      Text(!state.ingredient.measure.isEmpty ? state.ingredient.measure : "...")
-        .lineLimit(1)
     }
     .foregroundColor(state.isComplete ? .secondary : .primary)
     .accentColor(.accentColor)
   }
 }
+
+// // Old remenants from multi-textfield version.
+//struct IngredientContextMenuPreview: View {
+//  let state: IngredientReducer.State
+//  
+//  var body: some View {
+//    HStack(alignment: .top) {
+//      
+//      // Checkbox
+//      Image(systemName: state.isComplete ? "checkmark.square" : "square")
+//        .fontWeight(.medium)
+//        .padding([.top], 2)
+//      
+//      // Name
+//      Text(!state.ingredient.name.isEmpty ? state.ingredient.name : "...")
+//        .lineLimit(1)
+//      
+//      Spacer()
+//      
+//      Rectangle()
+//        .fill(.clear)
+//        .frame(width: 50)
+//      
+//      // Amount
+//      Text(!state.ingredientAmountString.isEmpty ? state.ingredientAmountString : "...")
+//        .lineLimit(1)
+//      
+//      // Measurement
+//      Text(!state.ingredient.measure.isEmpty ? state.ingredient.measure : "...")
+//        .lineLimit(1)
+//    }
+//    .foregroundColor(state.isComplete ? .secondary : .primary)
+//    .accentColor(.accentColor)
+//  }
+//}
 
 #Preview {
   NavigationStack {
