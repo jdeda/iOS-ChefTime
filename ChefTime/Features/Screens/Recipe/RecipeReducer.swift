@@ -140,7 +140,6 @@ struct RecipeReducer: Reducer {
           return .none
           
         case .binding(\.$navigationTitle):
-          if state.navigationTitle.isEmpty { state.navigationTitle = "Untitled Recipe" }
           state.recipe.name = state.navigationTitle
           return .none
           
