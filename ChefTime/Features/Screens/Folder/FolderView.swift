@@ -11,7 +11,7 @@ struct FolderView: View {
       Group {
           ScrollView {
             
-            // Folders
+            // Folders.
             GridSectionView(
               store: store.scope(state: \.folderSection, action: FolderReducer.Action.folderSection),
               isEditing: !viewStore.isHidingFolders && viewStore.editStatus == .folders

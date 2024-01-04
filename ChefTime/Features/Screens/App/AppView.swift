@@ -1,8 +1,10 @@
 import SwiftUI
 import ComposableArchitecture
 
-// TODO: Make sure to refresh when nav back to screen.
+// I think the problem is that the rootfoldersview is rendered at init anyway, despite the if/else...
+// so we have to somehow block that view from doing anything...
 
+// TODO: Make sure to refresh when nav back to screen.
 struct AppView: View {
   let store: StoreOf<AppReducer>
   
@@ -13,7 +15,9 @@ struct AppView: View {
           ProgressView()
         } else {
           NavigationStackStore(store.scope(state: \.stack, action: AppReducer.Action.stack)) {
-            RootFoldersView(store: store.scope(state: \.rootFolders, action: AppReducer.Action.rootFolders))
+            if viewStore.loadStatus != .isLoading {
+              RootFoldersView(store: store.scope(state: \.rootFolders, action: AppReducer.Action.rootFolders))
+            }
           } destination: { state in
             switch state {
             case .folder:

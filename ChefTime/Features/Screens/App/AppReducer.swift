@@ -5,11 +5,21 @@ struct AppReducer: Reducer {
     var loadStatus = LoadStatus.didNotLoad
     var stack = StackState<StackReducer.State>()
     var rootFolders = RootFoldersReducer.State()
+    
+    init(
+      loadStatus: LoadStatus = .didNotLoad,
+      stack: StackState<StackReducer.State> = .init()
+    ) {
+      self.loadStatus = loadStatus
+      self.stack = stack
+      self.rootFolders = .init()
+      self.rootFolders.loadStatus = .isLoading
+    }
   }
   
   enum Action: Equatable {
     case task
-    case didLoad
+    case didLoad([Folder])
     case stack(StackAction<StackReducer.State, StackReducer.Action>)
     case rootFolders(RootFoldersReducer.Action)
   }
@@ -26,11 +36,14 @@ struct AppReducer: Reducer {
       case .task:
         return .run { send in
           await database.initializeDatabase()
-          await send(.didLoad)
+          let rootFolders = await self.database.retrieveRootFolders()
+          await send(.didLoad(rootFolders))
         }
         
-      case .didLoad:
+      case let .didLoad(folders):
         state.loadStatus = .didLoad
+        state.rootFolders = .init(userFolders: .init(uniqueElements: folders))
+        state.rootFolders.loadStatus = .didLoad
         return .none
         
       case let .stack(.popFrom(id)):
