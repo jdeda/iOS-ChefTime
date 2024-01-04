@@ -39,7 +39,6 @@ struct RootFoldersReducer: Reducer {
     case selectFoldersButtonTapped
     case doneButtonTapped
     case selectAllButtonTapped
-    case hideImagesButtonTapped
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case acceptFolderNameButtonTapped(String)
@@ -111,10 +110,6 @@ struct RootFoldersReducer: Reducer {
           state.userFoldersSection.gridItems.ids.forEach { id in
             state.userFoldersSection.gridItems[id: id]!.isSelected = state.hasSelectedAll
           }
-          return .none
-          
-        case .hideImagesButtonTapped:
-          state.isHidingImages.toggle()
           return .none
           
         case .deleteSelectedButtonTapped:

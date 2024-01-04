@@ -97,11 +97,6 @@ extension RootFoldersView {
               Label("Select Folders", systemImage: "checkmark.circle")
             }
           }
-          Button {
-            viewStore.send(.hideImagesButtonTapped, animation: .default)
-          } label: {
-            Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
-          }
         } label: {
           Image(systemName: "ellipsis.circle")
         }

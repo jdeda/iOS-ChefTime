@@ -118,6 +118,7 @@ struct RecipeView: View {
             
             Spacer()
           }
+          .environment(\.isHidingImages, viewStore.isHidingImages)
           .alert(store: store.scope(state: \.$alert, action: RecipeReducer.Action.alert))
           .toolbar { toolbar(viewStore: viewStore) }
         }

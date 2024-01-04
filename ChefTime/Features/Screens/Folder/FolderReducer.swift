@@ -59,7 +59,6 @@ struct FolderReducer: Reducer {
     case didLoad
     case task
     case fetchFolderSuccess(Folder)
-    case toggleHideImagesButtonTapped
     case selectFoldersButtonTapped
     case selectRecipesButtonTapped
     case doneButtonTapped
@@ -136,10 +135,6 @@ struct FolderReducer: Reducer {
         case let .fetchFolderSuccess(newFolder):
           // dump(newFolder)
           state = .init(folder: newFolder)
-          return .none
-          
-        case .toggleHideImagesButtonTapped:
-          state.isHidingImages.toggle()
           return .none
           
         case .selectFoldersButtonTapped:

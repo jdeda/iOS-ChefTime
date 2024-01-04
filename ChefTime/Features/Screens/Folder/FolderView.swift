@@ -138,11 +138,6 @@ extension FolderView {
             }
           }
           Button {
-            viewStore.send(.toggleHideImagesButtonTapped, animation: .default)
-          } label: {
-            Label(viewStore.isHidingImages ? "Unhide Images" : "Hide Images", systemImage: "photo.stack")
-          }
-          Button {
             viewStore.send(.renameFolderButtonTapped, animation: .default)
           } label: {
             Label("Rename", systemImage: "pencil")
