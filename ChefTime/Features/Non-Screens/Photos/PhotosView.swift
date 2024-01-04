@@ -76,17 +76,17 @@ struct PhotosView: View {
                 }
                 .disabled(viewStore.photoEditInFlight)
               }
-  
+              
               // MARK: - DO NOT DELETE THE COMMENTED CODE:
               // There was a bug where a computed property didn't work or maybe <1
               // Test to make sure that the computed property works,
-//              let addButtonIsShowing.addButtonIsShowing: Bool = {
-//                if viewStore.photoEditInFlight { return false }
-//                if viewStore.supportSinglePhotoOnly {
-//                  return viewStore.photos.count < 1
-//                }
-//                else { return true }
-//              }()
+              //              let addButtonIsShowing.addButtonIsShowing: Bool = {
+              //                if viewStore.photoEditInFlight { return false }
+              //                if viewStore.supportSinglePhotoOnly {
+              //                  return viewStore.photos.count < 1
+              //                }
+              //                else { return true }
+              //              }()
               if viewStore.addButtonIsShowing {
                 Button {
                   viewStore.send(.addButtonTapped, animation: .default)
@@ -104,12 +104,13 @@ struct PhotosView: View {
                 }
                 .disabled(viewStore.photoEditInFlight)
               }
-            }, preview: {
-              PhotosView(store: store)
-                .frame(width: 200, height: 200)
-              // TODO: The context menu preview version of this view won't update in real-time...
-              // So we have to use the original view
             })
+//            }, preview: {
+//              PhotosView(store: store)
+//                .frame(minWidth: 200, minHeight: 200)
+//              // TODO: The context menu preview version of this view won't update in real-time...
+//              // So we have to use the original view
+//            })
           })
           .photosPicker(
             isPresented: viewStore.$photoPickerIsPresented,
