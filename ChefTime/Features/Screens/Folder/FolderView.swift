@@ -9,69 +9,77 @@ struct FolderView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       Group {
-          ScrollView {
-            
-            // Folders.
-            GridSectionView(
-              store: store.scope(state: \.folderSection, action: FolderReducer.Action.folderSection),
-              isEditing: !viewStore.isHidingFolders && viewStore.editStatus == .folders
-            )
-            .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-            .opacity(viewStore.isHidingFolders ? 0.0 : 1.0)
-            .frame(maxHeight: viewStore.isHidingFolders ? 0 : .infinity)
-            .disabled(viewStore.isHidingFolders)
-            .id(1)
-            
-            // Recipes.
-            GridSectionView(
-              store: store.scope(state: \.recipeSection, action: FolderReducer.Action.recipeSection),
-              isEditing: !viewStore.isHidingRecipes && viewStore.editStatus == .recipes
-            )
-            .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
-            .opacity(viewStore.isHidingRecipes ? 0.0 : 1.0)
-            .frame(maxHeight: viewStore.isHidingRecipes ? 0 : .infinity)
-            .disabled(viewStore.isHidingRecipes)
-            .id(2)
-          }
-          
-          .navigationTitle(viewStore.navigationTitle)
-          .navigationBarBackButtonHidden(viewStore.editStatus != nil)
-          .toolbar { toolbar(viewStore: viewStore) }
-          .searchable(
-            text: viewStore.binding(
-              get: { $0.search.query },
-              send: { .search(.setQuery($0) )}
-            ),
-            placement: .navigationBarDrawer(displayMode: .always)
-          ) {
-            SearchView(store: store.scope(
-              state: \.search,
-              action: FolderReducer.Action.search
-            ))
-          }
-          .alert(
-            store: store.scope(state: \.$destination, action: FolderReducer.Action.destination),
-            state: /FolderReducer.DestinationReducer.State.alert,
-            action: FolderReducer.DestinationReducer.Action.alert
+        ScrollView {
+          // Folders.
+          GridSectionView(
+            store: store.scope(state: \.folderSection, action: FolderReducer.Action.folderSection),
+            isEditing: !viewStore.isHidingFolders && viewStore.editStatus == .folders
           )
-          .alert("Rename", isPresented: .constant(viewStore.destination == .renameFolderAlert)) {
-            RenameAlert(name: viewStore.folder.name) {
-              viewStore.send(.acceptFolderNameButtonTapped($0), animation: .default)
-            } cancel: {
-              viewStore.send(.destination(.dismiss), animation: .default)
-            }
+          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+          .opacity(viewStore.isHidingFolders ? 0.0 : 1.0)
+          .frame(maxHeight: viewStore.isHidingFolders ? 0 : .infinity)
+          .disabled(viewStore.isHidingFolders)
+          .id(1)
+          
+          // Recipes.
+          GridSectionView(
+            store: store.scope(state: \.recipeSection, action: FolderReducer.Action.recipeSection),
+            isEditing: !viewStore.isHidingRecipes && viewStore.editStatus == .recipes
+          )
+          .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset * 0.5)
+          .opacity(viewStore.isHidingRecipes ? 0.0 : 1.0)
+          .frame(maxHeight: viewStore.isHidingRecipes ? 0 : .infinity)
+          .disabled(viewStore.isHidingRecipes)
+          .id(2)
+        }
+        
+        .navigationTitle(viewStore.navigationTitle)
+        .navigationBarBackButtonHidden(viewStore.editStatus != nil)
+        .toolbar { toolbar(viewStore: viewStore) }
+        .searchable(
+          text: viewStore.binding(
+            get: { $0.search.query },
+            send: { .search(.setQuery($0) )}
+          ),
+          placement: .navigationBarDrawer(displayMode: .always)
+        ) {
+          SearchView(store: store.scope(
+            state: \.search,
+            action: FolderReducer.Action.search
+          ))
+        }
+        .alert(
+          store: store.scope(state: \.$destination, action: FolderReducer.Action.destination),
+          state: /FolderReducer.DestinationReducer.State.alert,
+          action: FolderReducer.DestinationReducer.Action.alert
+        )
+        .alert("Rename", isPresented: .constant(viewStore.destination == .renameFolderAlert)) {
+          RenameAlert(name: viewStore.folder.name) {
+            viewStore.send(.acceptFolderNameButtonTapped($0), animation: .default)
+          } cancel: {
+            viewStore.send(.destination(.dismiss), animation: .default)
           }
-          .alert("New Folder", isPresented: .constant(viewStore.destination == .nameNewFolderAlert), actions: {
-            RenameAlert(name: "") {
-              viewStore.send(.acceptNewFolderNameButtonTapped($0), animation: .default)
-            } cancel: {
-              viewStore.send(.destination(.dismiss), animation: .default)
-            }
-          }, message: {
-            Text("Enter a name for this folder.")
-          })
-          .environment(\.isHidingImages, viewStore.isHidingImages)
-          .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
+        }
+        .alert("New Folder", isPresented: .constant(viewStore.destination == .nameNewFolderAlert), actions: {
+          RenameAlert(name: "") {
+            viewStore.send(.acceptNewFolderNameButtonTapped($0), animation: .default)
+          } cancel: {
+            viewStore.send(.destination(.dismiss), animation: .default)
+          }
+        }, message: {
+          Text("Enter a name for this folder.")
+        })
+        .alert("New Recipe", isPresented: .constant(viewStore.destination == .nameNewRecipeAlert), actions: {
+          RenameAlert(name: "") {
+            viewStore.send(.acceptNewRecipeNameButtonTapped($0), animation: .default)
+          } cancel: {
+            viewStore.send(.destination(.dismiss), animation: .default)
+          }
+        }, message: {
+          Text("Enter a name for this recipe.")
+        })
+        .environment(\.isHidingImages, viewStore.isHidingImages)
+        .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
       }
       .task { await viewStore.send(.task).finish() }
       .disabled(viewStore.loadStatus == .isLoading)
