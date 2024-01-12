@@ -82,16 +82,6 @@ struct IngredientView: View {
         }
       }
       .accentColor(.accentColor)
-      .contextMenu(menuItems: {
-        Button(role: .destructive) {
-          viewStore.send(.delegate(.tappedToDelete), animation: .default)
-        } label: {
-          Text("Delete")
-        }
-      }, preview: {
-        IngredientContextMenuPreview(state: viewStore.state)
-          .padding()
-      })
     }
   }
 }

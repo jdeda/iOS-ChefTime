@@ -23,6 +23,7 @@ struct IngredientSectionReducer: Reducer  {
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case ingredients(IngredientReducer.State.ID, IngredientReducer.Action)
+    case ingredientTappedToDelete(IngredientReducer.State.ID)
     case ingredientSectionNameEdited(String)
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
@@ -73,6 +74,11 @@ struct IngredientSectionReducer: Reducer  {
           state.focusedField = .row(s.id)
           return .none
         }
+        
+        
+      case let .ingredientTappedToDelete(id):
+        state.ingredients.remove(id: id)
+        return .none
         
       case let .ingredientSectionNameEdited(newName):
         if state.ingredientSection.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&

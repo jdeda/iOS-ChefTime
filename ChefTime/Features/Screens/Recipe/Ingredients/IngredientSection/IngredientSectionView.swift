@@ -17,6 +17,16 @@ struct IngredientSection: View {
           ForEachStore(store.scope(state: \.ingredients, action: IngredientSectionReducer.Action.ingredients)) { childStore in
             let id = ViewStore(childStore, observe: \.id).state
             IngredientView(store: childStore)
+              .contextMenu(menuItems: {
+                Button(role: .destructive) {
+                  viewStore.send(.ingredientTappedToDelete(ViewStore(childStore, observe: \.id).state), animation: .default)
+                } label: {
+                  Text("Delete")
+                }
+              }, preview: {
+                IngredientContextMenuPreview(state: ViewStore(childStore, observe: { $0 }).state)
+                  .padding()
+              })
               .onTapGesture {
                 viewStore.send(.rowTapped(id))
               }
@@ -104,16 +114,36 @@ struct IngredientSectionNonGrouped: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       ForEachStore(store.scope(state: \.ingredients, action: IngredientSectionReducer.Action.ingredients)) { childStore in
-          let id = ViewStore(childStore, observe: \.id).state
-          IngredientView(store: childStore)
-            .onTapGesture {
-              viewStore.send(.rowTapped(id))
+        let id = ViewStore(childStore, observe: \.id).state
+        IngredientView(store: childStore)
+          .contextMenu(menuItems: {
+            Button {
+              viewStore.send(.delegate(.insertSection(.above)), animation: .default)
+            } label: {
+              Text("Insert Section Above")
             }
-            .focused($focusedField, equals: .row(id))
-          if let lastId = viewStore.ingredients.last?.id, lastId != id {
-            Divider()
+            Button {
+              viewStore.send(.delegate(.insertSection(.below)), animation: .default)
+            } label: {
+              Text("Insert Section Below")
+            }
+            Button(role: .destructive) {
+              viewStore.send(.ingredientTappedToDelete(ViewStore(childStore, observe: \.id).state), animation: .default)
+            } label: {
+              Text("Delete")
+            }
+          }, preview: {
+            IngredientContextMenuPreview(state: ViewStore(childStore, observe: { $0 }).state)
+              .padding()
+          })
+          .onTapGesture {
+            viewStore.send(.rowTapped(id))
           }
+          .focused($focusedField, equals: .row(id))
+        if let lastId = viewStore.ingredients.last?.id, lastId != id {
+          Divider()
         }
+      }
       .synchronize(viewStore.$focusedField, $focusedField)
       .accentColor(.primary)
       .contextMenu {
@@ -138,8 +168,8 @@ struct IngredientSectionNonGrouped: View {
           Divider()
         }
         .accentColor(.primary)
-          .frame(width: 200)
-          .padding()
+        .frame(width: 200)
+        .padding()
       }
     }
   }
