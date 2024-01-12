@@ -42,8 +42,8 @@ struct IngredientReducer: Reducer {
   
   enum FocusField: Equatable {
     case name
-    case amount
-    case measure
+    //    case amount
+    //    case measure
   }
   
   @Dependency(\.continuousClock) var clock
@@ -97,7 +97,7 @@ struct IngredientReducer: Reducer {
         case .leading:
           state.focusedField = nil
           return .run { send in
-            try await self.clock.sleep(for: .microseconds(10))
+            try await self.clock.sleep(for: .milliseconds(125))
             /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
             /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
             /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
@@ -109,8 +109,18 @@ struct IngredientReducer: Reducer {
           .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
           
         case .trailing:
-          state.focusedField = .amount
-          return .none
+          state.focusedField = nil
+          return .run { send in
+            try await self.clock.sleep(for: .milliseconds(125))
+            /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
+            /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
+            /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
+            /// This effect is also debounced to prevent multi additons as this action may be called from the a TextField
+            /// which always emits twice when interacted with, which is a SwiftUI behavior:
+            /// https://github.com/pointfreeco/swift-composable-architecture/discussions/800
+            await send(.delegate(.insertIngredient(.below)), animation: .default)
+          }
+          .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
         }
         
       case let .ingredientMeasureEdited(newMeasure):
@@ -126,26 +136,18 @@ struct IngredientReducer: Reducer {
         return .none
         
       case .keyboardNextButtonTapped:
-        // MARK: Would be nice if the name could perform leading
-        // and trailing enters just like the text binding action for name.
-        // However it does not seem easy or nice to do so.
         switch state.focusedField {
         case .name:
-          state.focusedField = .amount
-          return .none
-        case .amount:
-          state.focusedField = .measure
-          return .none
-        case .measure:
           state.focusedField = nil
           return .run { send in
-            try await self.clock.sleep(for: .microseconds(10))
+            try await self.clock.sleep(for: .milliseconds(125))
             /// MARK: - There is a strange bug where if this action is not sent asynchronously for an
             /// extremely brief moment, the focus does not focus, This might be some strange bug with focus
             /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
             await send(.delegate(.insertIngredient(.below)), animation: .default)
           }
-        case .none:
+          .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
+        default:
           return .none
         }
         
