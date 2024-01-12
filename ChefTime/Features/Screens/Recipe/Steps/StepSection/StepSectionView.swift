@@ -18,6 +18,27 @@ struct StepSection: View {
             let id = ViewStore(childStore, observe: \.id).state
             let index = viewStore.steps.index(id:id) ?? 0
             StepView(store: childStore, index: index)
+              .contextMenu {
+                Button {
+                  viewStore.send(.stepInsertButtonTapped(.above, ViewStore(childStore, observe: \.id).state), animation: .default)
+                } label: {
+                  Text("Insert Step Above")
+                }
+                Button {
+                  viewStore.send(.stepInsertButtonTapped(.below, ViewStore(childStore, observe: \.id).state), animation: .default)
+                } label: {
+                  Text("Insert Step Below")
+                }
+                Button(role: .destructive) {
+                  viewStore.send(.stepDeleteButtonTapped(ViewStore(childStore, observe: \.id).state), animation: .default)
+                } label: {
+                  Text("Delete")
+                }
+              } preview: {
+                StepContextMenuPreview(state: ViewStore(childStore, observe: { $0 }).state, index: index)
+                  .frame(width: 200)
+                  .padding()
+              }
               .accentColor(.accentColor)
             if let lastId = viewStore.steps.last?.id, lastId != id {
               Divider()
@@ -108,6 +129,37 @@ struct StepSectionNonGrouped: View {
         let id = ViewStore(childStore, observe: \.id).state
         let index = viewStore.steps.index(id:id) ?? 0
         StepView(store: childStore, index: index)
+          .contextMenu {
+            Button {
+              viewStore.send(.delegate(.insertSection(.above)), animation: .default)
+            } label: {
+              Text("Insert Section Above")
+            }
+            Button {
+              viewStore.send(.delegate(.insertSection(.below)), animation: .default)
+            } label: {
+              Text("Insert Section Below")
+            }
+            Button {
+              viewStore.send(.stepInsertButtonTapped(.above, ViewStore(childStore, observe: \.id).state), animation: .default)
+            } label: {
+              Text("Insert Step Above")
+            }
+            Button {
+              viewStore.send(.stepInsertButtonTapped(.below, ViewStore(childStore, observe: \.id).state), animation: .default)
+            } label: {
+              Text("Insert Step Below")
+            }
+            Button(role: .destructive) {
+              viewStore.send(.stepDeleteButtonTapped(ViewStore(childStore, observe: \.id).state), animation: .default)
+            } label: {
+              Text("Delete")
+            }
+          } preview: {
+            StepContextMenuPreview(state: ViewStore(childStore, observe: { $0 }).state, index: index)
+              .frame(width: 200)
+              .padding()
+          }
           .accentColor(.accentColor)
         if let lastId = viewStore.steps.last?.id, lastId != id {
           Divider()
