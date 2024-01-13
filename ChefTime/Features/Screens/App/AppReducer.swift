@@ -48,11 +48,21 @@ struct AppReducer: Reducer {
         
       case let .stack(.popFrom(id)):
         state.stack.pop(from: id)
-        if state.stack.isEmpty {
+        switch state.stack.last {
+        case let .folder(folder): // We want to refresh the data.
+          _ = state.stack.popLast()
+          state.stack.append(.folder(.init(folderID: folder.folder.id)))
+          return .none
+          
+        case let .recipe(recipe): // We want to refresh the data.
+          _ = state.stack.popLast()
+          state.stack.append(.recipe(.init(recipeID: recipe.recipe.id)))
+          return .none
+
+        case .none: // We are an empty stack now.
           state.rootFolders.loadStatus = .didNotLoad
           return .send(.rootFolders(.task))
         }
-        return .none
         
         
       case let .rootFolders(.delegate(.navigateToFolder(id))):
