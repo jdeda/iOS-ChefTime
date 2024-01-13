@@ -18,10 +18,10 @@ struct RecipeReducer: Reducer {
       didSet { self.recipe.imageData = self.photos.photos }
     }
     var about: AboutListReducer.State {
-      didSet { self.recipe.stepSections = steps.recipeSections }
+      didSet { self.recipe.aboutSections = about.recipeSections }
     }
     var ingredients: IngredientsListReducer.State {
-      didSet { self.recipe.stepSections = steps.recipeSections }
+      didSet { self.recipe.ingredientSections = ingredients.recipeSections }
     }
     var steps: StepListReducer.State {
       didSet { self.recipe.stepSections = steps.recipeSections }
