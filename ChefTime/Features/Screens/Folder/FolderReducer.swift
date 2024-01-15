@@ -14,8 +14,9 @@ struct FolderReducer: Reducer {
     var search: SearchReducer.State
     
     // TODO: - What to do with the dates here?
-    init(folderID: Folder.ID) {
-      self.init(folder: .init(id: folderID, creationDate: .init(), lastEditDate: .init()))
+    // Just make the caller  make them
+    init(folderID: Folder.ID, folderName: String) {
+      self.init(folder: .init(id: folderID, name: folderName, creationDate: .init(), lastEditDate: .init()))
     }
     
     init(folder: Folder) {
@@ -85,8 +86,8 @@ struct FolderReducer: Reducer {
     case delegate(DelegateAction)
     
     enum DelegateAction: Equatable {
-      case navigateToFolder(Folder.ID)
-      case navigateToRecipe(Recipe.ID)
+      case navigateToFolder(Folder.ID, String)
+      case navigateToRecipe(Recipe.ID, String)
       case folderUpdated(FolderReducer.State)
     }
 
@@ -234,7 +235,7 @@ struct FolderReducer: Reducer {
             // We sleep briefly here to see the folder get inserted into the UI
             try await clock.sleep(for: .milliseconds(500))
 
-            await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
+            await send(.delegate(.navigateToFolder(newFolder.id, newFolder.name)), animation: .default)
           }
           
           
@@ -253,13 +254,14 @@ struct FolderReducer: Reducer {
             try! await self.database.createRecipe(newRecipe)
             // We sleep briefly here to see the folder get inserted into the UI
             try await clock.sleep(for: .milliseconds(500))
-            await send(.delegate(.navigateToRecipe(newRecipe.id)), animation: .default)
+            await send(.delegate(.navigateToRecipe(newRecipe.id, newRecipe.name)), animation: .default)
           }
           
         case let .folderSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.navigateToFolder(id)))
+            let name = state.folderSection.gridItems[id: id]?.name ?? ""
+            return .send(.delegate(.navigateToFolder(id, name)))
           }
           
           // TODO: XXX Persist here directly
@@ -283,7 +285,8 @@ struct FolderReducer: Reducer {
         case let .recipeSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.navigateToRecipe(id)))
+            let name = state.recipeSection.gridItems[id: id]?.name ?? ""
+            return .send(.delegate(.navigateToRecipe(id, name)))
           }
           
           // TODO: XXX Persist here directly
@@ -342,8 +345,8 @@ struct FolderReducer: Reducer {
           return .none
           
           
-        case let .search(.delegate(.searchResultTapped(id))):
-          return .send(.delegate(.navigateToRecipe(id)))
+        case let .search(.delegate(.searchResultTapped(id, name))):
+          return .send(.delegate(.navigateToRecipe(id, name)))
           
         case .binding, .destination, .search, .delegate:
           return .none

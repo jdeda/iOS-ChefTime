@@ -56,7 +56,7 @@ struct AppReducer: Reducer {
         switch state.stack.last {
         case let .folder(folder): // We want to refresh the data.
           _ = state.stack.popLast()
-          state.stack.append(.folder(.init(folderID: folder.folder.id)))
+          state.stack.append(.folder(.init(folderID: folder.folder.id, folderName: folder.folder.name)))
           return .none
           
         case let .recipe(recipe): // We want to refresh the data.
@@ -70,22 +70,22 @@ struct AppReducer: Reducer {
         }
         
         
-      case let .rootFolders(.delegate(.navigateToFolder(id))):
+      case let .rootFolders(.delegate(.navigateToFolder(id, name))):
         state.rootFolders.loadStatus = .isLoading
-        state.stack.append(.folder(.init(folderID: id)))
+        state.stack.append(.folder(.init(folderID: id, folderName: name)))
         return .none
         
-      case let .rootFolders(.delegate(.navigateToRecipe(id))):
+      case let .rootFolders(.delegate(.navigateToRecipe(id, name))):
         state.rootFolders.loadStatus = .isLoading
-        state.stack.append(.recipe(.init(recipeID: id)))
+        state.stack.append(.recipe(.init(recipeID: id, recipeName: name)))
         return .none
         
-      case let .stack(.element(_, action: .folder(.delegate(.navigateToFolder(id))))):
-        state.stack.append(.folder(.init(folderID: id)))
+      case let .stack(.element(_, action: .folder(.delegate(.navigateToFolder(id, name))))):
+        state.stack.append(.folder(.init(folderID: id, folderName: name)))
         return .none
         
-      case let .stack(.element(_, action: .folder(.delegate(.navigateToRecipe(id))))):
-        state.stack.append(.recipe(.init(recipeID: id)))
+      case let .stack(.element(_, action: .folder(.delegate(.navigateToRecipe(id, name))))):
+        state.stack.append(.recipe(.init(recipeID: id, recipeName: name)))
         return .none
       
       case .rootFolders, .stack:

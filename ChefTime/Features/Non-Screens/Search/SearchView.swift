@@ -85,7 +85,7 @@ private struct CoreSearchView: View {
               .foregroundColor(.secondary)
             }
             .onTapGesture {
-              viewStore.send(.delegate(.searchResultTapped(result.id)))
+              viewStore.send(.delegate(.searchResultTapped(result.id, result.title)))
             }
             Divider()
           }

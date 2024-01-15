@@ -54,8 +54,8 @@ struct RootFoldersReducer: Reducer {
     
     case delegate(DelegateAction)
     enum DelegateAction: Equatable {
-      case navigateToFolder(Folder.ID)
-      case navigateToRecipe(Recipe.ID)
+      case navigateToFolder(Folder.ID, String)
+      case navigateToRecipe(Recipe.ID, String)
     }
     
     case destination(PresentationAction<DestinationReducer.Action>)
@@ -141,14 +141,15 @@ struct RootFoldersReducer: Reducer {
             try! await self.database.createFolder(newFolder)
             // We sleep briefly here to see the folder get inserted into the UI
             try await clock.sleep(for: .milliseconds(500))
-            await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
+            await send(.delegate(.navigateToFolder(newFolder.id, newFolder.name)), animation: .default)
           }
           
           
         case let .userFoldersSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.navigateToFolder(id)))
+            let name = state.userFoldersSection.gridItems[id: id]?.name ?? ""
+            return .send(.delegate(.navigateToFolder(id, name)))
           }
           
         case .userFoldersSection:
@@ -164,8 +165,8 @@ struct RootFoldersReducer: Reducer {
           }
           return self.persistFolders(oldFolders: oldFolders, newFolders: state.userFolders)
           
-        case let .search(.delegate(.searchResultTapped(id))):
-          return .send(.delegate(.navigateToRecipe(id)))
+        case let .search(.delegate(.searchResultTapped(id, name))):
+          return .send(.delegate(.navigateToRecipe(id, name)))
           
         case .binding:
           return .none

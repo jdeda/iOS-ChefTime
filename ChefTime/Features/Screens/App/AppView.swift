@@ -10,14 +10,14 @@ struct AppView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      Group {
-        if viewStore.loadStatus == .isLoading {
-          ProgressView()
-        } else {
+//      Group {
+//        if viewStore.loadStatus == .isLoading {
+//          ProgressView()
+//        } else {
           NavigationStackStore(store.scope(state: \.stack, action: AppReducer.Action.stack)) {
-            if viewStore.loadStatus != .isLoading {
+//            if viewStore.loadStatus != .isLoading {
               RootFoldersView(store: store.scope(state: \.rootFolders, action: AppReducer.Action.rootFolders))
-            }
+//            }
           } destination: { state in
             switch state {
             case .folder:
@@ -34,8 +34,14 @@ struct AppView: View {
               )
             }
           }
-        }
-      }
+//          .disabled(viewStore.loadStatus == .isLoading)
+//          .blur(radius: viewStore.loadStatus == .isLoading ? 1.0 : 0.0)
+//          .overlay {
+//            ProgressView()
+//              .opacity(viewStore.loadStatus == .isLoading ? 1.0 : 0.0)
+//          }
+//        }
+//      }
       .task {
         await viewStore.send(.task).finish()
       }

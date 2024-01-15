@@ -8,11 +8,11 @@ struct RootFoldersView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      Group {
-        if viewStore.loadStatus == .isLoading {
-          ProgressView()
-        }
-        else {
+//      Group {
+//        if viewStore.loadStatus == .isLoading {
+//          ProgressView()
+//        }
+//        else {
           ScrollView {
             GridSectionView(
               store: store.scope(state: \.userFoldersSection, action: RootFoldersReducer.Action.userFoldersSection),
@@ -53,9 +53,15 @@ struct RootFoldersView: View {
           })
           .environment(\.isHidingImages, viewStore.isHidingImages)
           .padding(.top, 1) // Prevent bizzare scroll view animations on hiding sections
-        }
-      }
+//        }
+//      }
       .task { await viewStore.send(.task).finish() }
+      .disabled(viewStore.loadStatus == .isLoading)
+      .blur(radius: viewStore.loadStatus == .isLoading ? 1.0 : 0.0)
+      .overlay {
+        ProgressView()
+          .opacity(viewStore.loadStatus == .isLoading ? 1.0 : 0.0)
+      }
     }
   }
 }
