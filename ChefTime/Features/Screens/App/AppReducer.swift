@@ -77,12 +77,18 @@ struct AppReducer: Reducer {
         
       case let .rootFolders(.delegate(.navigateToFolder(id, name))):
         // Make sure animation is smooth and we get completely refreshed view with a loading screen.
+        let oldSearchState = state.rootFolders.search
+        state.rootFolders = .init()
         state.rootFolders.loadStatus = .isLoading
+        state.rootFolders.search = oldSearchState
         state.stack.append(.folder(.init(folderID: id, folderName: name)))  // Add the drilldown.
         return .none
         
       case let .rootFolders(.delegate(.navigateToRecipe(id, name))):
+        let oldSearchState = state.rootFolders.search
+        state.rootFolders = .init()
         state.rootFolders.loadStatus = .isLoading
+        state.rootFolders.search = oldSearchState
         state.stack.append(.recipe(.init(recipeID: id, recipeName: name)))
         return .none
         
