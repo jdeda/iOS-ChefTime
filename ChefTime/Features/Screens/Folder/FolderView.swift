@@ -156,7 +156,7 @@ extension FolderView {
         .accentColor(.yellow)
         Spacer()
         // TODO: Update this count when all the folders are fetched properly
-        Text("\(viewStore.folderSection.gridItems.count) folders • \(viewStore.recipeSection.gridItems.count) recipes")
+        Text(viewStore.bottomToolbarString)
         Spacer()
         Button {
           viewStore.send(.newRecipeButtonTapped, animation: .default)

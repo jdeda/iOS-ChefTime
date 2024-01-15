@@ -1,5 +1,10 @@
 import ComposableArchitecture
 
+// Right now, loading screens are plaging this app.
+// We would love to seamlessly drill in and out of views, without having to pause and load things.
+// However, I notice that the NavigationStack is awfully slow.
+// None of the work happens mid-flight of the stack animation backing out.
+// It only begins when the back out animation ends.
 struct AppReducer: Reducer {
   struct State: Equatable {
     var loadStatus = LoadStatus.didNotLoad

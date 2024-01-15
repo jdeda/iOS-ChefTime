@@ -111,7 +111,7 @@ extension RootFoldersView {
         .accentColor(.yellow)
         Spacer()
         // TODO: Update this count when all the folders are fetched properly
-        Text("\(viewStore.userFoldersSection.gridItems.count) folders")
+        Text(viewStore.bottomToolbarString)
         Spacer()
       }
     }

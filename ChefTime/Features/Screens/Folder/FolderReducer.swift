@@ -45,6 +45,14 @@ struct FolderReducer: Reducer {
       }
     }
     
+    var bottomToolbarString: String{
+      let fcount = self.folderSection.gridItems.count
+      let rcount = self.recipeSection.gridItems.count
+      let fString = "\(fcount) \(fcount == 1 ? "Folder" : "Folders")"
+      let rString = "\(rcount) \(rcount == 1 ? "Recipe" : "Recipes")"
+      return "\(fString) • \(rString)"
+    }
+    
     var isHidingFolders: Bool {
       editStatus == .recipes || folderSection.gridItems.isEmpty
     }
@@ -52,7 +60,6 @@ struct FolderReducer: Reducer {
     var isHidingRecipes: Bool {
       editStatus == .folders || recipeSection.gridItems.isEmpty
     }
-
   }
   
   enum Action: Equatable, BindableAction {

@@ -30,6 +30,12 @@ struct RootFoldersReducer: Reducer {
       let value = isEditing && userFoldersSection.selection.count > 0
       return value ? "\(userFoldersSection.selection.count) Selected": "Home"
     }
+    
+    var bottomToolbarString: String {
+      let fCount = self.userFoldersSection.gridItems.count
+      let fString = fCount == 1 ? "Folder" : "Folders"
+      return "\(fCount) \(fString)"
+    }
   }
   
   enum Action: Equatable, BindableAction {
