@@ -141,8 +141,9 @@ struct FolderReducer: Reducer {
           }
           
         case let .fetchFolderSuccess(newFolder):
-          // dump(newFolder)
+          let old = state
           state = .init(folder: newFolder)
+          state.search = old.search
           return .none
           
         case .selectFoldersButtonTapped:

@@ -79,8 +79,6 @@ struct AppReducer: Reducer {
         // Make sure animation is smooth and we get completely refreshed view with a loading screen.
         state.rootFolders.loadStatus = .isLoading
         state.stack.append(.folder(.init(folderID: id, folderName: name)))  // Add the drilldown.
-        // TODO: You don't want to clear ALL the state. You'd want to cancel all effects, reset the recipe or folder then call .task
-
         return .none
         
       case let .rootFolders(.delegate(.navigateToRecipe(id, name))):
@@ -90,18 +88,22 @@ struct AppReducer: Reducer {
         
       case let .stack(.element(stackID, action: .folder(.delegate(.navigateToFolder(id, name))))):
         // Make sure animation is smooth and we get completely refreshed view with a loading screen.
-        let oldFolder = (/StackReducer.State.folder).extract(from: state.stack[id: stackID])!.folder
-        var newFolder = FolderReducer.State(folderID: oldFolder.id, folderName: oldFolder.name)
+        // You must clear the state before to get proper animation.
+        let oldFolder = (/StackReducer.State.folder).extract(from: state.stack[id: stackID])!
+        var newFolder = FolderReducer.State(folderID: oldFolder.folder.id, folderName: oldFolder.folder.name)
         newFolder.loadStatus = .isLoading
+        newFolder.search = oldFolder.search
         state.stack[id: stackID] = .folder(newFolder)
         state.stack.append(.folder(.init(folderID: id, folderName: name))) // Add the drilldown.
         return .none
         
       case let .stack(.element(stackID, action: .folder(.delegate(.navigateToRecipe(id, name))))):
         // Make sure animation is smooth and we get completely refreshed view with a loading screen.
-        let oldFolder = (/StackReducer.State.folder).extract(from: state.stack[id: stackID])!.folder
-        var newFolder = FolderReducer.State(folderID: oldFolder.id, folderName: oldFolder.name)
+        // You must clear the state before to get proper animation.
+        let oldFolder = (/StackReducer.State.folder).extract(from: state.stack[id: stackID])!
+        var newFolder = FolderReducer.State(folderID: oldFolder.folder.id, folderName: oldFolder.folder.name)
         newFolder.loadStatus = .isLoading
+        newFolder.search = oldFolder.search
         state.stack[id: stackID] = .folder(newFolder)
         state.stack.append(.recipe(.init(recipeID: id, recipeName: name)))  // Add the drilldown.
         return .none
