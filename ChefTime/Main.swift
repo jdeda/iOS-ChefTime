@@ -29,3 +29,15 @@ struct ChefTimeApp: App {
     }
   }
 }
+
+// Disables fugly swipe back gesture that breaks the app.
+extension UINavigationController: UIGestureRecognizerDelegate {
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
+    
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return false
+    }
+}
