@@ -60,18 +60,18 @@ struct AppReducer: Reducer {
           var fds = FolderReducer.State(folderID: folder.folder.id, folderName: folder.folder.name)
           fds.search = fdsOld.search // Keep search state.
           state.stack[id: lastID] = .folder(fds)
-          return .send(.stack(.element(id: lastID, action: .folder(.task))))
+          return .send(.stack(.element(id: lastID, action: .folder(.task))), animation: .default)
           
         case let .recipe(recipe): // We want to refresh the data.
           let lastID = state.stack.ids.last!
           state.stack[id: lastID] = .recipe(.init(recipeID: recipe.recipe.id, recipeName: recipe.recipe.name))
-          return .send(.stack(.element(id: lastID, action: .folder(.task))))
+          return .send(.stack(.element(id: lastID, action: .folder(.task))), animation: .default)
           
         case .none: // We are an empty stack now, // We want to refresh the data.
           let oldSearchState = state.rootFolders.search
           state.rootFolders = .init()
           state.rootFolders.search = oldSearchState
-          return .send(.rootFolders(.task))
+          return .send(.rootFolders(.task), animation: .default)
         }
         
         
