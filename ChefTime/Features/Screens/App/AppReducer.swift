@@ -56,17 +56,21 @@ struct AppReducer: Reducer {
         switch state.stack.last {
         case let .folder(folder): // We want to refresh the data.
           let lastID = state.stack.ids.last!
-          state.stack[id: lastID] = .folder(.init(folderID: folder.folder.id, folderName: folder.folder.name))
+          let fdsOld = (/StackReducer.State.folder).extract(from: state.stack[id: lastID])!
+          var fds = FolderReducer.State(folderID: folder.folder.id, folderName: folder.folder.name)
+          fds.search = fdsOld.search // Keep search state.
+          state.stack[id: lastID] = .folder(fds)
           return .send(.stack(.element(id: lastID, action: .folder(.task))))
           
         case let .recipe(recipe): // We want to refresh the data.
           let lastID = state.stack.ids.last!
-          // TODO: You don't want to clear ALL the state. You'd want to cancel all effects, reset the recipe or folder then call .task
           state.stack[id: lastID] = .recipe(.init(recipeID: recipe.recipe.id, recipeName: recipe.recipe.name))
           return .send(.stack(.element(id: lastID, action: .folder(.task))))
           
         case .none: // We are an empty stack now, // We want to refresh the data.
+          let oldSearchState = state.rootFolders.search
           state.rootFolders = .init()
+          state.rootFolders.search = oldSearchState
           return .send(.rootFolders(.task))
         }
         
@@ -75,6 +79,8 @@ struct AppReducer: Reducer {
         // Make sure animation is smooth and we get completely refreshed view with a loading screen.
         state.rootFolders.loadStatus = .isLoading
         state.stack.append(.folder(.init(folderID: id, folderName: name)))  // Add the drilldown.
+        // TODO: You don't want to clear ALL the state. You'd want to cancel all effects, reset the recipe or folder then call .task
+
         return .none
         
       case let .rootFolders(.delegate(.navigateToRecipe(id, name))):
