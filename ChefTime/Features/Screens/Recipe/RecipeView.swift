@@ -125,7 +125,6 @@ struct RecipeView: View {
         ProgressView()
           .opacity(viewStore.loadStatus == .isLoading ? 1.0 : 0.0)
       }
-//      .navigationViewStyle(StackNavigationViewStyle())
       .navigationBarTitle("", displayMode: .inline)
     }
   }
