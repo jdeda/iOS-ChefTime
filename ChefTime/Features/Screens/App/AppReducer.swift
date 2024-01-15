@@ -55,24 +55,26 @@ struct AppReducer: Reducer {
         state.stack.pop(from: id)
         switch state.stack.last {
         case let .folder(folder): // We want to refresh the data.
-          _ = state.stack.popLast()
-          state.stack.append(.folder(.init(folderID: folder.folder.id, folderName: folder.folder.name)))
-          return .none
+          let lastID = state.stack.ids.last!
+          state.stack[id: lastID] = .folder(.init(folderID: folder.folder.id, folderName: folder.folder.name))
+          return .send(.stack(.element(id: lastID, action: .folder(.task))))
           
         case let .recipe(recipe): // We want to refresh the data.
-          _ = state.stack.popLast()
-          state.stack.append(.recipe(.init(recipeID: recipe.recipe.id)))
-          return .none
-
-        case .none: // We are an empty stack now.
-          state.rootFolders.loadStatus = .didNotLoad
+          let lastID = state.stack.ids.last!
+          // TODO: You don't want to clear ALL the state. You'd want to cancel all effects, reset the recipe or folder then call .task
+          state.stack[id: lastID] = .recipe(.init(recipeID: recipe.recipe.id, recipeName: recipe.recipe.name))
+          return .send(.stack(.element(id: lastID, action: .folder(.task))))
+          
+        case .none: // We are an empty stack now, // We want to refresh the data.
+          state.rootFolders = .init()
           return .send(.rootFolders(.task))
         }
         
         
       case let .rootFolders(.delegate(.navigateToFolder(id, name))):
+        // Make sure animation is smooth and we get completely refreshed view with a loading screen.
         state.rootFolders.loadStatus = .isLoading
-        state.stack.append(.folder(.init(folderID: id, folderName: name)))
+        state.stack.append(.folder(.init(folderID: id, folderName: name)))  // Add the drilldown.
         return .none
         
       case let .rootFolders(.delegate(.navigateToRecipe(id, name))):
@@ -80,12 +82,22 @@ struct AppReducer: Reducer {
         state.stack.append(.recipe(.init(recipeID: id, recipeName: name)))
         return .none
         
-      case let .stack(.element(_, action: .folder(.delegate(.navigateToFolder(id, name))))):
-        state.stack.append(.folder(.init(folderID: id, folderName: name)))
+      case let .stack(.element(stackID, action: .folder(.delegate(.navigateToFolder(id, name))))):
+        // Make sure animation is smooth and we get completely refreshed view with a loading screen.
+        let oldFolder = (/StackReducer.State.folder).extract(from: state.stack[id: stackID])!.folder
+        var newFolder = FolderReducer.State(folderID: oldFolder.id, folderName: oldFolder.name)
+        newFolder.loadStatus = .isLoading
+        state.stack[id: stackID] = .folder(newFolder)
+        state.stack.append(.folder(.init(folderID: id, folderName: name))) // Add the drilldown.
         return .none
         
-      case let .stack(.element(_, action: .folder(.delegate(.navigateToRecipe(id, name))))):
-        state.stack.append(.recipe(.init(recipeID: id, recipeName: name)))
+      case let .stack(.element(stackID, action: .folder(.delegate(.navigateToRecipe(id, name))))):
+        // Make sure animation is smooth and we get completely refreshed view with a loading screen.
+        let oldFolder = (/StackReducer.State.folder).extract(from: state.stack[id: stackID])!.folder
+        var newFolder = FolderReducer.State(folderID: oldFolder.id, folderName: oldFolder.name)
+        newFolder.loadStatus = .isLoading
+        state.stack[id: stackID] = .folder(newFolder)
+        state.stack.append(.recipe(.init(recipeID: id, recipeName: name)))  // Add the drilldown.
         return .none
       
       case .rootFolders, .stack:

@@ -202,8 +202,8 @@ extension RecipeView {
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
         //        recipeID: .init()
-        recipeID: .init(rawValue: .init(uuidString: "0BA83EA4-BEC6-4537-8227-A0AC03AAFB31")!)
-        
+        recipeID: .init(rawValue: .init(uuidString: "0BA83EA4-BEC6-4537-8227-A0AC03AAFB31")!), 
+        recipeName: ""
       ),
       reducer: RecipeReducer.init
     ))

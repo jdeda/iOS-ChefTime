@@ -32,10 +32,6 @@ struct RecipeReducer: Reducer {
     
     // TODO: - What to do with the dates here?
     // Just make the caller  make them
-    init(recipeID: Recipe.ID) {
-      self.init(recipe: .init(id: recipeID, creationDate: Date(), lastEditDate: Date()))
-    }
-    
     init(recipeID: Recipe.ID, recipeName: String) {
       self.init(recipe: .init(id: recipeID, name: recipeName, creationDate: Date(), lastEditDate: Date()))
     }
