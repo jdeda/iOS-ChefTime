@@ -64,27 +64,6 @@ struct StepView: View {
       }
       .animation(.default, value: isHidingImages) // TODO: Why?
       .synchronize(viewStore.$focusedField, $focusedField)
-      .contextMenu {
-        Button {
-          viewStore.send(.delegate(.insertButtonTapped(.above)), animation: .default)
-        } label: {
-          Text("Insert Step Above")
-        }
-        Button {
-          viewStore.send(.delegate(.insertButtonTapped(.below)), animation: .default)
-        } label: {
-          Text("Insert Step Below")
-        }
-        Button(role: .destructive) {
-          viewStore.send(.delegate(.deleteButtonTapped), animation: .default)
-        } label: {
-          Text("Delete")
-        }
-      } preview: {
-        StepContextMenuPreview(state: viewStore.state, index: index)
-          .frame(width: 200)
-          .padding()
-      }
     }
   }
 }

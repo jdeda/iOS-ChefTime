@@ -14,8 +14,9 @@ struct FolderReducer: Reducer {
     var search: SearchReducer.State
     
     // TODO: - What to do with the dates here?
-    init(folderID: Folder.ID) {
-      self.init(folder: .init(id: folderID, creationDate: .init(), lastEditDate: .init()))
+    // Just make the caller  make them
+    init(folderID: Folder.ID, folderName: String) {
+      self.init(folder: .init(id: folderID, name: folderName, creationDate: .init(), lastEditDate: .init()))
     }
     
     init(folder: Folder) {
@@ -45,6 +46,14 @@ struct FolderReducer: Reducer {
       }
     }
     
+    var bottomToolbarString: String{
+      let fcount = self.folderSection.gridItems.count
+      let rcount = self.recipeSection.gridItems.count
+      let fString = "\(fcount) \(fcount == 1 ? "Folder" : "Folders")"
+      let rString = "\(rcount) \(rcount == 1 ? "Recipe" : "Recipes")"
+      return "\(fString) • \(rString)"
+    }
+    
     var isHidingFolders: Bool {
       editStatus == .recipes || folderSection.gridItems.isEmpty
     }
@@ -52,14 +61,12 @@ struct FolderReducer: Reducer {
     var isHidingRecipes: Bool {
       editStatus == .folders || recipeSection.gridItems.isEmpty
     }
-
   }
   
   enum Action: Equatable, BindableAction {
     case didLoad
     case task
     case fetchFolderSuccess(Folder)
-    case toggleHideImagesButtonTapped
     case selectFoldersButtonTapped
     case selectRecipesButtonTapped
     case doneButtonTapped
@@ -70,6 +77,7 @@ struct FolderReducer: Reducer {
     case renameFolderButtonTapped
     case acceptFolderNameButtonTapped(String)
     case acceptNewFolderNameButtonTapped(String)
+    case acceptNewRecipeNameButtonTapped(String)
     case folderSection(GridSectionReducer<Folder.ID>.Action)
     case recipeSection(GridSectionReducer<Recipe.ID>.Action)
     case search(SearchReducer.Action)
@@ -78,8 +86,8 @@ struct FolderReducer: Reducer {
     case delegate(DelegateAction)
     
     enum DelegateAction: Equatable {
-      case navigateToFolder(Folder.ID)
-      case navigateToRecipe(Recipe.ID)
+      case navigateToFolder(Folder.ID, String)
+      case navigateToRecipe(Recipe.ID, String)
       case folderUpdated(FolderReducer.State)
     }
 
@@ -133,12 +141,9 @@ struct FolderReducer: Reducer {
           }
           
         case let .fetchFolderSuccess(newFolder):
-          // dump(newFolder)
+          let old = state
           state = .init(folder: newFolder)
-          return .none
-          
-        case .toggleHideImagesButtonTapped:
-          state.isHidingImages.toggle()
+          state.search = old.search
           return .none
           
         case .selectFoldersButtonTapped:
@@ -201,19 +206,8 @@ struct FolderReducer: Reducer {
           
           // TODO: XXX Persist here directly
         case .newRecipeButtonTapped:
-          let newRecipe = Recipe(
-            id: .init(rawValue: uuid()),
-            parentFolderID: state.folder.id,
-            name: "New Untitled Recipe",
-            creationDate: date(),
-            lastEditDate: date()
-          )
-          state.folder.recipes.append(newRecipe)
-          state.recipeSection.gridItems.append(.init(newRecipe))
-          return .run { send in
-            try! await self.database.createRecipe(newRecipe)
-            await send(.delegate(.navigateToRecipe(newRecipe.id)), animation: .default)
-          }
+          state.destination = .nameNewRecipeAlert
+          return .none
           
         case .renameFolderButtonTapped:
           state.destination = .renameFolderAlert
@@ -242,13 +236,33 @@ struct FolderReducer: Reducer {
             // We sleep briefly here to see the folder get inserted into the UI
             try await clock.sleep(for: .milliseconds(500))
 
-            await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
+            await send(.delegate(.navigateToFolder(newFolder.id, newFolder.name)), animation: .default)
+          }
+          
+          
+        case let .acceptNewRecipeNameButtonTapped(name):
+          state.destination = nil
+          let newRecipe = Recipe(
+            id: .init(rawValue: uuid()),
+            parentFolderID: state.folder.id,
+            name: name,
+            creationDate: date(),
+            lastEditDate: date()
+          )
+          state.folder.recipes.append(newRecipe)
+          state.recipeSection.gridItems.append(.init(newRecipe))
+          return .run { send in
+            try! await self.database.createRecipe(newRecipe)
+            // We sleep briefly here to see the folder get inserted into the UI
+            try await clock.sleep(for: .milliseconds(500))
+            await send(.delegate(.navigateToRecipe(newRecipe.id, newRecipe.name)), animation: .default)
           }
           
         case let .folderSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.navigateToFolder(id)))
+            let name = state.folderSection.gridItems[id: id]?.name ?? ""
+            return .send(.delegate(.navigateToFolder(id, name)))
           }
           
           // TODO: XXX Persist here directly
@@ -272,7 +286,8 @@ struct FolderReducer: Reducer {
         case let .recipeSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.navigateToRecipe(id)))
+            let name = state.recipeSection.gridItems[id: id]?.name ?? ""
+            return .send(.delegate(.navigateToRecipe(id, name)))
           }
           
           // TODO: XXX Persist here directly
@@ -331,8 +346,8 @@ struct FolderReducer: Reducer {
           return .none
           
           
-        case let .search(.delegate(.searchResultTapped(id))):
-          return .send(.delegate(.navigateToRecipe(id)))
+        case let .search(.delegate(.searchResultTapped(id, name))):
+          return .send(.delegate(.navigateToRecipe(id, name)))
           
         case .binding, .destination, .search, .delegate:
           return .none
@@ -353,11 +368,13 @@ extension FolderReducer {
       case alert(AlertState<Action.AlertAction>)
       case renameFolderAlert
       case nameNewFolderAlert
+      case nameNewRecipeAlert
     }
     
     enum Action: Equatable {
       case renameFolderAlert
       case nameNewFolderAlert
+      case nameNewRecipeAlert
       case alert(AlertAction)
       enum AlertAction: Equatable {
         case confirmDeleteSelectedButtonTapped
@@ -447,10 +464,11 @@ extension AlertState where Action == FolderReducer.DestinationReducer.Action.Ale
 
 private extension GridItemReducer.State where ID == Folder.ID {
   init(_ folder: Folder) {
+    let count = folder.recipes.count
     self.init(
       id: folder.id,
       name: folder.name, 
-      description: "\(folder.recipes.count) Recipes",
+      description: "\(count) \(count == 1 ? "Recipe" : "Recipes")",
       imageData: folder.imageData
     )
   }

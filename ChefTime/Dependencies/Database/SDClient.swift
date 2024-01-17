@@ -143,29 +143,16 @@ actor SDClient: ModelActor {
   func updateFolder(_ folder: Folder) throws {
     let start = Date()
     defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
-    
     Log4swift[Self.self].info("updateFolder")
     guard let original = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
     original.name = folder.name
     original.imageData = folder.imageData.flatMap({.init($0)})
     original.lastEditDate = Date()
-    // guard let original = self._retrieveSDFolder(folder.id) else { throw SDError.notFound }
-    // original.name = original.name + ","
-    // update this instance with folder
-    //    let originalFolder = Folder(original)
-    //    try self.deleteFolder(folder.id)
-    //    do {
-    //      try self.createFolder(folder)
-    //    }
-    //    catch {
-    //      try self.createFolder(originalFolder)
-    //      throw error
-    //    }
     try self.modelContext.save()
   }
   
   func deleteFolder(_ folderID: Folder.ID) throws {
-      Log4swift[Self.self].info("deleteFolder")
+    Log4swift[Self.self].info("deleteFolder")
     guard let sdFolder = self._retrieveSDFolder(folderID)
     else { throw SDError.notFound }
     sdFolder.folders.forEach {

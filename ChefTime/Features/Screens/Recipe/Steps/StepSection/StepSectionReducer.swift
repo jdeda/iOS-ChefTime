@@ -20,6 +20,8 @@ struct StepSectionReducer: Reducer {
   
   enum Action: Equatable, BindableAction {
     case steps(StepReducer.State.ID, StepReducer.Action)
+    case stepInsertButtonTapped(AboveBelow, StepReducer.State.ID)
+    case stepDeleteButtonTapped(StepReducer.State.ID)
     case binding(BindingAction<State>)
     case stepSectionNameEdited(String)
     case addStep
@@ -65,6 +67,22 @@ struct StepSectionReducer: Reducer {
           state.steps.insert(newStep, at: aboveBelow == .above ? i : i + 1)
           return .none
         }
+        
+        
+      case let .stepInsertButtonTapped(aboveBelow, id):
+        guard let i = state.steps.index(id: id) else { return .none }
+        state.steps[i].focusedField = nil
+        let newStep = StepReducer.State(
+          step: .init(id: .init(rawValue: uuid())),
+          focusedField: .description
+        )
+        state.steps.insert(newStep, at: aboveBelow == .above ? i : i + 1)
+        return .none
+        
+        
+      case let .stepDeleteButtonTapped(id):
+        state.steps.remove(id: id)
+        return .none
         
       case let .stepSectionNameEdited(newName):
         let oldName = state.stepSection.name

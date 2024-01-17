@@ -38,7 +38,7 @@ struct SearchReducer: Reducer {
     case delegate(DelegateAction)
     
     enum DelegateAction: Equatable {
-      case searchResultTapped(Recipe.ID)
+      case searchResultTapped(Recipe.ID, String)
     }
   }
   

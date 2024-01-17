@@ -26,9 +26,7 @@ struct StepListReducer: Reducer {
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case stepSections(StepSectionReducer.State.ID, StepSectionReducer.Action)
-    case hideImagesToggled
     case addSectionButtonTapped
-    case hideImages
   }
   
   
@@ -39,7 +37,6 @@ struct StepListReducer: Reducer {
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
   
-  private enum HideImagesToggledID: Hashable { case timer }
   
   var body: some ReducerOf<Self> {
     BindingReducer()
@@ -67,22 +64,11 @@ struct StepListReducer: Reducer {
           return .none
         }
         
-      case .hideImagesToggled:
-        return .run { send in
-          try await self.clock.sleep(for: .milliseconds(250))
-          await send(.hideImages)
-        }
-        .cancellable(id: HideImagesToggledID.timer, cancelInFlight: true)
-        
       case .addSectionButtonTapped:
         guard state.stepSections.isEmpty else { return .none }
         let s = StepSectionReducer.State(stepSection: .init(id: .init(rawValue: uuid())))
         state.stepSections.append(s)
         state.focusedField = .row(s.id)
-        return .none
-        
-      case .hideImages:
-        state.isHidingImages.toggle()
         return .none
         
       case .binding(\.$isExpanded):

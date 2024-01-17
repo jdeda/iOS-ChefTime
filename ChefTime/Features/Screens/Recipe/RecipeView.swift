@@ -49,82 +49,83 @@ struct RecipeView: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      Group {
-        if viewStore.loadStatus == .isLoading {
-          ProgressView()
+      ScrollView {
+        // Unfournately, navigation title does not work here
+        // because it doesn't support multiple lines in
+        // the way we want it to behave.
+        TextField("Untitled Recipe", text: viewStore.$navigationTitle, axis: .vertical)
+          .multilineTextAlignment(.leading)
+          .autocapitalization(.none)
+          .autocorrectionDisabled()
+          .textNavigationTitleStyle()
+          .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+        
+        ZStack {
+          PhotosView(store: store.scope(state: \.photos, action: RecipeReducer.Action.photos))
+            .opacity(viewStore.isHidingPhotosView ? 0 : 1.0)
+            .frame(
+              width: viewStore.isHidingPhotosView ? 0 : maxScreenWidth.maxWidth,
+              height: viewStore.isHidingPhotosView ? 0 : maxScreenWidth.maxWidth
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+            .padding([.bottom], viewStore.isHidingPhotosView ? 0 : 10)
+            .disabled(viewStore.isHidingPhotosView)
+          
+          // This allows the expansion toggle animation to work properly.
+          Color.clear
+            .contentShape(Rectangle())
+            .frame(width: maxScreenWidth.maxWidth, height: 0)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+            .padding([.bottom], viewStore.isHidingPhotosView ? 0 : 10)
         }
-        else {
-          ScrollView {
-            // Unfournately, navigation title does not work here
-            // because it doesn't support multiple lines in
-            // the way we want it to behave.
-            TextField("Untitled Recipe", text: viewStore.$navigationTitle, axis: .vertical)
-              .multilineTextAlignment(.leading)
-              .autocapitalization(.none)
-              .autocorrectionDisabled()
-              .textNavigationTitleStyle()
+        
+        // AboutListView
+        if !viewStore.about.aboutSections.isEmpty {
+          AboutListView(store: store.scope(state: \.about, action: RecipeReducer.Action.about))
+            .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset)
+          if !viewStore.about.isExpanded {
+            Divider()
               .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-                    
-            ZStack {
-              PhotosView(store: store.scope(state: \.photos, action: RecipeReducer.Action.photos))
-                .opacity(viewStore.isHidingPhotosView ? 0 : 1.0)
-                .frame(
-                  width: viewStore.isHidingPhotosView ? 0 : maxScreenWidth.maxWidth,
-                  height: viewStore.isHidingPhotosView ? 0 : maxScreenWidth.maxWidth
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 15))
-                .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-                .padding([.bottom], viewStore.isHidingPhotosView ? 0 : 10)
-                .disabled(viewStore.isHidingPhotosView)
-              
-              // This allows the expansion toggle animation to work properly.
-              Color.clear
-                .contentShape(Rectangle())
-                .frame(width: maxScreenWidth.maxWidth, height: 0)
-                .clipShape(RoundedRectangle(cornerRadius: 15))
-                .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-                .padding([.bottom], viewStore.isHidingPhotosView ? 0 : 10)
-            }
-            
-            // AboutListView
-            if !viewStore.about.aboutSections.isEmpty {
-              AboutListView(store: store.scope(state: \.about, action: RecipeReducer.Action.about))
-                .padding(.horizontal, maxScreenWidth.maxWidthHorizontalOffset)
-              if !viewStore.about.isExpanded {
-                Divider()
-                  .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-              }
-            }
-            
-            // IngredientListView
-            if !viewStore.ingredients.ingredientSections.isEmpty {
-              IngredientListView(store: store.scope(state: \.ingredients, action: RecipeReducer.Action.ingredients))
-                .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-              if !viewStore.ingredients.isExpanded {
-                Divider()
-                  .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-              }
-            }
-            
-            // StepListView
-            if !viewStore.steps.stepSections.isEmpty {
-              StepListView(store: store.scope(state: \.steps, action: RecipeReducer.Action.steps))
-                .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-              if !viewStore.steps.isExpanded {
-                Divider()
-                  .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
-              }
-            }
-            
-            Spacer()
           }
-          .alert(store: store.scope(state: \.$alert, action: RecipeReducer.Action.alert))
-          .toolbar { toolbar(viewStore: viewStore) }
         }
+        
+        // IngredientListView
+        if !viewStore.ingredients.ingredientSections.isEmpty {
+          IngredientListView(store: store.scope(state: \.ingredients, action: RecipeReducer.Action.ingredients))
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          if !viewStore.ingredients.isExpanded {
+            Divider()
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          }
+        }
+        
+        // StepListView
+        if !viewStore.steps.stepSections.isEmpty {
+          StepListView(store: store.scope(state: \.steps, action: RecipeReducer.Action.steps))
+            .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          if !viewStore.steps.isExpanded {
+            Divider()
+              .padding([.horizontal], maxScreenWidth.maxWidthHorizontalOffset)
+          }
+        }
+        
+        Spacer()
       }
+      .environment(\.isHidingImages, viewStore.isHidingImages)
+      .alert(store: store.scope(state: \.$alert, action: RecipeReducer.Action.alert))
+      .toolbar { toolbar(viewStore: viewStore) }
       .task {
         await viewStore.send(.task).finish()
       }
+      .disabled(viewStore.loadStatus == .isLoading)
+      .blur(radius: viewStore.loadStatus == .isLoading ? 1.0 : 0.0)
+      .overlay {
+        ProgressView()
+          .opacity(viewStore.loadStatus == .isLoading ? 1.0 : 0.0)
+      }
+      .navigationBarTitle("", displayMode: .inline)
     }
   }
 }
@@ -191,7 +192,7 @@ extension RecipeView {
           .accentColor(.yellow)
       }
       .accentColor(.yellow)
-//      .foregroundColor(.primary)
+      //      .foregroundColor(.primary)
     }
   }
 }
@@ -200,9 +201,9 @@ extension RecipeView {
   NavigationStack {
     RecipeView(store: .init(
       initialState: RecipeReducer.State(
-//        recipeID: .init()
-        recipeID: .init(rawValue: .init(uuidString: "0BA83EA4-BEC6-4537-8227-A0AC03AAFB31")!)
-        
+        //        recipeID: .init()
+        recipeID: .init(rawValue: .init(uuidString: "0BA83EA4-BEC6-4537-8227-A0AC03AAFB31")!), 
+        recipeName: ""
       ),
       reducer: RecipeReducer.init
     ))

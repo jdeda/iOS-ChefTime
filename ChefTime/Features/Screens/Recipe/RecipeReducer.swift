@@ -18,10 +18,10 @@ struct RecipeReducer: Reducer {
       didSet { self.recipe.imageData = self.photos.photos }
     }
     var about: AboutListReducer.State {
-      didSet { self.recipe.stepSections = steps.recipeSections }
+      didSet { self.recipe.aboutSections = about.recipeSections }
     }
     var ingredients: IngredientsListReducer.State {
-      didSet { self.recipe.stepSections = steps.recipeSections }
+      didSet { self.recipe.ingredientSections = ingredients.recipeSections }
     }
     var steps: StepListReducer.State {
       didSet { self.recipe.stepSections = steps.recipeSections }
@@ -31,8 +31,9 @@ struct RecipeReducer: Reducer {
     @PresentationState var alert: AlertState<Action.AlertAction>?
     
     // TODO: - What to do with the dates here?
-    init(recipeID: Recipe.ID) {
-      self.init(recipe: .init(id: recipeID, creationDate: Date(), lastEditDate: Date()))
+    // Just make the caller  make them
+    init(recipeID: Recipe.ID, recipeName: String) {
+      self.init(recipe: .init(id: recipeID, name: recipeName, creationDate: Date(), lastEditDate: Date()))
     }
     
     init(recipe: Recipe) {
@@ -140,7 +141,6 @@ struct RecipeReducer: Reducer {
           return .none
           
         case .binding(\.$navigationTitle):
-          if state.navigationTitle.isEmpty { state.navigationTitle = "Untitled Recipe" }
           state.recipe.name = state.navigationTitle
           return .none
           

@@ -15,7 +15,7 @@ struct RootFoldersReducer: Reducer {
     
     init(userFolders: IdentifiedArrayOf<Folder> = []) {
       self.userFolders = userFolders
-      self.userFoldersSection = .init(title: "User", gridItems: userFolders.map(GridItemReducer.State.init))
+      self.userFoldersSection = .init(title: "Folders", gridItems: userFolders.map(GridItemReducer.State.init))
       self.search = .init(query: "")
       self.isHidingImages = false
       self.isEditing = false
@@ -28,7 +28,13 @@ struct RootFoldersReducer: Reducer {
     
     var navigationTitle: String {
       let value = isEditing && userFoldersSection.selection.count > 0
-      return value ? "\(userFoldersSection.selection.count) Selected": "Folders"
+      return value ? "\(userFoldersSection.selection.count) Selected": "Home"
+    }
+    
+    var bottomToolbarString: String {
+      let fCount = self.userFoldersSection.gridItems.count
+      let fString = fCount == 1 ? "Folder" : "Folders"
+      return "\(fCount) \(fString)"
     }
   }
   
@@ -39,7 +45,6 @@ struct RootFoldersReducer: Reducer {
     case selectFoldersButtonTapped
     case doneButtonTapped
     case selectAllButtonTapped
-    case hideImagesButtonTapped
     case deleteSelectedButtonTapped
     case newFolderButtonTapped
     case acceptFolderNameButtonTapped(String)
@@ -49,8 +54,8 @@ struct RootFoldersReducer: Reducer {
     
     case delegate(DelegateAction)
     enum DelegateAction: Equatable {
-      case navigateToFolder(Folder.ID)
-      case navigateToRecipe(Recipe.ID)
+      case navigateToFolder(Folder.ID, String)
+      case navigateToRecipe(Recipe.ID, String)
     }
     
     case destination(PresentationAction<DestinationReducer.Action>)
@@ -87,7 +92,7 @@ struct RootFoldersReducer: Reducer {
           }
           
         case let .fetchFoldersSuccess(folders):
-          state.userFolders.append(contentsOf: folders)
+          state.userFolders = .init(uniqueElements: folders)
           state.userFoldersSection.gridItems = folders.map({ .init($0) })
           return .none
           
@@ -113,10 +118,6 @@ struct RootFoldersReducer: Reducer {
           }
           return .none
           
-        case .hideImagesButtonTapped:
-          state.isHidingImages.toggle()
-          return .none
-          
         case .deleteSelectedButtonTapped:
           state.destination = .alert(.delete)
           return .none
@@ -140,14 +141,15 @@ struct RootFoldersReducer: Reducer {
             try! await self.database.createFolder(newFolder)
             // We sleep briefly here to see the folder get inserted into the UI
             try await clock.sleep(for: .milliseconds(500))
-            await send(.delegate(.navigateToFolder(newFolder.id)), animation: .default)
+            await send(.delegate(.navigateToFolder(newFolder.id, newFolder.name)), animation: .default)
           }
           
           
         case let .userFoldersSection(.delegate(action)):
           switch action {
           case let .gridItemTapped(id):
-            return .send(.delegate(.navigateToFolder(id)))
+            let name = state.userFoldersSection.gridItems[id: id]?.name ?? ""
+            return .send(.delegate(.navigateToFolder(id, name)))
           }
           
         case .userFoldersSection:
@@ -163,8 +165,8 @@ struct RootFoldersReducer: Reducer {
           }
           return self.persistFolders(oldFolders: oldFolders, newFolders: state.userFolders)
           
-        case let .search(.delegate(.searchResultTapped(id))):
-          return .send(.delegate(.navigateToRecipe(id)))
+        case let .search(.delegate(.searchResultTapped(id, name))):
+          return .send(.delegate(.navigateToRecipe(id, name)))
           
         case .binding:
           return .none
@@ -288,10 +290,11 @@ private extension GridItemReducer.State where ID == Folder.ID {
         .init(GridItemReducer.ContextMenuActions.allCases)
       }
     }()
+    let count = folder.recipes.count
     self.init(
       id: folder.id,
       name: folder.name,
-      description: "\(folder.recipes.count) Recipes",
+      description: "\(count) \(count == 1 ? "Recipe" : "Recipes")",
       imageData: folder.imageData,
       enabledContextMenuActions: actions
     )
