@@ -43,11 +43,11 @@ actor SDClient: ModelActor {
   
   // Adds entities to db only if db did not init yet or is empty.
   func initializeDatabase() async {
-      Log4swift[Self.self].info("initializeDatabase")
+    Log4swift[Self.self].info("initializeDatabase")
     
     guard !self.didInitStore
     else {
-        Log4swift[Self.self].info("initializeDatabase already init ...")
+      Log4swift[Self.self].info("initializeDatabase already init ...")
       return
     }
     
@@ -63,7 +63,7 @@ actor SDClient: ModelActor {
       return fCount == 0 && rCount == 0
     }(), dbIsEmpty
     else {
-        Log4swift[Self.self].info("initializeDatabase not empty so do not inject mock data ...")
+      Log4swift[Self.self].info("initializeDatabase not empty so do not inject mock data ...")
       self.didInitStore = true
       return
     }
@@ -73,15 +73,15 @@ actor SDClient: ModelActor {
         try self.createFolder(folder)
       }
     } catch {
-        Log4swift[Self.self].info("initializeDatabase failed")
+      Log4swift[Self.self].info("initializeDatabase failed")
     }
     
-      Log4swift[Self.self].info("initializeDatabase succeeded")
+    Log4swift[Self.self].info("initializeDatabase succeeded")
     self.didInitStore = true
   }
-
+  
   func retrieveRootFolders() -> [Folder] {
-      Log4swift[Self.self].info("retrieveRootFolders")
+    Log4swift[Self.self].info("retrieveRootFolders")
     let predicate = #Predicate<SDFolder> { $0.parentFolder == nil }
     let fetchDescriptor = FetchDescriptor<SDFolder>(predicate: predicate)
     let sdFolders = (try? self.modelContext.fetch(fetchDescriptor)) ?? []
@@ -167,10 +167,10 @@ actor SDClient: ModelActor {
   
   // MARK: - Recipe CRUD
   func createRecipe(_ recipe: Recipe) throws {
-      let start = Date()
-      defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
-
-      Log4swift[Self.self].info("createRecipe")
+    let start = Date()
+    defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+    
+    Log4swift[Self.self].info("createRecipe")
     if self._containsDuplicateIDs(recipe: recipe) {
       throw SDError.duplicate // TODO: Need to check all child persistent model IDS...
     }
@@ -188,7 +188,7 @@ actor SDClient: ModelActor {
   }
   
   func retrieveRecipe(_ recipeID: Recipe.ID) -> Recipe? {
-      Log4swift[Self.self].info("retrieveRecipe")
+    Log4swift[Self.self].info("retrieveRecipe")
     print(self.retrieveRecipes().map(\.id.rawValue))
     guard let sdRecipe = self._retrieveSDRecipe(recipeID)
     else { return nil }
@@ -196,16 +196,16 @@ actor SDClient: ModelActor {
   }
   
   func retrieveRecipes(_ fetchDescriptor: FetchDescriptor<SDRecipe> = .init()) -> [Recipe] {
-      let start = Date()
-      defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
-
-      Log4swift[Self.self].info("retrieveRecipes")
+    let start = Date()
+    defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+    
+    Log4swift[Self.self].info("retrieveRecipes")
     let sdRecipes = (try? self.modelContext.fetch(fetchDescriptor)) ?? []
     return sdRecipes.map(Recipe.init)
   }
   
   func updateRecipe(_ recipe: Recipe) throws {
-      Log4swift[Self.self].info("updateRecipe")
+    Log4swift[Self.self].info("updateRecipe")
     guard let original = self._retrieveSDRecipe(recipe.id) else { throw SDError.notFound }
     let originalRecipe = Recipe(original)
     try self.deleteRecipe(recipe.id)
@@ -220,7 +220,7 @@ actor SDClient: ModelActor {
   }
   
   func deleteRecipe(_ recipeID: Recipe.ID) throws {
-      Log4swift[Self.self].info("deleteRecipe")
+    Log4swift[Self.self].info("deleteRecipe")
     guard let sdRecipe = self._retrieveSDRecipe(recipeID)
     else { throw SDError.notFound }
     sdRecipe.aboutSections.forEach { sdas in
@@ -325,17 +325,17 @@ extension SDClient {
 // MARK: - Private retrieve methods for fetching PersistentModels by their ID
 extension SDClient {
   private func _retrieveSDFolder(_ folderID: Folder.ID) -> SDFolder? {
-      let start = Date()
-      defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
-
-      Log4swift[Self.self].info("_retrieveSDFolder")
+    let start = Date()
+    defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+    
+    Log4swift[Self.self].info("_retrieveSDFolder")
     let predicate = #Predicate<SDFolder> { $0.id == folderID.rawValue }
     let fetchDescriptor = FetchDescriptor<SDFolder>(predicate: predicate)
     return try? self.modelContext.fetch(fetchDescriptor).first
   }
   
   private func _retrieveSDRecipe(_ recipeID: Recipe.ID) -> SDRecipe? {
-      Log4swift[Self.self].info("_retrieveSDRecipe")
+    Log4swift[Self.self].info("_retrieveSDRecipe")
     let predicate = #Predicate<SDRecipe> { $0.id == recipeID.rawValue }
     let fetchDescriptor = FetchDescriptor<SDRecipe>(predicate: predicate)
     return try? self.modelContext.fetch(fetchDescriptor).first
@@ -375,45 +375,45 @@ extension SDClient {
 }
 
 internal struct MockDataGenerator {
-    // mock files in git
-    static let jsonFiles = URL(filePath: #file)
-        .deletingLastPathComponent()
-        .deletingLastPathComponent()
-        .deletingLastPathComponent()
-        .deletingLastPathComponent()
-        .appendingPathComponent("JSON")
-
-    // default.store file in your git
-    // ../iOS-ChefTime/ChefTime/Dependencies/Database/default.store
-    // a convenience for us to embedd a mock database
-    static let gitStoreFile = URL(filePath: #file)
-        .deletingLastPathComponent()
-        .appendingPathComponent("default.store")
-
-    // default.store file in your app's sandbox
-    // ie: ../Library/Application\ Support/default.store
-    // this is where core data goes
-    // it will be created automagically when you SDClient.init()
-    static let storeFile: URL = {
-        if let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .allDomainsMask).first {
-            print("storeFile: \(folder.path)")
-            return folder.appendingPathComponent("default.store")
-        }
-        return URL.temporaryDirectory
-    }()
-
-    // default.store file in your app's installation
-    // ie: ../Containers/Bundle/Application/7C020228-AA6D-419B-88BE-AD7F7F48BA8F/ChefTime.app/default.store
-    // a convenience for us to embedd a mock database
-    static let embeddedFile: URL = {
-        // get smarter on replacing this, since right now we are replacing it
-        if let embedded = Bundle.main.url(forResource: "default", withExtension: "store") {
-            return embedded
-        }
-        return URL.temporaryDirectory
-    }()
-
-
+  // mock files in git
+  static let jsonFiles = URL(filePath: #file)
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+    .appendingPathComponent("JSON")
+  
+  // default.store file in your git
+  // ../iOS-ChefTime/ChefTime/Dependencies/Database/default.store
+  // a convenience for us to embedd a mock database
+  static let gitStoreFile = URL(filePath: #file)
+    .deletingLastPathComponent()
+    .appendingPathComponent("default.store")
+  
+  // default.store file in your app's sandbox
+  // ie: ../Library/Application\ Support/default.store
+  // this is where core data goes
+  // it will be created automagically when you SDClient.init()
+  static let storeFile: URL = {
+    if let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .allDomainsMask).first {
+      print("storeFile: \(folder.path)")
+      return folder.appendingPathComponent("default.store")
+    }
+    return URL.temporaryDirectory
+  }()
+  
+  // default.store file in your app's installation
+  // ie: ../Containers/Bundle/Application/7C020228-AA6D-419B-88BE-AD7F7F48BA8F/ChefTime.app/default.store
+  // a convenience for us to embedd a mock database
+  static let embeddedFile: URL = {
+    // get smarter on replacing this, since right now we are replacing it
+    if let embedded = Bundle.main.url(forResource: "default", withExtension: "store") {
+      return embedded
+    }
+    return URL.temporaryDirectory
+  }()
+  
+  
   // Fetches folder models from local JSON files.
   fileprivate func generateMockFolders() async -> [Folder] {
     let fetchFolders: (URL) async -> [Folder] = {
@@ -433,12 +433,12 @@ internal struct MockDataGenerator {
       return folders
     }
     
-//    let jsonDir = Self.jsonFiles
+    //    let jsonDir = Self.jsonFiles
     let jsonDir = Bundle.main.url(forResource: "JSON", withExtension: nil)!
-//    let f1 = await fetchFolders(jsonDir.appendingPathComponent("system"))
+    //    let f1 = await fetchFolders(jsonDir.appendingPathComponent("system"))
     let f2 = await fetchFolders(jsonDir.appendingPathComponent("user"))
     return f2
-//    return f1 + f2
+    //    return f1 + f2
   }
   
   // TODO: Migrate your old data to the new data, including new dates!
@@ -561,8 +561,163 @@ internal struct MockDataGenerator {
 }
 
 extension Date {
-    var elapsedTime: String {
-        let ms = -self.timeIntervalSinceNow * 1000.0
-        return String(format: "%.3f ms", ms)
-    }
+  var elapsedTime: String {
+    let ms = -self.timeIntervalSinceNow * 1000.0
+    return String(format: "%.3f ms", ms)
+  }
 }
+
+//import SwiftUI
+//struct EncodeRecipesView: View {
+//  var body: some View {
+//    Text("EncodeRecipesView")
+//      .task {
+//        self.encodeRecipes()
+//      }
+//  }
+//  
+//  func encodeRecipes() {
+//    
+//    let rooturl = Bundle.main.url(forResource: "ProductionRecipeImages/smotheredchicken", withExtension: nil)!
+//    
+//    let recipe = Recipe(
+//      id: .init(),
+//      parentFolderID: nil,
+//      name: "Smothered Chicken ",
+//      imageData: [
+//        .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_0.jpeg")))!)!,
+//      ],
+//      aboutSections: [
+//        .init(id: .init(), name: """
+//This is essentially chicken braised in a rich onion gravy, with rice and okra on the side. One of my favorite go to weekday dishes.
+//This recipe I like to eyeball everything,
+//""")
+//      ],
+//      ingredientSections: [
+//        .init(id: .init(), name: "", ingredients: [
+//          .init(id: .init(), name: "4 tbsps Vegetable Oil"),
+//          .init(id: .init(), name: "3 Chicken Quarters"),
+//          .init(id: .init(), name: "Kosher Salt (to taste)"),
+//          .init(id: .init(), name: "3 Medium Yellow Onions"),
+//          .init(id: .init(), name: "2 tbsps Flour"),
+//          .init(id: .init(), name: "Cajun or Creole Seasoning (to taste)"),
+//          .init(id: .init(), name: "Crystal Hot Sauce (6 big dashes)"),
+//          .init(id: .init(), name: "Worcestershire Sauce (6 big dashes)"),
+//          .init(id: .init(), name: "2 cups Chicken Stock"),
+//          .init(id: .init(), name: "1/2 cup Heavy Cream"),
+//          .init(id: .init(), name: "Parsley (garnish, optional)")
+//        ])
+//      ],
+//      stepSections: [
+//        .init(id: .init(), name: "", steps: [
+//          .init(
+//            id: .init(),
+//            description: """
+//Gather all your ingredients. Make sure you aren't missing anything!
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_1.jpeg")))!)!,
+//            ]
+//          ),
+//          .init(
+//            id: .init(),
+//            description: """
+//Begin by padding the chicken dry and salting both sides. Put aside and begin on the onions.
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_2.jpeg")))!)!,
+//            ]
+//          ),
+//          .init(
+//            id: .init(),
+//            description: """
+//To cut your onions, chop off the top, followed by a vertical slice straight through the middle of the bulb root. This seems to prevent eye watering and makes it hold itself when chopping.
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_3.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_4.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_5.jpeg")))!)!,
+//
+//            ]
+//          ),
+//          .init(
+//            id: .init(),
+//            description: """
+//Now, cut the onion into 1" strips/cresents. Repeat until all your onions are done. Then start the chicken
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_6.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_8.jpeg")))!)!,
+//            ]
+//          ),
+//          .init(
+//            id: .init(),
+//            description: """
+//For the chicken, get a pan quite hot over high heat. Once you add the oil and a wiff of smoke appears, add all the chicken allow the skin
+//to cripsen. Until the skin has been crispened, do not flip the meat. Once crisp, flip the meat and caramelize.
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_9.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_10.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_11.jpeg")))!)!,
+//            ]
+//          ),
+//          .init(
+//            id: .init(),
+//            description: """
+//Once the chicken has been seared, remove, deglaze the pan and pour the juice over the chicken and set them aside. Reheat the pan and get extremely hot.
+//Once the oil is really smoking, add the onions and stir them just until they are covered in oil. Then stop stirring and allow the onions to saute
+//beautifully on one side. Stir once this has happened and repeat the process until the onions are nicely sauteed. Season with the creole seasoning while
+//doing this.
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_12.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_13.jpeg")))!)!,
+//            ]
+//          ),
+//          .init(
+//            id: .init(),
+//            description: """
+//Once the onions have sauteed, add the flour and cook for 1-2 minutes. Add the hot sauce and worcestershire and reduce another minute. Slowly add the stock, stirring
+//rapidly to prevent lummps, then finally add the cream.
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_14.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_15.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_16.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_17.jpeg")))!)!,
+//            ]
+//          ),
+//          .init(
+//            id: .init(),
+//            description: """
+//Now that the gravy is formed, add the chicken but do not bury it. You want to try to keep the skin exposed to stay somewhat crispy! Then bake at 350F
+//for about 45 minutes or until the chicken is 190F or very tender.
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_18.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_20.jpeg")))!)!,
+//            ]
+//          ),
+//          .init(
+//            id: .init(),
+//            description: """
+//Rest the cooked chicken for an hour, then serve with rice and okra!
+//""",
+//            imageData: [
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_22.jpeg")))!)!,
+//              .init(id: .init(), data: (try? Data(contentsOf: rooturl.appendingPathComponent("smotheredchicken_21.jpeg")))!)!,
+//            ]
+//          ),
+//        ])
+//      ],
+//      creationDate: .init(),
+//      lastEditDate: .init()
+//    )
+//    
+//    let data = try! JSONEncoder().encode(recipe)
+//    let printURL = URL.desktopDirectory.absoluteURL
+//    print(printURL)
+//    try! data.write(to: printURL)
+//  }
+//}
