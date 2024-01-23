@@ -426,7 +426,8 @@ internal struct MockDataGenerator {
       
       var folders = [Folder]()
       for url in contents {
-        guard let folder = await fetchFolder(at: url)
+        guard let folder = await fetchFolder(at: url),
+              folder.name.lowercased() == "classics"
         else { continue }
         folders.append(folder)
       }
