@@ -1,6 +1,22 @@
 import SwiftUI
 import ComposableArchitecture
 
+// The ONLY way, to make this shit work is as follows:
+/// 1. Every single TextField, will convert into Text that looks like a TextField.
+///   - if empty, foregroundStyle should be secondary else primary
+///   - align to leading
+/// 2. Every single section, if u tap the description, drill down into section view focused on that element, title, same thing
+/// - destination reducer refactoring
+/// - when back button tapped, boom
+/// 3. ImageSlider -- somehow get around the binding because it destroys everything like insanity
+/// 4. Fix some weird accent colors on the alerts
+/// 5. Fix mock data smothered chicken top picture and about section
+/// 6. Fix mock data launch to work only once (very first launch, or maybe just leave it)
+/// 7. Dry run empty elements? Eh
+/// 8. Ask photos persmissions? Eh
+/// 9. Get proper version on app store submission
+/// 10. AppStore submitted
+/// 11. Fix resume and portfolio website
 struct AboutSection: View {
   let store: StoreOf<AboutSectionReducer>
   @FocusState private var focusedField: AboutSectionReducer.FocusField?
@@ -8,7 +24,14 @@ struct AboutSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        TextField("...", text: viewStore.$aboutSection.description, axis: .vertical)
+        TextField(
+          "...",
+          text: viewStore.binding(
+            get: \.aboutSection.description,
+            send: { .aboutSectionDescriptionEdited($0) }
+          ),
+          axis: .vertical
+        )
           .focused($focusedField, equals: .description)
           .accentColor(.accentColor)
           .autocapitalization(.none)
@@ -102,7 +125,14 @@ struct AboutSectionNonGrouped: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      TextField("...", text: viewStore.$aboutSection.description, axis: .vertical)
+      TextField(
+        "...",
+        text: viewStore.binding(
+          get: \.aboutSection.description,
+          send: { .aboutSectionDescriptionEdited($0) }
+        ),
+        axis: .vertical
+      )
         .focused($focusedField, equals: .description)
         .accentColor(.accentColor)
         .autocapitalization(.none)

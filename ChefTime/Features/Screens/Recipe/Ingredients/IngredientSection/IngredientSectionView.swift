@@ -13,7 +13,7 @@ struct IngredientSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        LazyVStack {
+//        LazyVStack {
           ForEachStore(store.scope(state: \.ingredients, action: IngredientSectionReducer.Action.ingredients)) { childStore in
             let id = ViewStore(childStore, observe: \.id).state
             IngredientView(store: childStore)
@@ -35,7 +35,7 @@ struct IngredientSection: View {
               Divider()
             }
           }
-        }
+//        }
       } label: {
         TextField(
           "Untitled Ingredient Section",

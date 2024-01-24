@@ -26,6 +26,7 @@ struct IngredientReducer: Reducer {
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case ingredientNameEdited(String)
+    case ingredientNameSet(String)
     case ingredientMeasureEdited(String)
     case isCompleteButtonToggled
     case keyboardDoneButtonTapped
@@ -48,6 +49,7 @@ struct IngredientReducer: Reducer {
   
   @Dependency(\.continuousClock) var clock
   
+  private enum IngredientNameSetID: Hashable { case timer }
   private enum IngredientNameEditedID: Hashable { case timer }
   
   /// The textfields have the following mechanism:
@@ -85,6 +87,14 @@ struct IngredientReducer: Reducer {
         return .none
         
       case let .ingredientNameEdited(newName):
+        return .run { send in
+          try await self.clock.sleep(for: .milliseconds(250))
+          await send(.ingredientNameSet(newName))
+        }
+        .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
+        
+        
+      case let .ingredientNameSet(newName):
         if state.ingredient.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none
@@ -106,7 +116,7 @@ struct IngredientReducer: Reducer {
             /// https://github.com/pointfreeco/swift-composable-architecture/discussions/800
             await send(.delegate(.insertIngredient(.above)), animation: .default)
           }
-          .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
+          .cancellable(id: IngredientNameSetID.timer, cancelInFlight: true)
           
         case .trailing:
           state.focusedField = nil
@@ -120,8 +130,9 @@ struct IngredientReducer: Reducer {
             /// https://github.com/pointfreeco/swift-composable-architecture/discussions/800
             await send(.delegate(.insertIngredient(.below)), animation: .default)
           }
-          .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
+          .cancellable(id: IngredientNameSetID.timer, cancelInFlight: true)
         }
+        return .none
         
       case let .ingredientMeasureEdited(newMeasure):
         state.ingredient.measure = newMeasure
@@ -146,7 +157,7 @@ struct IngredientReducer: Reducer {
             /// maybe the .synchronize doesn't react properly. Regardless this very short sleep fixes the problem.
             await send(.delegate(.insertIngredient(.below)), animation: .default)
           }
-          .cancellable(id: IngredientNameEditedID.timer, cancelInFlight: true)
+          .cancellable(id: IngredientNameSetID.timer, cancelInFlight: true)
         default:
           return .none
         }

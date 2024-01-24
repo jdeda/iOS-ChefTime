@@ -25,6 +25,7 @@ struct IngredientSectionReducer: Reducer  {
     case ingredients(IngredientReducer.State.ID, IngredientReducer.Action)
     case ingredientTappedToDelete(IngredientReducer.State.ID)
     case ingredientSectionNameEdited(String)
+    case ingredientSectionNameSet(String)
     case ingredientSectionNameDoneButtonTapped
     case addIngredient
     case rowTapped(IngredientReducer.State.ID)
@@ -47,6 +48,7 @@ struct IngredientSectionReducer: Reducer  {
   @Dependency(\.continuousClock) var clock
   
   private enum AddIngredientID: Hashable { case timer }
+  private enum EditNameNameID: Hashable { case timer }
   
   var body: some Reducer<IngredientSectionReducer.State, IngredientSectionReducer.Action> {
     BindingReducer()
@@ -80,7 +82,15 @@ struct IngredientSectionReducer: Reducer  {
         state.ingredients.remove(id: id)
         return .none
         
+        
       case let .ingredientSectionNameEdited(newName):
+        return .run { send in
+          try await self.clock.sleep(for: .milliseconds(250))
+          await send(.ingredientSectionNameSet(newName))
+        }
+        .cancellable(id: EditNameNameID.timer, cancelInFlight: true)
+        
+      case let .ingredientSectionNameSet(newName):
         if state.ingredientSection.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
           return .none

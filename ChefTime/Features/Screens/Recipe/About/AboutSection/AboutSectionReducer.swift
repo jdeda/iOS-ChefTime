@@ -16,6 +16,9 @@ struct AboutSectionReducer: Reducer {
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case aboutSectionNameEdited(String)
+    case aboutSectionNameSet(String)
+    case aboutSectionDescriptionEdited(String)
+    case aboutSectionDescriptionSet(String)
     case keyboardDoneButtonTapped
 
     case delegate(DelegateAction)
@@ -31,6 +34,11 @@ struct AboutSectionReducer: Reducer {
     case name
     case description
   }
+  
+  @Dependency(\.continuousClock) var clock
+
+  enum NameEditedID: Hashable { case debounce }
+  enum DescriptionEditedID: Hashable { case debounce }
     
   var body: some ReducerOf<Self> {
     BindingReducer()
@@ -38,6 +46,13 @@ struct AboutSectionReducer: Reducer {
       switch action {
         
       case let .aboutSectionNameEdited(newName):
+        return .run { send in
+          try await self.clock.sleep(for: .milliseconds(250))
+          await send(.aboutSectionNameSet(newName))
+        }
+        .cancellable(id: NameEditedID.debounce, cancelInFlight: true)
+        
+      case let .aboutSectionNameSet(newName):
         let oldName = state.aboutSection.name
         if oldName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -61,6 +76,17 @@ struct AboutSectionReducer: Reducer {
             return .none
           }
         }
+        
+      case let .aboutSectionDescriptionEdited(newDescription):
+        return .run { send in
+          try await self.clock.sleep(for: .milliseconds(250))
+          await send(.aboutSectionDescriptionSet(newDescription))
+        }
+        .cancellable(id: DescriptionEditedID.debounce, cancelInFlight: true)
+
+      case let .aboutSectionDescriptionSet(newDescription):
+        state.aboutSection.description = newDescription
+        return .none
         
       case .keyboardDoneButtonTapped:
         state.focusedField = nil

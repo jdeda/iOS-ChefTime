@@ -27,7 +27,14 @@ struct StepView: View {
           .fontWeight(.medium)
           .padding(.bottom, 1)
           
-          TextField("...", text: viewStore.$step.description, axis: .vertical)
+          TextField(
+            "...",
+            text: viewStore.binding(
+              get: \.step.description,
+              send: { .stepDescriptionEdited($0) }
+            ),
+            axis: .vertical
+          )
             .focused($focusedField, equals: .description)
             .toolbar {
               if viewStore.focusedField == .description {
