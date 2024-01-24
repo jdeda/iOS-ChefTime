@@ -3,4 +3,86 @@
    uuid = "AD1F4572-D5E1-40FA-B5A9-E6595D7996CA"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "92F41D53-4CFA-4032-8E8C-3897022E8BCA"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Non-Screens/Photos/PhotosView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "18"
+            endingLineNumber = "18"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BFAD681C-6C7B-4BA0-9122-E29810F357E8"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Non-Screens/Photos/PhotosView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "22"
+            endingLineNumber = "22"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "586CFA55-3B9A-4657-B810-80D21B7F3371"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChefTime/Features/Non-Screens/Photos/PhotosView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "26"
+            endingLineNumber = "26"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "586CFA55-3B9A-4657-B810-80D21B7F3371 - 7b57b8ee0fc3ea5c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #3 (ComposableArchitecture.ViewStore&lt;ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action&gt;) -&gt; &lt;&lt;opaque return type of SwiftUI.View.overlay&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.View&gt;(alignment: SwiftUI.Alignment, content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0 in ChefTime.PhotosView.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Development/Swift/Apps_iOS/iOS-ChefTime/ChefTime/Features/Non-Screens/Photos/PhotosView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "1156">
+               </Location>
+               <Location
+                  uuid = "586CFA55-3B9A-4657-B810-80D21B7F3371 - 991b14a7c0912f60"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.alert&lt;&#x3c4;_0_0&gt;(store: ComposableArchitecture.Store&lt;ComposableArchitecture.PresentationState&lt;SwiftUINavigationCore.AlertState&lt;&#x3c4;_1_0&gt;&gt;, ComposableArchitecture.PresentationAction&lt;&#x3c4;_1_0&gt;&gt;) -&gt; some&gt;&gt;.0 in closure #3 (ComposableArchitecture.ViewStore&lt;ChefTime.PhotosReducer.State, ChefTime.PhotosReducer.Action&gt;) -&gt; &lt;&lt;opaque return type of SwiftUI.View.overlay&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.View&gt;(alignment: SwiftUI.Alignment, content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0 in ChefTime.PhotosView.body.getter : some"
+                  moduleName = "ChefTime"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jessededa/Development/Swift/Apps_iOS/iOS-ChefTime/ChefTime/Features/Non-Screens/Photos/PhotosView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "1084">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>
