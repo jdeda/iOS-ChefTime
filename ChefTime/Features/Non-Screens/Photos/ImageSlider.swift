@@ -10,7 +10,7 @@ struct ImageSliderView: View {
   
   var body: some View {
     TabView(selection: $selection) {
-      ForEach(Array(zip(imageDatas.indices, imageDatas)), id: \.0) { index, imageData in
+      ForEach(imageDatas) { imageData  in
         imageData.image
           .square()
           .clipShape((RoundedRectangle(cornerRadius: 15)))

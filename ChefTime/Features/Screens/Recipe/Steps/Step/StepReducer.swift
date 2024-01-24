@@ -26,9 +26,10 @@ struct StepReducer: Reducer {
     case keyboardDoneButtonTapped
     case photoPickerButtonTapped
     case photoImagesDidChange
+    case stepDescriptionEdited(String)
+    case stepDescriptionSet(String)
 
     case delegate(DelegateAction)
-    
     enum DelegateAction: Equatable {
       case insertButtonTapped(AboveBelow)
       case deleteButtonTapped
@@ -41,6 +42,9 @@ struct StepReducer: Reducer {
   
   @Dependency(\.photos) var photosClient
   @Dependency(\.uuid) var uuid
+  @Dependency(\.continuousClock) var clock
+
+  enum DescriptionEditedID: Hashable { case debounce }
   
   var body: some ReducerOf<Self> {
       BindingReducer()
@@ -60,6 +64,17 @@ struct StepReducer: Reducer {
           
         case .photoImagesDidChange:
           state.step.imageData = state.photos.photos
+          return .none
+          
+        case let .stepDescriptionEdited(newDescription):
+          return .run { send in
+            try await self.clock.sleep(for: .milliseconds(250))
+            await send(.stepDescriptionSet(newDescription))
+          }
+          
+          
+        case let .stepDescriptionSet(newDescription):
+          state.step.description = newDescription
           return .none
         }
       }

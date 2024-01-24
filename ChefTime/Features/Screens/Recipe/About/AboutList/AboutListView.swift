@@ -8,7 +8,7 @@ struct AboutListView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        LazyVStack {
+//        LazyVStack {
           ForEachStore(store.scope(state: \.aboutSections, action: AboutListReducer.Action.aboutSections)) { childStore in
             if viewStore.aboutSections.count == 1 {
               AboutSectionNonGrouped(store: childStore)
@@ -25,7 +25,7 @@ struct AboutListView: View {
             Divider()
               .padding([.vertical], 5)
           }
-        }
+//        }
       }
       label : {
         Text("About")

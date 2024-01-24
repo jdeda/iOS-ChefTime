@@ -9,7 +9,7 @@ struct StepListView: View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-          LazyVStack {
+//          LazyVStack {
             ForEachStore(store.scope(state: \.stepSections, action: StepListReducer.Action.stepSections)) { childStore in
               if viewStore.stepSections.count == 1 {
                 StepSectionNonGrouped(store: childStore)
@@ -26,7 +26,7 @@ struct StepListView: View {
               Divider()
                 .padding(.bottom, 5)
             }
-          }
+//          }
         }
         label : {
           Text("Steps")

@@ -426,8 +426,10 @@ internal struct MockDataGenerator {
       
       var folders = [Folder]()
       for url in contents {
-        guard let folder = await fetchFolder(at: url)
+        guard var folder = await fetchFolder(at: url),
+              folder.name.lowercased() == "classics"
         else { continue }
+        folder.imageData = folder.recipes.first(where: { $0.name.lowercased() == "roasted potatoes"})!.imageData.first!
         folders.append(folder)
       }
       return folders

@@ -9,7 +9,7 @@ struct IngredientListView: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        LazyVStack {
+//        LazyVStack {
           ForEachStore(store.scope(state: \.ingredientSections, action: IngredientsListReducer.Action.ingredientSections)) { childStore in
             if viewStore.ingredientSections.count == 1 {
               IngredientSectionNonGrouped(store: childStore)
@@ -24,7 +24,7 @@ struct IngredientListView: View {
             Divider()
               .padding(.bottom, 5)
           }
-        }
+//        }
       }
       label : {
         Text("Ingredients")

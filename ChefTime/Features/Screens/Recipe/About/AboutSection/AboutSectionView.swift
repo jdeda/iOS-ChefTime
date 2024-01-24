@@ -8,7 +8,14 @@ struct AboutSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        TextField("...", text: viewStore.$aboutSection.description, axis: .vertical)
+        TextField(
+          "...",
+          text: viewStore.binding(
+            get: \.aboutSection.description,
+            send: { .aboutSectionDescriptionEdited($0) }
+          ),
+          axis: .vertical
+        )
           .focused($focusedField, equals: .description)
           .accentColor(.accentColor)
           .autocapitalization(.none)
@@ -102,7 +109,14 @@ struct AboutSectionNonGrouped: View {
   
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
-      TextField("...", text: viewStore.$aboutSection.description, axis: .vertical)
+      TextField(
+        "...",
+        text: viewStore.binding(
+          get: \.aboutSection.description,
+          send: { .aboutSectionDescriptionEdited($0) }
+        ),
+        axis: .vertical
+      )
         .focused($focusedField, equals: .description)
         .accentColor(.accentColor)
         .autocapitalization(.none)

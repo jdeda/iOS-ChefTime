@@ -12,7 +12,7 @@ struct StepSection: View {
   var body: some View {
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
-        LazyVStack {
+//        LazyVStack {
           ForEachStore(store.scope(state: \.steps, action: StepSectionReducer.Action.steps)) { childStore in
             // TODO: Move this into reducer and test.
             let id = ViewStore(childStore, observe: \.id).state
@@ -44,7 +44,7 @@ struct StepSection: View {
               Divider()
             }
           }
-        }
+//        }
       } label: {
         TextField(
           "Untitled About Section",

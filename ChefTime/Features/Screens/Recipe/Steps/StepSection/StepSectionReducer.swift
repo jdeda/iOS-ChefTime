@@ -24,6 +24,7 @@ struct StepSectionReducer: Reducer {
     case stepDeleteButtonTapped(StepReducer.State.ID)
     case binding(BindingAction<State>)
     case stepSectionNameEdited(String)
+    case stepSectionNameSet(String)
     case addStep
     case keyboardDoneButtonTapped
     case stepSectionUpdate
@@ -45,6 +46,8 @@ struct StepSectionReducer: Reducer {
   
   @Dependency(\.uuid) var uuid
   @Dependency(\.continuousClock) var clock
+  
+  enum NameEditedID: Hashable { case debounce }
   
   var body: some Reducer<StepSectionReducer.State, StepSectionReducer.Action> {
     BindingReducer()
@@ -85,6 +88,13 @@ struct StepSectionReducer: Reducer {
         return .none
         
       case let .stepSectionNameEdited(newName):
+        return .run { send in
+          try await self.clock.sleep(for: .microseconds(10))
+          await send(.stepSectionNameSet(newName))
+        }
+        .cancellable(id: NameEditedID.debounce, cancelInFlight: true)
+        
+      case let .stepSectionNameSet(newName):
         let oldName = state.stepSection.name
         if oldName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
