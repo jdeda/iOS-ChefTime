@@ -4,7 +4,22 @@ import ComposableArchitecture
 struct GridSectionView<ID: Equatable & Hashable>: View {
   let store: StoreOf<GridSectionReducer<ID>>
   let isEditing: Bool
-  private let columns = Array(repeating: GridItem(spacing: 20, alignment: .top), count: 2)
+  private let columns: Array<GridItem>
+  
+
+  init(store: StoreOf<GridSectionReducer<ID>>, isEditing: Bool) {
+    self.store = store
+    self.isEditing = isEditing
+    let columnCount: Int = {
+      switch UIDevice.current.userInterfaceIdiom {
+      case .pad: 3
+      case .phone: 2
+      default: 2
+      }
+    }()
+    self.columns = Array(repeating: GridItem(spacing: 20, alignment: .top), count: columnCount)
+  }
+  
   @Environment(\.isHidingImages) private var isHidingImages
   
   var body: some View {
