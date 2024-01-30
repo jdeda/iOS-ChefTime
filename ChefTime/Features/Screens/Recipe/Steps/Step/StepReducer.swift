@@ -71,6 +71,7 @@ struct StepReducer: Reducer {
             try await self.clock.sleep(for: .milliseconds(250))
             await send(.stepDescriptionSet(newDescription))
           }
+          .cancellable(id: DescriptionEditedID.debounce, cancelInFlight: true)
           
           
         case let .stepDescriptionSet(newDescription):
