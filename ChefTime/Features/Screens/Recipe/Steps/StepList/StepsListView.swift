@@ -6,7 +6,9 @@ struct StepListView: View {
   @FocusState private var focusedField: StepListReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store, observe: { $0 }) { viewStore in
+      let _ = Self._printChanges()
+
+      WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         DisclosureGroup(isExpanded: viewStore.$isExpanded) {
           LazyVStack {

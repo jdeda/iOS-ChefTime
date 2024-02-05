@@ -10,6 +10,8 @@ struct StepSection: View {
   @FocusState private var focusedField: StepSectionReducer.FocusField?
   
   var body: some View {
+      let _ = Self._printChanges()
+
     WithViewStore(store, observe: { $0 }) { viewStore in
       DisclosureGroup(isExpanded: viewStore.$isExpanded) {
         LazyVStack {

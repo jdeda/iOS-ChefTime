@@ -48,6 +48,8 @@ struct RecipeView: View {
   @Environment(\.maxScreenWidth) private var maxScreenWidth
   
   var body: some View {
+      let _ = Self._printChanges()
+
     WithViewStore(store, observe: { $0 }) { viewStore in
       ScrollView {
         // Unfournately, navigation title does not work here

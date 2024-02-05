@@ -1,6 +1,7 @@
 import Tagged
 import Foundation
 import SwiftUI
+import Log4swift
 
 struct SDData: Equatable, Codable, Identifiable {
   let id: UUID
@@ -62,6 +63,9 @@ struct ImageData: Equatable, Codable, Identifiable {
   let image: Image
   
   init?(id: ID, data: Data) {
+      let start = Date()
+      defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+
     guard let uiImage = UIImage(data: data) else { return nil }
     self.image = Image(uiImage: uiImage)
     self.data = data

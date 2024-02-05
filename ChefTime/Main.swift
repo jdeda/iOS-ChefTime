@@ -4,15 +4,15 @@ import XCTestDynamicOverlay
 import Log4swift
 
 @main
-struct ChefTimeApp: App {
+  struct ChefTimeApp: App {
   let store = StoreOf<AppReducer>(
     initialState: AppReducer.State(),
     reducer: AppReducer.init
   )
   
   init() {
-    //    Log4swift.configure(appName: "ChefTime")
-    //    Log4swift[Self.self].info("")
+      Log4swift.configure(appName: "ChefTime")
+      Log4swift[Self.self].info("")
   }
   
   var body: some Scene {

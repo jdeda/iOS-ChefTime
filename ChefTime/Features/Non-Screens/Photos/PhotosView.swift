@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import PhotosUI
+import Log4swift
 
 // TODO: Animation slide lag
 // TODO: Maybe change order of adding a photo to next rather than inplace.
@@ -12,7 +13,10 @@ struct PhotosView: View {
   @Environment(\.maxScreenWidth) var maxScreenWidth
   
   var body: some View {
-    WithViewStore(store, observe: { $0 }) { viewStore in
+      let _ = Self._printChanges()
+      Log4swift[Self.self].info("")
+
+    return WithViewStore(store, observe: { $0 }) { viewStore in
       Rectangle()
         .fill(.clear)
         .aspectRatio(1.0, contentMode: .fit)
@@ -23,12 +27,12 @@ struct PhotosView: View {
                 Rectangle()
                   .fill(.clear)
                   .aspectRatio(1, contentMode: .fit)
-                  .overlay(
-                    Image(systemName: "photo.stack")
-                      .resizable()
-                      .scaledToFill()
-                      .padding()
-                  )
+//                  .overlay(
+//                    Image(systemName: "photo.stack")
+//                      .resizable()
+//                      .scaledToFill()
+//                      .padding()
+//                  )
                   .clipShape(Rectangle())
                 
                   .foregroundColor(Color(uiColor: .systemGray4))
@@ -43,8 +47,6 @@ struct PhotosView: View {
                 imageDatas: viewStore.photos,
                 selection: viewStore.$selection
               )
-              .clipShape(RoundedRectangle(cornerRadius: 15))
-              .opacity(!viewStore.photos.isEmpty ? 1.0 : 0.0 )
             }
             .blur(radius: viewStore.photoEditInFlight ? 5.0 : 0.0)
             .overlay {

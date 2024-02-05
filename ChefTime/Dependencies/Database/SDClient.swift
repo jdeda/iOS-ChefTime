@@ -204,19 +204,25 @@ actor SDClient: ModelActor {
     return sdRecipes.map(Recipe.init)
   }
   
+    /**
+     Extremely slow ...
+     */
   func updateRecipe(_ recipe: Recipe) throws {
-    Log4swift[Self.self].info("updateRecipe")
-    guard let original = self._retrieveSDRecipe(recipe.id) else { throw SDError.notFound }
-    let originalRecipe = Recipe(original)
-    try self.deleteRecipe(recipe.id)
-    do {
-      try self.createRecipe(recipe)
-    }
-    catch {
-      try self.createRecipe(originalRecipe)
-      throw error
-    }
-    try self.modelContext.save()
+      let start = Date()
+      defer { Log4swift[Self.self].info("\(#function) completed in: \(start.elapsedTime)") }
+
+      Log4swift[Self.self].info("updateRecipe")
+//      guard let original = self._retrieveSDRecipe(recipe.id) else { throw SDError.notFound }
+//      let originalRecipe = Recipe(original)
+//      try self.deleteRecipe(recipe.id)
+//      do {
+//          try self.createRecipe(recipe)
+//      }
+//      catch {
+//          try self.createRecipe(originalRecipe)
+//          throw error
+//      }
+//      try self.modelContext.save()
   }
   
   func deleteRecipe(_ recipeID: Recipe.ID) throws {

@@ -9,7 +9,9 @@ struct StepView: View {
   @FocusState private var focusedField: StepReducer.FocusField?
   
   var body: some View {
-    WithViewStore(store, observe: { $0 }) { viewStore in
+      let _ = Self._printChanges()
+
+      WithViewStore(store, observe: { $0 }) { viewStore in
       VStack {
         VStack {
           HStack {
@@ -28,6 +30,8 @@ struct StepView: View {
           .padding(.bottom, 1)
           
           TextField("...", text: viewStore.$step.description, axis: .vertical)
+                .lineLimit(3)
+                .border(.yellow)
             .focused($focusedField, equals: .description)
             .toolbar {
               if viewStore.focusedField == .description {
